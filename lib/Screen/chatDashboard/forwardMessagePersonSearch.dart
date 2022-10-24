@@ -58,7 +58,6 @@ class _ForwardMessagePersonSearchState extends State<ForwardMessagePersonSearch>
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
