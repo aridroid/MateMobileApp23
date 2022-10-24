@@ -1,0 +1,2931 @@
+import 'dart:developer';
+import 'dart:io';
+
+import 'package:mate_app/Model/feedItemsLikeModel.dart';
+import 'package:mate_app/Providers/FeedProvider.dart';
+import 'package:mate_app/Screen/Home/HomeScreen.dart';
+import 'package:mate_app/Screen/Home/Seach/SearchScreen.dart';
+import 'package:mate_app/Screen/Home/TimeLine/feedComments.dart';
+import 'package:mate_app/Screen/Home/TimeLine/feedDetailsFullScreen.dart';
+import 'package:mate_app/Screen/Home/TimeLine/feedDetailsScreen.dart';
+import 'package:mate_app/Screen/Home/TimeLine/feedLikesDetails.dart';
+import 'package:mate_app/Screen/Profile/ProfileScreen.dart';
+import 'package:mate_app/Screen/Profile/UserProfileScreen.dart';
+import 'package:mate_app/Screen/Report/reportPage.dart';
+import 'package:mate_app/Screen/chat1/screens/chat.dart';
+import 'package:mate_app/Utility/Utility.dart';
+import 'package:mate_app/asset/Reactions/reactionsContants.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../Model/FeedItem.dart';
+import '../../Providers/AuthUserProvider.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:mate_app/asset/Colors/MateColors.dart';
+import "package:googleapis_auth/auth_io.dart";
+import 'package:googleapis/calendar/v3.dart' as gCal;
+import 'package:flutter_reaction_button/flutter_reaction_button.dart';
+import 'package:sizer/sizer.dart';
+
+import '../../Screen/Home/TimeLine/feed_search.dart';
+import '../../Services/FeedService.dart';
+import '../../controller/theme_controller.dart';
+import '../../textStyles.dart';
+
+// ignore: must_be_immutable
+
+class HomeRow extends StatefulWidget {
+  String previousPageUserId;
+  String previousPageFeedId;
+  String id;
+  int feedId;
+  String title;
+  String start;
+  String end;
+  String calenderDate;
+  String description;
+  String created;
+  var user;
+  String location;
+  String hyperlinkText;
+  String hyperlink;
+  List media;
+  bool bookMarked;
+  bool isFollowed;
+  IsLiked isLiked;
+  bool liked;
+  List feedType;
+  int indexVal;
+  bool isBookmarkedPage;
+  bool isFeedDetailsPage;
+  List<LikeCount> likeCount;
+  int bookmarkCount;
+  int shareCount;
+  int commentCount;
+  IsShared isShared;
+  bool navigateToDetailsPage;
+  String pageType;
+  bool showUniversityTag;
+
+  HomeRow(
+      {this.previousPageUserId,
+      this.previousPageFeedId,
+      this.id,
+      this.feedId,
+      this.title,
+      this.feedType,
+      this.start,
+      this.end,
+      this.calenderDate,
+      this.description,
+      this.created,
+      this.user,
+      this.location,
+      this.hyperlinkText,
+      this.hyperlink,
+      this.media,
+      this.isLiked,
+      this.liked,
+      this.bookMarked,
+      this.isFollowed=false,
+      this.indexVal,
+      this.likeCount,
+      this.bookmarkCount,
+      this.commentCount,
+      this.shareCount,
+      this.isBookmarkedPage = false,
+      this.isFeedDetailsPage = false,
+      this.navigateToDetailsPage = true,
+        this.showUniversityTag = false,
+        this.pageType,
+      this.isShared});
+
+  @override
+  _HomeRowState createState() =>
+      _HomeRowState(this.id, this.feedId, this.title, this.feedType, this.start, this.end, this.calenderDate, this.description, this.created, this.user, this.location, this.media, this.liked, this.bookMarked,this.showUniversityTag);
+}
+
+class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
+  final String id;
+  final int feedId;
+  final String title;
+  final String startTime;
+  final String endTime;
+  final String calenderDate;
+  final String description;
+  final String created;
+  var user;
+  final String location;
+  final List media;
+  // final List<Media> media;
+  final List feedType;
+
+  // final List<FeedTypes> feedType;
+  bool bookMarked;
+  bool liked;
+  bool showUniversityTag;
+
+  auth.User _currentUser = auth.FirebaseAuth.instance.currentUser;
+
+  _HomeRowState(this.id, this.feedId, this.title, this.feedType, this.startTime, this.endTime, this.calenderDate, this.description, this.created, this.user, this.location, this.media, this.liked, this.bookMarked,this.showUniversityTag);
+
+  ClientId _credentials;
+
+  /// animations
+  AnimationController animationController;
+  Animation degOneTranslationAnimation, degTwoTranslationAnimation, degThreeTranslationAnimation;
+  Animation rotationAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    getStoredValue();
+    feedProvider = Provider.of<FeedProvider>(context, listen: false);
+    ///animations for likes
+    animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 250));
+    degOneTranslationAnimation = Tween(begin: 0.0, end: 1.0).animate(animationController);
+    rotationAnimation = Tween<double>(begin: 180.0, end: 0.0).animate(CurvedAnimation(parent: animationController, curve: Curves.easeOut));
+    super.initState();
+    animationController.addListener(() {
+      setState(() {});
+    });
+
+    if (Platform.isAndroid) {
+      _credentials = new ClientId("237545926078-9biln72s9c5h9vot53l84me39unhhnbf.apps.googleusercontent.com", "");
+    } else if (Platform.isIOS) {
+      _credentials = new ClientId("237545926078-99q5c35ugs0b49spmhf1ru0ghie7opnp.apps.googleusercontent.com", "");
+    }
+  }
+
+  String token;
+  getStoredValue()async{
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    token = preferences.getString("token");
+  }
+  ThemeController themeController = Get.find<ThemeController>();
+
+  List _buildMedia(BuildContext context, List media) {
+    List mda = [];
+
+    for (int i = 0; i < media.length; i++) {
+      mda.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 0.0, left: 14, right: 10, top: 10),
+          child: ConstrainedBox(
+            constraints: new BoxConstraints(
+              minHeight: 50.0,
+              maxHeight: 300.0,
+            ),
+            child: InkWell(
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => FullImageWidget(
+                        imagePath: media[i].url,
+                      ))),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12.0),
+                clipBehavior: Clip.hardEdge,
+                child: Image.network(
+                  media[i].url,
+                  fit: BoxFit.contain,
+                  // height: 300,
+                  // width: 400,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return mda;
+  }
+
+  FeedProvider feedProvider;
+  @override
+  Widget build(BuildContext context) {
+    //print('media is::${media.toString()}');
+
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+        color: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            spreadRadius: 5,
+            blurRadius: 7,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            leading: InkWell(
+              onTap: () {
+                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == user.id) {
+                  Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
+                } else {
+                  Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": user.id, "name": user.name, "photoUrl": user.photoUrl, "firebaseUid": user.firebaseUid});
+                }
+              },
+              child: user.photoUrl.length == 0
+                  ? CircleAvatar(
+                radius: 16,
+                child: Text(
+                  user.name[0],
+                ),
+              )
+                  : CircleAvatar(
+                radius: 16,
+                backgroundImage: NetworkImage(
+                  user.photoUrl,
+                ),
+              ),
+            ),
+            title: InkWell(
+              onTap: () {
+                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == user.id) {
+                  Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
+                } else {
+                  Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": user.id, "name": user.name, "photoUrl": user.photoUrl, "firebaseUid": user.firebaseUid});
+                }
+              },
+              child: Text(
+                user.name,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.1,
+                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                ),
+              ),
+            ),
+            subtitle: Text(
+              "$created",
+              style: TextStyle(
+                fontSize: 12,
+                color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+              ),
+            ),
+            trailing: PopupMenuButton<int>(
+              padding: EdgeInsets.only(bottom: 0, top: 0, left: 0, right: 0),
+              color: themeController.isDarkMode?backgroundColor:Colors.white,
+              icon: Image.asset(
+                "lib/asset/icons/menu@3x.png",
+                height: 18,
+                color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,
+              ),
+              // Icon(
+              //   Icons.more_vert,
+              //   color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,
+              // ),
+              //color: Colors.grey[850],
+              onSelected: (index) async {
+                if (index == 0) {
+                  gCal.Event event = gCal.Event(); // Create object of event
+                  event.summary = title; //Setting summary of object
+                  event.description = description; //Setting summary of object
+
+                  gCal.EventDateTime start = new gCal.EventDateTime(); //Setting start time
+                  // start.dateTime = DateTime.parse("2021-09-20 00:00:00.000").toLocal();
+                  start.dateTime = DateTime.parse(calenderDate).toLocal();
+                  start.timeZone = "GMT+05:00";
+                  event.start = start;
+
+                  gCal.EventDateTime end = new gCal.EventDateTime(); //setting end time
+                  end.timeZone = "GMT+05:00";
+                  // end.dateTime = DateTime.parse("2021-09-21 00:00:00.000").toLocal();
+                  end.dateTime = DateTime.parse(calenderDate).toLocal();
+                  event.end = end;
+
+                  insertEvent(event);
+                } else if (index == 1) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Chat(peerUuid: user.id, currentUserId: _currentUser.uid, peerId: user.firebaseUid, peerAvatar: user.photoUrl, peerName: user.name)));
+                } else if (index == 2) {
+                  _showFollowAlertDialog(feedId: widget.feedId, indexVal: widget.indexVal);
+
+                } else if (index == 3) {
+                  modalSheetToShare();
+                } else if (index == 4) {
+                  _showDeleteAlertDialog(feedId: widget.feedId, indexVal: widget.indexVal);
+                } else if (index == 5) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ReportPage(
+                          moduleId: widget.feedId,
+                          moduleType: "Feed",
+                        ),
+                      ));
+                }
+              },
+              itemBuilder: (context) => [
+            //   PopupMenuItem(
+            //   value: 0,
+            //   height: 40,
+            //   child: Text(
+            //     "Calendar",
+            //     textAlign: TextAlign.start,
+            //     style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+            //   ),
+            // ),
+            PopupMenuItem(
+              value: 1,
+              height: 40,
+              child: Text(
+                "Message",
+                textAlign: TextAlign.start,
+                style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+              ),
+            ),
+            PopupMenuItem(
+              value: 2,
+              height: 40,
+              child: Text(
+                widget.isFollowed?"Unfollow Post":"Follow Post",
+                textAlign: TextAlign.start,
+                style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+              ),
+            ),
+                (!widget.isFeedDetailsPage && widget.user.id != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user.id))
+                    ? PopupMenuItem(
+                  value: 4,
+                  height: 40,
+                  child: Text(
+                    "Delete Post",
+                    textAlign: TextAlign.start,
+                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                  ),
+                )
+                    : PopupMenuItem(
+                  value: 4,
+                  enabled: false,
+                  height: 0,
+                  child: SizedBox(
+                    height: 0,
+                    width: 0,
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 5,
+                  enabled: true,
+                  child: Text(
+                    "Report Post",
+                    textAlign: TextAlign.start,
+                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                  ),
+                ),
+              ]
+          ),
+          ),
+
+          if(showUniversityTag)
+          Container(
+            height: 28.0,
+            //width: 100,
+            margin: EdgeInsets.only(left: 16,top: 6,bottom: 2),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 15,right: 15),
+              child: Center(child: Text(
+                user.university??"Others",
+                style: TextStyle(fontFamily: "Poppins",fontSize: 12,color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),)),
+            ),
+          ),
+
+
+          Container(
+            height: 28.0,
+            margin: EdgeInsets.only(left: 16,top: 6),
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: feedType.length,
+              itemBuilder: (context, index) => Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: InkWell(
+                  onTap: () {
+                    final page = FeedSearch(text: feedType[index].type.name,);
+                    Navigator.push(context,MaterialPageRoute(builder: (context) => page ));
+                    // if(feedType[index].type.status==1){
+                    //   final page = FeedSearch(text: feedType[index].type.name,);
+                    //   Navigator.push(context,MaterialPageRoute(builder: (context) => page ));
+                    //   // Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    //   //     builder: (context) => HomeScreen(
+                    //   //       index: 1,
+                    //   //       feedTypeName: feedType[index].type.name,
+                    //   //     )));
+                    // }
+                  },
+                  child: Container(
+                    height: 28.0,
+                    //width: 92.0,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 15,right: 15),
+                      child: Center(child: Text("${feedType[index].type.name}",style: TextStyle(fontFamily: "Poppins",fontSize: 12,color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),)),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          InkWell(
+            onTap: () async{
+              if (widget.navigateToDetailsPage) {
+               await  Navigator.push(context,
+                    MaterialPageRoute(
+                      builder: (context) => FeedDetailsFullScreen(
+                          isFeedDetailsPage: widget.isFeedDetailsPage,
+                          id: widget.id,
+                          feedId: widget.feedId,
+                          title: widget.title,
+                          feedType: widget.feedType,
+                          start: widget.start,
+                          end: widget.end,
+                          description: widget.description,
+                          created: widget.created,
+                          user: widget.user,
+                          location: widget.location,
+                          hyperlinkText: widget.hyperlinkText,
+                          hyperlink: widget.hyperlink,
+                          media: widget.media,
+                          isLiked: widget.isLiked,
+                          liked: widget.liked,
+                          bookMarked: widget.bookMarked,
+                          likeCount: widget.likeCount,
+                          bookmarkCount: widget.bookmarkCount,
+                          shareCount: widget.shareCount,
+                          commentCount: widget.commentCount,
+                          isShared: widget.isShared,
+                          pageType: widget.pageType,
+                          indexVal: widget.indexVal),
+                    ));
+               setState(() {
+
+               });
+              }
+            },
+            child: Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(left: 16,top: 20),
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 16,top: 10,right: 10),
+            child: Linkify(
+              onOpen: (link) async {
+                print("Clicked ${link.url}!");
+                if (await canLaunch(link.url))
+                  await launch(link.url);
+                else
+                  throw "Could not launch ${link.url}";
+              },
+              text: description,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 0.1,
+                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+              ),
+              textAlign: TextAlign.left,
+              linkStyle: TextStyle(color: MateColors.activeIcons, fontSize: 11.4.sp),
+            ),
+          ),
+          widget.hyperlinkText!=null && widget.hyperlink!=null ?
+          InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onTap: () async{
+              if (await canLaunch(widget.hyperlink))
+                await launch(widget.hyperlink);
+              else
+                Fluttertoast.showToast(msg: " Could not launch given URL '${widget.hyperlink}'", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+              throw "Could not launch ${widget.hyperlink}";
+            },
+            child: Padding(
+              padding: EdgeInsets.only(left: 16,top: 10,right: 10),
+              child: Text(
+                widget.hyperlinkText,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.1,
+                  color: MateColors.activeIcons,
+                ),
+              ),
+            ),
+          ):SizedBox(),
+
+          ..._buildMedia(context, media),
+          widget.isShared != null ? _sharedWidget(widget.isShared) : SizedBox(),
+
+          location!=null?
+          Padding(
+            padding: const EdgeInsets.only(top: 16.0, left: 16, bottom: 5),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.location_on,
+                  size: 18,
+                  color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,
+                ),
+                Expanded(
+                  child: Text(
+                    ' $location',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w300,
+                      letterSpacing: 0.1,
+                      color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                    ),
+                    overflow: TextOverflow.fade,
+                  ),
+                ),
+              ],
+            ),
+          ):SizedBox(),
+          SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Consumer<FeedProvider>(
+                //     builder: (context, feedProvider, child){
+                //       return InkWell(
+                //         onDoubleTap: ()async{
+                //           if(widget.likeCount.length==0){
+                //             widget.likeCount.add(LikeCount(emojiValue: 1,count: 0));
+                //             widget.likeCount.add(LikeCount(emojiValue: 2,count: 0));
+                //           }else if(widget.likeCount.length==1){
+                //             if(widget.likeCount[0].emojiValue==1){
+                //               widget.likeCount.add(LikeCount(emojiValue: 2,count: 0));
+                //             }else{
+                //               LikeCount likeCountTemp = widget.likeCount[0];
+                //               widget.likeCount.clear();
+                //               widget.likeCount.add(LikeCount(emojiValue: 1,count: 0));
+                //               widget.likeCount.add(likeCountTemp);
+                //             }
+                //           }
+                //           if(widget.isLiked!=null){
+                //             if(widget.isLiked.emojiValue==1){
+                //               Provider.of<FeedProvider>(context, listen: false).likeAFeed(feedId, widget.indexVal, 1);
+                //               widget.likeCount[0].count = widget.likeCount[0].count -1;
+                //             }else{
+                //               await Provider.of<FeedProvider>(context, listen: false).likeAFeed(feedId, widget.indexVal, 2);
+                //               Provider.of<FeedProvider>(context, listen: false).likeAFeed(feedId, widget.indexVal, 1);
+                //               widget.likeCount[0].count = widget.likeCount[0].count +1;
+                //               widget.likeCount[1].count = widget.likeCount[1].count -1;
+                //             }
+                //           }else{
+                //             Provider.of<FeedProvider>(context, listen: false).likeAFeed(feedId, widget.indexVal, 1);
+                //             widget.likeCount[0].count = widget.likeCount[0].count +1;
+                //           }
+                //         },
+                //         child: Container(
+                //           margin: EdgeInsets.only(top: 25, left: 16),
+                //           height: 32,
+                //           width: 64,
+                //           decoration: BoxDecoration(
+                //             borderRadius: BorderRadius.circular(16),
+                //             border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1),
+                //           ),
+                //           padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.4),
+                //           child: Row(
+                //             mainAxisAlignment: MainAxisAlignment.center,
+                //             children: [
+                //               Image.asset(
+                //                 "lib/asset/Reactions/clapping1.png",
+                //                 width: 18,
+                //                 height: 14,
+                //                 fit: BoxFit.fitHeight,
+                //               ),
+                //               SizedBox(
+                //                 width: 2,
+                //               ),
+                //               Text(
+                //                 widget.likeCount.length==1? widget.likeCount[0].count.toString() :"0",
+                //                 style: TextStyle(
+                //                   fontSize: 13,
+                //                   fontWeight: FontWeight.w500,
+                //                   letterSpacing: 0.1,
+                //                   color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                //                 ),
+                //               ),
+                //             ],
+                //           ),
+                //         ),
+                //       );
+                //     }
+                // ),
+                InkWell(
+                  onTap: (){
+                    if(widget.pageType == "TimeLineMyCampus"){
+                      if(feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
+                    }else if(widget.pageType == "TimeLineGlobal"){
+                      if(feedProvider.feedList[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedList[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
+                    }else if(widget.pageType == "User"){
+                      if(feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
+                    }else if(widget.pageType == "Bookmark"){
+                      if(feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count!=0 || feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
+                    }else if(widget.pageType == "Search"){
+                      if(feedProvider.feedItem[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedItem[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
+                    }
+                  },
+                  onDoubleTap: ()async{
+                    print(widget.pageType);
+                    String response = await FeedService().likeFeed(feedId, 0, token);
+                    if(response == "Feed Liked successfully"){
+                      if(widget.pageType == "TimeLineMyCampus"){
+                        feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count++;
+                        feedProvider.feedListMyCampus[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                      }else if(widget.pageType == "TimeLineGlobal"){
+                        feedProvider.feedList[widget.indexVal].likeCount[0].count++;
+                        feedProvider.feedList[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                      }else if(widget.pageType == "User"){
+                        feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count++;
+                        feedProvider.feedItemListOfUser[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                      }else if(widget.pageType == "Bookmark"){
+                        feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count++;
+                        feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                      }else if(widget.pageType == "Search"){
+                        feedProvider.feedItem[widget.indexVal].likeCount[0].count++;
+                        feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                      }
+                    }else if(response == 'Feed Unliked successfully'){
+                      if(widget.pageType == "TimeLineMyCampus"){
+                        if(feedProvider.feedListMyCampus[widget.indexVal].isLiked.emojiValue==0){
+                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count--;
+                          feedProvider.feedListMyCampus[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 0, token);
+                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count++;
+                          feedProvider.feedListMyCampus[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count--;
+                        }
+                      }else if(widget.pageType == "TimeLineGlobal"){
+                        if(feedProvider.feedList[widget.indexVal].isLiked.emojiValue==0){
+                          feedProvider.feedList[widget.indexVal].likeCount[0].count--;
+                          feedProvider.feedList[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 0, token);
+                          feedProvider.feedList[widget.indexVal].likeCount[0].count++;
+                          feedProvider.feedList[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.feedList[widget.indexVal].likeCount[1].count--;
+                        }
+                      }else if(widget.pageType == "User"){
+                        if(feedProvider.feedItemListOfUser[widget.indexVal].isLiked.emojiValue==0){
+                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count--;
+                          feedProvider.feedItemListOfUser[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 0, token);
+                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count++;
+                          feedProvider.feedItemListOfUser[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count--;
+                        }
+                      }else if(widget.pageType == "Bookmark"){
+                        if(feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked.emojiValue==0){
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count--;
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 0, token);
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count++;
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count--;
+                        }
+                      }else if(widget.pageType == "Search"){
+                        if(feedProvider.feedItem[widget.indexVal].isLiked.emojiValue==0){
+                          feedProvider.feedItem[widget.indexVal].likeCount[0].count--;
+                          feedProvider.feedItem[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 0, token);
+                          feedProvider.feedItem[widget.indexVal].likeCount[0].count++;
+                          feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.feedItem[widget.indexVal].likeCount[1].count--;
+                        }
+                      }
+                    }
+                    setState(() {});
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(top: 25, left: 16),
+                    height: 32,
+                    width: 64,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          "lib/asset/Reactions/clapping1.png",
+                          width: 18,
+                          height: 14,
+                          fit: BoxFit.fitHeight,
+                        ),
+                        SizedBox(
+                          width: 2,
+                        ),
+                        Text(
+                          widget.pageType == "TimeLineMyCampus"?
+                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count.toString():
+                          widget.pageType == "TimeLineGlobal"?
+                          feedProvider.feedList[widget.indexVal].likeCount[0].count.toString():
+                          widget.pageType == "User"?
+                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count.toString():
+                          widget.pageType == "Bookmark"?
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count.toString():
+                          widget.pageType == "Search"?
+                          feedProvider.feedItem[widget.indexVal].likeCount[0].count.toString():
+                          widget.likeCount[0].count.toString(),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.1,
+                            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: (){
+                    if(widget.pageType == "TimeLineMyCampus"){
+                      if(feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
+                    }else if(widget.pageType == "TimeLineGlobal"){
+                      if(feedProvider.feedList[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedList[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
+                    }else if(widget.pageType == "User"){
+                      if(feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
+                    }else if(widget.pageType == "Bookmark"){
+                      if(feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count!=0 || feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
+                    }else if(widget.pageType == "Search"){
+                      if(feedProvider.feedItem[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedItem[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
+                    }
+                  },
+                  onDoubleTap: ()async{
+                    print(widget.pageType);
+                    String response = await FeedService().likeFeed(feedId, 1, token);
+                    if(response == "Feed Liked successfully"){
+                      if(widget.pageType == "TimeLineMyCampus"){
+                        feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count++;
+                        feedProvider.feedListMyCampus[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                      }else if(widget.pageType == "TimeLineGlobal"){
+                        feedProvider.feedList[widget.indexVal].likeCount[1].count++;
+                        feedProvider.feedList[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                      }else if(widget.pageType == "User"){
+                        feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count++;
+                        feedProvider.feedItemListOfUser[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                      }else if(widget.pageType == "Bookmark"){
+                        feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count++;
+                        feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                      }else if(widget.pageType == "Search"){
+                        feedProvider.feedItem[widget.indexVal].likeCount[1].count++;
+                        feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                      }
+                    }else if(response == 'Feed Unliked successfully'){
+                      if(widget.pageType == "TimeLineMyCampus"){
+                        if(feedProvider.feedListMyCampus[widget.indexVal].isLiked.emojiValue==1){
+                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count--;
+                          feedProvider.feedListMyCampus[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 1, token);
+                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count++;
+                          feedProvider.feedListMyCampus[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count--;
+                        }
+                      }else if(widget.pageType == "TimeLineGlobal"){
+                        if(feedProvider.feedList[widget.indexVal].isLiked.emojiValue==1){
+                          feedProvider.feedList[widget.indexVal].likeCount[1].count--;
+                          feedProvider.feedList[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 1, token);
+                          feedProvider.feedList[widget.indexVal].likeCount[1].count++;
+                          feedProvider.feedList[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.feedList[widget.indexVal].likeCount[0].count--;
+                        }
+                      }else if(widget.pageType == "User"){
+                        if(feedProvider.feedItemListOfUser[widget.indexVal].isLiked.emojiValue==1){
+                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count--;
+                          feedProvider.feedItemListOfUser[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 1, token);
+                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count++;
+                          feedProvider.feedItemListOfUser[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count--;
+                        }
+                      }else if(widget.pageType == "Bookmark"){
+                        if(feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked.emojiValue==1){
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count--;
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 1, token);
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count++;
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count--;
+                        }
+                      }else if(widget.pageType == "Search"){
+                        if(feedProvider.feedItem[widget.indexVal].isLiked.emojiValue==1){
+                          feedProvider.feedItem[widget.indexVal].likeCount[1].count--;
+                          feedProvider.feedItem[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 1, token);
+                          feedProvider.feedItem[widget.indexVal].likeCount[1].count++;
+                          feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.feedItem[widget.indexVal].likeCount[0].count--;
+                        }
+                      }
+                    }
+                    setState(() {});
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(top: 25, left: 16),
+                    height: 32,
+                    width: 64,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          "lib/asset/icons/heart.png",
+                          width: 18,
+                          height: 14,
+                          fit: BoxFit.fitHeight,
+                        ),
+                        SizedBox(
+                          width: 2,
+                        ),
+                        Text(
+                          widget.pageType == "TimeLineMyCampus"?
+                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count.toString():
+                          widget.pageType == "TimeLineGlobal"?
+                          feedProvider.feedList[widget.indexVal].likeCount[1].count.toString():
+                          widget.pageType == "User"?
+                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count.toString():
+                          widget.pageType == "Bookmark"?
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count.toString():
+                          widget.pageType == "Search"?
+                          feedProvider.feedItem[widget.indexVal].likeCount[1].count.toString():
+                          widget.likeCount[0].count.toString(),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.1,
+                            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Consumer<FeedProvider>(
+                //   builder: (context, feedProvider, child){
+                //     return InkWell(
+                //       onDoubleTap: ()async{
+                //         if(widget.likeCount.length==0){
+                //           widget.likeCount.add(LikeCount(emojiValue: 1,count: 0));
+                //           widget.likeCount.add(LikeCount(emojiValue: 2,count: 0));
+                //         }else if(widget.likeCount.length==1){
+                //           if(widget.likeCount[0].emojiValue==1){
+                //             widget.likeCount.add(LikeCount(emojiValue: 2,count: 0));
+                //           }else{
+                //             LikeCount likeCountTemp = widget.likeCount[0];
+                //             widget.likeCount.clear();
+                //             widget.likeCount.add(LikeCount(emojiValue: 1,count: 0));
+                //             widget.likeCount.add(likeCountTemp);
+                //           }
+                //         }
+                //         if(widget.isLiked!=null){
+                //           if(widget.isLiked.emojiValue==2){
+                //             Provider.of<FeedProvider>(context, listen: false).likeAFeed(feedId, widget.indexVal, 2);
+                //             widget.likeCount[1].count = widget.likeCount[1].count -1;
+                //           }else{
+                //             await Provider.of<FeedProvider>(context, listen: false).likeAFeed(feedId, widget.indexVal, 1);
+                //             Provider.of<FeedProvider>(context, listen: false).likeAFeed(feedId, widget.indexVal, 2);
+                //             widget.likeCount[1].count = widget.likeCount[1].count +1;
+                //             widget.likeCount[0].count = widget.likeCount[0].count -1;
+                //           }
+                //         }else{
+                //           Provider.of<FeedProvider>(context, listen: false).likeAFeed(feedId, widget.indexVal, 2);
+                //           widget.likeCount[1].count = widget.likeCount[1].count +1;
+                //         }
+                //       },
+                //       child: Container(
+                //         margin: EdgeInsets.only(top: 25, left: 16),
+                //         height: 32,
+                //         width: 64,
+                //         decoration: BoxDecoration(
+                //           borderRadius: BorderRadius.circular(16),
+                //           border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1),
+                //         ),
+                //         padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.4),
+                //         child: Row(
+                //           mainAxisAlignment: MainAxisAlignment.center,
+                //           children: [
+                //             Image.asset(
+                //               "lib/asset/icons/heart.png",
+                //               width: 18,
+                //               height: 14,
+                //               fit: BoxFit.fitHeight,
+                //             ),
+                //             SizedBox(
+                //               width: 2,
+                //             ),
+                //             Text(
+                //               widget.likeCount.length==2?
+                //               widget.likeCount[1].count.toString():"0",
+                //               style: TextStyle(
+                //                 fontSize: 13,
+                //                 fontWeight: FontWeight.w500,
+                //                 letterSpacing: 0.1,
+                //                 color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                //               ),
+                //             ),
+                //           ],
+                //         ),
+                //       ),
+                //     );
+                //   },
+                // ),
+
+
+                // Expanded(
+                //   child: Container(
+                //     height: 32,
+                //     margin: EdgeInsets.only(left: 8,top: 25),
+                //     child: ListView.builder(
+                //       shrinkWrap: true,
+                //       scrollDirection: Axis.horizontal,
+                //       itemCount: widget.likeCount.length,
+                //       itemBuilder: (context, index) {
+                //         return InkWell(
+                //           onTap: () => Get.to(() => FeedLikesDetails(
+                //             feedId: widget.feedId,
+                //           )),
+                //           splashColor: Colors.transparent,
+                //           highlightColor: Colors.transparent,
+                //           child: Container(
+                //             margin: EdgeInsets.only(bottom: 0, left: 10),
+                //             height: 32,
+                //             width: 64,
+                //             decoration: BoxDecoration(
+                //                 borderRadius: BorderRadius.circular(16),
+                //                 border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1)
+                //             ),
+                //             padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.4),
+                //             child: Row(
+                //               mainAxisAlignment: MainAxisAlignment.center,
+                //               children: [
+                //                 Image.asset(
+                //                   reactionImages[widget.likeCount[index].emojiValue],
+                //                   width: 18,
+                //                   height: 14,
+                //                   fit: BoxFit.fitHeight,
+                //                 ),
+                //                 SizedBox(
+                //                   width: 2,
+                //                 ),
+                //                 Text(widget.likeCount[index].count.toString(),
+                //                   style: TextStyle(
+                //                     fontSize: 13,
+                //                     fontWeight: FontWeight.w500,
+                //                     letterSpacing: 0.1,
+                //                     color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                //                   ),
+                //                 ),
+                //               ],
+                //             ),
+                //           ),
+                //         );
+                //       },
+                //     ),
+                //   ),
+                // ),
+
+
+
+
+                Expanded(
+                  child: SizedBox(
+                    width: 5,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 25),
+                  child: IconButton(
+                    onPressed: (){
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => FeedComments(
+                                feedIndex: widget.indexVal,
+                                feedId: feedId,
+                              )));
+                    },
+                    icon:  Image.asset("lib/asset/icons/message@3x.png",height: 20,color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,),
+                    color: Colors.grey[50],
+                  ),
+                ),
+                // Container(
+                //   margin: EdgeInsets.only(bottom: 3, left: 7),
+                //   child:
+                //   Consumer<FeedProvider>(
+                //     builder: (context, feedProvider, child) {
+                //       return Text(
+                //           widget.isBookmarkedPage ? feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].commentCount.toString() : feedProvider.feedList[widget.indexVal].commentCount.toString(), style: TextStyle(color: Colors.white, fontWeight: FontWeight.w400, fontSize: 14));
+                //     },
+                //   ),
+                //
+                // ),
+                Consumer<FeedProvider>(
+                  builder: (context, value, child) {
+                    if (value.feedItemsBookmarkData != null) {
+                      if (widget.isBookmarkedPage && !bookMarked) {
+                        value.bookmarkByUserData.data.feeds.removeAt(widget.indexVal);
+                        Future.delayed(Duration.zero, () => Provider.of<FeedProvider>(context, listen: false).allBookmarkedFeed());
+                      }
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 16,left: 10,top: 25),
+                      child: InkWell(
+                          child: bookMarked ?
+                          Image.asset("lib/asset/icons/bookmarkColor.png",height: 20,) :
+                          Image.asset("lib/asset/homePageIcons/drawerBookmark@3x.png",height: 20,color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,),
+                          onTap: () {
+                            Provider.of<FeedProvider>(context, listen: false).bookmarkAFeed(feedId, widget.indexVal);
+                            setState(() {
+                              bookMarked=!bookMarked;
+                            });
+                          }),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 15,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget reactionButtons({double degree, double distance, FeedProvider value, int emojiValue}) {
+    return Transform.translate(
+      offset: Offset.fromDirection(getRadiansFromDegree(degree), distance),
+      child: Transform(
+        transform: Matrix4.rotationZ(getRadiansFromDegree(rotationAnimation.value))..scale(degOneTranslationAnimation.value),
+        alignment: Alignment.center,
+        child: CircularButton(
+          color: reactionIconBGColors[emojiValue],
+          width: 38,
+          height: 38,
+          icon: Image.asset(
+            reactionImages[emojiValue],
+            width: 24,
+          ),
+          onClick: () async {
+            reactionClick(emojiValue: emojiValue, likeCount: widget.isBookmarkedPage ? value.bookmarkByUserData.data.feeds[widget.indexVal].likeCount : value.feedList[widget.indexVal].likeCount);
+          },
+        ),
+      ),
+    );
+  }
+
+  reactionClick({List<LikeCount> likeCount, int emojiValue}) async {
+    if (animationController.isCompleted) {
+      animationController.reverse();
+    }
+    bool likedDone = await Provider.of<FeedProvider>(context, listen: false).likeAFeed(feedId, widget.indexVal, emojiValue);
+
+    if (likedDone && !liked) {
+      bool isReactionAvailable = false;
+      for (int i = 0; i < likeCount.length; i++) {
+        if (likeCount[i].emojiValue == emojiValue) {
+          ++likeCount[i].count;
+          isReactionAvailable = true;
+        }
+      }
+      if (!isReactionAvailable) {
+        likeCount.add(LikeCount(emojiValue: emojiValue, count: 1));
+      }
+    }
+  }
+
+  double getRadiansFromDegree(double degree) {
+    double unitRadian = 57.295779513;
+    return degree / unitRadian;
+  }
+
+  Widget _sharedWidget(IsShared isShared) {
+    return Container(
+      margin: EdgeInsets.only(left: 50.0, right: 8, bottom: 10),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12.0), border: Border.all(color: MateColors.line, width: 1)),
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+        ListTile(
+          contentPadding: EdgeInsets.fromLTRB(12, 4, 10, 0),
+          leading: InkWell(
+            onTap: () {
+              if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == isShared.user.id) {
+                Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
+              } else {
+                Navigator.of(context).pushNamed(UserProfileScreen.routeName,
+                    arguments: {"id": isShared.user.id, "name": isShared.user.name, "photoUrl": isShared.user.photoUrl, "firebaseUid": isShared.user.firebaseUid});
+              }
+            },
+            child: isShared.user.photoUrl.length == 0
+                ? ClipOval(
+                    child: Text(
+                      isShared.user.name[0],
+                    ),
+                  )
+                : ClipOval(
+                    child: Image.network(
+                      isShared.user.photoUrl,
+                      height: 45,
+                      width: 38,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+          ),
+          title: InkWell(
+              onTap: () {
+                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == isShared.user.id) {
+                  Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
+                } else {
+                  Navigator.of(context).pushNamed(UserProfileScreen.routeName,
+                      arguments: {"id": isShared.user.id, "name": isShared.user.name, "photoUrl": isShared.user.photoUrl, "firebaseUid": isShared.user.firebaseUid});
+                }
+              },
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      isShared.user.name,
+                      style: TextStyle(fontFamily: 'Quicksand', color: Colors.white, fontSize: 13.2),
+                      overflow: TextOverflow.clip,
+                    ),
+                  ),
+                  Text(
+                    ' $created',
+                    style: TextStyle(color: Colors.white70, fontSize: 10),
+                  ),
+                ],
+              )),
+          subtitle: SizedBox(
+            height: 27,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: isShared.feedTypes.length,
+              itemBuilder: (context, index) => Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (context) => HomeScreen(
+                              index: 1,
+                              feedTypeName: isShared.feedTypes[index].type.name,
+                            )));
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    margin: EdgeInsets.only(top: 10),
+                    decoration: BoxDecoration(
+                      color: MateColors.activeIcons,
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    child: Text(
+                      '${isShared.feedTypes[index].type.name}',
+                      style: TextStyle(color: Colors.black, fontSize: 10),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8.0, left: 60, right: 15),
+          child: Text(isShared.title, textAlign: TextAlign.left, style: TextStyle(fontSize: 15.0, fontFamily: 'Quicksand', fontWeight: FontWeight.w700, color: MateColors.activeIcons)),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12.0, left: 60, right: 15),
+          child: Text(
+            isShared.description,
+            style: TextStyle(color: Colors.white, fontSize: 12),
+            textAlign: TextAlign.left,
+          ),
+        ),
+        ..._buildMedia(context, isShared.media),
+      ]),
+    );
+  }
+
+  _showDeleteAlertDialog({
+    @required int feedId,
+    @required int indexVal,
+  }) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: new Text("Are you sure?"),
+          content: new Text("You want to delete your post"),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              child: Text("Yes"),
+              onPressed: () async {
+                bool isDeleted = await feedProvider.deleteAFeed(feedId);
+                if (isDeleted) {
+                  Future.delayed(Duration(seconds: 0), () {
+                    // Provider.of<FeedProvider>(context, listen: false).fetchCampusLivePostList();
+                    // Navigator.pop(context);
+                    if (widget.isBookmarkedPage) {
+                      Navigator.pop(context);
+                      feedProvider.allBookmarkedFeed();
+                    } else {
+                      Navigator.pop(context);
+                      if (widget.previousPageFeedId == null) {
+                       feedProvider.fetchFeedList(page: 1, userId: widget.previousPageUserId);
+                       feedProvider.fetchFeedListMyCampus(page: 1, feedId: widget.previousPageFeedId);
+                      } else {
+                        feedProvider.fetchFeedList(page: 1, feedId: widget.previousPageFeedId);
+                        feedProvider.fetchFeedListMyCampus(page: 1, feedId: widget.previousPageFeedId);
+                      }
+                    }
+                  });
+                }
+              },
+            ),
+            CupertinoDialogAction(
+                child: Text("No"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                })
+          ],
+        );
+      },
+    );
+  }
+
+
+  _showFollowAlertDialog({
+    @required int feedId,
+    @required int indexVal,
+  }) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: new Text("Are you sure?"),
+          content: new Text(widget.isFollowed?"You want to Unfollow this post":"You want to follow this post"),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              child: feedProvider.feedFollowLoader?
+              Center(
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                ),
+              )
+                  :Text("Yes"),
+              onPressed: () async {
+                if(widget.isFollowed){
+                  Map<String, dynamic> body = {"post_id": widget.feedId, "post_type": "Feed"};
+                  bool unFollowDone = await feedProvider.unFollowAFeed(body, widget.feedId);
+                  if (unFollowDone) {
+                    if (widget.isBookmarkedPage) {
+                      feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isFollowed=false;
+                    }else{
+                      feedProvider.feedList[widget.indexVal].isFollowed=false;
+                    }
+                    widget.isFollowed=false;
+                    Navigator.pop(context);
+                  }
+                }else{
+                  Map<String, dynamic> body = {"post_id": widget.feedId, "post_type": "Feed"};
+                  bool followDone = await feedProvider.followAFeed(body, widget.feedId);
+                  if (followDone) {
+                    if (widget.isBookmarkedPage) {
+                      feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isFollowed=true;
+                    }else{
+                      feedProvider.feedList[widget.indexVal].isFollowed=true;
+                    }
+                    widget.isFollowed=true;
+                    Navigator.pop(context);
+                  }
+                }
+              },
+            ),
+            CupertinoDialogAction(
+                child: Text("No"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                })
+          ],
+        );
+
+      },
+    );
+  }
+
+  // _showFollowAlertDialog({
+  //   @required int feedId,
+  //   @required int indexVal,
+  // }) async {
+  //   return showDialog<void>(
+  //     context: context,
+  //     barrierDismissible: false, // user must tap button!
+  //     builder: (BuildContext context) {
+  //       return Consumer<FeedProvider>(
+  //         builder: (context, value, child) {
+  //           return CupertinoAlertDialog(
+  //             title: new Text("Are you sure?"),
+  //             content: new Text(widget.isFollowed?"You want to Unfollow this post":"You want to follow this post"),
+  //             actions: <Widget>[
+  //               CupertinoDialogAction(
+  //                 isDefaultAction: true,
+  //                 child: value.feedFollowLoader?
+  //             Center(
+  //               child: CircularProgressIndicator(
+  //                 color: Colors.white,
+  //               ),
+  //             )
+  //           :Text("Yes"),
+  //                 onPressed: () async {
+  //                   if(widget.isFollowed){
+  //                     Map<String, dynamic> body = {"post_id": widget.feedId, "post_type": "Feed"};
+  //                     bool unFollowDone = await Provider.of<FeedProvider>(context, listen: false).unFollowAFeed(body, widget.feedId);
+  //                   if (unFollowDone) {
+  //                     if (widget.isBookmarkedPage) {
+  //                       value.bookmarkByUserData.data.feeds[widget.indexVal].isFollowed=false;
+  //                     }else{
+  //                       value.feedList[widget.indexVal].isFollowed=false;
+  //                     }
+  //                     widget.isFollowed=false;
+  //                     Navigator.pop(context);
+  //                   }
+  //
+  //                   }else{
+  //                     Map<String, dynamic> body = {"post_id": widget.feedId, "post_type": "Feed"};
+  //                   bool followDone = await Provider.of<FeedProvider>(context, listen: false).followAFeed(body, widget.feedId);
+  //                   if (followDone) {
+  //                     if (widget.isBookmarkedPage) {
+  //                       value.bookmarkByUserData.data.feeds[widget.indexVal].isFollowed=true;
+  //                     }else{
+  //                       value.feedList[widget.indexVal].isFollowed=true;
+  //                     }
+  //                     widget.isFollowed=true;
+  //                     Navigator.pop(context);
+  //                   }
+  //                   }
+  //                 },
+  //               ),
+  //               CupertinoDialogAction(
+  //                   child: Text("No"),
+  //                   onPressed: () {
+  //                     Navigator.of(context).pop();
+  //                   })
+  //             ],
+  //           );
+  //         },
+  //       );
+  //
+  //     },
+  //   );
+  // }
+
+
+
+  modalSheetToShare() {
+    TextEditingController _description = new TextEditingController();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: myHexColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(15.0),
+        ),
+      ),
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(18.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Share this post",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: MateColors.activeIcons),
+                ),
+              ),
+              SizedBox(
+                height: 15.0,
+              ),
+              TextFormField(
+                minLines: 2,
+                maxLines: 8,
+                maxLength: 512,
+                decoration: InputDecoration(
+                  counterStyle: TextStyle(color: Colors.grey),
+                  labelStyle: TextStyle(fontSize: 16.0, color: MateColors.activeIcons),
+                  labelText: "Description",
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.grey, width: 0.3),
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white, width: 0.3),
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                ),
+                style: TextStyle(color: Colors.white, fontSize: 18.0),
+                cursorColor: Colors.cyanAccent,
+                textInputAction: TextInputAction.done,
+                controller: _description,
+                validator: (value) {
+                  return value.isEmpty ? "*description" : null; //returning null means no error occurred. if there are any error then simply return a string
+                },
+              ),
+              SizedBox(
+                height: 16.0,
+              ),
+              ButtonTheme(
+                minWidth: MediaQuery.of(context).size.width - 40,
+                height: 50,
+                child: RaisedButton(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  color: MateColors.activeIcons,
+                  child: Consumer<FeedProvider>(
+                    builder: (ctx, feedProvider, _) {
+                      if (feedProvider.feedShareLoader) {
+                        return Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
+                        );
+                      }
+
+                      return Text(
+                        'Share',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      );
+                    },
+                  ),
+                  onPressed: () async {
+                    // Navigator.pop(context);
+
+                    Map<String, dynamic> body = {"share_desc": _description.text.trim()};
+                    bool shareDone = await Provider.of<FeedProvider>(context, listen: false).shareAFeed(body, widget.feedId);
+                    if (shareDone) {
+                      // Navigator.pop(context);
+                      // Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      //     builder: (context) => HomeScreen(
+                      //           index: 2,
+                      //         )));
+                      Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                              builder: (context) => HomeScreen(
+                                    index: 0,
+                                  )),
+                          (Route<dynamic> route) => false);
+                    }
+                  },
+                ),
+              ),
+              SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  insertEvent(event) {
+    try {
+      const _scopes = const [gCal.CalendarApi.calendarScope];
+      clientViaUserConsent(_credentials, _scopes, prompt).then((AuthClient client) {
+        var calendar = gCal.CalendarApi(client);
+        String calendarId = "primary";
+        calendar.events.insert(event, calendarId).then((value) {
+          print("ADDEDDD_________________${value.status}");
+          if (value.status == "confirmed") {
+            print('Event added in google calendar');
+          } else {
+            print("Unable to add event in google calendar");
+          }
+        });
+      });
+    } catch (e) {
+      print('Error creating event $e');
+    }
+  }
+
+  void prompt(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+}
+
+class HomeRow1 extends StatefulWidget {
+  String previousPageUserId;
+  String previousPageFeedId;
+  String id;
+  int feedId;
+  String title;
+  String start;
+  String end;
+  String calenderDate;
+  String description;
+  String created;
+  var user;
+  String location;
+  String hyperlinkText;
+  String hyperlink;
+  List media;
+  bool bookMarked;
+  bool isFollowed;
+  IsLiked isLiked;
+  bool liked;
+  List feedType;
+  int indexVal;
+  bool isBookmarkedPage;
+  bool isFeedDetailsPage;
+  List<LikeCount> likeCount;
+  int bookmarkCount;
+  int shareCount;
+  int commentCount;
+  IsShared isShared;
+  bool navigateToDetailsPage;
+  String pageType;
+
+  HomeRow1(
+      {this.previousPageUserId,
+        this.previousPageFeedId,
+        this.id,
+        this.feedId,
+        this.title,
+        this.feedType,
+        this.start,
+        this.end,
+        this.calenderDate,
+        this.description,
+        this.created,
+        this.user,
+        this.location,
+        this.hyperlinkText,
+        this.hyperlink,
+        this.media,
+        this.isLiked,
+        this.liked,
+        this.bookMarked,
+        this.isFollowed=false,
+        this.indexVal,
+        this.likeCount,
+        this.bookmarkCount,
+        this.commentCount,
+        this.shareCount,
+        this.isBookmarkedPage = false,
+        this.isFeedDetailsPage = false,
+        this.navigateToDetailsPage = true,
+        this.pageType,
+        this.isShared});
+
+  @override
+  _HomeRowState1 createState() =>
+      _HomeRowState1(this.id, this.feedId, this.title, this.feedType, this.start, this.end, this.calenderDate, this.description, this.created, this.user, this.location, this.media, this.liked, this.bookMarked);
+}
+
+class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin {
+  final String id;
+  final int feedId;
+  final String title;
+  final String startTime;
+  final String endTime;
+  final String calenderDate;
+  final String description;
+  final String created;
+  var user;
+  final String location;
+  final List media;
+
+  // final List<Media> media;
+  final List feedType;
+
+  // final List<FeedTypes> feedType;
+  bool bookMarked;
+  bool liked;
+
+  auth.User _currentUser = auth.FirebaseAuth.instance.currentUser;
+
+  _HomeRowState1(this.id, this.feedId, this.title, this.feedType, this.startTime, this.endTime, this.calenderDate, this.description, this.created, this.user, this.location, this.media, this.liked, this.bookMarked);
+
+  ClientId _credentials;
+
+  /// animations
+  AnimationController animationController;
+  Animation degOneTranslationAnimation, degTwoTranslationAnimation, degThreeTranslationAnimation;
+  Animation rotationAnimation;
+  IsLiked isLiked;
+
+  @override
+  void initState() {
+    isLiked = widget.isLiked;
+    feedProvider = Provider.of<FeedProvider>(context, listen: false);
+    super.initState();
+    getStoredValue();
+    ///animations for likes
+    animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 250));
+    degOneTranslationAnimation = Tween(begin: 0.0, end: 1.0).animate(animationController);
+    rotationAnimation = Tween<double>(begin: 180.0, end: 0.0).animate(CurvedAnimation(parent: animationController, curve: Curves.easeOut));
+    super.initState();
+    animationController.addListener(() {
+      setState(() {});
+    });
+
+    if (Platform.isAndroid) {
+      _credentials = new ClientId("237545926078-9biln72s9c5h9vot53l84me39unhhnbf.apps.googleusercontent.com", "");
+    } else if (Platform.isIOS) {
+      _credentials = new ClientId("237545926078-99q5c35ugs0b49spmhf1ru0ghie7opnp.apps.googleusercontent.com", "");
+    }
+  }
+  ThemeController themeController = Get.find<ThemeController>();
+
+  String token;
+  getStoredValue()async{
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    token = preferences.getString("token");
+    log(token);
+  }
+
+  List _buildMedia(BuildContext context, List media) {
+    List mda = [];
+
+    for (int i = 0; i < media.length; i++) {
+      mda.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 0.0, left: 14, right: 10, top: 10),
+          child: ConstrainedBox(
+            constraints: new BoxConstraints(
+              minHeight: 50.0,
+              maxHeight: 300.0,
+            ),
+            child: InkWell(
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => FullImageWidget(
+                    imagePath: media[i].url,
+                  ))),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12.0),
+                clipBehavior: Clip.hardEdge,
+                child: Image.network(
+                  media[i].url,
+                  fit: BoxFit.contain,
+                  // height: 300,
+                  // width: 400,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return mda;
+
+  }
+  FeedProvider feedProvider;
+
+  @override
+  Widget build(BuildContext context) {
+    //print('media is::${media.toString()}');
+
+    return Container(
+      //margin: EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+        color: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+        //borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            spreadRadius: 5,
+            blurRadius: 7,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            dense: true,
+            horizontalTitleGap: 10,
+            leading: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                InkWell(
+                  onTap: (){
+                    Get.back();
+                  },
+                  child: Icon(Icons.arrow_back,color: MateColors.activeIcons,),
+                ),
+                SizedBox(width: 15,),
+                InkWell(
+                  onTap: () {
+                    if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == user.id) {
+                      Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
+                    } else {
+                      Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": user.id, "name": user.name, "photoUrl": user.photoUrl, "firebaseUid": user.firebaseUid});
+                    }
+                  },
+                  child: user.photoUrl.length == 0
+                      ? CircleAvatar(
+                    radius: 16,
+                    child: Text(
+                      user.name[0],
+                    ),
+                  )
+                      : CircleAvatar(
+                    radius: 16,
+                    backgroundImage: NetworkImage(
+                      user.photoUrl,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            title: InkWell(
+              onTap: () {
+                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == user.id) {
+                  Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
+                } else {
+                  Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": user.id, "name": user.name, "photoUrl": user.photoUrl, "firebaseUid": user.firebaseUid});
+                }
+              },
+              child: Text(
+                user.name,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.1,
+                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                ),
+              ),
+            ),
+            subtitle: Text(
+              "$created",
+              style: TextStyle(
+                fontSize: 12,
+                color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+              ),
+            ),
+            trailing: PopupMenuButton<int>(
+                padding: EdgeInsets.only(bottom: 0, top: 0, left: 0, right: 0),
+                color: themeController.isDarkMode?backgroundColor:Colors.white,
+                icon: Image.asset(
+                  "lib/asset/icons/menu@3x.png",
+                  height: 18,
+                  color: MateColors.activeIcons,
+                ),
+                // Icon(
+                //   Icons.more_vert,
+                //   color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,
+                // ),
+                //color: Colors.grey[850],
+                onSelected: (index) async {
+                  if (index == 0) {
+                    gCal.Event event = gCal.Event(); // Create object of event
+                    event.summary = title; //Setting summary of object
+                    event.description = description; //Setting summary of object
+
+                    gCal.EventDateTime start = new gCal.EventDateTime(); //Setting start time
+// start.dateTime = DateTime.parse("2021-09-20 00:00:00.000").toLocal();
+                    start.dateTime = DateTime.parse(calenderDate).toLocal();
+                    start.timeZone = "GMT+05:00";
+                    event.start = start;
+
+                    gCal.EventDateTime end = new gCal.EventDateTime(); //setting end time
+                    end.timeZone = "GMT+05:00";
+// end.dateTime = DateTime.parse("2021-09-21 00:00:00.000").toLocal();
+                    end.dateTime = DateTime.parse(calenderDate).toLocal();
+                    event.end = end;
+
+                    insertEvent(event);
+                  } else if (index == 1) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => Chat(peerUuid: user.id, currentUserId: _currentUser.uid, peerId: user.firebaseUid, peerAvatar: user.photoUrl, peerName: user.name)));
+                  } else if (index == 2) {
+                    _showFollowAlertDialog(feedId: widget.feedId, indexVal: widget.indexVal);
+
+                  } else if (index == 3) {
+                    modalSheetToShare();
+                  } else if (index == 4) {
+                    _showDeleteAlertDialog(feedId: widget.feedId, indexVal: widget.indexVal);
+                  } else if (index == 5) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ReportPage(
+                            moduleId: widget.feedId,
+                            moduleType: "Feed",
+                          ),
+                        ));
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 0,
+                    height: 40,
+                    child: Text(
+                      "Calendar",
+                      textAlign: TextAlign.start,
+                      style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 1,
+                    height: 40,
+                    child: Text(
+                      "Message",
+                      textAlign: TextAlign.start,
+                      style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 2,
+                    height: 40,
+                    child: Text(
+                      widget.isFollowed?"Unfollow Post":"Follow Post",
+                      textAlign: TextAlign.start,
+                      style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                    ),
+                  ),
+                ]
+            ),),
+          Container(
+            height: 28.0,
+            margin: EdgeInsets.only(left: 16,top: 6),
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: feedType.length,
+              itemBuilder: (context, index) => Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: InkWell(
+                  onTap: () {
+                    final page = FeedSearch(text: feedType[index].type.name,);
+                    Navigator.push(context,MaterialPageRoute(builder: (context) => page ));
+                    // if(feedType[index].type.status==1){
+                    //   // Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    //   //     builder: (context) => HomeScreen(
+                    //   //       index: 1,
+                    //   //       feedTypeName: feedType[index].type.name,
+                    //   //     )));
+                    // }
+                  },
+                  child: Container(
+                    height: 28.0,
+                    //width: 92.0,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 15,right: 15),
+                      child: Center(child: Text("${feedType[index].type.name}",style: TextStyle(fontFamily: "Poppins",fontSize: 12,color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),)),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(left: 16,top: 20),
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 16,top: 10,right: 10),
+            child: Linkify(
+              onOpen: (link) async {
+                print("Clicked ${link.url}!");
+                if (await canLaunch(link.url))
+                  await launch(link.url);
+                else
+                  throw "Could not launch ${link.url}";
+              },
+              text: description,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 0.1,
+                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+              ),
+              textAlign: TextAlign.left,
+              linkStyle: TextStyle(color: MateColors.activeIcons, fontSize: 11.4.sp),
+            ),
+          ),
+          widget.hyperlinkText!=null && widget.hyperlink!=null ?
+          InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onTap: () async{
+              if (await canLaunch(widget.hyperlink))
+                await launch(widget.hyperlink);
+              else
+                Fluttertoast.showToast(msg: " Could not launch given URL '${widget.hyperlink}'", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+              throw "Could not launch ${widget.hyperlink}";
+            },
+            child: Padding(
+              padding: EdgeInsets.only(left: 16,top: 10,right: 10),
+              child: Text(
+                widget.hyperlinkText,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.1,
+                  color: MateColors.activeIcons,
+                ),
+              ),
+            ),
+          ):SizedBox(),
+
+          ..._buildMedia(context, media),
+          widget.isShared != null ? _sharedWidget(widget.isShared) : SizedBox(),
+
+          location!=null?
+          Padding(
+            padding: const EdgeInsets.only(top: 16.0, left: 16, bottom: 5),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.location_on,
+                  size: 18,
+                  color:themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,
+                ),
+                Expanded(
+                  child: Text(
+                    ' $location',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w300,
+                      letterSpacing: 0.1,
+                      color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                    ),
+                    overflow: TextOverflow.fade,
+                  ),
+                ),
+              ],
+            ),
+          ):SizedBox(),
+
+          SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+
+                InkWell(
+                  onTap: (){
+                    if(widget.pageType == "TimeLineMyCampus"){
+                      if(feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
+                    }else if(widget.pageType == "TimeLineGlobal"){
+                      if(feedProvider.feedList[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedList[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
+                    }else if(widget.pageType == "User"){
+                      if(feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
+                    }else if(widget.pageType == "Bookmark"){
+                      if(feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count!=0 || feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
+                    }else if(widget.pageType == "Search"){
+                      if(feedProvider.feedItem[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedItem[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
+                    }
+                  },
+                  onDoubleTap: ()async{
+                    print(widget.pageType);
+                    String response = await FeedService().likeFeed(feedId, 0, token);
+                    if(response == "Feed Liked successfully"){
+                      if(widget.pageType == "TimeLineMyCampus"){
+                        feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count++;
+                        feedProvider.feedListMyCampus[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                      }else if(widget.pageType == "TimeLineGlobal"){
+                        feedProvider.feedList[widget.indexVal].likeCount[0].count++;
+                        feedProvider.feedList[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                      }else if(widget.pageType == "User"){
+                        feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count++;
+                        feedProvider.feedItemListOfUser[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                      }else if(widget.pageType == "Bookmark"){
+                        feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count++;
+                        feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                      }else if(widget.pageType == "Search"){
+                        feedProvider.feedItem[widget.indexVal].likeCount[0].count++;
+                        feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                      }
+                    }else if(response == 'Feed Unliked successfully'){
+                      if(widget.pageType == "TimeLineMyCampus"){
+                        if(feedProvider.feedListMyCampus[widget.indexVal].isLiked.emojiValue==0){
+                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count--;
+                          feedProvider.feedListMyCampus[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 0, token);
+                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count++;
+                          feedProvider.feedListMyCampus[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count--;
+                        }
+                      }else if(widget.pageType == "TimeLineGlobal"){
+                        if(feedProvider.feedList[widget.indexVal].isLiked.emojiValue==0){
+                          feedProvider.feedList[widget.indexVal].likeCount[0].count--;
+                          feedProvider.feedList[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 0, token);
+                          feedProvider.feedList[widget.indexVal].likeCount[0].count++;
+                          feedProvider.feedList[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.feedList[widget.indexVal].likeCount[1].count--;
+                        }
+                      }else if(widget.pageType == "User"){
+                        if(feedProvider.feedItemListOfUser[widget.indexVal].isLiked.emojiValue==0){
+                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count--;
+                          feedProvider.feedItemListOfUser[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 0, token);
+                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count++;
+                          feedProvider.feedItemListOfUser[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count--;
+                        }
+                      }else if(widget.pageType == "Bookmark"){
+                        if(feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked.emojiValue==0){
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count--;
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 0, token);
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count++;
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count--;
+                        }
+                      }else if(widget.pageType == "Search"){
+                        if(feedProvider.feedItem[widget.indexVal].isLiked.emojiValue==0){
+                          feedProvider.feedItem[widget.indexVal].likeCount[0].count--;
+                          feedProvider.feedItem[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 0, token);
+                          feedProvider.feedItem[widget.indexVal].likeCount[0].count++;
+                          feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.feedItem[widget.indexVal].likeCount[1].count--;
+                        }
+                      }
+                    }
+                    setState(() {});
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(top: 25, left: 16),
+                    height: 32,
+                    width: 64,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          "lib/asset/Reactions/clapping1.png",
+                          width: 18,
+                          height: 14,
+                          fit: BoxFit.fitHeight,
+                        ),
+                        SizedBox(
+                          width: 2,
+                        ),
+                        Text(
+                          widget.pageType == "TimeLineMyCampus"?
+                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count.toString():
+                          widget.pageType == "TimeLineGlobal"?
+                          feedProvider.feedList[widget.indexVal].likeCount[0].count.toString():
+                          widget.pageType == "User"?
+                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count.toString():
+                          widget.pageType == "Bookmark"?
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count.toString():
+                          widget.pageType == "Search"?
+                          feedProvider.feedItem[widget.indexVal].likeCount[0].count.toString():
+                          widget.likeCount[0].count.toString(),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.1,
+                            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: (){
+                    if(widget.pageType == "TimeLineMyCampus"){
+                      if(feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
+                    }else if(widget.pageType == "TimeLineGlobal"){
+                      if(feedProvider.feedList[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedList[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
+                    }else if(widget.pageType == "User"){
+                      if(feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
+                    }else if(widget.pageType == "Bookmark"){
+                      if(feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count!=0 || feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
+                    }else if(widget.pageType == "Search"){
+                      if(feedProvider.feedItem[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedItem[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
+                    }
+                  },
+                  onDoubleTap: ()async{
+                    print(widget.pageType);
+                    String response = await FeedService().likeFeed(feedId, 1, token);
+                    if(response == "Feed Liked successfully"){
+                      if(widget.pageType == "TimeLineMyCampus"){
+                        feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count++;
+                        feedProvider.feedListMyCampus[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                      }else if(widget.pageType == "TimeLineGlobal"){
+                        feedProvider.feedList[widget.indexVal].likeCount[1].count++;
+                        feedProvider.feedList[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                      }else if(widget.pageType == "User"){
+                        feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count++;
+                        feedProvider.feedItemListOfUser[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                      }else if(widget.pageType == "Bookmark"){
+                        feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count++;
+                        feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                      }else if(widget.pageType == "Search"){
+                        feedProvider.feedItem[widget.indexVal].likeCount[1].count++;
+                        feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                      }
+                    }else if(response == 'Feed Unliked successfully'){
+                      if(widget.pageType == "TimeLineMyCampus"){
+                        if(feedProvider.feedListMyCampus[widget.indexVal].isLiked.emojiValue==1){
+                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count--;
+                          feedProvider.feedListMyCampus[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 1, token);
+                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count++;
+                          feedProvider.feedListMyCampus[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count--;
+                        }
+                      }else if(widget.pageType == "TimeLineGlobal"){
+                        if(feedProvider.feedList[widget.indexVal].isLiked.emojiValue==1){
+                          feedProvider.feedList[widget.indexVal].likeCount[1].count--;
+                          feedProvider.feedList[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 1, token);
+                          feedProvider.feedList[widget.indexVal].likeCount[1].count++;
+                          feedProvider.feedList[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.feedList[widget.indexVal].likeCount[0].count--;
+                        }
+                      }else if(widget.pageType == "User"){
+                        if(feedProvider.feedItemListOfUser[widget.indexVal].isLiked.emojiValue==1){
+                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count--;
+                          feedProvider.feedItemListOfUser[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 1, token);
+                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count++;
+                          feedProvider.feedItemListOfUser[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count--;
+                        }
+                      }else if(widget.pageType == "Bookmark"){
+                        if(feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked.emojiValue==1){
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count--;
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 1, token);
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count++;
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count--;
+                        }
+                      }else if(widget.pageType == "Search"){
+                        if(feedProvider.feedItem[widget.indexVal].isLiked.emojiValue==1){
+                          feedProvider.feedItem[widget.indexVal].likeCount[1].count--;
+                          feedProvider.feedItem[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 1, token);
+                          feedProvider.feedItem[widget.indexVal].likeCount[1].count++;
+                          feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.feedItem[widget.indexVal].likeCount[0].count--;
+                        }
+                      }
+                    }
+                    setState(() {});
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(top: 25, left: 16),
+                    height: 32,
+                    width: 64,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          "lib/asset/icons/heart.png",
+                          width: 18,
+                          height: 14,
+                          fit: BoxFit.fitHeight,
+                        ),
+                        SizedBox(
+                          width: 2,
+                        ),
+                        Text(
+                          widget.pageType == "TimeLineMyCampus"?
+                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count.toString():
+                          widget.pageType == "TimeLineGlobal"?
+                          feedProvider.feedList[widget.indexVal].likeCount[1].count.toString():
+                          widget.pageType == "User"?
+                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count.toString():
+                          widget.pageType == "Bookmark"?
+                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count.toString():
+                          widget.pageType == "Search"?
+                          feedProvider.feedItem[widget.indexVal].likeCount[1].count.toString():
+                          widget.likeCount[0].count.toString(),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.1,
+                            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Expanded(
+                //   child: Container(
+                //     height: 32,
+                //     margin: EdgeInsets.only(left: 8,top: 25),
+                //     child: ListView.builder(
+                //       shrinkWrap: true,
+                //       scrollDirection: Axis.horizontal,
+                //       itemCount: widget.likeCount.length,
+                //       itemBuilder: (context, index) {
+                //         return InkWell(
+                //           onTap: () => Get.to(() => FeedLikesDetails(
+                //             feedId: widget.feedId,
+                //           )),
+                //           splashColor: Colors.transparent,
+                //           highlightColor: Colors.transparent,
+                //           child: Container(
+                //             margin: EdgeInsets.only(bottom: 0, left: 10),
+                //             height: 32,
+                //             width: 64,
+                //             decoration: BoxDecoration(
+                //                 borderRadius: BorderRadius.circular(16),
+                //                 border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1)
+                //             ),
+                //             padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.4),
+                //             child: Row(
+                //               mainAxisAlignment: MainAxisAlignment.center,
+                //               children: [
+                //                 Image.asset(
+                //                   reactionImages[widget.likeCount[index].emojiValue],
+                //                   width: 18,
+                //                   height: 14,
+                //                   fit: BoxFit.fitHeight,
+                //                 ),
+                //                 SizedBox(
+                //                   width: 2,
+                //                 ),
+                //                 Text(widget.likeCount[index].count.toString(),
+                //                   style: TextStyle(
+                //                     fontSize: 13,
+                //                     fontWeight: FontWeight.w500,
+                //                     letterSpacing: 0.1,
+                //                     color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                //                   ),
+                //                 ),
+                //               ],
+                //             ),
+                //           ),
+                //         );
+                //       },
+                //     ),
+                //   ),
+                // ),
+                Expanded(
+                  child: SizedBox(
+                    width: 5,
+                  ),
+                ),
+                // Padding(
+                //   padding: const EdgeInsets.only(top: 25),
+                //   child: IconButton(
+                //     onPressed: (){
+                //       Navigator.push(
+                //           context,
+                //           MaterialPageRoute(
+                //               builder: (context) => FeedComments(
+                //                 feedIndex: widget.indexVal,
+                //                 feedId: feedId,
+                //               )));
+                //     },
+                //     icon:  Image.asset("lib/asset/icons/message@3x.png",height: 20,color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,),
+                //     color: Colors.grey[50],
+                //   ),
+                // ),
+                // Container(
+                //   margin: EdgeInsets.only(bottom: 3, left: 7),
+                //   child:
+                //   Consumer<FeedProvider>(
+                //     builder: (context, feedProvider, child) {
+                //       return Text(
+                //           widget.isBookmarkedPage ? feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].commentCount.toString() : feedProvider.feedList[widget.indexVal].commentCount.toString(), style: TextStyle(color: Colors.white, fontWeight: FontWeight.w400, fontSize: 14));
+                //     },
+                //   ),
+                //
+                // ),
+                Consumer<FeedProvider>(
+                  builder: (context, value, child) {
+                    if (value.feedItemsBookmarkData != null) {
+                      if (widget.isBookmarkedPage && !bookMarked) {
+                        value.bookmarkByUserData.data.feeds.removeAt(widget.indexVal);
+                        Future.delayed(Duration.zero, () => Provider.of<FeedProvider>(context, listen: false).allBookmarkedFeed());
+                      }
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 16,left: 10,top: 25),
+                      child: InkWell(
+                          child: bookMarked ?
+                          Image.asset("lib/asset/icons/bookmarkColor.png",height: 20,) :
+                          Image.asset("lib/asset/homePageIcons/drawerBookmark@3x.png",height: 20,color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,),
+                          onTap: () {
+                            Provider.of<FeedProvider>(context, listen: false).bookmarkAFeed(feedId, widget.indexVal);
+                            setState(() {
+                              bookMarked=!bookMarked;
+                            });
+                          }),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 15,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget reactionButtons({double degree, double distance, FeedProvider value, int emojiValue}) {
+    return Transform.translate(
+      offset: Offset.fromDirection(getRadiansFromDegree(degree), distance),
+      child: Transform(
+        transform: Matrix4.rotationZ(getRadiansFromDegree(rotationAnimation.value))..scale(degOneTranslationAnimation.value),
+        alignment: Alignment.center,
+        child: CircularButton(
+          color: reactionIconBGColors[emojiValue],
+          width: 38,
+          height: 38,
+          icon: Image.asset(
+            reactionImages[emojiValue],
+            width: 24,
+          ),
+          onClick: () async {
+            reactionClick(emojiValue: emojiValue, likeCount: widget.isBookmarkedPage ? value.bookmarkByUserData.data.feeds[widget.indexVal].likeCount : value.feedList[widget.indexVal].likeCount);
+          },
+        ),
+      ),
+    );
+  }
+
+  reactionClick({List<LikeCount> likeCount, int emojiValue}) async {
+    if (animationController.isCompleted) {
+      animationController.reverse();
+    }
+    bool likedDone = await Provider.of<FeedProvider>(context, listen: false).likeAFeed(feedId, widget.indexVal, emojiValue);
+
+    if (likedDone && !liked) {
+      bool isReactionAvailable = false;
+      for (int i = 0; i < likeCount.length; i++) {
+        if (likeCount[i].emojiValue == emojiValue) {
+          ++likeCount[i].count;
+          isReactionAvailable = true;
+        }
+      }
+      if (!isReactionAvailable) {
+        likeCount.add(LikeCount(emojiValue: emojiValue, count: 1));
+      }
+    }
+  }
+
+  double getRadiansFromDegree(double degree) {
+    double unitRadian = 57.295779513;
+    return degree / unitRadian;
+  }
+
+  Widget _sharedWidget(IsShared isShared) {
+    return Container(
+      margin: EdgeInsets.only(left: 50.0, right: 8, bottom: 10),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12.0), border: Border.all(color: MateColors.line, width: 1)),
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+        ListTile(
+          contentPadding: EdgeInsets.fromLTRB(12, 4, 10, 0),
+          leading: InkWell(
+            onTap: () {
+              if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == isShared.user.id) {
+                Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
+              } else {
+                Navigator.of(context).pushNamed(UserProfileScreen.routeName,
+                    arguments: {"id": isShared.user.id, "name": isShared.user.name, "photoUrl": isShared.user.photoUrl, "firebaseUid": isShared.user.firebaseUid});
+              }
+            },
+            child: isShared.user.photoUrl.length == 0
+                ? ClipOval(
+              child: Text(
+                isShared.user.name[0],
+              ),
+            )
+                : ClipOval(
+              child: Image.network(
+                isShared.user.photoUrl,
+                height: 45,
+                width: 38,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          title: InkWell(
+              onTap: () {
+                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == isShared.user.id) {
+                  Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
+                } else {
+                  Navigator.of(context).pushNamed(UserProfileScreen.routeName,
+                      arguments: {"id": isShared.user.id, "name": isShared.user.name, "photoUrl": isShared.user.photoUrl, "firebaseUid": isShared.user.firebaseUid});
+                }
+              },
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      isShared.user.name,
+                      style: TextStyle(fontFamily: 'Quicksand', color: Colors.white, fontSize: 13.2),
+                      overflow: TextOverflow.clip,
+                    ),
+                  ),
+                  Text(
+                    ' $created',
+                    style: TextStyle(color: Colors.white70, fontSize: 10),
+                  ),
+                ],
+              )),
+          subtitle: SizedBox(
+            height: 27,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: isShared.feedTypes.length,
+              itemBuilder: (context, index) => Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (context) => HomeScreen(
+                          index: 1,
+                          feedTypeName: isShared.feedTypes[index].type.name,
+                        )));
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    margin: EdgeInsets.only(top: 10),
+                    decoration: BoxDecoration(
+                      color: MateColors.activeIcons,
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    child: Text(
+                      '${isShared.feedTypes[index].type.name}',
+                      style: TextStyle(color: Colors.black, fontSize: 10),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8.0, left: 60, right: 15),
+          child: Text(isShared.title, textAlign: TextAlign.left, style: TextStyle(fontSize: 15.0, fontFamily: 'Quicksand', fontWeight: FontWeight.w700, color: MateColors.activeIcons)),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12.0, left: 60, right: 15),
+          child: Text(
+            isShared.description,
+            style: TextStyle(color: Colors.white, fontSize: 12),
+            textAlign: TextAlign.left,
+          ),
+        ),
+        ..._buildMedia(context, isShared.media),
+      ]),
+    );
+  }
+
+  _showDeleteAlertDialog({
+    @required int feedId,
+    @required int indexVal,
+  }) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: new Text("Are you sure?"),
+          content: new Text("You want to delete your post"),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              child: Text("Yes"),
+              onPressed: () async {
+                bool isDeleted = await Provider.of<FeedProvider>(context, listen: false).deleteAFeed(feedId);
+                if (isDeleted) {
+                  Future.delayed(Duration(seconds: 0), () {
+                    // Provider.of<FeedProvider>(context, listen: false).fetchCampusLivePostList();
+                    // Navigator.pop(context);
+                    if (widget.isBookmarkedPage) {
+                      Navigator.pop(context);
+                      Provider.of<FeedProvider>(context, listen: false).allBookmarkedFeed();
+                    } else {
+                      Navigator.pop(context);
+                      if (widget.previousPageFeedId == null) {
+                        Provider.of<FeedProvider>(context, listen: false).fetchFeedList(page: 1, userId: widget.previousPageUserId);
+                      } else {
+                        Provider.of<FeedProvider>(context, listen: false).fetchFeedList(page: 1, feedId: widget.previousPageFeedId);
+                      }
+                    }
+                  });
+                }
+              },
+            ),
+            CupertinoDialogAction(
+                child: Text("No"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                })
+          ],
+        );
+      },
+    );
+  }
+
+  _showFollowAlertDialog({
+    @required int feedId,
+    @required int indexVal,
+  }) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return Consumer<FeedProvider>(
+          builder: (context, value, child) {
+
+            return CupertinoAlertDialog(
+              title: new Text("Are you sure?"),
+              content: new Text(widget.isFollowed?"You want to Unfollow this post":"You want to follow this post"),
+              actions: <Widget>[
+                CupertinoDialogAction(
+                  isDefaultAction: true,
+                  child: value.feedFollowLoader?
+                  Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                    ),
+                  )
+                      :Text("Yes"),
+                  onPressed: () async {
+                    if(widget.isFollowed){
+                      Map<String, dynamic> body = {"post_id": widget.feedId, "post_type": "Feed"};
+                      bool unFollowDone = await Provider.of<FeedProvider>(context, listen: false).unFollowAFeed(body, widget.feedId);
+                      if (unFollowDone) {
+                        if (widget.isBookmarkedPage) {
+                          value.bookmarkByUserData.data.feeds[widget.indexVal].isFollowed=false;
+                        }else{
+                          value.feedList[widget.indexVal].isFollowed=false;
+                        }
+                        widget.isFollowed=false;
+                        Navigator.pop(context);
+                      }
+
+                    }else{
+                      Map<String, dynamic> body = {"post_id": widget.feedId, "post_type": "Feed"};
+                      bool followDone = await Provider.of<FeedProvider>(context, listen: false).followAFeed(body, widget.feedId);
+                      if (followDone) {
+                        if (widget.isBookmarkedPage) {
+                          value.bookmarkByUserData.data.feeds[widget.indexVal].isFollowed=true;
+                        }else{
+                          value.feedList[widget.indexVal].isFollowed=true;
+                        }
+                        widget.isFollowed=true;
+                        Navigator.pop(context);
+                      }
+                    }
+                  },
+                ),
+                CupertinoDialogAction(
+                    child: Text("No"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    })
+              ],
+            );
+          },
+        );
+
+
+
+      },
+    );
+  }
+
+
+
+  modalSheetToShare() {
+    TextEditingController _description = new TextEditingController();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: myHexColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(15.0),
+        ),
+      ),
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(18.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Share this post",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: MateColors.activeIcons),
+                ),
+              ),
+              SizedBox(
+                height: 15.0,
+              ),
+              TextFormField(
+                minLines: 2,
+                maxLines: 8,
+                maxLength: 512,
+                decoration: InputDecoration(
+                  counterStyle: TextStyle(color: Colors.grey),
+                  labelStyle: TextStyle(fontSize: 16.0, color: MateColors.activeIcons),
+                  labelText: "Description",
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.grey, width: 0.3),
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white, width: 0.3),
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                ),
+                style: TextStyle(color: Colors.white, fontSize: 18.0),
+                cursorColor: Colors.cyanAccent,
+                textInputAction: TextInputAction.done,
+                controller: _description,
+                validator: (value) {
+                  return value.isEmpty ? "*description" : null; //returning null means no error occurred. if there are any error then simply return a string
+                },
+              ),
+              SizedBox(
+                height: 16.0,
+              ),
+              ButtonTheme(
+                minWidth: MediaQuery.of(context).size.width - 40,
+                height: 50,
+                child: RaisedButton(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  color: MateColors.activeIcons,
+                  child: Consumer<FeedProvider>(
+                    builder: (ctx, feedProvider, _) {
+                      if (feedProvider.feedShareLoader) {
+                        return Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
+                        );
+                      }
+
+                      return Text(
+                        'Share',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      );
+                    },
+                  ),
+                  onPressed: () async {
+                    // Navigator.pop(context);
+
+                    Map<String, dynamic> body = {"share_desc": _description.text.trim()};
+                    bool shareDone = await Provider.of<FeedProvider>(context, listen: false).shareAFeed(body, widget.feedId);
+                    if (shareDone) {
+                      // Navigator.pop(context);
+                      // Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      //     builder: (context) => HomeScreen(
+                      //           index: 2,
+                      //         )));
+                      Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                              builder: (context) => HomeScreen(
+                                index: 0,
+                              )),
+                              (Route<dynamic> route) => false);
+                    }
+                  },
+                ),
+              ),
+              SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  insertEvent(event) {
+    try {
+      const _scopes = const [gCal.CalendarApi.calendarScope];
+      clientViaUserConsent(_credentials, _scopes, prompt).then((AuthClient client) {
+        var calendar = gCal.CalendarApi(client);
+        String calendarId = "primary";
+        calendar.events.insert(event, calendarId).then((value) {
+          print("ADDEDDD_________________${value.status}");
+          if (value.status == "confirmed") {
+            print('Event added in google calendar');
+          } else {
+            print("Unable to add event in google calendar");
+          }
+        });
+      });
+    } catch (e) {
+      print('Error creating event $e');
+    }
+  }
+
+  void prompt(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+}
+
+class FullImageWidget extends StatelessWidget {
+  final String imagePath;
+
+  const FullImageWidget({Key key, this.imagePath}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: InkWell(
+        onTap: () => Navigator.pop(context),
+        child: SizedBox(
+          width: double.infinity,
+          height: double.infinity,
+          child: InteractiveViewer(
+            panEnabled: true, // Set it to false to prevent panning.
+            boundaryMargin: EdgeInsets.all(50),
+            minScale: 0.2,
+            maxScale: 4,
+            child: Image.network(
+              imagePath,
+              fit: BoxFit.contain,
+              // height: 300,
+              // width: 400,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CircularButton extends StatelessWidget {
+  final double width;
+  final double height;
+  final Color color;
+  final Widget icon;
+  final Function onClick;
+
+  CircularButton({this.color, this.width, this.height, this.icon, this.onClick});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      width: width,
+      height: height,
+      alignment: Alignment.center,
+      child: InkWell(
+        child: icon,
+        enableFeedback: true,
+        onTap: onClick,
+      ),
+    );
+  }
+}

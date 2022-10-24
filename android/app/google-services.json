@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "237545926078",
+    "firebase_url": "https://mate-app-b5fe6.firebaseio.com",
+    "project_id": "mate-app-b5fe6",
+    "storage_bucket": "mate-app-b5fe6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:237545926078:android:053ace08c09f0e57f41def",
+        "android_client_info": {
+          "package_name": "com.mate.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "237545926078-9biln72s9c5h9vot53l84me39unhhnbf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mate.app",
+            "certificate_hash": "d5aeb93cd3e002987869bf4dd9532146cca17794"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_KKaBBwxJAgpH_sdEdi3-Z6ghNI6K3Vo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
