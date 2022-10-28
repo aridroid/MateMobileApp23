@@ -5,6 +5,7 @@ import 'package:mate_app/Screen/Home/HomeScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:mate_app/Screen/Login/login.dart';
 import 'package:mate_app/Screen/Login/signup_with_email.dart';
+import 'package:mate_app/Screen/Profile/updateProfile.dart';
 import 'package:mate_app/Widget/loader.dart';
 import 'package:provider/provider.dart';
 import 'package:mate_app/asset/Colors/MateColors.dart';
@@ -93,7 +94,19 @@ class _GoogleLoginState extends State<GoogleLogin> {
                                 Provider.of<AuthUserProvider>(context, listen: false).login().then((loginSuccess) {
                                   if(loginSuccess){
                                     prefs.setBool('login_app', true);
-                                    Navigator.of(context).pushReplacementNamed(HomeScreen.homeScreenRoute);
+                                    if(Provider.of<AuthUserProvider>(context, listen: false).authUser.universityId==null){
+                                      Get.off(UpdateProfile(
+                                        fullName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName,
+                                        about: "",
+                                        uuid: Provider.of<AuthUserProvider>(context, listen: false).authUser.id,
+                                        universityId: Provider.of<AuthUserProvider>(context, listen: false).authUser.universityId,
+                                        photoUrl: Provider.of<AuthUserProvider>(context, listen: false).authUser.photoUrl,
+                                        coverPhotoUrl: Provider.of<AuthUserProvider>(context, listen: false).authUser.coverPhotoUrl,
+                                        isGoToHome: true,
+                                      ));
+                                    }else{
+                                      Navigator.of(context).pushReplacementNamed(HomeScreen.homeScreenRoute);
+                                    }
                                   }
                                   // if (loginSuccess[0] == "success") {
                                   //   prefs.setBool('login_app', true);

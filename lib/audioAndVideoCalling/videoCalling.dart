@@ -40,7 +40,6 @@ class _VideoCallingState extends State<VideoCalling> {
   }
 
   Future<void> initialize() async {
-    await [Permission.microphone, Permission.camera].request();
     if (APP_ID.isEmpty) {
       setState(() {
         _infoStrings.add(
@@ -72,6 +71,7 @@ class _VideoCallingState extends State<VideoCalling> {
         });
       },
       joinChannelSuccess: (channel, uid, elapsed) {
+        print("//////////////////////////////////////");
         setState(() {
           final info = 'onJoinChannel: $channel, uid: $uid';
           _infoStrings.add(info);
@@ -179,7 +179,7 @@ class _VideoCallingState extends State<VideoCalling> {
   List<Widget> _getRenderViews() {
     final List<StatefulWidget> list = [];
     list.add(RtcLocalView.SurfaceView());
-    _users.forEach((int uid) => list.add(RtcRemoteView.SurfaceView(uid: uid,channelId: widget.channelName,)));
+    _users.forEach((int uid) => list.add(RtcRemoteView.SurfaceView(uid: uid,)));
     return list;
   }
 

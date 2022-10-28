@@ -490,7 +490,7 @@ class _EventSearchState extends State<EventSearch> {
                                       ),
                                       SizedBox(width: 8,),
                                       Text(
-                                        DateFormat('hh:mm a').format(DateTime.parse(list[index].time.toString()).toLocal()).toString(),
+                                        DateFormat('hh:mm a').format(DateTime.parse(list[index].time.toString())).toString(),
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w400,
@@ -500,7 +500,7 @@ class _EventSearchState extends State<EventSearch> {
                                       ),
                                       if(list[index].endTime!=null)
                                         Text(
-                                          " - "+DateFormat('hh:mm a').format(DateTime.parse(list[index].endTime.toString()).toLocal()).toString(),
+                                          " - "+DateFormat('hh:mm a').format(DateTime.parse(list[index].endTime.toString())).toString(),
                                           style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w400,

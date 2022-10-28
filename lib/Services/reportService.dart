@@ -49,7 +49,8 @@ class ReportService {
   Future appUpdate() async {
     try {
       final response = await _apiService.get(uri: _backEndAPIRoutes.appUpdate());
-
+      print("----------------Hello version api calling-------------------");
+      print(response.body);
       return AppUpdateModel.fromJson(json.decode(response.body));
     } on SocketException catch (error) {
       throw Exception('NO INTERNET :: $error');

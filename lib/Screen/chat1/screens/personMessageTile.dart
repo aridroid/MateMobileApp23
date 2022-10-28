@@ -1,3 +1,4 @@
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:mate_app/Utility/Utility.dart';
 import 'package:mate_app/Widget/Loaders/Shimmer.dart';
 import 'package:mate_app/groupChat/pages/customAlertDialog.dart';
@@ -149,7 +150,15 @@ class PersonMessageTile extends StatelessWidget {
                 _chatImage(message, context) :
                 isFile ?
                 _chatFile(message, context) :
-                Text(message.trim(), textAlign: TextAlign.start,
+                Linkify(
+                  onOpen: (link) async {
+                    print("Clicked ${link.url}!");
+                    if (await canLaunch(link.url))
+                      await launch(link.url);
+                    else
+                      throw "Could not launch ${link.url}";
+                  },
+                  text: message.trim(),
                   style: TextStyle(
                     fontFamily: "Poppins",
                     fontSize: 14.0,
@@ -159,7 +168,21 @@ class PersonMessageTile extends StatelessWidget {
                     themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
                     themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
                   ),
+                  textAlign: TextAlign.start,
+                  linkStyle: TextStyle(color: Colors.blue,fontWeight: FontWeight.bold,fontSize: 14.0,letterSpacing: 0.1),
                 ),
+                // Text(message.trim(),
+                //   textAlign: TextAlign.start,
+                //   style: TextStyle(
+                //     fontFamily: "Poppins",
+                //     fontSize: 14.0,
+                //     fontWeight: FontWeight.w400,
+                //     letterSpacing: 0.1,
+                //     color: sentByMe?
+                //     themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                //     themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                //   ),
+                // ),
               ],
             ),
           ),

@@ -391,7 +391,7 @@ class _EventDetailsState extends State<EventDetails> {
                         ),
                         SizedBox(width: 8,),
                         Text(
-                          DateFormat('hh:mm a').format(DateTime.parse(widget.list.time.toString()).toLocal()).toString(),
+                          DateFormat('hh:mm a').format(DateTime.parse(widget.list.time.toString())).toString(),
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
@@ -401,7 +401,7 @@ class _EventDetailsState extends State<EventDetails> {
                         ),
                         if(widget.list.endTime!=null)
                           Text(
-                            " - "+DateFormat('hh:mm a').format(DateTime.parse(widget.list.endTime.toString()).toLocal()).toString(),
+                            " - "+DateFormat('hh:mm a').format(DateTime.parse(widget.list.endTime.toString())).toString(),
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w400,

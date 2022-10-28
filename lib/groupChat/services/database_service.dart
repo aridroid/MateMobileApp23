@@ -254,6 +254,10 @@ class DatabaseService {
     return FirebaseFirestore.instance.collection("chat-users").doc(userId).get();
   }
 
+  Future<QuerySnapshot> getUsersDetailsAll() async {
+    return FirebaseFirestore.instance.collection("chat-users").get();
+  }
+
   Future<bool> getUserExistGroup(String groupId,String userId,String userName) async {
     DocumentSnapshot groupDocSnapshot = await groupCollection.doc(groupId).get();
     List<dynamic> groupUsers = groupDocSnapshot['members'];

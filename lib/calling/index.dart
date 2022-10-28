@@ -157,6 +157,7 @@ import 'package:mate_app/Providers/AuthUserProvider.dart';
 import 'package:mate_app/Widget/loader.dart';
 import 'package:mate_app/audioAndVideoCalling/videoCalling.dart';
 import 'package:mate_app/constant.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import './call.dart';
 import 'package:http/http.dart'as http;
@@ -270,8 +271,9 @@ class IndexState extends State<IndexPage> {
       });
      // if (_channelController.text.isNotEmpty) {
         // push video page with given channel name
+       await [Permission.microphone, Permission.camera].request();
         Navigator.push(context, MaterialPageRoute(builder: (context) => VideoCalling(
-          channelName: "Test",//channelNameRand,
+          channelName: "hello",//channelNameRand,
           token: Token,//response,
           //_channelController.text,
         )));

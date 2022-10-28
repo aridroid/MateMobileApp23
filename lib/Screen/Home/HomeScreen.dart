@@ -56,10 +56,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _projectVersion='';
   bool appCheckFirstTime=true;
-
+  ReportProvider _reportProvider;
 
   @override
   void initState() {
+    _reportProvider = Provider.of<ReportProvider>(context, listen: false);
     getConnection();
     getMateSupportGroupDetails();
     // TODO: implement initState
@@ -78,6 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
       projectVersion = 'Failed to get build number.';
     }
     _projectVersion = projectVersion;
+    print("--------------------Version--------------------");
     print("version $_projectVersion");
     var platform = Theme.of(context).platform;
     if(platform == TargetPlatform.iOS){
@@ -175,9 +177,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         var platform = Theme.of(context).platform;
                         int appVersion=getExtendedVersionNumber(_projectVersion);
                         if(platform == TargetPlatform.android){
-                          storeVersion=getExtendedVersionNumber(reportProvider.appUpdateModelData.data.iosVersion);
-                        }else if(platform == TargetPlatform.iOS){
+                          //storeVersion=getExtendedVersionNumber(reportProvider.appUpdateModelData.data.iosVersion);
                           storeVersion=getExtendedVersionNumber(reportProvider.appUpdateModelData.data.androidVersion);
+                        }else if(platform == TargetPlatform.iOS){
+                          storeVersion=getExtendedVersionNumber(reportProvider.appUpdateModelData.data.iosVersion);
+                          //storeVersion=getExtendedVersionNumber(reportProvider.appUpdateModelData.data.androidVersion);
                           // storeVersion=getExtendedVersionNumber('1.0.10');
                         }
                         if(storeVersion>appVersion){
@@ -195,22 +199,27 @@ class _HomeScreenState extends State<HomeScreen> {
                                         actions: <Widget>[
                                           CupertinoDialogAction(
                                             isDefaultAction: true,
-                                            child: Consumer<ReportProvider>(
-                                              builder: (ctx, reportProvider, _) {
-                                                if (reportProvider.postReportLoader) {
-                                                  return Center(
-                                                    child: CircularProgressIndicator(
-                                                      color: Colors.white,
-                                                    ),
-                                                  );
-                                                }
-                                                return Text("Update");
-                                              },
-                                            ),
+                                            child: _reportProvider.postReportLoader?
+                                            Center(
+                                              child: CircularProgressIndicator(
+                                                color: Colors.white,
+                                              ),
+                                            ):Text("Update"),
+                                            // Consumer<ReportProvider>(
+                                            //   builder: (ctx, reportProvider, _) {
+                                            //     if (reportProvider.postReportLoader) {
+                                            //       return Center(
+                                            //         child: CircularProgressIndicator(
+                                            //           color: Colors.white,
+                                            //         ),
+                                            //       );
+                                            //     }
+                                            //     return Text("Update");
+                                            //   },
+                                            // ),
 
                                             onPressed: () async {
-                                              StoreRedirect.redirect(
-                                                  iOSAppId: "1547466147");
+                                              StoreRedirect.redirect(iOSAppId: "1547466147");
                                             },
                                           ),
                                           // CupertinoDialogAction(

@@ -67,6 +67,16 @@ class _UpdateProfileState extends State<UpdateProfile> {
   }
 
   getStoredValue()async{
+    if(widget.about==null || widget.about==""){
+      print("======Fetch user about data========");
+      Future.delayed(Duration(seconds: 0), () async{
+        await Provider.of<AuthUserProvider>(context, listen: false).getUserInfo(widget.uuid);
+        if(Provider.of<AuthUserProvider>(context, listen: false).userAboutDataLoader==false){
+          aboutController.text = Provider.of<AuthUserProvider>(context, listen: false).userAboutData.data.about??"";
+          setState(() {});
+        }
+      });
+    }
     SharedPreferences preferences = await SharedPreferences.getInstance();
     token = preferences.getString("token");
     log(token);
@@ -492,81 +502,85 @@ class _UpdateProfileState extends State<UpdateProfile> {
                     ),
                     onPressed: ()async{
                       if(formKey.currentState.validate()){
-                            String firstName,lastName;
-                            var names;
-                            if(fullNameController.text.contains(" ")){
-                              names = fullNameController.text.split(' ');
-                            }else{
-                              names = fullNameController.text.split(' ');
-                            }
-                            if(names.length>=2){
-                              for(int i=0;i<names.length-1;i++){
-                                if(firstName==null){
-                                  firstName = names[i];
-                                }else{
-                                  firstName = firstName + " " + names[i];
-                                }
-                              }
-                              lastName = names.last;
-                            }else{
-                              firstName = fullNameController.text;
-                              lastName = " ";
-                            }
-                            print(firstName);
-                            print(lastName);
-                            print(fullNameController.text);
-                            setState(() {
-                              isLoading = true;
-                            });
-                            if(profileImage!=""){
-                              if(!profileImage.contains("http")){
-                                Provider.of<AuthUserProvider>(context, listen: false).updatePhoto(imageFile: _base64encodedImageForProfilePic);
-                              }
-                            }
-                            if(coverImage!=""){
-                              if(!coverImage.contains("http")){
-                                Provider.of<AuthUserProvider>(context, listen: false).updateCoverPhoto(imageFile: _base64encodedImageForCoverPIc);
-                              }
-                            }
-                            if(aboutController.text!=null && aboutController.text!=""){
-                              Map<String, dynamic> _body = {
-                                "uuid": widget.uuid,
-                                "about": aboutController.text,
-                              };
-                              await Provider.of<AuthUserProvider>(context, listen: false).updateUserInfo(_body);
-                              Provider.of<AuthUserProvider>(context, listen: false).getUserInfo(widget.uuid);
-                            }else{
-                              Map<String, dynamic> _body = {
-                                "uuid": widget.uuid,
-                                "about": "",
-                              };
-                              await Provider.of<AuthUserProvider>(context, listen: false).updateUserInfo(_body);
-                              Provider.of<AuthUserProvider>(context, listen: false).getUserInfo(widget.uuid);
-                            }
-                            String response = await authUserService.updateUserProfile(
-                              firstName: firstName,
-                              lastName: lastName,
-                              displayName: fullNameController.text,
-                              universityId: universityId,
-                              token: token,
-                            );
-                            if(response=="User profile updated."){
-                              await Provider.of<AuthUserProvider>(context, listen: false).getUserProfileData(saveToSharedPref: true);
-                              setState(() {
-                                isLoading = false;
-                              });
-                              Fluttertoast.showToast(msg: "Profile updated successfully", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
-                              if(widget.isGoToHome){
-                                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen(index: 0,)));
+                        if(universityId!=""||universityId!=null){
+                          String firstName,lastName;
+                          var names;
+                          if(fullNameController.text.contains(" ")){
+                            names = fullNameController.text.split(' ');
+                          }else{
+                            names = fullNameController.text.split(' ');
+                          }
+                          if(names.length>=2){
+                            for(int i=0;i<names.length-1;i++){
+                              if(firstName==null){
+                                firstName = names[i];
                               }else{
-                                Navigator.pop(context);
+                                firstName = firstName + " " + names[i];
                               }
-                            }else{
-                              setState(() {
-                                isLoading = false;
-                              });
-                              Fluttertoast.showToast(msg: "Something went wrong", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
                             }
+                            lastName = names.last;
+                          }else{
+                            firstName = fullNameController.text;
+                            lastName = " ";
+                          }
+                          print(firstName);
+                          print(lastName);
+                          print(fullNameController.text);
+                          setState(() {
+                            isLoading = true;
+                          });
+                          if(profileImage!=""){
+                            if(!profileImage.contains("http")){
+                              Provider.of<AuthUserProvider>(context, listen: false).updatePhoto(imageFile: _base64encodedImageForProfilePic);
+                            }
+                          }
+                          if(coverImage!=""){
+                            if(!coverImage.contains("http")){
+                              Provider.of<AuthUserProvider>(context, listen: false).updateCoverPhoto(imageFile: _base64encodedImageForCoverPIc);
+                            }
+                          }
+                          if(aboutController.text!=null && aboutController.text!=""){
+                            Map<String, dynamic> _body = {
+                              "uuid": widget.uuid,
+                              "about": aboutController.text,
+                            };
+                            await Provider.of<AuthUserProvider>(context, listen: false).updateUserInfo(_body);
+                            Provider.of<AuthUserProvider>(context, listen: false).getUserInfo(widget.uuid);
+                          }else{
+                            Map<String, dynamic> _body = {
+                              "uuid": widget.uuid,
+                              "about": "",
+                            };
+                            await Provider.of<AuthUserProvider>(context, listen: false).updateUserInfo(_body);
+                            Provider.of<AuthUserProvider>(context, listen: false).getUserInfo(widget.uuid);
+                          }
+                          String response = await authUserService.updateUserProfile(
+                            firstName: firstName,
+                            lastName: lastName,
+                            displayName: fullNameController.text,
+                            universityId: universityId,
+                            token: token,
+                          );
+                          if(response=="User profile updated."){
+                            await Provider.of<AuthUserProvider>(context, listen: false).getUserProfileData(saveToSharedPref: true);
+                            setState(() {
+                              isLoading = false;
+                            });
+                            Fluttertoast.showToast(msg: "Profile updated successfully", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+                            if(widget.isGoToHome){
+                              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen(index: 0,)));
+                            }else{
+                              Navigator.pop(context);
+                            }
+                          }else{
+                            setState(() {
+                              isLoading = false;
+                            });
+                            Fluttertoast.showToast(msg: "Something went wrong", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+                          }
+                        }else{
+                          Fluttertoast.showToast(msg: "Please select university from drop down", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+                        }
                       }
                     },
                     child: Text("Update",

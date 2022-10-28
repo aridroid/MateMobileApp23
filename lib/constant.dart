@@ -11,7 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 //Agora Project Name : Mate
 //Agora App Certificate : 0bd25de6ff1c48e0ba71eadf5e734969
 const APP_ID = "789013eabb9c4b2bada1bf76d5004247";
-const Token = "007eJxTYJisv2D31qDV3o/yPm5yZvN59SR+v03NwtSMX6wxFrwvjy1QYDC3sDQwNE5NTEqyTDZJMkpKTEk0TEozN0sxNTAwMTIx99wclNwQyMig8PIbEyMDBIL4LAwhqcUlDAwAsmAgxA==";
+const Token = "007eJxTYEhd8O6Mycu164wFTK5/WDJb5mrT9pC2dRqsvZPqAp6nOF1VYDC3sDQwNE5NTEqyTDZJMkpKTEk0TEozN0sxNTAwMTIx//85PLk+kJHBbMMvFkYGCATxWRkyUnNy8hkYAAwXIlQ=";
 
 
 

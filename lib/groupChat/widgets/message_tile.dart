@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:focused_menu/focused_menu.dart';
 import 'package:focused_menu/modals.dart';
@@ -625,7 +626,16 @@ class _MessageTileState extends State<MessageTile> {
                               widget.isImage ? _chatImage(widget.message, context) :
                               widget.isGif? _chatGif(widget.message, context) :
                               widget.isFile? _chatFile(widget.message, context) :
-                              Text(widget.message.trim(), textAlign: TextAlign.start,
+
+                              Linkify(
+                                onOpen: (link) async {
+                                  print("Clicked ${link.url}!");
+                                  if (await canLaunch(link.url))
+                                    await launch(link.url);
+                                  else
+                                    throw "Could not launch ${link.url}";
+                                },
+                                text: widget.message.trim(),
                                 style: TextStyle(
                                   fontFamily: "Poppins",
                                   fontSize: 14.0,
@@ -635,7 +645,23 @@ class _MessageTileState extends State<MessageTile> {
                                   themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
                                   themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
                                 ),
+                                textAlign: TextAlign.start,
+                                linkStyle: TextStyle(color: Colors.blue,fontWeight: FontWeight.bold,fontSize: 14.0,letterSpacing: 0.1),
                               ),
+
+                              // Text(
+                              //   widget.message.trim(),
+                              //   textAlign: TextAlign.start,
+                              //   style: TextStyle(
+                              //     fontFamily: "Poppins",
+                              //     fontSize: 14.0,
+                              //     fontWeight: FontWeight.w400,
+                              //     letterSpacing: 0.1,
+                              //     color: widget.sentByMe?
+                              //     themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                              //     themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                              //   ),
+                              // ),
                             ],
                           ),
                         ),

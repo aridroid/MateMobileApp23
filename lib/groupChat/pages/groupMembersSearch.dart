@@ -37,25 +37,57 @@ class _GroupMembersSearchState extends State<GroupMembersSearch> {
 
   getData()async{
     documentSnapshot =  await DatabaseService().getGroupDetailsOnce(widget.groupId);
+
+    QuerySnapshot allUser = await DatabaseService().getUsersDetailsAll();
+
+    List<String> uidList = [];
     for(int i=0;i<documentSnapshot['members'].length;i++){
-      print(documentSnapshot['members'][i].split("_")[0]);
-      DocumentSnapshot value = await DatabaseService().getUsersDetails(documentSnapshot['members'][i].split("_")[0]);
-      userList.add(
-          UserListModel(
-            uuid: value["uuid"],
-            uid: value["uid"],
-            displayName: value["displayName"],
-            photoURL: value["photoURL"],
-            email: value["email"],
-          )
-      );
+      uidList.add(documentSnapshot['members'][i].split("_")[0]);
     }
+
+    for(int i=0;i<allUser.docs.length;i++){
+      if(allUser.docs[i]["displayName"]!=null && allUser.docs[i]["displayName"]!="" && uidList.contains(allUser.docs[i]["uid"])){
+        userList.add(
+            UserListModel(
+              uuid: allUser.docs[i]["uuid"],
+              uid: allUser.docs[i]["uid"],
+              displayName: allUser.docs[i]["displayName"],
+              photoURL: allUser.docs[i]["photoURL"],
+              email: allUser.docs[i]["email"],
+            )
+        );
+      }
+    }
+
     userList.sort((a, b) {
       return a.displayName.toLowerCase().compareTo(b.displayName.toLowerCase());
     });
     setState(() {
       isLoading = false;
     });
+
+    // for(int i=0;i<documentSnapshot['members'].length;i++){
+    //   print(documentSnapshot['members'][i].split("_")[0]);
+    //   DocumentSnapshot value = await DatabaseService().getUsersDetails(documentSnapshot['members'][i].split("_")[0]);
+    //   userList.add(
+    //       UserListModel(
+    //         uuid: value["uuid"],
+    //         uid: value["uid"],
+    //         displayName: value["displayName"],
+    //         photoURL: value["photoURL"],
+    //         email: value["email"],
+    //       )
+    //   );
+    //   setState(() {
+    //     //isLoading = false;
+    //   });
+    // }
+    // userList.sort((a, b) {
+    //   return a.displayName.toLowerCase().compareTo(b.displayName.toLowerCase());
+    // });
+    // setState(() {
+    //   isLoading = false;
+    // });
   }
 
   @override

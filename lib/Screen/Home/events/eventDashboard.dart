@@ -686,7 +686,7 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                                               ),
                                               SizedBox(width: 8,),
                                               Text(
-                                                DateFormat('hh:mm a').format(DateTime.parse(list[index].time.toString()).toLocal()).toString(),
+                                                DateFormat('hh:mm a').format(DateTime.parse(list[index].time.toString())).toString(),
                                                 style: TextStyle(
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.w400,
@@ -696,7 +696,7 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                                               ),
                                               if(list[index].endTime!=null)
                                               Text(
-                                                " - "+DateFormat('hh:mm a').format(DateTime.parse(list[index].endTime.toString()).toLocal()).toString(),
+                                                " - "+DateFormat('hh:mm a').format(DateTime.parse(list[index].endTime.toString())).toString(),
                                                 style: TextStyle(
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.w400,
@@ -1301,7 +1301,7 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                                               ),
                                               SizedBox(width: 8,),
                                               Text(
-                                                DateFormat('hh:mm a').format(DateTime.parse(listLocal[index].time.toString()).toLocal()).toString(),
+                                                DateFormat('hh:mm a').format(DateTime.parse(listLocal[index].time.toString())).toString(),
                                                 style: TextStyle(
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.w400,
@@ -1311,7 +1311,7 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                                               ),
                                               if(listLocal[index].endTime!=null)
                                                 Text(
-                                                  " - "+DateFormat('hh:mm a').format(DateTime.parse(listLocal[index].endTime.toString()).toLocal()).toString(),
+                                                  " - "+DateFormat('hh:mm a').format(DateTime.parse(listLocal[index].endTime).toLocal()).toString(),
                                                   style: TextStyle(
                                                     fontSize: 14,
                                                     fontWeight: FontWeight.w400,
