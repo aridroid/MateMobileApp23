@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mate_app/Providers/AuthUserProvider.dart';
 import 'package:mate_app/Screen/Chat/StudyGroupsScreen.dart';
@@ -28,12 +30,14 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:store_redirect/store_redirect.dart';
 import 'package:sizer/sizer.dart';
 import '../../Providers/FeedProvider.dart';
 import '../../Providers/campusTalkProvider.dart';
 import '../../Providers/reportProvider.dart';
 import '../../Utility/Utility.dart';
+import '../../audioAndVideoCalling/acceptRejectScreen.dart';
 import '../../textStyles.dart';
 import '../chatDashboard/chatDashboard.dart';
 
@@ -49,7 +53,7 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState(index);
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
   int _currentIndex;
 
   _HomeScreenState(this._currentIndex);
@@ -59,13 +63,99 @@ class _HomeScreenState extends State<HomeScreen> {
   ReportProvider _reportProvider;
 
   @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state)async{
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused) {
+      print("Went to background");
+    }
+    if (state == AppLifecycleState.resumed){
+      print("come back from  background");
+      User _user =  FirebaseAuth.instance.currentUser;
+      final CollectionReference collection = FirebaseFirestore.instance.collection('calling');
+      DocumentSnapshot documentSnapshot = await collection.doc(_user.uid).get();
+      print(documentSnapshot.data());
+      if(documentSnapshot.data()!=null && documentSnapshot.data().toString().contains("callType")){
+        DateTime dateTimeLocal = DateTime.now();
+        DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(documentSnapshot["timestamp"].toString()));
+        Duration diff = dateTimeLocal.difference(dateFormatServer);
+        print(diff.inMinutes);
+
+        SharedPreferences preferences = await SharedPreferences.getInstance();
+        bool check = preferences.getBool("isCallOngoing")??false;
+        print(check);
+        if(diff.inMinutes<3 && check==false){
+          Get.to(
+              AcceptRejectScreen(
+                channelName: documentSnapshot["channelName"],
+                token: documentSnapshot["token"],
+                callType: documentSnapshot["callType"],
+                callerName: documentSnapshot["callerName"],
+                callerImage: documentSnapshot["callerImage"],
+              )
+          );
+          preferences.setBool("isCallOngoing",true);
+          FirebaseFirestore.instance.collection("calling").doc(_user.uid).delete();
+        }else{
+          Get.snackbar('Missed call from ${documentSnapshot["callerName"]}', "",
+            backgroundColor: MateColors.activeIcons,
+          );
+          // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          //   content: Text('Missed call from ${documentSnapshot["callerName"]}'),
+          //   duration: Duration(seconds: 5),
+          // ));
+          FirebaseFirestore.instance.collection("calling").doc(_user.uid).delete();
+        }
+      }
+    }
+  }
+
+  @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     _reportProvider = Provider.of<ReportProvider>(context, listen: false);
     getConnection();
     getMateSupportGroupDetails();
+    checkHasCall();
     // TODO: implement initState
     super.initState();
     _vCode();
+  }
+
+  checkHasCall()async{
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.setBool("isCallOngoing",false);
+    print("--------Checking call has or not----------------");
+    User _user =  FirebaseAuth.instance.currentUser;
+    final CollectionReference collection = FirebaseFirestore.instance.collection('calling');
+    DocumentSnapshot documentSnapshot = await collection.doc(_user.uid).get();
+    print(documentSnapshot.data());
+    if(documentSnapshot.data()!=null && documentSnapshot.data().toString().contains("callType")){
+      DateTime dateTimeLocal = DateTime.now();
+      DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(documentSnapshot["timestamp"].toString()));
+      Duration diff = dateTimeLocal.difference(dateFormatServer);
+      print(diff.inMinutes);
+      if(diff.inMinutes<3){
+        Get.to(
+            AcceptRejectScreen(
+              channelName: documentSnapshot["channelName"],
+              token: documentSnapshot["token"],
+              callType: documentSnapshot["callType"],
+              callerName: documentSnapshot["callerName"],
+              callerImage: documentSnapshot["callerImage"],
+            )
+        );
+        SharedPreferences preferences = await SharedPreferences.getInstance();
+        preferences.setBool("isCallOngoing",true);
+        FirebaseFirestore.instance.collection("calling").doc(_user.uid).delete();
+      }
+    }
   }
 
   void _vCode() async {

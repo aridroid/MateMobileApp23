@@ -51,6 +51,7 @@ class GroupTile extends StatelessWidget {
                               groupName: snapshot.data['groupName'],
                               photoURL: snapshot.data['groupIcon'],
                               totalParticipant: snapshot.data['members'].length.toString(),
+                              memberList : snapshot.data['members'],
                             )));
                     loadData();
                   },

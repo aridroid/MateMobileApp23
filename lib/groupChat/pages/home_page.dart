@@ -1135,6 +1135,7 @@ class _HomePageState extends State<GroupHomePage> with TickerProviderStateMixin{
                                               groupId: groupId,
                                               userName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName,
                                               groupName: snapshot.data['groupName'],
+                                              memberList : snapshot.data["members"],
                                             )));
                                   },
                                   child: Text(
@@ -1155,6 +1156,7 @@ class _HomePageState extends State<GroupHomePage> with TickerProviderStateMixin{
                                             userName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName,
                                             groupName: snapshot.data['groupName'],
                                             photoURL: snapshot.data['groupIcon'],
+                                            memberList : snapshot.data["members"],
                                           )));
                                     });
                                   },
@@ -1879,6 +1881,7 @@ class MyDialogState extends State<MyDialog> {
                               groupId: value,
                               userName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName,
                               groupName: _groupName,
+                              memberList : [Provider.of<AuthUserProvider>(context, listen: false).authUser.firebaseUid],
                             )));
                   });
 

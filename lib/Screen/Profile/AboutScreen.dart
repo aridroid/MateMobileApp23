@@ -994,7 +994,14 @@ class _AboutScreenState extends State<AboutScreen> {
                 trailing: InkWell(
                   onTap: () async {
                     if (_isJoined) {
-                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(groupId: groupId, userName: userName, groupName: groupName,totalParticipant: totalParticipant.toString(),photoURL: snapshot.data["groupIcon"],)));
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(
+                        groupId: groupId,
+                        userName: userName,
+                        groupName: groupName,
+                        totalParticipant: totalParticipant.toString(),
+                        photoURL: snapshot.data["groupIcon"],
+                          memberList :  snapshot.data["members"],
+                      )));
                     }
                     //else if (maxParticipant != null ? totalParticipant < maxParticipant : true)
                     else{

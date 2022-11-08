@@ -1,40 +1,36 @@
 import 'dart:async';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+//import 'package:googleapis/content/v2_1.dart';
 import 'package:mate_app/Providers/AuthUserProvider.dart';
-import 'package:mate_app/Screen/Home/Community/campusLiveDetailsScreen.dart';
-import 'package:mate_app/Screen/Home/Community/campusTalkDetailsScreen.dart';
 import 'package:mate_app/Screen/Home/HomeScreen.dart';
-import 'package:mate_app/Screen/Home/TimeLine/feedDetailsScreen.dart';
 import 'package:mate_app/Screen/Login/GoogleLogin.dart';
-import 'package:mate_app/groupChat/pages/home_page.dart';
 import 'package:mate_app/groupChat/services/dynamicLinkService.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:mate_app/Utility/Utility.dart' as config;
-import 'package:overlay_support/overlay_support.dart';
-
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mate_app/asset/Colors/MateColors.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import '../audioAndVideoCalling/acceptRejectScreen.dart';
 import '../groupChat/pages/groupDetailsBeforeJoining.dart';
 import '../main.dart';
+import 'package:intl/intl.dart' as intl;
 
 class SplashScreen extends StatefulWidget {
   static final String splashScreenRoute = "/splash";
-
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>{
+
 
   String groupId;
+
   // FirebaseMessaging _firebaseMessaging;
-
-
   @override
   void initState() {
     super.initState();
@@ -42,28 +38,105 @@ class _SplashScreenState extends State<SplashScreen> {
     // _firebaseMessaging.requestNotificationPermissions(
     //     const IosNotificationSettings(sound: true, badge: true, alert: true)
     // );
+
     FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
       alert: true,
       badge: true,
       sound: true,
     );
+
     notificationData();
     initDynamicLinks();
-    // WidgetsBinding.instance
-    //     .addPostFrameCallback((_) => _attemptAutoLogin(context));
+
+    // WidgetsBinding.instance.addPostFrameCallback((_) => _attemptAutoLogin(context));
   }
 
+
   ///notification process
-  void notificationData() async{
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      // showSimpleNotification(Text(message.toString()),duration: Duration(seconds: 2),background: MateColors.activeIcons
+  void notificationData()async{
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async{
+       //showSimpleNotification(Text(message.toString()),duration: Duration(seconds: 2),background: MateColors.activeIcons
       // ,autoDismiss: false,slideDismissDirection: DismissDirection.endToStart);
-    });
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print("notification onLaunch $message");
+      print("------Remote message when app is open-------");
+      print(message.data);
+      if(message.data.isNotEmpty && message.data["title"].toString().contains("Incoming call")){
+        SharedPreferences preferences = await SharedPreferences.getInstance();
+        bool check = preferences.getBool("isCallOngoing")??false;
+        print(check);
+        if(check==false){
+          showNotification(message);
+          Get.to(
+              AcceptRejectScreen(
+                channelName: message.data["channelName"],
+                token: message.data["token"],
+                callType: message.data["callType"],
+                callerName: message.data["callerName"],
+                callerImage: message.data["callerImage"],
+              )
+          );
+          preferences.setBool("isCallOngoing",true);
+        }else{
+          Get.snackbar('Missed call from ${message.data["callerName"]}', "",
+            backgroundColor: MateColors.activeIcons,
+          );
+          // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          //   content: Text('Missed call from ${message.data["callerName"]}'),
+          //   duration: Duration(seconds: 5),
+          // ));
+        }
+      }
     });
 
-    
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print("------Remote message on message click-------");
+      print(message.data);
+      // if(message.data.isNotEmpty && message.data["title"].toString().contains("Incoming call")){
+      //   Navigator.of(context).push(MaterialPageRoute(builder: (context)=>
+      //       AcceptRejectScreen(
+      //         channelName: message.data["channelName"],
+      //         token: message.data["token"],
+      //         callType: message.data["callType"],
+      //         callerName: message.data["callerName"],
+      //         callerImage: message.data["callerImage"],
+      //       )
+      //   ));
+      // }
+    });
+
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+    // FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage message){
+    //   print("------Remote message when app open first time-------");
+    //   //print(message.data);
+    //   if(message.data.isNotEmpty && message.data["title"].toString().contains("Incoming call")){
+    //     Navigator.of(context).push(MaterialPageRoute(builder: (context)=>
+    //         AcceptRejectScreen(
+    //           channelName: message.data["channelName"],
+    //           token: message.data["token"],
+    //           callType: message.data["callType"],
+    //           callerName: message.data["callerName"],
+    //           callerImage: message.data["callerImage"],
+    //         )
+    //     ));
+    //   }
+    // });
+
+    // FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage message){
+    //   print("------Remote message when app open first time-------");
+    //   //print(message.data);
+    //   if(message.data.isNotEmpty && message.data["title"].toString().contains("Incoming call")){
+    //     Navigator.of(context).push(MaterialPageRoute(builder: (context)=>
+    //         AcceptRejectScreen(
+    //           channelName: message.data["channelName"],
+    //           token: message.data["token"],
+    //           callType: message.data["callType"],
+    //           callerName: message.data["callerName"],
+    //           callerImage: message.data["callerImage"],
+    //         )
+    //     ));
+    //   }
+    // });
+
     // _firebaseMessaging.configure(onMessage: (Map<dynamic, dynamic> message) async{
     //   print("notification $message");
     //   // showSimpleNotification(Text(message.toString()),duration: Duration(seconds: 2),background: MateColors.activeIcons
@@ -75,7 +148,6 @@ class _SplashScreenState extends State<SplashScreen> {
     //   print("notification onResume $message");
     // });
   }
-
 
   ///Retreive dynamic link firebase.
   void initDynamicLinks() async {

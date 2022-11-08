@@ -181,7 +181,12 @@ class _GroupDetailsBeforeJoiningState extends State<GroupDetailsBeforeJoining> {
                           await DatabaseService(uid: _user.uid).togglingGroupJoin(snapshot.data["groupId"], snapshot.data["groupName"].toString(), Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName);
                           _showScaffold('Successfully joined the group "${snapshot.data["groupName"].toString()}"');
                           Future.delayed(Duration(milliseconds: 100), () {
-                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(groupId: snapshot.data["groupId"], userName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName, groupName: snapshot.data["groupName"].toString(),)));
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(
+                              groupId: snapshot.data["groupId"],
+                              userName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName,
+                              groupName: snapshot.data["groupName"].toString(),
+                                memberList : snapshot.data["members"],
+                            )));
                           });
                         },
                         child: Text("Join this group",
@@ -392,7 +397,14 @@ class _GroupDetailsBeforeJoiningState extends State<GroupDetailsBeforeJoining> {
                                     return InkWell(
                                       onTap: (){
                                         if(searchResultSnapshot.docs[index]["members"].contains(_user.uid + '_' + _user.displayName)){
-                                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(groupId: snapshot.data["groupId"], userName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName, totalParticipant: snapshot.data["members"].length.toString(),photoURL: snapshot.data['groupIcon'],groupName: snapshot.data["groupName"].toString(),)));
+                                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(
+                                            groupId: snapshot.data["groupId"],
+                                            userName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName,
+                                            totalParticipant: snapshot.data["members"].length.toString(),
+                                            photoURL: snapshot.data['groupIcon'],
+                                            groupName: snapshot.data["groupName"].toString(),
+                                            memberList : snapshot.data["members"],
+                                          )));
                                         }else{
                                           Navigator.of(context).push(MaterialPageRoute(builder: (context)=>GroupDetailsBeforeJoining(groupId: searchResultSnapshot.docs[index]["groupId"],)));
                                         }

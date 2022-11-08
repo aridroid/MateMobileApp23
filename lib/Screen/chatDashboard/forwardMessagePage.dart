@@ -583,6 +583,7 @@ class _ForwardMessagePage extends State<ForwardMessagePage> with TickerProviderS
               onPressed: ()async{
                 Navigator.of(context).pop();
                 var documentReference = FirebaseFirestore.instance.collection('messages').doc(personChatId).collection(personChatId).doc(DateTime.now().millisecondsSinceEpoch.toString());
+                messageData["messageId"] = documentReference.id;
                 FirebaseFirestore.instance.runTransaction((transaction) async {
                   await transaction.set(
                     documentReference,

@@ -510,6 +510,23 @@ class DatabaseService {
     );
   }
 
+  setMessageReactionOneToOne(String personChatId, String messageId,String value,String displayName,String photo){
+    FirebaseFirestore.instance.collection('messages').doc(personChatId).collection(personChatId).doc(messageId).set(
+      {'messageReaction': FieldValue.arrayUnion([uid + '_____' +displayName + '_____' +photo + "_____" + value])},
+      SetOptions(merge: true),
+    );
+  }
+
+  updateMessageReactionOneToOne(String personChatId, String messageId,String previousValue){
+    FirebaseFirestore.instance.collection('messages').doc(personChatId).collection(personChatId).doc(messageId).update(
+      {'messageReaction': FieldValue.arrayRemove([previousValue])},
+    );
+  }
+
+  deleteMessageOneToOne(String personChatId, String messageId){
+    FirebaseFirestore.instance.collection('messages').doc(personChatId).collection(personChatId).doc(messageId).delete();
+  }
+
   deleteMessage(String groupId, String messageId){
     FirebaseFirestore.instance.collection('chat-group').doc(groupId).collection("messages").doc(messageId).delete();
   }

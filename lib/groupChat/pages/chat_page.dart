@@ -1,4 +1,5 @@
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:mate_app/Widget/Loaders/Shimmer.dart';
 import 'package:mate_app/asset/Colors/MateColors.dart';
@@ -24,6 +25,8 @@ import '../../Screen/Profile/ProfileScreen.dart';
 import '../../Screen/Profile/UserProfileScreen.dart';
 import 'package:giphy_picker/giphy_picker.dart';
 
+import '../../audioAndVideoCalling/connectingScreen.dart';
+
 
 class ChatPage extends StatefulWidget {
   final String groupId;
@@ -31,8 +34,8 @@ class ChatPage extends StatefulWidget {
   final String totalParticipant;
   final String groupName;
   final String photoURL;
-
-  ChatPage({this.groupId, this.userName, this.groupName, this.photoURL = "",this.totalParticipant});
+  final List<dynamic> memberList;
+  ChatPage({this.groupId, this.userName, this.groupName, this.photoURL = "",this.totalParticipant, this.memberList});
 
   @override
   _ChatPageState createState() => _ChatPageState();
@@ -693,7 +696,7 @@ class _ChatPageState extends State<ChatPage> {
             ),
             preferredSize: Size.fromHeight(1.0)),
         title: Padding(
-          padding: const EdgeInsets.only(right: 40,left: 30),
+          padding: const EdgeInsets.only(right: 0,left: 0),
           child: InkWell(
             onTap: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => GroupSettingsPage(
@@ -778,6 +781,32 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ),
         ),
+        actions: [
+          IconButton(
+            onPressed: (){
+              Get.to(()=>ConnectingScreen(
+                callType: "Audio Calling",
+                receiverImage: widget.photoURL,
+                receiverName: widget.groupName,
+                uid: widget.memberList,
+                isGroupCalling: true,
+              ));
+            },
+            icon: Icon(Icons.call,color: MateColors.activeIcons,),
+          ),
+          IconButton(
+            onPressed: (){
+              Get.to(()=>ConnectingScreen(
+                callType: "Video Calling",
+                receiverImage: widget.photoURL,
+                receiverName: widget.groupName,
+                uid: widget.memberList,
+                isGroupCalling: true,
+              ));
+            },
+            icon: Icon(Icons.video_call_rounded,color: MateColors.activeIcons,),
+          ),
+        ],
         //backgroundColor: myHexColor,
         // actions: [
         //   PopupMenuButton<int>(

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:mate_app/Providers/chatProvider.dart';
@@ -14,6 +15,7 @@ import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import '../../../audioAndVideoCalling/connectingScreen.dart';
 import '../../../controller/theme_controller.dart';
 import '../chatWidget.dart';
 import 'package:mate_app/Utility/Utility.dart' as config;
@@ -49,10 +51,10 @@ class Chat extends StatelessWidget {
         iconTheme: IconThemeData(
           color: MateColors.activeIcons,
         ),
-        //centerTitle: true,
+        centerTitle: true,
         //backgroundColor: config.myHexColor,
         title: Padding(
-          padding: const EdgeInsets.only(right: 60),
+          padding: const EdgeInsets.only(right: 0),
           child: InkWell(
             onTap: () {
               if (peerUuid != null) {
@@ -92,6 +94,32 @@ class Chat extends StatelessWidget {
             ),
             preferredSize: Size.fromHeight(0.0),
         ),
+        actions: [
+          IconButton(
+              onPressed: (){
+                Get.to(()=>ConnectingScreen(
+                  callType: "Audio Calling",
+                  receiverImage: peerAvatar,
+                  receiverName: peerName,
+                  uid: [peerId],
+                  isGroupCalling: false,
+                ));
+              },
+              icon: Icon(Icons.call,color: MateColors.activeIcons,),
+          ),
+          IconButton(
+            onPressed: (){
+              Get.to(()=>ConnectingScreen(
+                callType: "Video Calling",
+                receiverImage: peerAvatar,
+                receiverName: peerName,
+                uid: [peerId],
+                isGroupCalling: false,
+              ));
+            },
+            icon: Icon(Icons.video_call_rounded,color: MateColors.activeIcons,),
+          ),
+        ],
       ),
       body: new _ChatScreen(
         currentUserId: currentUserId,
@@ -137,14 +165,18 @@ class _ChatScreenState extends State<_ChatScreen> {
   int fileSize = 0;
   String fileUrl;
 
+
   final TextEditingController textEditingController = new TextEditingController();
   final ScrollController listScrollController = new ScrollController();
   final FocusNode focusNode = new FocusNode();
   ThemeController themeController = Get.find<ThemeController>();
 
+  User _user;
+
   @override
   void initState() {
     super.initState();
+    _user = FirebaseAuth.instance.currentUser;
     focusNode.addListener(onFocusChange);
     personChatId = '';
     isLoading = false;
@@ -257,8 +289,7 @@ class _ChatScreenState extends State<_ChatScreen> {
 
       var documentReference = FirebaseFirestore.instance.collection('messages').doc(personChatId).collection(personChatId).doc(DateTime.now().millisecondsSinceEpoch.toString());
 
-      Map<String, dynamic> chatMessageMap = {'idFrom': id, 'idTo': peerId, 'timestamp': DateTime.now().millisecondsSinceEpoch.toString(), 'content': content.trim(), 'type': type};
-
+      Map<String, dynamic> chatMessageMap = {'idFrom': id, 'idTo': peerId, 'timestamp': DateTime.now().millisecondsSinceEpoch.toString(), 'content': content.trim(), 'type': type,'messageId':documentReference.id};
       if (fileExtension.isNotEmpty) {
         chatMessageMap['fileExtension'] = fileExtension;
       }
@@ -410,6 +441,13 @@ class _ChatScreenState extends State<_ChatScreen> {
                             date: dateReversed,
                             time: timeReversed,
                             isForwarded: snapshot.data.docs[index].data()["isForwarded"]!=null?true:false,
+                            messageReaction: snapshot.data.docs[index].data()["messageReaction"]??[],
+                            messageId: snapshot.data.docs[index].data()["messageId"]??"",
+                            userId: _user.uid,
+                            displayName: _user.displayName,
+                            photo: _user.photoURL,
+                            personChatId: personChatId,
+                            fileSizeFull: snapshot.data.docs[index].data()["fileSize"]??0,
                           );
                         },
                         // ChatWidget.widgetChatBuildItem(context, listMessage, widget.currentUserId, index, snapshot.data.documents[index], peerAvatar),

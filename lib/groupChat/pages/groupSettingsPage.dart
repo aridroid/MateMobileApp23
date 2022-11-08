@@ -471,7 +471,14 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                                 return InkWell(
                                   onTap: (){
                                     if(searchResultSnapshot.docs[index]["members"].contains(_user.uid + '_' + _user.displayName)){
-                                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(groupId: snapshot.data["groupId"], userName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName, totalParticipant: snapshot.data["members"].length.toString(),photoURL: snapshot.data['groupIcon'],groupName: snapshot.data["groupName"].toString(),)));
+                                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(
+                                        groupId: snapshot.data["groupId"],
+                                        userName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName,
+                                        totalParticipant: snapshot.data["members"].length.toString(),
+                                        photoURL: snapshot.data['groupIcon'],
+                                        groupName: snapshot.data["groupName"].toString(),
+                                        memberList : snapshot.data["members"],
+                                      )));
                                     }else{
                                       Navigator.of(context).push(MaterialPageRoute(builder: (context)=>GroupDetailsBeforeJoining(groupId: searchResultSnapshot.docs[index]["groupId"],)));
                                     }

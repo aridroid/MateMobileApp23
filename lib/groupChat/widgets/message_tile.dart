@@ -59,7 +59,7 @@ class MessageTile extends StatefulWidget {
 }
 
 class _MessageTileState extends State<MessageTile> {
-  bool show = false;
+  //bool show = false;
   @override
   Widget build(BuildContext context) {
 

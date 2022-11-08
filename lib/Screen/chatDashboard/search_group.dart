@@ -163,7 +163,8 @@ class _SearchGroupState extends State<SearchGroup> {
                 searchResultSnapshot.docs[index]["maxParticipantNumber"],
                 searchResultSnapshot.docs[index]["isPrivate"],
                 searchResultSnapshot.docs[index]["members"].contains(_user.uid + '_' + _user.displayName),
-                searchResultSnapshot.docs[index]["groupIcon"]
+                searchResultSnapshot.docs[index]["groupIcon"],
+                searchResultSnapshot.docs[index]["members"],
             ),
           ):SizedBox();
         })
@@ -177,7 +178,7 @@ class _SearchGroupState extends State<SearchGroup> {
   // }
   // },
 
-  Widget groupTile(String userName, String groupId, String groupName, String admin, int totalParticipant, int maxParticipant, bool isPrivate, bool _isJoined, String imageURL)
+  Widget groupTile(String userName, String groupId, String groupName, String admin, int totalParticipant, int maxParticipant, bool isPrivate, bool _isJoined, String imageURL,List<dynamic> members)
   {
     // _joinValueInGroup(userName, groupId, groupName, admin);
     return ListTile(
@@ -220,7 +221,14 @@ class _SearchGroupState extends State<SearchGroup> {
       trailing: InkWell(
         onTap: () async {
           if(_isJoined){
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(groupId: groupId, userName: userName, groupName: groupName,totalParticipant: totalParticipant.toString(),photoURL: imageURL,)));
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(
+              groupId: groupId,
+              userName: userName,
+              groupName: groupName,
+              totalParticipant: totalParticipant.toString(),
+              photoURL: imageURL,
+              memberList: members,
+            )));
           }
           //else if (maxParticipant != null ? totalParticipant < maxParticipant : true)
           else{
@@ -228,7 +236,14 @@ class _SearchGroupState extends State<SearchGroup> {
             // await DatabaseService(uid: _user.uid).userJoinGroup(groupId, groupName, userName);
             _showScaffold('Successfully joined the group "$groupName"');
             Future.delayed(Duration(milliseconds: 100), () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(groupId: groupId, userName: userName, groupName: groupName,totalParticipant: totalParticipant.toString(),photoURL: imageURL,)));
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(
+                groupId: groupId,
+                userName: userName,
+                groupName: groupName,
+                totalParticipant: totalParticipant.toString(),
+                photoURL: imageURL,
+                memberList: members,
+              )));
             });
           }
         },

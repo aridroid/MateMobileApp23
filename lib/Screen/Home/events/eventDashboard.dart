@@ -12,6 +12,7 @@ import 'package:mate_app/Screen/Home/events/event_search.dart';
 import 'package:mate_app/Screen/Home/events/memberList.dart';
 import 'package:mate_app/Services/eventService.dart';
 import 'package:mate_app/Widget/video_thumbnail.dart';
+import 'package:mate_app/audioAndVideoCalling/acceptRejectScreen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
@@ -263,7 +264,6 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
         onTap: ()async{
            await Navigator.of(context).pushNamed(CreateEvent.routeName);
            getStoredValue();
-          //Navigator.of(context).push(MaterialPageRoute(builder: (context)=>IndexPage()));
         },
         child: Container(
           height: 56,

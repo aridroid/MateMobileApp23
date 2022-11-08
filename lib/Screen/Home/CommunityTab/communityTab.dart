@@ -273,14 +273,28 @@ class _CommunityTabState extends State<CommunityTab> with TickerProviderStateMix
                                                   onTap: () async {
                                                     print(_user.uid );
                                                     if(snapshot.data["members"].contains(_user.uid + '_' + _user.displayName)){
-                                                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(groupId: snapshot.data["groupId"], userName:  _user.displayName, totalParticipant: snapshot.data["members"].length.toString(),photoURL: snapshot.data['groupIcon'],groupName: snapshot.data["groupName"].toString())));
+                                                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(
+                                                          groupId: snapshot.data["groupId"],
+                                                          userName:  _user.displayName,
+                                                          totalParticipant: snapshot.data["members"].length.toString(),
+                                                          photoURL: snapshot.data['groupIcon'],
+                                                          groupName: snapshot.data["groupName"].toString(),
+                                                          memberList: snapshot.data["members"],
+                                                      )));
                                                     }
                                                     //else if(snapshot.data.data()["maxParticipantNumber"] != null ? snapshot.data.data()["members"].length < snapshot.data.data()["maxParticipantNumber"] : true)
                                                     else{
                                                       await DatabaseService(uid: _user.uid).togglingGroupJoin(snapshot.data["groupId"], snapshot.data["groupName"].toString(), _user.displayName);
                                                       _showScaffold('Successfully joined the group "${snapshot.data["groupName"].toString()}"');
                                                       Future.delayed(Duration(milliseconds: 100), () {
-                                                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(groupId: snapshot.data["groupId"], userName: _user.displayName, totalParticipant: snapshot.data["members"].length.toString(),photoURL: snapshot.data['groupIcon'],groupName: snapshot.data["groupName"].toString())));
+                                                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(
+                                                            groupId: snapshot.data["groupId"],
+                                                            userName: _user.displayName,
+                                                            totalParticipant: snapshot.data["members"].length.toString(),
+                                                            photoURL: snapshot.data['groupIcon'],
+                                                            groupName: snapshot.data["groupName"].toString(),
+                                                            memberList: snapshot.data["members"],
+                                                        )));
                                                       });
                                                     }
                                                   },
@@ -455,7 +469,14 @@ class _CommunityTabState extends State<CommunityTab> with TickerProviderStateMix
                                               trailing: InkWell(
                                                 onTap: () async {
                                                   if(snapshot.data["members"].contains(_user.uid + '_' + _user.displayName)){
-                                                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(groupId: snapshot.data["groupId"], userName: _user.displayName, totalParticipant: snapshot.data["members"].length.toString(),photoURL: snapshot.data['groupIcon'],groupName: snapshot.data["groupName"].toString())));
+                                                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(
+                                                        groupId: snapshot.data["groupId"],
+                                                        userName: _user.displayName,
+                                                        totalParticipant: snapshot.data["members"].length.toString(),
+                                                        photoURL: snapshot.data['groupIcon'],
+                                                        groupName: snapshot.data["groupName"].toString(),
+                                                        memberList: snapshot.data["members"],
+                                                    )));
                                                     //Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(groupId: snapshot.data.data()["groupId"], userName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName, groupName: snapshot.data.data()["groupName"].toString())));
                                                   }
                                                   //else if (snapshot.data.data()["maxParticipantNumber"] != null ? snapshot.data.data()["members"].length < snapshot.data.data()["maxParticipantNumber"] : true)
@@ -463,7 +484,14 @@ class _CommunityTabState extends State<CommunityTab> with TickerProviderStateMix
                                                     await DatabaseService(uid: _user.uid).togglingGroupJoin(snapshot.data["groupId"], snapshot.data["groupName"].toString(), _user.displayName);
                                                     _showScaffold('Successfully joined the group "${snapshot.data["groupName"].toString()}"');
                                                     Future.delayed(Duration(milliseconds: 100), () {
-                                                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(groupId: snapshot.data["groupId"], userName: _user.displayName, totalParticipant: snapshot.data["members"].length.toString(),photoURL: snapshot.data['groupIcon'],groupName: snapshot.data["groupName"].toString())));
+                                                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(
+                                                          groupId: snapshot.data["groupId"],
+                                                          userName: _user.displayName,
+                                                          totalParticipant: snapshot.data["members"].length.toString(),
+                                                          photoURL: snapshot.data['groupIcon'],
+                                                          groupName: snapshot.data["groupName"].toString(),
+                                                          memberList: snapshot.data["members"],
+                                                      )));
                                                      // Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(groupId: snapshot.data.data()["groupId"], userName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName, groupName: snapshot.data.data()["groupName"].toString())));
                                                     });
                                                   }

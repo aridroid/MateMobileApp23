@@ -1,4 +1,9 @@
 import 'dart:async';
+import 'dart:developer';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:mate_app/Screen/Home/TimeLine/createFeedSelectType.dart';
 import 'package:mate_app/Screen/Home/TimeLine/feed_search.dart';
 import 'package:mate_app/Screen/Home/events/createEvent.dart';
@@ -55,7 +60,71 @@ import 'package:overlay_support/overlay_support.dart';
 
 import 'Screen/Home/events/eventDashboard.dart';
 import 'Screen/notification/notification_screen.dart';
+import 'audioAndVideoCalling/acceptRejectScreen.dart';
 import 'introScreen/introScreen.dart';
+
+///Declare global local notification instance
+FlutterLocalNotificationsPlugin notificationsPlugin = FlutterLocalNotificationsPlugin();
+
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("------Remote message on background-------");
+  if(message.data.isNotEmpty && message.data["title"].toString().contains("Incoming call")) {
+    showNotification(message);
+    await Firebase.initializeApp();
+    User _user =  FirebaseAuth.instance.currentUser;
+    print(_user.uid);
+    var documentReference = FirebaseFirestore.instance.collection('calling').doc(_user.uid);
+    Map<String, dynamic> map = {
+      'channelName': message.data["channelName"],
+      'token': message.data["token"],
+      'callType': message.data["callType"],
+      'callerName':message.data["callerName"],
+      'callerImage': message.data["callerImage"],
+      'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
+    };
+    FirebaseFirestore.instance.runTransaction((transaction) async {
+       transaction.set(
+        documentReference,
+        map,
+      );
+    });
+  }
+}
+
+void showNotification(RemoteMessage message)async{
+  final sound = "push_ringtone.wav";
+  ///Notification settings for android
+  AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
+    "notificationId",
+    "notificationChannel",
+    priority: Priority.max,
+    importance: Importance.max,
+    playSound: true,
+    sound: RawResourceAndroidNotificationSound(sound.split(".").first),
+    enableLights: true,
+    enableVibration: true,
+    fullScreenIntent: true,
+  );
+  ///Notification settings for ios
+  DarwinNotificationDetails iosNotificationDetails = DarwinNotificationDetails(
+    presentAlert: true,
+    presentSound: true,
+    presentBadge: true,
+    sound: sound,
+  );
+  ///Combining both settings in one
+  NotificationDetails notificationDetails = NotificationDetails(
+    android: androidNotificationDetails,
+    iOS: iosNotificationDetails,
+  );
+  ///Use global local notification instance and show notification
+  await notificationsPlugin.show(
+    message.hashCode,
+    message.data["title"],
+    "",
+    notificationDetails,
+  );
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,6 +133,25 @@ void main() async {
   Get.put(ThemeController());
   var loginState = prefs.getBool('login_app');
   print(loginState);
+
+  ///Android initialization settings
+  AndroidInitializationSettings androidInitializationSettings = AndroidInitializationSettings("@mipmap/launcher_icon");
+  ///Ios initialization settings
+  DarwinInitializationSettings iosInitializationSettings = DarwinInitializationSettings(
+    requestAlertPermission: true,
+    requestBadgePermission: true,
+    requestCriticalPermission: true,
+    requestSoundPermission: true,
+  );
+  ///Combining both settings in one settings
+  InitializationSettings initializationSettings = InitializationSettings(
+    android: androidInitializationSettings,
+    iOS: iosInitializationSettings,
+  );
+  ///global local notification instance initialization
+  bool initialized = await notificationsPlugin.initialize(initializationSettings);
+  log("Notification : $initialized");
+
   runZonedGuarded(() {
     runApp(
         MaterialApp(
@@ -106,6 +194,7 @@ class MyApp extends StatelessWidget {
                 return GetBuilder<ThemeController>(
                   builder: (controller){
                     return GetMaterialApp(
+                      navigatorKey: Get.key,
                       title: 'MATE',
                       debugShowCheckedModeBanner: false,
                       themeMode: controller.isDarkMode?ThemeMode.dark:ThemeMode.light,
