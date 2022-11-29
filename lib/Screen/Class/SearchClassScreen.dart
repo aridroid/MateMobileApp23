@@ -344,7 +344,7 @@ class _SearchClassScreenState extends State<SearchClassScreen> {
                     ),
                   );
 
-                  _scaffoldKey.currentState.showSnackBar(sb);
+                  ScaffoldMessenger.of(context).showSnackBar(sb);
                 });
               },
             ),

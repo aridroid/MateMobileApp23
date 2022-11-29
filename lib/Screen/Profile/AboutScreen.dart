@@ -1036,7 +1036,8 @@ class _AboutScreenState extends State<AboutScreen> {
   }
 
   void _showScaffold(String message) {
-    _scaffoldKey.currentState.showSnackBar(SnackBar(
+    //_scaffoldKey.currentState.showSnackBar
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       backgroundColor: Colors.black,
       duration: Duration(milliseconds: 1500),
       content: Text(message, textAlign: TextAlign.center, style: TextStyle(fontSize: 10.9.sp, color: MateColors.activeIcons)),

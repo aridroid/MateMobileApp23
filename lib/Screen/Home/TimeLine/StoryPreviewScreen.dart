@@ -126,10 +126,15 @@ class _StoryPreviewScreenState extends State<StoryPreviewScreen> with SingleTick
                   child: Container(
                     padding: EdgeInsets.only(bottom: sch/1.9),
                     alignment: Alignment.bottomCenter,
-                    child: FlatButton(
-                      color: Colors.grey.withOpacity(0.5),
-                      padding: EdgeInsets.all(10),
-                      shape: CircleBorder(side: BorderSide(color: Colors.white, width: 1.2)),
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.grey.withOpacity(0.5),
+                        padding: EdgeInsets.all(10),
+                        shape: CircleBorder(side: BorderSide(color: Colors.white, width: 1.2)),
+                      ),
+                      // color: Colors.grey.withOpacity(0.5),
+                      // padding: EdgeInsets.all(10),
+                      // shape: CircleBorder(side: BorderSide(color: Colors.white, width: 1.2)),
                       child: Icon(
                         _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
                         color: Colors.white,

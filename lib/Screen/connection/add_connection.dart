@@ -44,15 +44,17 @@ class _AddConnectionState extends State<AddConnection> {
       searchResultSnapshot = snapshot;
       print(searchResultSnapshot.docs[0].data());
       for(int i=0;i<searchResultSnapshot.docs.length;i++){
-        userList.add(
-            UserListModel(
-              uuid: searchResultSnapshot.docs[i]["uuid"],
-              uid: searchResultSnapshot.docs[i]["uid"],
-              displayName: searchResultSnapshot.docs[i]["displayName"],
-              photoURL: searchResultSnapshot.docs[i]["photoURL"],
-              email: searchResultSnapshot.docs[i]["email"],
-            )
-        );
+        if(searchResultSnapshot.docs[i]["displayName"]!=null && searchResultSnapshot.docs[i]["displayName"]!="") {
+          userList.add(
+              UserListModel(
+                uuid: searchResultSnapshot.docs[i]["uuid"],
+                uid: searchResultSnapshot.docs[i]["uid"],
+                displayName: searchResultSnapshot.docs[i]["displayName"],
+                photoURL: searchResultSnapshot.docs[i]["photoURL"],
+                email: searchResultSnapshot.docs[i]["email"],
+              )
+          );
+        }
       }
       userList.sort((a, b) {
         return a.displayName.toLowerCase().compareTo(b.displayName.toLowerCase());

@@ -1,6 +1,7 @@
 import 'package:mate_app/Exceptions/Custom_Exception.dart';
 import 'package:flutter/cupertino.dart';
 
+import '../Model/chatMergedModel.dart';
 import '../Model/groupChatDataModel.dart';
 import '../Model/profileChatDataModel.dart';
 import '../Services/chatService.dart';
@@ -17,10 +18,11 @@ class ChatProvider extends ChangeNotifier{
   /// initializing loader status
   bool _personalChatDataFetchLoader = false;
   bool _groupChatDataFetchLoader = false;
+  bool _mergedChatDataFetchLoader = false;
 
   PersonalChatDataModel _personalChatModelData;
   GroupChatDataModel _groupChatModelData;
-
+  ChatMergedModel _mergedChatModelData;
 
   ///constructor
   ChatProvider() {
@@ -34,9 +36,13 @@ class ChatProvider extends ChangeNotifier{
 
   bool get groupChatDataFetchLoader => _groupChatDataFetchLoader;
 
+  bool get mergedChatDataFetchLoader => _mergedChatDataFetchLoader;
+
   PersonalChatDataModel get personalChatModelData => _personalChatModelData;
 
   GroupChatDataModel get groupChatModelData => _groupChatModelData;
+
+  ChatMergedModel get mergedChatModelData => _mergedChatModelData;
 
   String get error => _apiError;
 
@@ -99,6 +105,41 @@ class ChatProvider extends ChangeNotifier{
       _setError(err);
     } finally {
       _groupChatDataFetchLoader=false;
+      notifyListeners();
+    }
+  }
+
+  List<CustomDataForChatList> messageList = [];
+  bool mergedChatApiError = false;
+  Future<void> mergedChatDataFetch(String uid,bool shouldLoad) async {
+    mergedChatApiError = false;
+    if(shouldLoad){
+      _mergedChatDataFetchLoader=true;
+    }
+    notifyListeners();
+    try {
+      _mergedChatModelData = await _chatService.mergedChatDataFetch(uid);
+      messageList.clear();
+      for(int i=0;i<_mergedChatModelData.data.length;i++){
+        messageList.add(CustomDataForChatList(
+          name: "",
+          roomId: _mergedChatModelData.data[i].roomId,
+          receiverUid: _mergedChatModelData.data[i].receiverUid,
+          updatedAt: _mergedChatModelData.data[i].updatedAt,
+          createdAt: _mergedChatModelData.data[i].createdAt,
+          isMuted: _mergedChatModelData.data[i].isMuted,
+          isPinned: _mergedChatModelData.data[i].isPinned,
+          totalMessages: _mergedChatModelData.data[i].totalMessages,
+          type: _mergedChatModelData.data[i].type,
+          unreadMessages: _mergedChatModelData.data[i].unreadMessages,
+        ));
+      }
+      print(messageList);
+    } catch (err) {
+      mergedChatApiError = true;
+      notifyListeners();
+    } finally {
+      _mergedChatDataFetchLoader=false;
       notifyListeners();
     }
   }

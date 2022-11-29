@@ -54,6 +54,7 @@ class _ConnectionPersonSearchState extends State<ConnectionPersonSearch> {
   String token;
 
   getStoredValue()async{
+    print("////////////////");
     SharedPreferences preferences = await SharedPreferences.getInstance();
     token = preferences.getString("token");
     log(token);

@@ -113,6 +113,8 @@ class _AcceptRejectScreenState extends State<AcceptRejectScreen> {
                           channelName: widget.channelName,
                           token: widget.token,
                           callType: widget.callType,
+                          name: widget.callerName,
+                          image: widget.callerImage,
                         )));
                       },
                       child: Container(

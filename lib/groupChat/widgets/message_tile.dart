@@ -48,11 +48,11 @@ class MessageTile extends StatefulWidget {
   final int fileSizeFull;
   final bool isForwarded;
   final String senderId;
-
-
-
+  Function(String message,String name,bool selected) selectMessage;
+  final String previousMessage;
+  final String previousSender;
   MessageTile({this.senderId,this.isForwarded=false,this.fileSizeFull,this.time,this.date,this.index,this.senderImage,this.displayName,this.photo,this.messageReaction,this.groupId,this.userId,this.messageId,this.message, this.sender, this.sentByMe, this.messageTime,
-    this.isImage = false, this.isFile = false, this.isGif = false, this.fileExtension, this.fileName, this.fileSize, this.fileSizeUnit });
+    this.isImage = false, this.isFile = false, this.isGif = false, this.fileExtension, this.fileName, this.fileSize, this.fileSizeUnit ,this.selectMessage, this.previousMessage, this.previousSender});
 
   @override
   State<MessageTile> createState() => _MessageTileState();
@@ -467,34 +467,65 @@ class _MessageTileState extends State<MessageTile> {
 
                 },
               ),
-              // FocusedMenuItem(
-              //   title: Row(
-              //     children: [
-              //       Image.asset(
-              //         "lib/asset/icons/select.png",
-              //         color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-              //         height: 20,
-              //         width: 20,
-              //       ),
-              //       Padding(
-              //         padding: const EdgeInsets.only(left: 16),
-              //         child: Text(
-              //           "Select",
-              //           style: TextStyle(
-              //             fontSize: 15,
-              //             fontFamily: "Poppins",
-              //             fontWeight: FontWeight.w500,
-              //             color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
-              //           ),
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              //   backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-              //   onPressed: (){
-              //     Clipboard.setData(ClipboardData(text: widget.message));
-              //   },
-              // ),
+
+              FocusedMenuItem(
+                title: Row(
+                  children: [
+                    Image.asset(
+                      "lib/asset/icons/reply.png",
+                      color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                      height: 20,
+                      width: 20,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: Text(
+                        "Reply",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontFamily: "Poppins",
+                          fontWeight: FontWeight.w500,
+                          color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+                onPressed: (){
+                  widget.selectMessage(widget.message.trim(),widget.sender,true);
+                  //Clipboard.setData(ClipboardData(text: widget.message));
+                },
+              ),
+
+              FocusedMenuItem(
+                title: Row(
+                  children: [
+                    Image.asset(
+                      "lib/asset/icons/copy.png",
+                      color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                      height: 20,
+                      width: 20,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: Text(
+                        "Copy",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontFamily: "Poppins",
+                          fontWeight: FontWeight.w500,
+                          color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+                onPressed: (){
+                  Clipboard.setData(ClipboardData(text: widget.message));
+                },
+              ),
               if(!widget.sentByMe)
               FocusedMenuItem(
                 title: Row(
@@ -604,6 +635,63 @@ class _MessageTileState extends State<MessageTile> {
                                   ),
                                 ]),
                               ):SizedBox(),
+
+                              widget.previousMessage!=""?
+                              Column(
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color:  widget.sentByMe?
+                                        themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                                        themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                                      ),
+                                      borderRadius: BorderRadius.circular(5),
+                                      //color: themeController.isDarkMode?MateColors.iconLight:MateColors.lightDivider,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          widget.displayName==widget.previousSender?"You":
+                                          widget.previousSender,
+                                          style: TextStyle(
+                                            fontFamily: "Poppins",
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 0.1,
+                                            color: widget.sentByMe?
+                                            themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                                            themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                                          ),
+                                          textAlign: TextAlign.start,
+                                        ),
+                                        SizedBox(
+                                          height: 2,
+                                        ),
+                                        Text(
+                                          widget.previousMessage,
+                                          style: TextStyle(
+                                            fontFamily: "Poppins",
+                                            fontSize: 14.0,
+                                            fontWeight: FontWeight.w400,
+                                            letterSpacing: 0.1,
+                                            color: widget.sentByMe?
+                                            themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                                            themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                                          ),
+                                          textAlign: TextAlign.start,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 8,
+                                  ),
+                                ],
+                              ):Offstage(),
+
                               widget.sentByMe ?
                               SizedBox() : SizedBox(),
                               // Padding(

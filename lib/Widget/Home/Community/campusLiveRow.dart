@@ -283,10 +283,15 @@ class _CampusLiveRowState extends State<CampusLiveRow> {
                         padding: EdgeInsets.only(bottom: 90),
                         // color: Colors.grey.withOpacity(0.7),
                         alignment: Alignment.bottomCenter,
-                        child: FlatButton(
-                          color: Colors.grey.withOpacity(0.5),
-                          padding: EdgeInsets.all(10),
-                          shape: CircleBorder(side: BorderSide(color: Colors.white, width: 1.2)),
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.grey.withOpacity(0.5),
+                            padding: EdgeInsets.all(10),
+                            shape: CircleBorder(side: BorderSide(color: Colors.white, width: 1.2)),
+                          ),
+                          // color: Colors.grey.withOpacity(0.5),
+                          // padding: EdgeInsets.all(10),
+                          // shape: CircleBorder(side: BorderSide(color: Colors.white, width: 1.2)),
                           child: Icon(
                             _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
                             color: Colors.white,
@@ -660,11 +665,17 @@ class _CampusLiveRowState extends State<CampusLiveRow> {
               ButtonTheme(
                 minWidth: MediaQuery.of(context).size.width - 40,
                 height: 50,
-                child: RaisedButton(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: MateColors.activeIcons,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
                   ),
-                  color: MateColors.activeIcons,
+                  // shape: RoundedRectangleBorder(
+                  //   borderRadius: BorderRadius.circular(15.0),
+                  // ),
+                  // color: MateColors.activeIcons,
                   child: Consumer<CampusLiveProvider>(
                     builder: (ctx, campusLiveProvider, _) {
                       if (campusLiveProvider.postShareLoader) {

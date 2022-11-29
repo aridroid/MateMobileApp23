@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:focused_menu/focused_menu.dart';
@@ -44,7 +45,11 @@ class PersonMessageTile extends StatefulWidget {
   final String photo;
   final String personChatId;
   final int fileSizeFull;
-  PersonMessageTile({this.isForwarded,this.message, this.sender, this.sentByMe, this.messageTime, this.isImage = false, this.isFile = false, this.fileExtension, this.fileName, this.fileSize, this.fileSizeUnit, this.index, this.date, this.time,this.messageReaction, this.messageId, this.userId, this.displayName, this.photo, this.personChatId, this.fileSizeFull});
+  Function(String message,String name,bool selected) selectMessage;
+  final String previousMessage;
+  final String previousSender;
+  final String roomId;
+  PersonMessageTile({this.isForwarded,this.message, this.sender, this.sentByMe, this.messageTime, this.isImage = false, this.isFile = false, this.fileExtension, this.fileName, this.fileSize, this.fileSizeUnit, this.index, this.date, this.time,this.messageReaction, this.messageId, this.userId, this.displayName, this.photo, this.personChatId, this.fileSizeFull, this.previousMessage, this.previousSender,this.selectMessage, this.roomId});
 
   @override
   State<PersonMessageTile> createState() => _PersonMessageTileState();
@@ -455,34 +460,67 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                 //DatabaseService().sendMessage(widget.groupId, chatMessageMap,widget.photo);
               },
             ),
-            // FocusedMenuItem(
-            //   title: Row(
-            //     children: [
-            //       Image.asset(
-            //         "lib/asset/icons/select.png",
-            //         color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-            //         height: 20,
-            //         width: 20,
-            //       ),
-            //       Padding(
-            //         padding: const EdgeInsets.only(left: 16),
-            //         child: Text(
-            //           "Select",
-            //           style: TextStyle(
-            //             fontSize: 15,
-            //             fontFamily: "Poppins",
-            //             fontWeight: FontWeight.w500,
-            //             color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
-            //           ),
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            //   backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-            //   onPressed: (){
-            //     Clipboard.setData(ClipboardData(text: widget.message));
-            //   },
-            // ),
+
+
+            FocusedMenuItem(
+              title: Row(
+                children: [
+                  Image.asset(
+                    "lib/asset/icons/reply.png",
+                    color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                    height: 20,
+                    width: 20,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16),
+                    child: Text(
+                      "Reply",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontFamily: "Poppins",
+                        fontWeight: FontWeight.w500,
+                        color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+              onPressed: (){
+                print(widget.sender);
+                widget.selectMessage(widget.message.trim(),widget.sender,true);
+                //Clipboard.setData(ClipboardData(text: widget.message));
+              },
+            ),
+
+            FocusedMenuItem(
+              title: Row(
+                children: [
+                  Image.asset(
+                    "lib/asset/icons/copy.png",
+                    color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                    height: 20,
+                    width: 20,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16),
+                    child: Text(
+                      "Copy",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontFamily: "Poppins",
+                        fontWeight: FontWeight.w500,
+                        color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+              onPressed: (){
+                Clipboard.setData(ClipboardData(text: widget.message));
+              },
+            ),
             if(!widget.sentByMe)
               FocusedMenuItem(
                 title: Row(
@@ -508,14 +546,14 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                 ),
                 backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
                 onPressed: ()async{
-                  // SharedPreferences preferences = await SharedPreferences.getInstance();
-                  // String token = preferences.getString("token");
-                  // bool response = await CommunityTabService().reportGroupMessage(groupId: widget.peerId, messageId: widget.messageId, uid: widget.userId, token: token,);
-                  // if(response){
-                  //   Fluttertoast.showToast(msg: "Your feedback added successfully", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
-                  // }else{
-                  //   Fluttertoast.showToast(msg: "Something went wrong", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
-                  // }
+                  SharedPreferences preferences = await SharedPreferences.getInstance();
+                  String token = preferences.getString("token");
+                  bool response = await CommunityTabService().reportPersonalMessage(roomId: widget.roomId, messageId: widget.messageId, uid: widget.userId, token: token,);
+                  if(response){
+                    Fluttertoast.showToast(msg: "Your feedback added successfully", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+                  }else{
+                    Fluttertoast.showToast(msg: "Something went wrong", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+                  }
                 },
               ),
           ],
@@ -567,6 +605,64 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                       ),
                     ]),
                   ):SizedBox(),
+
+                  widget.previousMessage!=""?
+                  Column(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color:  widget.sentByMe?
+                            themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                            themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                          ),
+                          borderRadius: BorderRadius.circular(5),
+                          //color: themeController.isDarkMode?MateColors.iconLight:MateColors.lightDivider,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.displayName==widget.previousSender?"You":
+                              widget.previousSender,
+                              style: TextStyle(
+                                fontFamily: "Poppins",
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.1,
+                                color: widget.sentByMe?
+                                themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                                themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                              ),
+                              textAlign: TextAlign.start,
+                            ),
+                            SizedBox(
+                              height: 2,
+                            ),
+                            Text(
+                              widget.previousMessage,
+                              style: TextStyle(
+                                fontFamily: "Poppins",
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.w400,
+                                letterSpacing: 0.1,
+                                color: widget.sentByMe?
+                                themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                                themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                              ),
+                              textAlign: TextAlign.start,
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                    ],
+                  ):Offstage(),
+
+
                   widget.isImage ?
                   _chatImage(widget.message, context) :
                   widget.isFile ?

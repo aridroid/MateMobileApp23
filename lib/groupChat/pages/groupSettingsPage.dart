@@ -1128,7 +1128,7 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
 
 
   void _showScaffold(String message) {
-    _key.currentState.showSnackBar(SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       backgroundColor: Colors.black,
       duration: Duration(milliseconds: 1500),
       content: Text(message, textAlign: TextAlign.center, style: TextStyle(fontSize: 13.0, color: MateColors.activeIcons)),

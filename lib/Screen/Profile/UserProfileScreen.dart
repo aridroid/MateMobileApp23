@@ -596,6 +596,7 @@ import '../../Providers/reportProvider.dart';
 import '../../Services/connection_service.dart';
 import '../../Widget/Home/HomeRow.dart';
 import '../../asset/Colors/MateColors.dart';
+import '../../audioAndVideoCalling/connectingScreen.dart';
 import '../../controller/theme_controller.dart';
 import '../../groupChat/pages/customAlertDialog.dart';
 import '../Home/HomeScreen.dart';
@@ -867,12 +868,39 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   Widget _threeButtons(BuildContext context, Map<String, dynamic> routeArgs) {
     return Positioned(
-      right: MediaQuery.of(context).size.width/3.2,
+      right: MediaQuery.of(context).size.width/5.5,
       bottom: -3,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
+          IconButton(
+            onPressed: (){
+              Get.to(()=>ConnectingScreen(
+                callType: "Audio Calling",
+                receiverImage: routeArgs["photoUrl"]??"",
+                receiverName: routeArgs['name'],
+                uid: [routeArgs['firebaseUid']],
+                isGroupCalling: false,
+              ));
+            },
+            icon: Icon(Icons.call,color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,),
+          ),
+          IconButton(
+            onPressed: (){
+              Get.to(()=>ConnectingScreen(
+                callType: "Video Calling",
+                receiverImage: routeArgs["photoUrl"]??"",
+                receiverName: routeArgs['name'],
+                uid: [routeArgs['firebaseUid']],
+                isGroupCalling: false,
+              ));
+            },
+            icon: Icon(Icons.video_call_rounded,color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,),
+          ),
+
+
+
           IconButton(
             padding: EdgeInsets.fromLTRB(8, 8, 0, 8),
             iconSize: 22,

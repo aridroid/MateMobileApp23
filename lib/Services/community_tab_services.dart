@@ -197,6 +197,36 @@ class CommunityTabService{
     return result;
   }
 
+  Future<bool> reportPersonalMessage({String token,String uid,String roomId,String messageId})async{
+    bool result = false;
+    debugPrint("https://api.mateapp.us/api/chat/report-personal-message");
+    debugPrint(token);
+    Map data = {
+      "room_id": roomId,
+      "message_id": messageId,
+      "uid": uid
+    };
+    debugPrint(jsonEncode(data));
+    try {
+      final response = await http.post(
+        Uri.parse("https://api.mateapp.us/api/chat/report-personal-message"),
+        headers: {"Authorization": "Bearer" +token},
+        body: data,
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        var parsed = json.decode(utf8.decode(response.bodyBytes));
+        debugPrint(parsed.toString());
+        result = true;
+      }else {
+        var parsed = json.decode(utf8.decode(response.bodyBytes));
+        debugPrint(parsed.toString());
+      }
+    }catch (e) {
+      log(e.toString());
+    }
+    return result;
+  }
+
 
 
 }

@@ -1515,11 +1515,17 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
               ButtonTheme(
                 minWidth: MediaQuery.of(context).size.width - 40,
                 height: 50,
-                child: RaisedButton(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: MateColors.activeIcons,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
                   ),
-                  color: MateColors.activeIcons,
+                  // shape: RoundedRectangleBorder(
+                  //   borderRadius: BorderRadius.circular(15.0),
+                  // ),
+                  // color: MateColors.activeIcons,
                   child: Consumer<FeedProvider>(
                     builder: (ctx, feedProvider, _) {
                       if (feedProvider.feedShareLoader) {
@@ -2795,11 +2801,17 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
               ButtonTheme(
                 minWidth: MediaQuery.of(context).size.width - 40,
                 height: 50,
-                child: RaisedButton(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: MateColors.activeIcons,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
                   ),
-                  color: MateColors.activeIcons,
+                  // shape: RoundedRectangleBorder(
+                  //   borderRadius: BorderRadius.circular(15.0),
+                  // ),
+                  // color: MateColors.activeIcons,
                   child: Consumer<FeedProvider>(
                     builder: (ctx, feedProvider, _) {
                       if (feedProvider.feedShareLoader) {

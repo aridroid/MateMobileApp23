@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,7 +9,6 @@ import 'package:mate_app/Screen/Home/CommunityTab/addPersonToGroupSearch.dart';
 import 'package:mate_app/Services/community_tab_services.dart';
 import 'package:mate_app/Widget/loader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../Services/chatService.dart';
 import '../../../asset/Colors/MateColors.dart';
 import '../../../controller/theme_controller.dart';
 import '../../../groupChat/services/database_service.dart';
@@ -32,16 +30,31 @@ class _AddPersonToGroupState extends State<AddPersonToGroup> {
   User _user = FirebaseAuth.instance.currentUser;
   List<UserListModel> userList = [];
   bool addingUser = false;
+  List<int> addUserIndex = [];
 
   @override
   void initState() {
     print(widget.groupId);
     print(widget.groupName);
     getStoredValue();
+    getData();
+    super.initState();
+  }
+
+  DocumentSnapshot documentSnapshot;
+  getData()async{
+    documentSnapshot =  await DatabaseService().getGroupDetailsOnce(widget.groupId);
+    List<String> uidList = [];
+    for(int i=0;i<documentSnapshot['members'].length;i++){
+      uidList.add(documentSnapshot['members'][i].split("_")[0]);
+    }
     DatabaseService().getAllUserData(_user.uid).then((snapshot){
       searchResultSnapshot = snapshot;
       for(int i=0;i<searchResultSnapshot.docs.length;i++){
-        if(searchResultSnapshot.docs[i]["displayName"]!=null && searchResultSnapshot.docs[i]["displayName"]!=""){
+        if(searchResultSnapshot.docs[i]["displayName"]!=null &&
+            searchResultSnapshot.docs[i]["displayName"]!=""
+            && !uidList.contains(searchResultSnapshot.docs[i]["uid"])
+        ){
           userList.add(
               UserListModel(
                 uuid: searchResultSnapshot.docs[i]["uuid"],
@@ -49,6 +62,7 @@ class _AddPersonToGroupState extends State<AddPersonToGroup> {
                 displayName: searchResultSnapshot.docs[i]["displayName"],
                 photoURL: searchResultSnapshot.docs[i]["photoURL"],
                 email: searchResultSnapshot.docs[i]["email"],
+                isSelected: false,
               )
           );
         }
@@ -61,15 +75,36 @@ class _AddPersonToGroupState extends State<AddPersonToGroup> {
         hasUserSearched = true;
       });
     });
-    super.initState();
   }
-
 
   String token;
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
     token = preferences.getString("token");
     log(token);
+  }
+
+  addUser()async{
+    setState(() {
+      addingUser = true;
+    });
+    for(int i=0;i<addUserIndex.length;i++){
+      print(userList[addUserIndex[i]].displayName);
+      String res = await DatabaseService().addUserToGroup(userList[addUserIndex[i]].uid,widget.groupId,widget.groupName,userList[addUserIndex[i]].displayName);
+      print(res);
+      if(res == "already added"){
+        Fluttertoast.showToast(msg: "User is already added to this group", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+      }else if(res == "Success"){
+        CommunityTabService().joinGroup(token: token,groupId: widget.groupId,uid: userList[addUserIndex[i]].uid);
+        Fluttertoast.showToast(msg: "User successfully added to this group", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+      }else{
+        Fluttertoast.showToast(msg: "Something went wrong", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+      }
+    }
+    setState(() {
+      addingUser = false;
+    });
+    Navigator.of(context).pop();
   }
 
   @override
@@ -108,6 +143,25 @@ class _AddPersonToGroupState extends State<AddPersonToGroup> {
             ),
             centerTitle: true,
           ),
+          floatingActionButton: addUserIndex.isNotEmpty?InkWell(
+            onTap: ()async{
+              addUser();
+            },
+            child: Container(
+              height: 56,
+              width: 56,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: MateColors.activeIcons,
+              ),
+              child: Icon(
+                Icons.check,
+                size: 31,
+                color: themeController.isDarkMode?Colors.black:Colors.white,
+              ),
+            ),
+          ):Offstage(),
           body: isLoading ?
           Container(
             child: Center(
@@ -130,7 +184,7 @@ class _AddPersonToGroupState extends State<AddPersonToGroup> {
     return hasUserSearched ?
     ListView.builder(
         shrinkWrap: true,
-        itemCount: userList.length,//searchResultSnapshot.docs.length,
+        itemCount: userList.length,
         itemBuilder: (context, index) {
           return groupTile(
             userList[index].uuid,
@@ -139,12 +193,14 @@ class _AddPersonToGroupState extends State<AddPersonToGroup> {
             userList[index].photoURL,
             userList[index].email,
             index==0? true: userList[index].displayName[0].toLowerCase() != userList[index-1].displayName[0].toLowerCase()? true : false,
+            userList[index].isSelected,
+            index,
           );
         }) :
     Container();
   }
 
-  Widget groupTile(String peerUuid,String peerId, String peerName, String peerAvatar,String email,bool showOrNot) {
+  Widget groupTile(String peerUuid,String peerId, String peerName, String peerAvatar,String email,bool showOrNot,bool isSelected,int index) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -163,7 +219,16 @@ class _AddPersonToGroupState extends State<AddPersonToGroup> {
         ):Offstage(),
         InkWell(
           onTap: ()async{
-            _showSendAlertDialog(peerId: peerId, groupId: widget.groupId, groupName: widget.groupName, peerName: peerName);
+            setState(() {
+              userList[index].isSelected = !userList[index].isSelected;
+            });
+            if(addUserIndex.contains(index)){
+              addUserIndex.remove(index);
+            }else{
+              addUserIndex.add(index);
+            }
+            print(addUserIndex);
+            //_showSendAlertDialog(peerId: peerId, groupId: widget.groupId, groupName: widget.groupName, peerName: peerName);
           },
           child: ListTile(
             contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
@@ -189,6 +254,8 @@ class _AddPersonToGroupState extends State<AddPersonToGroup> {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
+            trailing: userList[index].isSelected?
+            Icon(Icons.check,color: MateColors.activeIcons,):Offstage(),
           ),
         ),
       ],
@@ -238,9 +305,6 @@ class _AddPersonToGroupState extends State<AddPersonToGroup> {
       },
     );
   }
-
-
-
 }
 
 
@@ -250,7 +314,7 @@ class UserListModel {
   String displayName;
   String photoURL;
   String email;
-
-  UserListModel({this.uuid, this.uid, this.displayName,this.photoURL,this.email});
-
+  bool isSelected;
+  UserListModel({this.uuid, this.uid, this.displayName,this.photoURL,this.email,this.isSelected});
 }
+

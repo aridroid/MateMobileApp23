@@ -241,7 +241,7 @@ class ChatWidget {
 
   static Widget chatImage(BuildContext context, String id, var listMessage, String chatContent, int index, bool logUserMsg) {
     return Container(
-      child: FlatButton(
+      child: TextButton(
         child: Material(
           child: widgetShowImages(chatContent, 50),
           borderRadius: BorderRadius.all(Radius.circular(8.0)),
@@ -250,7 +250,7 @@ class ChatWidget {
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => ZoomImage(url: chatContent)));
         },
-        padding: EdgeInsets.all(0),
+        //padding: EdgeInsets.all(0),
       ),
       margin: logUserMsg ? EdgeInsets.only(bottom: ChatData.isLastMessageRight(listMessage, id, index) ? 20.0 : 10.0, right: 10.0) : EdgeInsets.only(left: 10.0),
     );

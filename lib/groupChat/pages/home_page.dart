@@ -1860,13 +1860,13 @@ class MyDialogState extends State<MyDialog> {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            FlatButton(
+            TextButton(
               child: Text("Cancel", style: TextStyle(fontSize: 12.5.sp, fontFamily: 'Quicksand', fontWeight: FontWeight.w500, color: MateColors.activeIcons)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
-            FlatButton(
+            TextButton(
               child: Text("Create", style: TextStyle(fontSize: 12.5.sp, fontFamily: 'Quicksand', fontWeight: FontWeight.w500, color: MateColors.activeIcons)),
               onPressed: () async {
                 if (_groupName != null && _groupName.isNotEmpty && _groupMaxMember > 1) {

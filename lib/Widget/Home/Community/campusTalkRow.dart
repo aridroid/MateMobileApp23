@@ -735,11 +735,17 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                   ButtonTheme(
                     minWidth: MediaQuery.of(context).size.width - 40,
                     height: 40,
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: MateColors.activeIcons,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
                       ),
-                      color: MateColors.activeIcons,
+                      // shape: RoundedRectangleBorder(
+                      //   borderRadius: BorderRadius.circular(10.0),
+                      // ),
+                      // color: MateColors.activeIcons,
                       child: Text(
                         'Share Externally',
                         style: TextStyle(fontWeight: FontWeight.bold),

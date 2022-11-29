@@ -62,11 +62,17 @@ class _UserDetailsUpdateState extends State<UserDetailsUpdate> {
             ButtonTheme(
               minWidth: MediaQuery.of(context).size.width - 40,
               height: 50,
-              child: RaisedButton(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: MateColors.activeIcons,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
                 ),
-                color: MateColors.activeIcons,
+                // shape: RoundedRectangleBorder(
+                //   borderRadius: BorderRadius.circular(15.0),
+                // ),
+                // color: MateColors.activeIcons,
                 child: Text(
                   'Proceed',
                   style: TextStyle(fontWeight: FontWeight.bold),

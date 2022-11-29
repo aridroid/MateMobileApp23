@@ -23,8 +23,9 @@ class GroupTile extends StatelessWidget {
   final bool isMuted;
   final bool isPinned;
   final Function loadData;
+  final int index;
 
-  GroupTile({this.userName, this.groupId, /*this.groupName,*/ this.photoURL, this.currentUserUid, this.unreadMessages, this.isMuted, this.loadData, this.isPinned});
+  GroupTile({this.userName, this.groupId, /*this.groupName,*/ this.photoURL, this.currentUserUid, this.unreadMessages, this.isMuted, this.loadData, this.isPinned, this.index});
   ThemeController themeController = Get.find<ThemeController>();
   @override
   Widget build(BuildContext context) {
@@ -37,9 +38,11 @@ class GroupTile extends StatelessWidget {
               // Future.delayed(Duration.zero,(){
               //   Provider.of<ChatProvider>(context,listen: false).groupChatDataFetch(currentUserUid);
               // });
+              Provider.of<ChatProvider>(context,listen: false).messageList[index].name=snapshot.data['groupName'];
+
               return Container(
                 //alignment: Alignment.center,
-                margin: EdgeInsets.only(left: 10),
+                margin: EdgeInsets.only(left: 5),
                 //height: 70.0.sp,
                 child: ListTile(
                   dense: true,

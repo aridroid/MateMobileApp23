@@ -440,6 +440,9 @@ class BackEndAPIRoutes {
   Uri groupChatDataFetch(String uid) =>
       Uri(scheme: _scheme, host: _host, path: '$_path/chat/get-group-chat-rooms/$uid');
 
+  Uri mergedChatDataFetch(String uid) =>
+      Uri(scheme: _scheme, host: _host, path: '$_path/chat/get-merged-chat-rooms/$uid');
+
   Uri personalChatDataUpdate() =>
       Uri(scheme: _scheme, host: _host, path: '$_path/chat/update-personal-chat-data');
 

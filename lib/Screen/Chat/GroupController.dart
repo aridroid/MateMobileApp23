@@ -53,7 +53,7 @@ class GroupController extends GetxController {
         Get.defaultDialog(
           title: "Join group",
           content: Text("Please join the group before chat"),
-          confirm: RaisedButton(
+          confirm: ElevatedButton(
             onPressed: () async {
               Members member = Members(
                   id: userData.id,
@@ -73,7 +73,7 @@ class GroupController extends GetxController {
             },
             child: Text("Join"),
           ),
-          cancel: RaisedButton(
+          cancel: ElevatedButton(
             onPressed: () => Get.back(),
             child: Text("Cancel"),
           ),

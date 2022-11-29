@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:mate_app/Exceptions/Custom_Exception.dart';
+import 'package:mate_app/Model/chatMergedModel.dart';
 import 'package:mate_app/Model/groupChatDataModel.dart';
 import '../Model/profileChatDataModel.dart';
 import 'APIService.dart';
@@ -45,6 +46,23 @@ class ChatService {
       throw Exception('$error');
     }
   }
+
+
+  Future mergedChatDataFetch(String uid) async {
+    try {
+      final response = await _apiService.get(uri: _backEndAPIRoutes.mergedChatDataFetch(uid));
+
+      return ChatMergedModel.fromJson(json.decode(response.body));
+    } on SocketException catch (error) {
+      throw Exception('NO INTERNET :: $error');
+    } on ValidationFailureException catch (error) {
+      throw error;
+    } catch (error) {
+      print('error occurred fetching from ${_backEndAPIRoutes.personalChatDataFetch(uid).toString()} :: $error');
+      throw Exception('$error');
+    }
+  }
+
 
   Future personalChatDataUpdate(Map<String,dynamic> body) async {
     try {

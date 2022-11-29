@@ -93,8 +93,11 @@ class _CreateCampusLivePostState extends State<CreateCampusLivePost> {
                         ButtonTheme(
                           minWidth: 115,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          child: RaisedButton(
-                            color: MateColors.activeIcons,
+                          child: ElevatedButton(
+                            // color: MateColors.activeIcons,
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: MateColors.activeIcons,
+                            ),
                             child: Text(
                               videoFile == null ? 'Select File':'Change File',
                               style: TextStyle(fontWeight: FontWeight.w400),
@@ -152,10 +155,15 @@ class _CreateCampusLivePostState extends State<CreateCampusLivePost> {
                                 padding: EdgeInsets.only(bottom: 80),
                                 // color: Colors.grey.withOpacity(0.7),
                                 alignment: Alignment.bottomCenter,
-                                child: FlatButton(
-                                  color: Colors.grey.withOpacity(0.5),
-                                  padding: EdgeInsets.all(10),
-                                  shape: CircleBorder(side: BorderSide(color: Colors.white, width: 1.2)),
+                                child: TextButton(
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.grey.withOpacity(0.5),
+                                    padding: EdgeInsets.all(10),
+                                    shape: CircleBorder(side: BorderSide(color: Colors.white, width: 1.2)),
+                                  ),
+                                  // color: Colors.grey.withOpacity(0.5),
+                                  // padding: EdgeInsets.all(10),
+                                  // shape: CircleBorder(side: BorderSide(color: Colors.white, width: 1.2)),
                                   child: Icon(
                                     _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
                                     color: Colors.white,
@@ -420,9 +428,13 @@ class _CreateCampusLivePostState extends State<CreateCampusLivePost> {
           child: ButtonTheme(
             minWidth: MediaQuery.of(context).size.width - 40,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            child: RaisedButton(
-              color: MateColors.activeIcons,
-              padding: EdgeInsets.symmetric(vertical: 11),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: MateColors.activeIcons,
+                padding: EdgeInsets.symmetric(vertical: 11),
+              ),
+              // color: MateColors.activeIcons,
+              // padding: EdgeInsets.symmetric(vertical: 11),
               child: Text(
                 'Post',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.0.sp),

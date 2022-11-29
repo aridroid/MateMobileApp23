@@ -16,10 +16,12 @@ import '../../../Utility/Utility.dart';
 import '../../../Widget/Drawer/DrawerWidget.dart';
 import '../../../Widget/Loaders/Shimmer.dart';
 import '../../../asset/Colors/MateColors.dart';
+import '../../../controller/addUserController.dart';
 import '../../../controller/theme_controller.dart';
 import '../../../groupChat/pages/chat_page.dart';
 import '../../../groupChat/services/database_service.dart';
 import '../../chatDashboard/search_group.dart';
+import 'addPersonToGroupUsingConnection.dart';
 
 class CommunityTab extends StatefulWidget {
   const CommunityTab({Key key}) : super(key: key);
@@ -31,6 +33,7 @@ class CommunityTab extends StatefulWidget {
 class _CommunityTabState extends State<CommunityTab> with TickerProviderStateMixin{
   final GlobalKey<ScaffoldState> _key = GlobalKey();
   ThemeController themeController = Get.find<ThemeController>();
+  final AddUserController _addUserController = Get.put(AddUserController());
   TabController _tabController;
   User _user;
   String token = "";
@@ -117,8 +120,15 @@ class _CommunityTabState extends State<CommunityTab> with TickerProviderStateMix
       ),
       drawer: DrawerWidget(),
       floatingActionButton: InkWell(
-        onTap: () {
-          _popupDialog(context);
+        onTap: ()async{
+          _addUserController.addConnectionUid.clear();
+          _addUserController.addConnectionDisplayName.clear();
+          _addUserController.selected.clear();
+          await Get.to(()=>AddPersonToGroupUsingConnection());
+          print(_addUserController.addConnectionUid);
+          if(_addUserController.addConnectionUid.isNotEmpty){
+            _popupDialog(context);
+          }
         },
         child: Container(
           height: 56,
@@ -607,7 +617,7 @@ class _CommunityTabState extends State<CommunityTab> with TickerProviderStateMix
   }
 
   void _showScaffold(String message) {
-    _key.currentState.showSnackBar(SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       backgroundColor: Colors.black,
       duration: Duration(milliseconds: 1500),
       content: Text(message, textAlign: TextAlign.center, style: TextStyle(fontSize: 13.0, color: MateColors.activeIcons)),
@@ -633,6 +643,7 @@ class MyDialogState extends State<MyDialog> {
   int _groupMaxMember = 50;
   bool isPrivate = false;
   ThemeController themeController = Get.find<ThemeController>();
+  final AddUserController _addUserController = Get.find<AddUserController>();
   List<String> category;
   String categoryValue = "";
   List<String> type = ["Campus","Class"];// Campus = School
@@ -948,13 +959,13 @@ class MyDialogState extends State<MyDialog> {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            FlatButton(
+            TextButton(
               child: Text("Cancel", style: TextStyle(fontSize: 12.5.sp, fontWeight: FontWeight.w500, color: MateColors.activeIcons)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
-            FlatButton(
+            TextButton(
               child: Text("Create", style: TextStyle(fontSize: 12.5.sp, fontWeight: FontWeight.w500, color: MateColors.activeIcons)),
               onPressed: () async {
                 //&& _groupMaxMember > 1
@@ -963,7 +974,7 @@ class MyDialogState extends State<MyDialog> {
                   //   DatabaseService(uid: widget.user.uid).createGroup(val, _groupName, _groupMaxMember<1?100:_groupMaxMember,isPrivate);
                   // });
                   //_groupMaxMember < 1 ? 100 : _groupMaxMember
-                  DatabaseService(uid: widget.user.uid).createGroup(widget.displayName, widget.user.uid, _groupName, 2000, isPrivate).then((value) {
+                  DatabaseService(uid: widget.user.uid).createGroup(widget.displayName, widget.user.uid, _groupName, 2000, isPrivate).then((value) async{
                     _communityTabService.createGroup(
                         token: token,
                         category: widget.universityId==2?"Stanford":categoryValue,
@@ -971,6 +982,21 @@ class MyDialogState extends State<MyDialog> {
                         groupId: value,
                     );
                     Navigator.of(context).pop();
+
+                    for(int i=0;i<_addUserController.addConnectionUid.length;i++){
+                      print(_addUserController.addConnectionUid[i]);
+                      String res = await DatabaseService().addUserToGroup(_addUserController.addConnectionUid[i],value,_groupName,_addUserController.addConnectionDisplayName[i]);
+                      print(res);
+                      if(res == "already added"){
+                        Fluttertoast.showToast(msg: "User is already added to this group", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+                      }else if(res == "Success"){
+                        CommunityTabService().joinGroup(token: token,groupId: value,uid: _addUserController.addConnectionUid[i]);
+                        Fluttertoast.showToast(msg: "User successfully added to this group", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+                      }else{
+                        Fluttertoast.showToast(msg: "Something went wrong", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+                      }
+                    }
+
                     //Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>HomeScreen(index: 3,)), (route) => false);
                     // Navigator.push(context, MaterialPageRoute(
                     //         builder: (context) => ChatPage(

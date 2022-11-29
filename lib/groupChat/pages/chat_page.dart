@@ -59,6 +59,9 @@ class _ChatPageState extends State<ChatPage> {
   int messageLength = 0;
   User currentUser = FirebaseAuth.instance.currentUser;
   String _gifPath;
+  String selectedMessage = "";
+  String sender = "";
+  bool showSelected = false;
 
   Widget _chatMessages() {
     return StreamBuilder(
@@ -149,6 +152,9 @@ class _ChatPageState extends State<ChatPage> {
                   fileSizeFull: snapshot.data.docs[index].data()["fileSize"]??0,
                   isForwarded: snapshot.data.docs[index].data()["isForwarded"]!=null?true:false,
                   senderId: snapshot.data.docs[index].data()["senderId"],
+                  selectMessage: selectedMessageFunc,
+                  previousMessage: snapshot.data.docs[index].data()["previousMessage"]??"",
+                  previousSender: snapshot.data.docs[index].data()["previousSender"]??"",
                 );
               });
         } else {
@@ -265,10 +271,16 @@ class _ChatPageState extends State<ChatPage> {
         chatMessageMap['fileSize'] = fileSize;
       }
 
+      if(showSelected){
+        chatMessageMap['previousSender'] = sender;
+        chatMessageMap['previousMessage'] = selectedMessage;
+      }
+
       DatabaseService().sendMessage(widget.groupId, chatMessageMap,_user.photoURL);
       listScrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.easeOut);
       setState(() {
         messageEditingController.text = "";
+        showSelected = false;
       });
 
       Map<String, dynamic> body1 = {"group_id": widget.groupId, "read_by": _user.uid, "messages_read": messageLength + 1};
@@ -402,11 +414,81 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  selectedMessageFunc(String message,String senderName,bool selected)async{
+    selectedMessage = message;
+    showSelected = selected;
+    sender = senderName;
+    setState(() {});
+  }
+
   Widget _messageSendWidget() {
     return Padding(
       padding: const EdgeInsets.only(top: 20),
       child: Column(
         children: [
+          Visibility(
+            visible: showSelected,
+            child: Container(
+              margin: EdgeInsets.only(left: 10,right: 10,bottom: 0),
+              width: MediaQuery.of(context).size.width,
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 10,
+                top: 5,
+                bottom: 20,
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(10),
+                  topLeft: Radius.circular(10),
+                  // bottomLeft: Radius.circular(10),
+                  // bottomRight: Radius.circular(10),
+                ),
+                color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: InkWell(
+                      onTap: (){
+                        showSelected = false;
+                        setState(() {});
+                      },
+                      child: Icon(Icons.clear,size: 20,),
+                    ),
+                  ),
+                  Text(
+                    sender,
+                    style: TextStyle(
+                      fontFamily: "Poppins",
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 0.1,
+                      color: MateColors.activeIcons,
+                      //color: themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                    ),
+                    textAlign: TextAlign.start,
+                  ),
+                  SizedBox(
+                    height: 4,
+                  ),
+                  Text(
+                    selectedMessage,
+                    style: TextStyle(
+                      fontFamily: "Poppins",
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 0.1,
+                      color: themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                    ),
+                    textAlign: TextAlign.start,
+                  ),
+                ],
+              ),
+            ),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,

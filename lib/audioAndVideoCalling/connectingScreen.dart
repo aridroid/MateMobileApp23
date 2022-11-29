@@ -161,6 +161,8 @@ class _ConnectingScreenState extends State<ConnectingScreen> {
             channelName: channelNameRand,
             token: response,
             callType: widget.callType,
+            image: widget.receiverImage,
+            name: widget.receiverName,
           )));
           SharedPreferences preferences = await SharedPreferences.getInstance();
           preferences.setBool("isCallOngoing",true);

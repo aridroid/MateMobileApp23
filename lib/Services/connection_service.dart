@@ -46,6 +46,7 @@ class ConnectionService{
         Uri.parse("https://api.mateapp.us/api/connections"),
         headers: {"Authorization": "Bearer" +token},);
       if (response.statusCode == 200) {
+        log(response.body);
         var parsed = json.decode(utf8.decode(response.bodyBytes));
         debugPrint(parsed.toString());
         ConncetionLIstingModel conncetionLIstingModel = ConncetionLIstingModel.fromJson(parsed);

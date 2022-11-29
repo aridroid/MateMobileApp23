@@ -29,8 +29,9 @@ class Chat extends StatelessWidget {
   final String peerAvatar;
   final String peerName;
   final String currentUserId;
+  final String roomId;
 
-  Chat({Key key, @required this.peerUuid, @required this.currentUserId, @required this.peerId, @required this.peerAvatar, @required this.peerName}) : super(key: key);
+  Chat({Key key, @required this.peerUuid, @required this.currentUserId, @required this.peerId, @required this.peerAvatar, @required this.peerName, this.roomId}) : super(key: key);
 
   ThemeController themeController = Get.find<ThemeController>();
   @override
@@ -125,6 +126,8 @@ class Chat extends StatelessWidget {
         currentUserId: currentUserId,
         peerId: peerId,
         peerAvatar: peerAvatar,
+        peerName: peerName,
+        roomId: roomId,
       ),
     );
   }
@@ -134,8 +137,10 @@ class _ChatScreen extends StatefulWidget {
   final String peerId;
   final String peerAvatar;
   final String currentUserId;
+  final String peerName;
+  final String roomId;
 
-  _ChatScreen({Key key, @required this.peerId, @required this.peerAvatar, @required this.currentUserId}) : super(key: key);
+  _ChatScreen({Key key, @required this.peerId, @required this.peerAvatar, @required this.currentUserId, this.peerName, this.roomId}) : super(key: key);
 
   @override
   State createState() => new _ChatScreenState(peerId: peerId, peerAvatar: peerAvatar);
@@ -300,6 +305,11 @@ class _ChatScreenState extends State<_ChatScreen> {
         chatMessageMap['fileSize'] = fileSize;
       }
 
+      if(showSelected){
+        chatMessageMap['previousSender'] = sender;
+        chatMessageMap['previousMessage'] = selectedMessage;
+      }
+
       FirebaseFirestore.instance.runTransaction((transaction) async {
         await transaction.set(
           documentReference,
@@ -307,6 +317,10 @@ class _ChatScreenState extends State<_ChatScreen> {
         );
       });
       listScrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.easeOut);
+
+      setState(() {
+        showSelected = false;
+      });
 
       if (firstHit) {
         FirebaseFirestore.instance.collection('chat-users').doc(id).update({
@@ -346,6 +360,17 @@ class _ChatScreenState extends State<_ChatScreen> {
     Navigator.pop(context);
     return Future.value(false);
   }
+
+  String selectedMessage = "";
+  String sender = "";
+  bool showSelected = false;
+  selectedMessageFunc(String message,String senderName,bool selected)async{
+    selectedMessage = message;
+    showSelected = selected;
+    sender = senderName;
+    setState(() {});
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -448,6 +473,11 @@ class _ChatScreenState extends State<_ChatScreen> {
                             photo: _user.photoURL,
                             personChatId: personChatId,
                             fileSizeFull: snapshot.data.docs[index].data()["fileSize"]??0,
+                            sender: snapshot.data.docs[index].data()["idFrom"] == id?_user.displayName:widget.peerName,
+                            selectMessage: selectedMessageFunc,
+                            previousMessage: snapshot.data.docs[index].data()["previousMessage"]??"",
+                            previousSender: snapshot.data.docs[index].data()["previousSender"]??"",
+                            roomId: widget.roomId,
                           );
                         },
                         // ChatWidget.widgetChatBuildItem(context, listMessage, widget.currentUserId, index, snapshot.data.documents[index], peerAvatar),
@@ -486,177 +516,244 @@ class _ChatScreenState extends State<_ChatScreen> {
   }
 
   Widget buildInput() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        // Button send image
-        /*IconButton(
-          padding: EdgeInsets.all(0),
-          icon: new Icon(Icons.image),
-          onPressed: () => getImage(0),
-          color: Colors.grey,
-        ),
-        IconButton(
-          padding: EdgeInsets.all(0),
-          icon: new Icon(Icons.camera_alt),
-          onPressed: () => getImage(1),
-          color: Colors.grey,
-        ),
-        IconButton(
-          padding: EdgeInsets.all(0),
-          icon: new Icon(Icons.attach_file),
-          onPressed: () => _getFile(),
-          color: Colors.grey,
-        ),
-*/
-        Flexible(
+    return Column(
+      children: [
+        Visibility(
+          visible: showSelected,
           child: Container(
-            //alignment: Alignment.bottomCenter,
-            // width: MediaQuery.of(context).size.width * 0.5,
-            //margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
-            //padding: EdgeInsets.only(left: 15),
+            margin: EdgeInsets.only(left: 10,right: 10,bottom: 0),
+            width: MediaQuery.of(context).size.width,
+            padding: EdgeInsets.only(
+              left: 20,
+              right: 10,
+              top: 5,
+              bottom: 20,
+            ),
             decoration: BoxDecoration(
-                //borderRadius: BorderRadius.all(Radius.circular(12.0)),
-              border: Border(
-                top: BorderSide(
-                  color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
-                  width: 0.3,
-                ),
+              borderRadius: BorderRadius.only(
+                topRight: Radius.circular(10),
+                topLeft: Radius.circular(10),
+                // bottomLeft: Radius.circular(10),
+                // bottomRight: Radius.circular(10),
               ),
+              color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
             ),
-            child: TextField(
-              controller: textEditingController,
-              cursorColor: Colors.cyanAccent,
-              style: TextStyle(fontSize: 12.5.sp, height: 2.0, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
-              textInputAction: TextInputAction.done,
-              minLines: 1,
-              maxLines: 4,
-              decoration: InputDecoration(
-                hintStyle: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: 0.1,
-                  color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                ),
-                prefixIcon:  Padding(
-                  padding: const EdgeInsets.only(left: 10,right: 10),
-                  child: SpeedDial(
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Image.asset("lib/asset/icons/attachment.png"),
-                    ),
-                    activeIcon: Icons.close,
-                    spaceBetweenChildren: 6,
-                    backgroundColor: themeController.isDarkMode?Colors.transparent:Colors.white,
-                    elevation: 0,
-                    foregroundColor: Colors.transparent,
-                    activeForegroundColor: MateColors.activeIcons,
-                    overlayColor: Colors.transparent,
-                    overlayOpacity: 0.5,
-                    switchLabelPosition: true,
-                    tooltip: "Send File",
-                    children: [
-                      SpeedDialChild(
-                        child:Icon(Icons.image),
-                        label: "Image",
-                        elevation: 2.0,
-                        onTap: () => getImage(0),
-                      ),
-                      SpeedDialChild(
-                        child:Icon(Icons.camera_alt),
-                        label: "Camera",
-                        elevation: 2.0,
-                        onTap: () => getImage(1),
-                      ),
-                      SpeedDialChild(
-                        child:Icon(Icons.file_present),
-                        label: "Document",
-                        elevation: 2.0,
-                        onTap: () => _getFile(),
-                      ),
-                    ],
-                  ),
-                ),
-                suffixIcon: Padding(
-                  padding: const EdgeInsets.only(right: 10),
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.send,
-                      size: 20,
-                      color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                    ),
-                    onPressed: ()async{
-                      onSendMessage(textEditingController.text, 0);
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Align(
+                  alignment: Alignment.topRight,
+                  child: InkWell(
+                    onTap: (){
+                      showSelected = false;
+                      setState(() {});
                     },
+                    child: Icon(Icons.clear,size: 20,),
                   ),
                 ),
-                hintText: "Write a message...",
-                focusedBorder: OutlineInputBorder(
-                  borderSide:  BorderSide(
-                    color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+                Text(
+                  sender,
+                  style: TextStyle(
+                    fontFamily: "Poppins",
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: 0.1,
+                    color: MateColors.activeIcons,
+                    //color: themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
                   ),
-                  borderRadius: BorderRadius.circular(26.0),
+                  textAlign: TextAlign.start,
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide:  BorderSide(
-                    color:  themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+                SizedBox(
+                  height: 4,
+                ),
+                Text(
+                  selectedMessage,
+                  style: TextStyle(
+                    fontFamily: "Poppins",
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: 0.1,
+                    color: themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
                   ),
-                  borderRadius: BorderRadius.circular(26.0),
+                  textAlign: TextAlign.start,
                 ),
-                disabledBorder: OutlineInputBorder(
-                  borderSide:  BorderSide(
-                    color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                  ),
-                  borderRadius: BorderRadius.circular(26.0),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderSide:  BorderSide(
-                    color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                  ),
-                  borderRadius: BorderRadius.circular(26.0),
-                ),
-                focusedErrorBorder: OutlineInputBorder(
-                  borderSide:  BorderSide(
-                    color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                  ),
-                  borderRadius: BorderRadius.circular(26.0),
-                ),
-              ),
+              ],
             ),
-
-
-            // TextField(
-            //   controller: textEditingController,
-            //   cursorColor: Colors.cyanAccent,
-            //   style: TextStyle(
-            //     color: Colors.white,
-            //     fontSize: 12.5.sp,
-            //   ),
-            //   textInputAction: TextInputAction.done,
-            //   minLines: 1,
-            //   maxLines: 4,
-            //   decoration: InputDecoration(
-            //       hintText: "Type message ...",
-            //       hintStyle: TextStyle(
-            //         color: Colors.white38,
-            //         fontSize: 13.0.sp,
-            //       ),
-            //       border: InputBorder.none),
-            // ),
           ),
         ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            // Button send image
+            /*IconButton(
+              padding: EdgeInsets.all(0),
+              icon: new Icon(Icons.image),
+              onPressed: () => getImage(0),
+              color: Colors.grey,
+            ),
+            IconButton(
+              padding: EdgeInsets.all(0),
+              icon: new Icon(Icons.camera_alt),
+              onPressed: () => getImage(1),
+              color: Colors.grey,
+            ),
+            IconButton(
+              padding: EdgeInsets.all(0),
+              icon: new Icon(Icons.attach_file),
+              onPressed: () => _getFile(),
+              color: Colors.grey,
+            ),
+*/
+            Flexible(
+              child: Container(
+                //alignment: Alignment.bottomCenter,
+                // width: MediaQuery.of(context).size.width * 0.5,
+                //margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                //padding: EdgeInsets.only(left: 15),
+                decoration: BoxDecoration(
+                    //borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                  border: Border(
+                    top: BorderSide(
+                      color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
+                      width: 0.3,
+                    ),
+                  ),
+                ),
+                child: TextField(
+                  controller: textEditingController,
+                  cursorColor: Colors.cyanAccent,
+                  style: TextStyle(fontSize: 12.5.sp, height: 2.0, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
+                  textInputAction: TextInputAction.done,
+                  minLines: 1,
+                  maxLines: 4,
+                  decoration: InputDecoration(
+                    hintStyle: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 0.1,
+                      color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                    ),
+                    prefixIcon:  Padding(
+                      padding: const EdgeInsets.only(left: 10,right: 10),
+                      child: SpeedDial(
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Image.asset("lib/asset/icons/attachment.png"),
+                        ),
+                        activeIcon: Icons.close,
+                        spaceBetweenChildren: 6,
+                        backgroundColor: themeController.isDarkMode?Colors.transparent:Colors.white,
+                        elevation: 0,
+                        foregroundColor: Colors.transparent,
+                        activeForegroundColor: MateColors.activeIcons,
+                        overlayColor: Colors.transparent,
+                        overlayOpacity: 0.5,
+                        switchLabelPosition: true,
+                        tooltip: "Send File",
+                        children: [
+                          SpeedDialChild(
+                            child:Icon(Icons.image),
+                            label: "Image",
+                            elevation: 2.0,
+                            onTap: () => getImage(0),
+                          ),
+                          SpeedDialChild(
+                            child:Icon(Icons.camera_alt),
+                            label: "Camera",
+                            elevation: 2.0,
+                            onTap: () => getImage(1),
+                          ),
+                          SpeedDialChild(
+                            child:Icon(Icons.file_present),
+                            label: "Document",
+                            elevation: 2.0,
+                            onTap: () => _getFile(),
+                          ),
+                        ],
+                      ),
+                    ),
+                    suffixIcon: Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.send,
+                          size: 20,
+                          color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                        ),
+                        onPressed: ()async{
+                          onSendMessage(textEditingController.text, 0);
+                        },
+                      ),
+                    ),
+                    hintText: "Write a message...",
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:  BorderSide(
+                        color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+                      ),
+                      borderRadius: BorderRadius.circular(26.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:  BorderSide(
+                        color:  themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+                      ),
+                      borderRadius: BorderRadius.circular(26.0),
+                    ),
+                    disabledBorder: OutlineInputBorder(
+                      borderSide:  BorderSide(
+                        color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+                      ),
+                      borderRadius: BorderRadius.circular(26.0),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderSide:  BorderSide(
+                        color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+                      ),
+                      borderRadius: BorderRadius.circular(26.0),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderSide:  BorderSide(
+                        color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+                      ),
+                      borderRadius: BorderRadius.circular(26.0),
+                    ),
+                  ),
+                ),
 
-        // Button send message
-        // GestureDetector(
-        //   onTap: () => onSendMessage(textEditingController.text, 0),
-        //   child: Container(
-        //     height: 45.0,
-        //     width: 45.0,
-        //     decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(50.0)), color: Colors.transparent, border: Border.all(color: Colors.grey, width: 0.3)),
-        //     child: Center(child: Icon(Icons.send, color: MateColors.activeIcons)),
-        //   ),
-        // )
+
+                // TextField(
+                //   controller: textEditingController,
+                //   cursorColor: Colors.cyanAccent,
+                //   style: TextStyle(
+                //     color: Colors.white,
+                //     fontSize: 12.5.sp,
+                //   ),
+                //   textInputAction: TextInputAction.done,
+                //   minLines: 1,
+                //   maxLines: 4,
+                //   decoration: InputDecoration(
+                //       hintText: "Type message ...",
+                //       hintStyle: TextStyle(
+                //         color: Colors.white38,
+                //         fontSize: 13.0.sp,
+                //       ),
+                //       border: InputBorder.none),
+                // ),
+              ),
+            ),
+
+            // Button send message
+            // GestureDetector(
+            //   onTap: () => onSendMessage(textEditingController.text, 0),
+            //   child: Container(
+            //     height: 45.0,
+            //     width: 45.0,
+            //     decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(50.0)), color: Colors.transparent, border: Border.all(color: Colors.grey, width: 0.3)),
+            //     child: Center(child: Icon(Icons.send, color: MateColors.activeIcons)),
+            //   ),
+            // )
+          ],
+        ),
       ],
     );
   }

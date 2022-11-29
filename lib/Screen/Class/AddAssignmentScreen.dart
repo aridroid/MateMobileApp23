@@ -110,8 +110,11 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
                 padding: const EdgeInsets.only(bottom: 30.0),
                 child: ButtonTheme(
                   minWidth: MediaQuery.of(context).size.width - 40,
-                  child: RaisedButton(
-                    color: Colors.cyan,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.grey.withOpacity(0.5),
+                    ),
+                    // color: Colors.cyan,
                     child: Text(
                       'Add Assignment',
                       style: TextStyle(fontWeight: FontWeight.bold),
@@ -160,7 +163,7 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
           ),
         );
 
-        _scaffoldKey.currentState.showSnackBar(sb);
+        ScaffoldMessenger.of(context).showSnackBar(sb);
         Navigator.of(context).pop();
         Navigator.of(context).pop();
       } else {
