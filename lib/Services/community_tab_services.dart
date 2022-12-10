@@ -197,6 +197,32 @@ class CommunityTabService{
     return result;
   }
 
+  Future<void> toggleMutePersonalChat({String token,String uid,String roomId})async{
+    debugPrint("https://api.mateapp.us/api/chat/mute-personal-chat-notification");
+    debugPrint(token);
+    Map data = {
+      "room_id": roomId,
+      "uid": uid
+    };
+    debugPrint(jsonEncode(data));
+    try {
+      final response = await http.post(
+        Uri.parse("https://api.mateapp.us/api/chat/mute-personal-chat-notification"),
+        headers: {"Authorization": "Bearer" +token},
+        body: data,
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        var parsed = json.decode(utf8.decode(response.bodyBytes));
+        debugPrint(parsed.toString());
+      }else {
+        var parsed = json.decode(utf8.decode(response.bodyBytes));
+        debugPrint(parsed.toString());
+      }
+    }catch (e) {
+      log(e.toString());
+    }
+  }
+
   Future<bool> reportPersonalMessage({String token,String uid,String roomId,String messageId})async{
     bool result = false;
     debugPrint("https://api.mateapp.us/api/chat/report-personal-message");
@@ -227,6 +253,32 @@ class CommunityTabService{
     return result;
   }
 
+
+  Future<void> toggleArchive({String token,String uid,String roomId})async{
+    debugPrint("https://api.mateapp.us/api/chat/archive-chat-room");
+    debugPrint(token);
+    Map data = {
+      "room_id": roomId,
+      "uid": uid
+    };
+    debugPrint(jsonEncode(data));
+    try {
+      final response = await http.post(
+        Uri.parse("https://api.mateapp.us/api/chat/archive-chat-room"),
+        headers: {"Authorization": "Bearer" +token},
+        body: data,
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        var parsed = json.decode(utf8.decode(response.bodyBytes));
+        debugPrint(parsed.toString());
+      }else {
+        var parsed = json.decode(utf8.decode(response.bodyBytes));
+        debugPrint(parsed.toString());
+      }
+    }catch (e) {
+      log(e.toString());
+    }
+  }
 
 
 }

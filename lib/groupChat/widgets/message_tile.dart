@@ -467,7 +467,6 @@ class _MessageTileState extends State<MessageTile> {
 
                 },
               ),
-
               FocusedMenuItem(
                 title: Row(
                   children: [
@@ -497,7 +496,6 @@ class _MessageTileState extends State<MessageTile> {
                   //Clipboard.setData(ClipboardData(text: widget.message));
                 },
               ),
-
               FocusedMenuItem(
                 title: Row(
                   children: [

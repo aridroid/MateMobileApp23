@@ -475,25 +475,33 @@
 
 
 
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:focused_menu/focused_menu.dart';
+import 'package:focused_menu/modals.dart';
 import 'package:get/get.dart';
 import 'package:mate_app/Screen/chatDashboard/chatMergedSearch.dart';
 import 'package:mate_app/Screen/chatDashboard/new_message.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../Providers/AuthUserProvider.dart';
 import '../../Providers/chatProvider.dart';
+import '../../Services/community_tab_services.dart';
 import '../../Widget/Drawer/DrawerWidget.dart';
 import '../../Widget/Loaders/Shimmer.dart';
 import '../../asset/Colors/MateColors.dart';
 import '../../controller/theme_controller.dart';
+import '../../groupChat/pages/chat_page.dart';
 import '../../groupChat/services/database_service.dart';
 import '../../groupChat/widgets/group_tile.dart';
 import '../chat1/screens/chat.dart';
+import 'archived_view.dart';
 
 class ChatDashboard extends StatefulWidget {
   static final String routeName = '/chatDashboard';
@@ -509,10 +517,18 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
 
   @override
   void initState() {
+    getStoredValue();
     Future.delayed(Duration.zero, () {
       Provider.of<ChatProvider>(context, listen: false).mergedChatDataFetch(_user.uid,true);
     });
     super.initState();
+  }
+
+  String token;
+  getStoredValue()async{
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    token = preferences.getString("token");
+    log(token);
   }
 
   loadData()async{
@@ -650,6 +666,30 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                 shrinkWrap: true,
                 physics: ScrollPhysics(),
                 children: [
+                  if( chatProvider.mergedChatModelData.archived.length>0)
+                  InkWell(
+                    onTap: ()async{
+                      await Get.to(()=>ArchivedView());
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(left: 25,top: 0,bottom: 16),
+                      child: Row(
+                        children: [
+                          Icon(Icons.archive,color: MateColors.activeIcons,),
+                          SizedBox(width: 35,),
+                          Text("Archived",
+                            style: TextStyle(
+                              fontFamily: "Poppins",
+                              fontSize: 15.0,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.1,
+                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                   ListView.builder(
                     itemCount: chatProvider.mergedChatModelData.data.length,
                     shrinkWrap: true,
@@ -657,16 +697,141 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                     scrollDirection: Axis.vertical,
                     itemBuilder: (context, indexMain) {
                       return chatProvider.mergedChatModelData.data[indexMain].type=="group"?
-                        GroupTile(
-                          userName: _user.displayName,
-                          groupId: chatProvider.mergedChatModelData.data[indexMain].roomId,
-                          unreadMessages: chatProvider.mergedChatModelData.data[indexMain].unreadMessages,
-                          currentUserUid: _user.uid,
-                          loadData: loadData,
-                          isMuted: chatProvider.mergedChatModelData.data[indexMain].isMuted,
-                          isPinned: chatProvider.mergedChatModelData.data[indexMain].isPinned==0?false:true,
-                          index: indexMain,
-                      ):
+                        FocusedMenuHolder(
+                          menuWidth: MediaQuery.of(context).size.width*0.5,
+                          blurSize: 5.0,
+                          menuItemExtent: 45,
+                          menuBoxDecoration: BoxDecoration(
+                            //color: Colors.red,
+                            //shape: BoxShape.rectangle,
+                            gradient: LinearGradient(colors: themeController.isDarkMode?[MateColors.drawerTileColor,MateColors.drawerTileColor]:[Colors.white,Colors.white]),
+                            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                          ),
+                          duration: Duration(milliseconds: 100),
+                          animateMenuItems: true,
+                          blurBackgroundColor: Colors.black54,
+                          openWithTap: false, // Open Focused-Menu on Tap rather than Long Press
+                          menuOffset: 16.0, // Offset value to show menuItem from the selected item
+                          bottomOffsetHeight: 80.0,
+                          menuItems: <FocusedMenuItem>[
+                            FocusedMenuItem(
+                                title: Row(
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.only(left: 0),
+                                      child: Text(
+                                        "Archive",
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontFamily: "Poppins",
+                                          fontWeight: FontWeight.w500,
+                                          color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(left: MediaQuery.of(context).size.width*0.23),
+                                      child: Icon(Icons.archive,
+                                        size: 20,
+                                        color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+                                onPressed: ()async{
+                                  await CommunityTabService().toggleArchive(roomId: chatProvider.mergedChatModelData.data[indexMain].roomId,uid: _user.uid,token: token);
+                                  loadData();
+                                },
+                              ),
+                            FocusedMenuItem(
+                              title: Row(
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.only(left: 0),
+                                    child: Text(
+                                      chatProvider.mergedChatModelData.data[indexMain].isMuted?
+                                      "Unmute":
+                                      "Mute",
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontFamily: "Poppins",
+                                        fontWeight: FontWeight.w500,
+                                        color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(left:
+                                    chatProvider.mergedChatModelData.data[indexMain].isMuted?
+                                    MediaQuery.of(context).size.width*0.23:
+                                    MediaQuery.of(context).size.width*0.28),
+                                    child: Icon(
+                                      chatProvider.mergedChatModelData.data[indexMain].isMuted?
+                                          Icons.volume_up:
+                                      Icons.volume_off,
+                                      size: 20,
+                                      color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+                              onPressed: ()async{
+                                if(chatProvider.mergedChatModelData.data[indexMain].isMuted){
+                                  DatabaseService().removeIsMuted(chatProvider.mergedChatModelData.data[indexMain].roomId, _user.uid);
+                                }else{
+                                  DatabaseService().setIsMuted(chatProvider.mergedChatModelData.data[indexMain].roomId, _user.uid);
+                                }
+                                await CommunityTabService().toggleMute(groupId: chatProvider.mergedChatModelData.data[indexMain].roomId,uid: _user.uid,token: token);
+                                loadData();
+                              },
+                            ),
+                            FocusedMenuItem(
+                              title: Row(
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.only(left: 0),
+                                    child: Text(
+                                      "Exit Group",
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontFamily: "Poppins",
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(left: MediaQuery.of(context).size.width*0.18),
+                                    child: Icon(Icons.cancel_outlined,
+                                      size: 20,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+                              onPressed: ()async{
+                                DocumentSnapshot data = await DatabaseService().getMateGroupDetailsData(chatProvider.mergedChatModelData.data[indexMain].roomId);
+                                DatabaseService(uid: _user.uid).togglingGroupJoin(chatProvider.mergedChatModelData.data[indexMain].roomId,data["groupName"],_user.displayName);
+                                await CommunityTabService().exitGroup(token: token,uid: _user.uid,groupId: chatProvider.mergedChatModelData.data[indexMain].roomId);
+                                loadData();
+                              },
+                            ),
+                          ],
+                          onPressed: (){},
+                          child: GroupTile(
+                            userName: _user.displayName,
+                            groupId: chatProvider.mergedChatModelData.data[indexMain].roomId,
+                            unreadMessages: chatProvider.mergedChatModelData.data[indexMain].unreadMessages,
+                            currentUserUid: _user.uid,
+                            loadData: loadData,
+                            isMuted: chatProvider.mergedChatModelData.data[indexMain].isMuted,
+                            isPinned: chatProvider.mergedChatModelData.data[indexMain].isPinned==0?false:true,
+                            index: indexMain,
+                         ),
+                        ):
                       StreamBuilder(
                           stream: DatabaseService().getPeerChatUserDetail(chatProvider.mergedChatModelData.data[indexMain].receiverUid),
                           builder: (context, snapshot) {
@@ -685,90 +850,191 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                       personChatId = '${snapshot.data.docs[index].data()["uid"]}-${_user.uid}';
                                     }
                                     chatProvider.messageList[indexMain].name = snapshot.data.docs[index].data()["displayName"];
-                                    return Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 2.0),
-                                      child: ListTile(
-                                        onTap: () => Get.to(() => Chat(
-                                          peerUuid: snapshot.data.docs[index].data()["uuid"],
-                                          currentUserId: _user.uid,
-                                          peerId: snapshot.data.docs[index].data()["uid"],
-                                          peerName: snapshot.data.docs[index].data()["displayName"],
-                                          peerAvatar: snapshot.data.docs[index].data()["photoURL"],
-                                          roomId: chatProvider.messageList[indexMain].roomId,
-                                        )),
-                                        leading: CircleAvatar(
-                                          radius: 24,
-                                          backgroundColor: MateColors.activeIcons,
-                                          backgroundImage: NetworkImage(snapshot.data.docs[index].data()["photoURL"]),
-                                        ),
-                                        title: Text(
-                                          snapshot.data.docs[index].data()["displayName"],
-                                          style: TextStyle(
-                                            fontFamily: "Poppins",
-                                            fontSize: 15.0,
-                                            fontWeight: FontWeight.w500,
-                                            letterSpacing: 0.1,
-                                            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                                    return FocusedMenuHolder(
+                                      menuWidth: MediaQuery.of(context).size.width*0.5,
+                                      blurSize: 5.0,
+                                      menuItemExtent: 45,
+                                      menuBoxDecoration: BoxDecoration(
+                                        //color: Colors.red,
+                                        //shape: BoxShape.rectangle,
+                                        gradient: LinearGradient(colors: themeController.isDarkMode?[MateColors.drawerTileColor,MateColors.drawerTileColor]:[Colors.white,Colors.white]),
+                                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                                      ),
+                                      duration: Duration(milliseconds: 100),
+                                      animateMenuItems: true,
+                                      blurBackgroundColor: Colors.black54,
+                                      openWithTap: false, // Open Focused-Menu on Tap rather than Long Press
+                                      menuOffset: 16.0, // Offset value to show menuItem from the selected item
+                                      bottomOffsetHeight: 80.0,
+                                      menuItems: <FocusedMenuItem>[
+                                        FocusedMenuItem(
+                                          title: Row(
+                                            children: [
+                                              Padding(
+                                                padding: EdgeInsets.only(left: 0),
+                                                child: Text(
+                                                  "Archive",
+                                                  style: TextStyle(
+                                                    fontSize: 15,
+                                                    fontFamily: "Poppins",
+                                                    fontWeight: FontWeight.w500,
+                                                    color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                                                  ),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: EdgeInsets.only(left: MediaQuery.of(context).size.width*0.23),
+                                                child: Icon(Icons.archive,
+                                                  size: 20,
+                                                  color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                                                ),
+                                              ),
+                                            ],
                                           ),
+                                          backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+                                          onPressed: ()async{
+                                            await CommunityTabService().toggleArchive(roomId: chatProvider.mergedChatModelData.data[indexMain].roomId,uid: _user.uid,token: token);
+                                            loadData();
+                                          },
                                         ),
-                                        subtitle: StreamBuilder(
-                                            stream: FirebaseFirestore.instance.collection('messages').doc(personChatId).collection(personChatId).orderBy('timestamp', descending: true).limit(1).snapshots(),
-                                            builder: (context, snapshot) {
-                                              if (snapshot.hasData) {
-                                                print(snapshot.data.docs);
-                                                if (snapshot.data.docs.length > 0) {
-                                                  return Text(
-                                                    snapshot.data.docs[0].data()['type'] == 0 ?
-                                                    "${snapshot.data.docs[0].data()['content']}" : snapshot.data.docs[0].data()['type'] == 1 ?
-                                                    "🖼️ Image" :
-                                                    snapshot.data.docs[0].data()['fileName'],
-                                                    style: TextStyle(
-                                                      fontFamily: "Poppins",
-                                                      fontSize: 14.0,
-                                                      letterSpacing: 0.1,
-                                                      fontWeight: FontWeight.w400,
-                                                      color: themeController.isDarkMode?
-                                                      chatProvider.mergedChatModelData.data[indexMain].unreadMessages >0?
-                                                      Colors.white: MateColors.subTitleTextDark:
-                                                      chatProvider.mergedChatModelData.data[indexMain].unreadMessages >0?
-                                                      MateColors.blackTextColor:
-                                                      MateColors.subTitleTextLight,
-                                                    ),
-                                                    overflow: TextOverflow.ellipsis,
-                                                  );
+                                        FocusedMenuItem(
+                                          title: Row(
+                                            children: [
+                                              Padding(
+                                                padding: EdgeInsets.only(left: 0),
+                                                child: Text(
+                                                  chatProvider.mergedChatModelData.data[indexMain].isMuted?
+                                                  "Unmute":
+                                                  "Mute",
+                                                  style: TextStyle(
+                                                    fontSize: 15,
+                                                    fontFamily: "Poppins",
+                                                    fontWeight: FontWeight.w500,
+                                                    color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                                                  ),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: EdgeInsets.only(left:
+                                                chatProvider.mergedChatModelData.data[indexMain].isMuted?
+                                                MediaQuery.of(context).size.width*0.23:
+                                                MediaQuery.of(context).size.width*0.28),
+                                                child: Icon(
+                                                  chatProvider.mergedChatModelData.data[indexMain].isMuted?
+                                                  Icons.volume_up:
+                                                  Icons.volume_off,
+                                                  size: 20,
+                                                  color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+                                          onPressed: ()async{
+                                            await CommunityTabService().toggleMutePersonalChat(roomId: chatProvider.mergedChatModelData.data[indexMain].roomId,uid: _user.uid,token: token);
+                                            loadData();
+                                          },
+                                        ),
+                                      ],
+                                      onPressed: (){},
+                                      child: Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 2.0),
+                                        child: ListTile(
+                                          onTap: () => Get.to(() => Chat(
+                                            peerUuid: snapshot.data.docs[index].data()["uuid"],
+                                            currentUserId: _user.uid,
+                                            peerId: snapshot.data.docs[index].data()["uid"],
+                                            peerName: snapshot.data.docs[index].data()["displayName"],
+                                            peerAvatar: snapshot.data.docs[index].data()["photoURL"],
+                                            roomId: chatProvider.messageList[indexMain].roomId,
+                                          )),
+                                          leading: CircleAvatar(
+                                            radius: 24,
+                                            backgroundColor: MateColors.activeIcons,
+                                            backgroundImage: NetworkImage(snapshot.data.docs[index].data()["photoURL"]),
+                                          ),
+                                          title: Row(
+                                            children: [
+                                              Text(
+                                                snapshot.data.docs[index].data()["displayName"],
+                                                style: TextStyle(
+                                                  fontFamily: "Poppins",
+                                                  fontSize: 15.0,
+                                                  fontWeight: FontWeight.w500,
+                                                  letterSpacing: 0.1,
+                                                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                                                ),
+                                              ),
+                                              chatProvider.mergedChatModelData.data[indexMain].isMuted?
+                                              Padding(
+                                                padding: EdgeInsets.only(left: 10),
+                                                child: Image.asset("lib/asset/icons/mute.png",
+                                                  color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                                                  height: 14,
+                                                  width: 19,
+                                                ),
+                                              ):Offstage(),
+                                            ],
+                                          ),
+                                          subtitle: StreamBuilder(
+                                              stream: FirebaseFirestore.instance.collection('messages').doc(personChatId).collection(personChatId).orderBy('timestamp', descending: true).limit(1).snapshots(),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.hasData) {
+                                                  print(snapshot.data.docs);
+                                                  if (snapshot.data.docs.length > 0) {
+                                                    return Text(
+                                                      snapshot.data.docs[0].data()['type'] == 0 ?
+                                                      "${snapshot.data.docs[0].data()['content']}" : snapshot.data.docs[0].data()['type'] == 1 ?
+                                                      "🖼️ Image" :
+                                                      snapshot.data.docs[0].data()['fileName'],
+                                                      style: TextStyle(
+                                                        fontFamily: "Poppins",
+                                                        fontSize: 14.0,
+                                                        letterSpacing: 0.1,
+                                                        fontWeight: FontWeight.w400,
+                                                        color: themeController.isDarkMode?
+                                                        chatProvider.mergedChatModelData.data[indexMain].unreadMessages >0?
+                                                        Colors.white: MateColors.subTitleTextDark:
+                                                        chatProvider.mergedChatModelData.data[indexMain].unreadMessages >0?
+                                                        MateColors.blackTextColor:
+                                                        MateColors.subTitleTextLight,
+                                                      ),
+                                                      overflow: TextOverflow.ellipsis,
+                                                    );
+                                                  } else
+                                                    return Text(
+                                                      "Tap to send message",
+                                                      style: TextStyle(letterSpacing: 0.1,fontFamily: "Poppins",fontSize: 14.0, fontWeight: FontWeight.w400, color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight),
+                                                      overflow: TextOverflow.ellipsis,
+                                                    );
                                                 } else
                                                   return Text(
                                                     "Tap to send message",
                                                     style: TextStyle(letterSpacing: 0.1,fontFamily: "Poppins",fontSize: 14.0, fontWeight: FontWeight.w400, color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight),
                                                     overflow: TextOverflow.ellipsis,
                                                   );
-                                              } else
-                                                return Text(
-                                                  "Tap to send message",
-                                                  style: TextStyle(letterSpacing: 0.1,fontFamily: "Poppins",fontSize: 14.0, fontWeight: FontWeight.w400, color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight),
-                                                  overflow: TextOverflow.ellipsis,
-                                                );
-                                            }),
-                                        trailing: chatProvider.mergedChatModelData.data[indexMain].unreadMessages >0?
-                                        Container(
-                                          height: 20,
-                                          width: 20,
-                                          margin: EdgeInsets.only(right: 10),
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: MateColors.activeIcons,
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              chatProvider.mergedChatModelData.data[indexMain].unreadMessages.toString(),
-                                              style: TextStyle(fontFamily: "Poppins",
-                                                fontSize: 12.0,
-                                                fontWeight: FontWeight.w400,
-                                                color: themeController.isDarkMode?MateColors.blackTextColor:Colors.white,
+                                              }),
+                                          trailing: chatProvider.mergedChatModelData.data[indexMain].unreadMessages >0 && chatProvider.mergedChatModelData.data[indexMain].isMuted==false?
+                                          Container(
+                                            height: 20,
+                                            width: 20,
+                                            margin: EdgeInsets.only(right: 10),
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: MateColors.activeIcons,
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                chatProvider.mergedChatModelData.data[indexMain].unreadMessages.toString(),
+                                                style: TextStyle(fontFamily: "Poppins",
+                                                  fontSize: 12.0,
+                                                  fontWeight: FontWeight.w400,
+                                                  color: themeController.isDarkMode?MateColors.blackTextColor:Colors.white,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        ):Offstage(),
+                                          ):Offstage(),
+                                        ),
                                       ),
                                     );
                                   });

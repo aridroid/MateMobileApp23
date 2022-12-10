@@ -110,6 +110,7 @@ class ChatProvider extends ChangeNotifier{
   }
 
   List<CustomDataForChatList> messageList = [];
+  List<CustomDataForChatList> archiveList = [];
   bool mergedChatApiError = false;
   Future<void> mergedChatDataFetch(String uid,bool shouldLoad) async {
     mergedChatApiError = false;
@@ -120,6 +121,7 @@ class ChatProvider extends ChangeNotifier{
     try {
       _mergedChatModelData = await _chatService.mergedChatDataFetch(uid);
       messageList.clear();
+      archiveList.clear();
       for(int i=0;i<_mergedChatModelData.data.length;i++){
         messageList.add(CustomDataForChatList(
           name: "",
@@ -135,6 +137,21 @@ class ChatProvider extends ChangeNotifier{
         ));
       }
       print(messageList);
+      for(int i=0;i<_mergedChatModelData.archived.length;i++){
+        archiveList.add(CustomDataForChatList(
+          name: "",
+          roomId: _mergedChatModelData.archived[i].roomId,
+          receiverUid: _mergedChatModelData.archived[i].receiverUid,
+          updatedAt: _mergedChatModelData.archived[i].updatedAt,
+          createdAt: _mergedChatModelData.archived[i].createdAt,
+          isMuted: _mergedChatModelData.archived[i].isMuted,
+          isPinned: _mergedChatModelData.archived[i].isPinned,
+          totalMessages: _mergedChatModelData.archived[i].totalMessages,
+          type: _mergedChatModelData.archived[i].type,
+          unreadMessages: _mergedChatModelData.archived[i].unreadMessages,
+        ));
+      }
+      print(archiveList);
     } catch (err) {
       mergedChatApiError = true;
       notifyListeners();

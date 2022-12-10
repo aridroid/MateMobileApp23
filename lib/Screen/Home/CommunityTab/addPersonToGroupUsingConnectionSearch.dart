@@ -90,6 +90,26 @@ class _AddPersonToGroupUsingConnectionSearchState extends State<AddPersonToGroup
           ),
         ),
       ),
+      floatingActionButton: _addUserController.addConnectionUid.isNotEmpty?InkWell(
+        onTap: (){
+          Get.back();
+          Get.back();
+        },
+        child: Container(
+          height: 56,
+          width: 56,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: MateColors.activeIcons,
+          ),
+          child: Icon(
+            Icons.check,
+            size: 31,
+            color: themeController.isDarkMode?Colors.black:Colors.white,
+          ),
+        ),
+      ):Offstage(),
       body: ListView(
         scrollDirection: Axis.vertical,
         shrinkWrap: true,

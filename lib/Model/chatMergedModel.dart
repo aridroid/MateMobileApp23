@@ -12,22 +12,26 @@ class ChatMergedModel {
   ChatMergedModel({
     this.success,
     this.data,
+    this.archived,
     this.message,
   });
 
   bool success;
   List<Datum> data;
+  List<Datum> archived;
   String message;
 
   factory ChatMergedModel.fromJson(Map<String, dynamic> json) => ChatMergedModel(
     success: json["success"],
     data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
+    archived: List<Datum>.from(json["archived"].map((x) => Datum.fromJson(x))),
     message: json["message"],
   );
 
   Map<String, dynamic> toJson() => {
     "success": success,
     "data": List<dynamic>.from(data.map((x) => x.toJson())),
+    "archived": List<dynamic>.from(archived.map((x) => x.toJson())),
     "message": message,
   };
 }

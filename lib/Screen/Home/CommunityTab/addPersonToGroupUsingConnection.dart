@@ -54,6 +54,25 @@ class _AddPersonToGroupUsingConnectionState extends State<AddPersonToGroupUsingC
         ),
         centerTitle: true,
       ),
+      floatingActionButton: _addUserController.addConnectionUid.isNotEmpty?InkWell(
+        onTap: (){
+         Get.back();
+        },
+        child: Container(
+          height: 56,
+          width: 56,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: MateColors.activeIcons,
+          ),
+          child: Icon(
+            Icons.check,
+            size: 31,
+            color: themeController.isDarkMode?Colors.black:Colors.white,
+          ),
+        ),
+      ):Offstage(),
       body: ListView(
         scrollDirection: Axis.vertical,
         shrinkWrap: true,
