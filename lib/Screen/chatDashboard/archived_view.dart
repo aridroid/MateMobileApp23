@@ -167,10 +167,7 @@ class _ArchivedViewState extends State<ArchivedView> {
                               itemCount: snapshot.data.docs.length,
                               physics: ScrollPhysics(),
                               itemBuilder: (context, index) {
-                                if (_user.uid.hashCode <=
-                                    {
-                                      snapshot.data.docs[index].data()["uid"]
-                                    }.hashCode) {
+                                if (_user.uid.hashCode <= snapshot.data.docs[index].data()["uid"].hashCode) {
                                   personChatId = '${_user.uid}-${snapshot.data.docs[index].data()["uid"]}';
                                 } else {
                                   personChatId = '${snapshot.data.docs[index].data()["uid"]}-${_user.uid}';

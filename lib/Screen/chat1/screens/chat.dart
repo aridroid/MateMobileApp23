@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:mate_app/Providers/chatProvider.dart';
 import 'package:mate_app/Screen/Profile/UserProfileScreen.dart';
 import 'package:mate_app/Screen/chat1/screens/personMessageTile.dart';
@@ -14,7 +16,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:record/record.dart';
+import '../../../Utility/Utility.dart';
 import '../../../audioAndVideoCalling/connectingScreen.dart';
 import '../../../controller/theme_controller.dart';
 import '../chatWidget.dart';
@@ -22,6 +27,7 @@ import 'package:mate_app/Utility/Utility.dart' as config;
 import '../constForChat.dart';
 import 'package:sizer/sizer.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:http/http.dart'as http;
 
 class Chat extends StatelessWidget {
   final String peerUuid;
@@ -190,6 +196,229 @@ class _ChatScreenState extends State<_ChatScreen> {
     readLocal();
   }
 
+
+  bool isPressed = false;
+  int _recordDuration = 0;
+  Timer _timer;
+  final _audioRecorder = Record();
+  bool sendAudio = false;
+  bool showCancelLock = false;
+  bool showLockedView = false;
+  bool isPausedRecording = false;
+
+  startRecording()async{
+    try {
+      if (await _audioRecorder.hasPermission()) {
+        await _audioRecorder.start();
+        _recordDuration = 0;
+        minute = 0;
+        second = 0;
+        _startTimer();
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  Future<void> _stopRecording() async {
+    _timer?.cancel();
+    _recordDuration = 0;
+    minute = 0;
+    second = 0;
+    final result = await _audioRecorder.stop();
+    print("-------Result------");
+    print(result);
+    if (result != null) {
+      file = File(result);
+      fileExtension = "m4a";//result.files.single.extension;
+      fileName = result.split("/").last;//result.files.single.name;
+      fileSize = result.length;//result.files.single.size;
+
+      if (fileSize > 10480000) {
+        Fluttertoast.showToast(msg: 'This file size must be within 10MB');
+      } else {
+        setState(() {
+          isLoading = true;
+        });
+        _uploadAudio();
+      }
+    }
+  }
+
+  _cancelRecording()async{
+    _timer?.cancel();
+    _recordDuration = 0;
+    minute = 0;
+    second = 0;
+    await _audioRecorder.stop();
+    setState(() {
+      showLockedView = false;
+    });
+  }
+
+  _pauseRecording()async{
+    _timer?.cancel();
+    await _audioRecorder.pause();
+    setState(() {
+      isPausedRecording = true;
+    });
+  }
+
+  _resumeRecording()async{
+    _startTimer();
+    await _audioRecorder.resume();
+    setState(() {
+      isPausedRecording = false;
+    });
+  }
+
+  int minute = 0,second=0;
+  void _startTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
+      _recordDuration++;
+      print(_recordDuration);
+
+      int n = _recordDuration;
+      n %= 3600;
+      minute = n ~/ 60 ;
+
+      n %= 60;
+      second = n;
+      setState(() {
+
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _audioRecorder.dispose();
+    audioPlayer.dispose();
+    super.dispose();
+  }
+
+  final audioPlayer = AudioPlayer();
+  List<bool> isPlaying = [];
+  List<bool> isPaused = [];
+  List<bool> isLoadingAudio = [];
+  Duration duration;
+  Duration currentDuration;
+
+  Future<void> startAudio(String url,int index) async {
+    if(isPaused[index]==true){
+      for(int i=0;i<isPlaying.length;i++){
+        isPlaying[i] = false;
+      }
+      isPaused[index] = false;
+      audioPlayer.play();
+      setState(() {
+        isPlaying[index] = true;
+      });
+      audioPlayer.playerStateStream.listen((state) {
+        if (state.processingState == ProcessingState.completed) {
+          setState(() {
+            isPlaying[index] = false;
+            isPaused[index] = false;
+          });
+        }
+      });
+
+      audioPlayer.positionStream.listen((event) {
+        setState(() {
+          currentDuration = event;
+        });
+      });
+
+    }else{
+      try{
+        audioPlayer.playerStateStream.listen((state) {
+          if (state.processingState == ProcessingState.completed) {
+            setState(() {
+              isPlaying[index] = false;
+              isPaused[index] = false;
+            });
+          }
+        });
+
+        audioPlayer.positionStream.listen((event) {
+          setState(() {
+            currentDuration = event;
+          });
+        });
+
+        audioPlayer.stop();
+        for(int i=0;i<isPlaying.length;i++){
+          isPlaying[i] = false;
+        }
+        setState(() {});
+
+        var dir = await getApplicationDocumentsDirectory();
+        var filePathAndName = dir.path + "/audios/" +url.split("/").last + ".mp3";
+        if(File(filePathAndName).existsSync()){
+          print("------File Already Exist-------");
+          duration = await audioPlayer.setFilePath(filePathAndName);
+          audioPlayer.play();
+          setState(() {
+            isPlaying[index] = true;
+          });
+        }else{
+          setState(() {
+            isLoadingAudio[index] = true;
+          });
+
+          String path = await downloadAudio(url);
+
+          setState(() {
+            isLoadingAudio[index] = false;
+          });
+
+          if(path !=""){
+            duration = await audioPlayer.setFilePath(path);
+            audioPlayer.play();
+            setState(() {
+              isPlaying[index] = true;
+            });
+          }else{
+            Fluttertoast.showToast(msg: "Something went wrong while playing audio please try again!", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+          }
+        }
+
+      }catch(e){
+        print("Error loading audio source: $e");
+      }
+    }
+  }
+
+  void pauseAudio(int index)async{
+    audioPlayer.pause();
+    setState(() {
+      isPlaying[index] = false;
+      isPaused[index] = true;
+    });
+  }
+
+  Future<String> downloadAudio(String url)async{
+    var dir = await getApplicationDocumentsDirectory();
+    var firstPath = dir.path + "/audios";
+    var filePathAndName = dir.path + "/audios/" +url.split("/").last + ".mp3";
+    await Directory(firstPath).create(recursive: true);
+    File file = new File(filePathAndName);
+    try{
+      var request = await http.get(Uri.parse(url));
+      print(request.statusCode);
+      var res = await file.writeAsBytes(request.bodyBytes);
+      print("---File Path----");
+      print(res.path);
+      return res.path;
+    }catch(e){
+      print(e);
+      return "";
+    }
+  }
+
+
   void onFocusChange() {
     if (focusNode.hasFocus) {
       // Hide sticker when keyboard appear
@@ -253,6 +482,26 @@ class _ChatScreenState extends State<_ChatScreen> {
     });
   }
 
+  Future _uploadAudio() async {
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    Reference reference = FirebaseStorage.instance.ref().child(fileName);
+
+    UploadTask uploadTask = reference.putFile(file);
+    TaskSnapshot storageTaskSnapshot = await uploadTask.whenComplete(() {});
+    storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
+      fileUrl = downloadUrl;
+      setState(() {
+        isLoading = false;
+        onSendMessage(fileUrl, 4);
+      });
+    }, onError: (err) {
+      setState(() {
+        isLoading = false;
+      });
+      Fluttertoast.showToast(msg: 'This is not a file');
+    });
+  }
+
   Future getImage(int index) async {
     imageFile = index == 0 ? await ImagePicker.platform.pickImage(source: ImageSource.gallery) : await ImagePicker.platform.pickImage(source: ImageSource.camera);
 
@@ -288,7 +537,7 @@ class _ChatScreenState extends State<_ChatScreen> {
 
   void onSendMessage(String content, int type) {
     print(type);
-    // type: 0 = text, 1 = image, 2 = sticker
+    // type: 0 = text, 1 = image, 2 = sticker ,3 = file ,4 = audio
     if (content.trim() != '') {
       textEditingController.clear();
 
@@ -371,6 +620,7 @@ class _ChatScreenState extends State<_ChatScreen> {
     setState(() {});
   }
 
+  int messageLength = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -392,6 +642,28 @@ class _ChatScreenState extends State<_ChatScreen> {
                       return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(themeColor)));
                     } else {
                       listMessage = snapshot.data.docs;
+
+                      messageLength = snapshot.data.docs.length;
+                      if(messageLength!=isPlaying.length){
+                        if(messageLength>isPlaying.length && messageLength<isPlaying.length+2){
+                          isPlaying.add(false);
+                          isPaused.add(false);
+                          isLoadingAudio.add(false);
+                        }else{
+                          isPlaying.clear();
+                          isPaused.clear();
+                          isLoadingAudio.clear();
+                          for(int i=0;i<messageLength;i++){
+                            isPlaying.add(false);
+                            isPaused.add(false);
+                            isLoadingAudio.add(false);
+                          }
+                        }
+                        print(isPlaying.length);
+                        print(isPaused.length);
+                        print(isLoadingAudio.length);
+                      }
+
                       if(readMessageUpdate){
                         Map<String, dynamic> body={
                           "room_id": personChatId,
@@ -478,6 +750,14 @@ class _ChatScreenState extends State<_ChatScreen> {
                             previousMessage: snapshot.data.docs[index].data()["previousMessage"]??"",
                             previousSender: snapshot.data.docs[index].data()["previousSender"]??"",
                             roomId: widget.roomId,
+                            isAudio: snapshot.data.docs[index].data()["type"] == 4,
+                            isPlaying: isPlaying[reversedIndex],
+                            isPaused: isPaused[reversedIndex],
+                            isLoadingAudio: isLoadingAudio[reversedIndex],
+                            startAudio: startAudio,
+                            pauseAudio: pauseAudio,
+                            duration: duration,
+                            currentDuration: currentDuration,
                           );
                         },
                         // ChatWidget.widgetChatBuildItem(context, listMessage, widget.currentUserId, index, snapshot.data.documents[index], peerAvatar),
@@ -518,6 +798,81 @@ class _ChatScreenState extends State<_ChatScreen> {
   Widget buildInput() {
     return Column(
       children: [
+        Visibility(
+          visible: showLockedView,
+          child: Container(
+            height: 110,
+            width: MediaQuery.of(context).size.width,
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: themeController.isDarkMode ? Colors.white: backgroundColor,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text("${minute.toString().padLeft(2,'0')} : ${second.toString().padLeft(2,'0')}",
+                      style: TextStyle(
+                        color: themeController.isDarkMode ? Colors.black:Colors.white,
+                      ),
+                    ),
+                    SizedBox(width: 16,),
+                    Row(
+                      children: [
+                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16,),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    InkWell(
+                      onTap: (){
+                        _cancelRecording();
+                      },
+                      child: Icon(Icons.delete,size: 30,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                    ),
+                    InkWell(
+                      onTap: (){
+                        if(isPausedRecording){
+                          _resumeRecording();
+                        }else{
+                          _pauseRecording();
+                        }
+                      },
+                      child: Icon(isPausedRecording? Icons.mic:Icons.pause_circle_outline,size: 30,color: Colors.red,),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 5),
+                      child: InkWell(
+                        onTap: (){
+                          setState(() {
+                            showLockedView = false;
+                            isPausedRecording = false;
+                          });
+                          _stopRecording();
+                        },
+                        child: Icon(Icons.send,size: 26,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
         Visibility(
           visible: showSelected,
           child: Container(
@@ -581,179 +936,289 @@ class _ChatScreenState extends State<_ChatScreen> {
             ),
           ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            // Button send image
-            /*IconButton(
-              padding: EdgeInsets.all(0),
-              icon: new Icon(Icons.image),
-              onPressed: () => getImage(0),
-              color: Colors.grey,
-            ),
-            IconButton(
-              padding: EdgeInsets.all(0),
-              icon: new Icon(Icons.camera_alt),
-              onPressed: () => getImage(1),
-              color: Colors.grey,
-            ),
-            IconButton(
-              padding: EdgeInsets.all(0),
-              icon: new Icon(Icons.attach_file),
-              onPressed: () => _getFile(),
-              color: Colors.grey,
-            ),
-*/
-            Flexible(
-              child: Container(
-                //alignment: Alignment.bottomCenter,
-                // width: MediaQuery.of(context).size.width * 0.5,
-                //margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                //padding: EdgeInsets.only(left: 15),
-                decoration: BoxDecoration(
-                    //borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                  border: Border(
-                    top: BorderSide(
-                      color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
-                      width: 0.3,
-                    ),
-                  ),
-                ),
-                child: TextField(
-                  controller: textEditingController,
-                  cursorColor: Colors.cyanAccent,
-                  style: TextStyle(fontSize: 12.5.sp, height: 2.0, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
-                  textInputAction: TextInputAction.done,
-                  minLines: 1,
-                  maxLines: 4,
-                  decoration: InputDecoration(
-                    hintStyle: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: 0.1,
-                      color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                    ),
-                    prefixIcon:  Padding(
-                      padding: const EdgeInsets.only(left: 10,right: 10),
-                      child: SpeedDial(
-                        child: Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: Image.asset("lib/asset/icons/attachment.png"),
-                        ),
-                        activeIcon: Icons.close,
-                        spaceBetweenChildren: 6,
-                        backgroundColor: themeController.isDarkMode?Colors.transparent:Colors.white,
-                        elevation: 0,
-                        foregroundColor: Colors.transparent,
-                        activeForegroundColor: MateColors.activeIcons,
-                        overlayColor: Colors.transparent,
-                        overlayOpacity: 0.5,
-                        switchLabelPosition: true,
-                        tooltip: "Send File",
-                        children: [
-                          SpeedDialChild(
-                            child:Icon(Icons.image),
-                            label: "Image",
-                            elevation: 2.0,
-                            onTap: () => getImage(0),
-                          ),
-                          SpeedDialChild(
-                            child:Icon(Icons.camera_alt),
-                            label: "Camera",
-                            elevation: 2.0,
-                            onTap: () => getImage(1),
-                          ),
-                          SpeedDialChild(
-                            child:Icon(Icons.file_present),
-                            label: "Document",
-                            elevation: 2.0,
-                            onTap: () => _getFile(),
-                          ),
-                        ],
-                      ),
-                    ),
-                    suffixIcon: Padding(
-                      padding: const EdgeInsets.only(right: 10),
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.send,
-                          size: 20,
-                          color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                        ),
-                        onPressed: ()async{
-                          onSendMessage(textEditingController.text, 0);
-                        },
-                      ),
-                    ),
-                    hintText: "Write a message...",
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:  BorderSide(
-                        color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                      ),
-                      borderRadius: BorderRadius.circular(26.0),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide:  BorderSide(
-                        color:  themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                      ),
-                      borderRadius: BorderRadius.circular(26.0),
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderSide:  BorderSide(
-                        color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                      ),
-                      borderRadius: BorderRadius.circular(26.0),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderSide:  BorderSide(
-                        color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                      ),
-                      borderRadius: BorderRadius.circular(26.0),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderSide:  BorderSide(
-                        color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                      ),
-                      borderRadius: BorderRadius.circular(26.0),
-                    ),
-                  ),
-                ),
+        if(showLockedView==false)
+         Container(
+           //alignment: Alignment.bottomCenter,
+           // width: MediaQuery.of(context).size.width * 0.5,
+           //margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
+           //padding: EdgeInsets.only(left: 15),
+           decoration: BoxDecoration(
+               //borderRadius: BorderRadius.all(Radius.circular(12.0)),
+             border: Border(
+               top: BorderSide(
+                 color: !isPressed?themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider:Colors.transparent,
+                 width: 0.3,
+               ),
+             ),
+           ),
+           child: Row(
+             mainAxisSize: MainAxisSize.min,
+             children: [
+               Visibility(
+                 visible: !isPressed,
+                 child: Expanded(
+                   child: TextField(
+                     controller: textEditingController,
+                     cursorColor: Colors.cyanAccent,
+                     style: TextStyle(fontSize: 12.5.sp, height: 2.0, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
+                     textInputAction: TextInputAction.done,
+                     minLines: 1,
+                     maxLines: 4,
+                     decoration: InputDecoration(
+                       hintStyle: TextStyle(
+                         fontSize: 14,
+                         fontWeight: FontWeight.w400,
+                         letterSpacing: 0.1,
+                         color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                       ),
+                       prefixIcon:  Padding(
+                         padding: const EdgeInsets.only(left: 10,right: 10),
+                         child: SpeedDial(
+                           child: Padding(
+                             padding: const EdgeInsets.all(15.0),
+                             child: Image.asset("lib/asset/icons/attachment.png"),
+                           ),
+                           activeIcon: Icons.close,
+                           spaceBetweenChildren: 6,
+                           backgroundColor: themeController.isDarkMode?Colors.transparent:Colors.white,
+                           elevation: 0,
+                           foregroundColor: Colors.transparent,
+                           activeForegroundColor: MateColors.activeIcons,
+                           overlayColor: Colors.transparent,
+                           overlayOpacity: 0.5,
+                           switchLabelPosition: true,
+                           tooltip: "Send File",
+                           children: [
+                             SpeedDialChild(
+                               child:Icon(Icons.image),
+                               label: "Image",
+                               elevation: 2.0,
+                               onTap: () => getImage(0),
+                             ),
+                             SpeedDialChild(
+                               child:Icon(Icons.camera_alt),
+                               label: "Camera",
+                               elevation: 2.0,
+                               onTap: () => getImage(1),
+                             ),
+                             SpeedDialChild(
+                               child:Icon(Icons.file_present),
+                               label: "Document",
+                               elevation: 2.0,
+                               onTap: () => _getFile(),
+                             ),
+                           ],
+                         ),
+                       ),
+                       suffixIcon: Padding(
+                         padding: const EdgeInsets.only(right: 10),
+                         child: IconButton(
+                           icon: Icon(
+                             Icons.send,
+                             size: 20,
+                             color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                           ),
+                           onPressed: ()async{
+                             onSendMessage(textEditingController.text, 0);
+                           },
+                         ),
+                       ),
+                       hintText: "Write a message...",
+                       focusedBorder: OutlineInputBorder(
+                         borderSide:  BorderSide(
+                           color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+                         ),
+                         borderRadius: BorderRadius.circular(26.0),
+                       ),
+                       enabledBorder: OutlineInputBorder(
+                         borderSide:  BorderSide(
+                           color:  themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+                         ),
+                         borderRadius: BorderRadius.circular(26.0),
+                       ),
+                       disabledBorder: OutlineInputBorder(
+                         borderSide:  BorderSide(
+                           color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+                         ),
+                         borderRadius: BorderRadius.circular(26.0),
+                       ),
+                       errorBorder: OutlineInputBorder(
+                         borderSide:  BorderSide(
+                           color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+                         ),
+                         borderRadius: BorderRadius.circular(26.0),
+                       ),
+                       focusedErrorBorder: OutlineInputBorder(
+                         borderSide:  BorderSide(
+                           color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+                         ),
+                         borderRadius: BorderRadius.circular(26.0),
+                       ),
+                     ),
+                   ),
+                 ),
+               ),
+               Column(
+                 crossAxisAlignment: CrossAxisAlignment.end,
+                 mainAxisSize: MainAxisSize.max,
+                 children: [
+                   if(showCancelLock)
+                     DragTarget(
+                       builder: (context,a,r){
+                         return Container(
+                           height: 150,
+                           width: 45,
+                           decoration: BoxDecoration(
+                             borderRadius: BorderRadius.circular(25),
+                             gradient: themeController.isDarkMode?LinearGradient(colors: [Colors.white.withOpacity(0.7),Colors.white]):LinearGradient(colors: [Colors.black.withOpacity(0.7),Colors.black]),
+                           ),
+                           child: Column(
+                             children: [
+                               SizedBox(height: 25,),
+                               Icon(Icons.lock,size: 16,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                               SizedBox(height: 15,),
+                               Icon(Icons.keyboard_arrow_up,size: 16,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                             ],
+                           ),
+                         );
+                       },
+                       onAccept: (val){
+                         setState(() {
+                           sendAudio = false;
+                           showLockedView = true;
+                         });
+                         print("Recording locked");
+                       },
+                     ),
+                   if(showCancelLock)
+                     SizedBox(height: 20,width: MediaQuery.of(context).size.width*0.92,),
+                   Row(
+                     children: [
+                       if(showCancelLock)
+                         DragTarget(
+                           builder: (context,a,r){
+                             return Container(
+                               height: 45,
+                               width: MediaQuery.of(context).size.width*0.7,
+                               decoration: BoxDecoration(
+                                 borderRadius: BorderRadius.circular(25),
+                                 gradient: themeController.isDarkMode?LinearGradient(colors: [Colors.white.withOpacity(0.7),Colors.white]):LinearGradient(colors: [Colors.black.withOpacity(0.7),Colors.black]),
+                               ),
+                               child: Row(
+                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                 children: [
+                                   Padding(
+                                     padding: const EdgeInsets.only(left: 16),
+                                     child: Text("${minute.toString().padLeft(2,'0')} : ${second.toString().padLeft(2,'0')}",
+                                       style: TextStyle(
+                                         color: themeController.isDarkMode ? Colors.black:Colors.white,
+                                       ),
+                                     ),
+                                   ),
+                                   Row(
+                                     children: [
+                                       Icon(Icons.arrow_back_ios,size: 16,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                                       Text("Slide to cancel",
+                                         style: TextStyle(
+                                           color: themeController.isDarkMode ? Colors.black:Colors.white,
+                                         ),
+                                       ),
+                                       SizedBox(width: 16,),
+                                     ],
+                                   ),
+                                 ],
+                               ),
+                             );
+                           },
+                           onAccept: (val){
+                             setState(() {
+                               sendAudio = false;
+                             });
+                             _cancelRecording();
+                             print("Recording cancel");
+                           },
+                         ),
+                       if(showCancelLock)
+                         SizedBox(
+                           height: 90,
+                           width: 80,
+                         ),
+                       LongPressDraggable<int>(
+                         dragAnchorStrategy: (Draggable<Object> _, BuildContext __, Offset ___) => const Offset(50, 50),
+                         onDragStarted: (){
+                           HapticFeedback.vibrate();
+                           setState(() {
+                             isPressed = true;
+                             sendAudio = true;
+                             showCancelLock = true;
+                           });
+                           startRecording();
+                         },
+                         onDragEnd: (v){
+                           HapticFeedback.vibrate();
+                           setState(() {
+                             isPressed = false;
+                             showCancelLock = false;
+                           });
+                           if(sendAudio){
+                             _stopRecording();
+                           }
+                         },
+                         data: 10,
+                         feedback: Container(
+                           margin: EdgeInsets.only(bottom: 0,right: 400),
+                           height: MediaQuery.of(context).size.width*0.22,
+                           width: MediaQuery.of(context).size.width*0.22,
+                           decoration: BoxDecoration(
+                             shape: BoxShape.circle,
+                             color: MateColors.activeIcons,
+                           ),
+                           child: Center(
+                             child: Icon(Icons.mic,size: 28,),
+                           ),
+                         ),
+                         childWhenDragging: Container(),
+                         child: Container(
+                           margin: EdgeInsets.only(bottom: isPressed?0:MediaQuery.of(context).size.height*0.005,),
+                           height: isPressed?MediaQuery.of(context).size.width*0.15:MediaQuery.of(context).size.width*0.09,
+                           width: isPressed?MediaQuery.of(context).size.width*0.15:MediaQuery.of(context).size.width*0.09,
+                           decoration: BoxDecoration(
+                             shape: BoxShape.circle,
+                             color: MateColors.activeIcons,
+                           ),
+                           child: Center(
+                             child: Icon(Icons.mic,size: 18,),
+                           ),
+                         ),
+                       ),
+                     ],
+                   ),
+                 ],
+               ),
+               SizedBox(width: 16,),
+             ],
+           ),
 
 
-                // TextField(
-                //   controller: textEditingController,
-                //   cursorColor: Colors.cyanAccent,
-                //   style: TextStyle(
-                //     color: Colors.white,
-                //     fontSize: 12.5.sp,
-                //   ),
-                //   textInputAction: TextInputAction.done,
-                //   minLines: 1,
-                //   maxLines: 4,
-                //   decoration: InputDecoration(
-                //       hintText: "Type message ...",
-                //       hintStyle: TextStyle(
-                //         color: Colors.white38,
-                //         fontSize: 13.0.sp,
-                //       ),
-                //       border: InputBorder.none),
-                // ),
-              ),
-            ),
-
-            // Button send message
-            // GestureDetector(
-            //   onTap: () => onSendMessage(textEditingController.text, 0),
-            //   child: Container(
-            //     height: 45.0,
-            //     width: 45.0,
-            //     decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(50.0)), color: Colors.transparent, border: Border.all(color: Colors.grey, width: 0.3)),
-            //     child: Center(child: Icon(Icons.send, color: MateColors.activeIcons)),
-            //   ),
-            // )
-          ],
-        ),
+           // TextField(
+           //   controller: textEditingController,
+           //   cursorColor: Colors.cyanAccent,
+           //   style: TextStyle(
+           //     color: Colors.white,
+           //     fontSize: 12.5.sp,
+           //   ),
+           //   textInputAction: TextInputAction.done,
+           //   minLines: 1,
+           //   maxLines: 4,
+           //   decoration: InputDecoration(
+           //       hintText: "Type message ...",
+           //       hintStyle: TextStyle(
+           //         color: Colors.white38,
+           //         fontSize: 13.0.sp,
+           //       ),
+           //       border: InputBorder.none),
+           // ),
+         ),
       ],
     );
   }

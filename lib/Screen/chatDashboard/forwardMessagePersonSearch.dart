@@ -153,9 +153,7 @@ class _ForwardMessagePersonSearchState extends State<ForwardMessagePersonSearch>
                               onTap: (){
                                 String personChatIdLocal;
 
-                                if (_user.uid.hashCode <= {
-                                  snapshot.data.docs[index1].data()["uid"]
-                                }.hashCode) {
+                                if (_user.uid.hashCode <= snapshot.data.docs[index1].data()["uid"].hashCode) {
                                   personChatIdLocal = '${_user.uid}-${snapshot.data.docs[index1].data()["uid"]}';
                                 } else {
                                   personChatIdLocal = '${snapshot.data.docs[index1].data()["uid"]}-${_user.uid}';
@@ -166,6 +164,7 @@ class _ForwardMessagePersonSearchState extends State<ForwardMessagePersonSearch>
                                 bool isImage = widget.messageData["isImage"];
                                 bool isGif = widget.messageData["isGif"];
                                 bool isFile = widget.messageData["isFile"];
+                                bool isAudio = widget.messageData["isAudio"];
 
                                 if(isImage){
                                   type = 1;
@@ -173,7 +172,9 @@ class _ForwardMessagePersonSearchState extends State<ForwardMessagePersonSearch>
                                   type = 1;
                                 }else if(isFile){
                                   type = 3;
-                                }else{
+                                }else if(isAudio){
+                                  type = 4;
+                                } else{
                                   type = 0;
                                 }
 

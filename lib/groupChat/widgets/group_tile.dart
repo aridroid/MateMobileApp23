@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:get/get.dart';
 import 'package:mate_app/asset/Colors/MateColors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -39,7 +41,6 @@ class GroupTile extends StatelessWidget {
               //   Provider.of<ChatProvider>(context,listen: false).groupChatDataFetch(currentUserUid);
               // });
               Provider.of<ChatProvider>(context,listen: false).messageList[index].name=snapshot.data['groupName'];
-
               return Container(
                 //alignment: Alignment.center,
                 margin: EdgeInsets.only(left: 5),
@@ -130,6 +131,8 @@ class GroupTile extends StatelessWidget {
                           overflow: TextOverflow.clip,
                         ),
                         Text(
+                            snapshot.data.data().toString().contains('isAudio') && snapshot.data['isAudio']?
+                            "Audio" :
                           "${snapshot.data.data().toString().contains('isImage') ? snapshot.data['isImage'] ? " 🖼️ Image" : snapshot.data['isGif'] != null ? snapshot.data['isGif'] ? " 🖼️ GIF File" : snapshot.data['isFile'] ? "File" : snapshot.data['recentMessage'] : snapshot.data['recentMessage'] : snapshot.data['recentMessage']}",
                           style: TextStyle(
                             fontFamily: "Poppins",

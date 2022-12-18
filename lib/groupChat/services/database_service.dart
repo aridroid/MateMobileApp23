@@ -300,7 +300,8 @@ class DatabaseService {
       'recentMessageTime': chatMessageData['time'].toString(),
       'isImage': chatMessageData['isImage'],
       'isFile' : chatMessageData['isFile'],
-      'isGif' : chatMessageData['isGif']
+      'isGif' : chatMessageData['isGif'],
+      'isAudio': chatMessageData['isAudio']
     };
     if(chatMessageData['fileName']!=null){
       recentChatMessage['fileName'] = chatMessageData['fileName'];
@@ -325,7 +326,8 @@ class DatabaseService {
       'recentMessageTime': chatMessageData['time'].toString(),
       'isImage': chatMessageData['isImage'],
       'isFile' : chatMessageData['isFile'],
-      'isGif' : chatMessageData['isGif']
+      'isGif' : chatMessageData['isGif'],
+      'isAudio':chatMessageData['isAudio'],
     };
     if(chatMessageData['fileName']!=null){
       recentChatMessage['fileName'] = chatMessageData['fileName'];

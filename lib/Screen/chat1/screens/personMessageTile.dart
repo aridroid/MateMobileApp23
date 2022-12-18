@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
+import 'package:swipe_to/swipe_to.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../Providers/AuthUserProvider.dart';
@@ -49,7 +50,15 @@ class PersonMessageTile extends StatefulWidget {
   final String previousMessage;
   final String previousSender;
   final String roomId;
-  PersonMessageTile({this.isForwarded,this.message, this.sender, this.sentByMe, this.messageTime, this.isImage = false, this.isFile = false, this.fileExtension, this.fileName, this.fileSize, this.fileSizeUnit, this.index, this.date, this.time,this.messageReaction, this.messageId, this.userId, this.displayName, this.photo, this.personChatId, this.fileSizeFull, this.previousMessage, this.previousSender,this.selectMessage, this.roomId});
+  final bool isAudio;
+  final bool isPlaying;
+  final bool isPaused;
+  final bool isLoadingAudio;
+  Function(String url,int index) startAudio;
+  Function(int index) pauseAudio;
+  Duration duration;
+  Duration currentDuration;
+  PersonMessageTile({this.currentDuration,this.duration,this.pauseAudio,this.startAudio,this.isForwarded,this.message, this.sender, this.sentByMe, this.messageTime, this.isImage = false, this.isFile = false, this.fileExtension, this.fileName, this.fileSize, this.fileSizeUnit, this.index, this.date, this.time,this.messageReaction, this.messageId, this.userId, this.displayName, this.photo, this.personChatId, this.fileSizeFull, this.previousMessage, this.previousSender,this.selectMessage, this.roomId, this.isAudio, this.isPlaying, this.isPaused, this.isLoadingAudio});
 
   @override
   State<PersonMessageTile> createState() => _PersonMessageTileState();
@@ -157,237 +166,270 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
             ],
           ),
         ):Offstage(),
-        FocusedMenuHolder(
-          menuWidth: MediaQuery.of(context).size.width*0.78,
-          blurSize: 5.0,
-          menuItemExtent: 45,
-          menuBoxDecoration: BoxDecoration(
-            //color: Colors.red,
-            //shape: BoxShape.rectangle,
-            gradient: LinearGradient(colors: themeController.isDarkMode?[MateColors.drawerTileColor,MateColors.drawerTileColor]:[Colors.white,Colors.white]),
-            borderRadius: BorderRadius.all(Radius.circular(8.0)),
-          ),
-          duration: Duration(milliseconds: 100),
-          animateMenuItems: true,
-          blurBackgroundColor: Colors.black54,
-          openWithTap: false, // Open Focused-Menu on Tap rather than Long Press
-          menuOffset: 16.0, // Offset value to show menuItem from the selected item
-          bottomOffsetHeight: 80.0, // Offset height to consider, for showing the menu item ( for example bottom navigation bar), so that the popup menu will be shown on top of selected item.
-          menuItems: <FocusedMenuItem>[
-            FocusedMenuItem(
-              title: Row(
-                children: [
-                  InkWell(
-                    onTap: ()async{
-                      Navigator.pop(context);
-                      String previousValue = "";
-                      bool add = true;
-                      print(widget.messageId);
-                      if(widget.messageId!=""){
-                        for(int i=0; i< widget.messageReaction.length ;i++){
-                          if(widget.messageReaction[i].contains(widget.userId)){
-                            add = false;
-                            previousValue = widget.messageReaction[i];
-                            await DatabaseService(uid: widget.userId).updateMessageReactionOneToOne(widget.personChatId, widget.messageId,previousValue);
-                            await DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 0.toString(),widget.displayName,widget.photo);
-                            break;
-                          }
-                        }
-                        if(add){
-                          DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 0.toString(),widget.displayName,widget.photo);
-                        }
-                      }
-                    },
-                    child: Image.asset(chatReactionImages[0],
-                      height: 30,
-                      width: 30,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: InkWell(
-                      onTap: ()async{
-                        Navigator.pop(context);
-                        String previousValue = "";
-                        bool add = true;
-                        print(widget.messageId);
-                        if(widget.messageId!=""){
-                          for(int i=0; i< widget.messageReaction.length ;i++){
-                            if(widget.messageReaction[i].contains(widget.userId)){
-                              add = false;
-                              previousValue = widget.messageReaction[i];
-                              await DatabaseService(uid: widget.userId).updateMessageReactionOneToOne(widget.personChatId, widget.messageId,previousValue);
-                              await DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 1.toString(),widget.displayName,widget.photo);
-                              break;
-                            }
-                          }
-                          if(add){
-                            DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 1.toString(),widget.displayName,widget.photo);
-                          }
-                        }
-                      },
-                      child: Image.asset(chatReactionImages[1],
-                        height: 30,
-                        width: 30,
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: InkWell(
-                      onTap: ()async{
-                        Navigator.pop(context);
-                        String previousValue = "";
-                        bool add = true;
-                        print(widget.messageId);
-                        if(widget.messageId!=""){
-                          for(int i=0; i< widget.messageReaction.length ;i++){
-                            if(widget.messageReaction[i].contains(widget.userId)){
-                              add = false;
-                              previousValue = widget.messageReaction[i];
-                              await DatabaseService(uid: widget.userId).updateMessageReactionOneToOne(widget.personChatId, widget.messageId,previousValue);
-                              await DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 2.toString(),widget.displayName,widget.photo);
-                              break;
-                            }
-                          }
-                          if(add){
-                            DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 2.toString(),widget.displayName,widget.photo);
-                          }
-                        }
-                      },
-                      child: Image.asset(chatReactionImages[2],
-                        height: 30,
-                        width: 30,
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: InkWell(
-                      onTap: ()async{
-                        Navigator.pop(context);
-                        String previousValue = "";
-                        bool add = true;
-                        print(widget.messageId);
-                        if(widget.messageId!=""){
-                          for(int i=0; i< widget.messageReaction.length ;i++){
-                            if(widget.messageReaction[i].contains(widget.userId)){
-                              add = false;
-                              previousValue = widget.messageReaction[i];
-                              await DatabaseService(uid: widget.userId).updateMessageReactionOneToOne(widget.personChatId, widget.messageId,previousValue);
-                              await DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 3.toString(),widget.displayName,widget.photo);
-                              break;
-                            }
-                          }
-                          if(add){
-                            DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 3.toString(),widget.displayName,widget.photo);
-                          }
-                        }
-                      },
-                      child: Image.asset(chatReactionImages[3],
-                        height: 30,
-                        width: 30,
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: InkWell(
-                      onTap: ()async{
-                        Navigator.pop(context);
-                        String previousValue = "";
-                        bool add = true;
-                        print(widget.messageId);
-                        if(widget.messageId!=""){
-                          for(int i=0; i< widget.messageReaction.length ;i++){
-                            if(widget.messageReaction[i].contains(widget.userId)){
-                              add = false;
-                              previousValue = widget.messageReaction[i];
-                              await DatabaseService(uid: widget.userId).updateMessageReactionOneToOne(widget.personChatId, widget.messageId,previousValue);
-                              await DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 4.toString(),widget.displayName,widget.photo);
-                              break;
-                            }
-                          }
-                          if(add){
-                            DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 4.toString(),widget.displayName,widget.photo);
-                          }
-                        }
-                      },
-                      child: Image.asset(chatReactionImages[4],
-                        height: 30,
-                        width: 30,
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: InkWell(
-                      onTap: ()async{
-                        Navigator.pop(context);
-                        String previousValue = "";
-                        bool add = true;
-                        print(widget.messageId);
-                        if(widget.messageId!=""){
-                          for(int i=0; i< widget.messageReaction.length ;i++){
-                            if(widget.messageReaction[i].contains(widget.userId)){
-                              add = false;
-                              previousValue = widget.messageReaction[i];
-                              await DatabaseService(uid: widget.userId).updateMessageReactionOneToOne(widget.personChatId, widget.messageId,previousValue);
-                              await DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 5.toString(),widget.displayName,widget.photo);
-                              break;
-                            }
-                          }
-                          if(add){
-                            DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 5.toString(),widget.displayName,widget.photo);
-                          }
-                        }
-                      },
-                      child: Image.asset(chatReactionImages[5],
-                        height: 30,
-                        width: 30,
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: InkWell(
-                      onTap: ()async{
-                        Navigator.pop(context);
-                        String previousValue = "";
-                        bool add = true;
-                        print(widget.messageId);
-                        if(widget.messageId!=""){
-                          for(int i=0; i< widget.messageReaction.length ;i++){
-                            if(widget.messageReaction[i].contains(widget.userId)){
-                              add = false;
-                              previousValue = widget.messageReaction[i];
-                              await DatabaseService(uid: widget.userId).updateMessageReactionOneToOne(widget.personChatId, widget.messageId,previousValue);
-                              await DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 6.toString(),widget.displayName,widget.photo);
-                              break;
-                            }
-                          }
-                          if(add){
-                            DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 6.toString(),widget.displayName,widget.photo);
-                          }
-                        }
-                      },
-                      child: Image.asset(chatReactionImages[6],
-                        height: 30,
-                        width: 30,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-              onPressed: (){},
+        SwipeTo(
+          onRightSwipe: (){
+            widget.selectMessage(widget.message.trim(),widget.sender,true);
+          },
+          child: FocusedMenuHolder(
+            menuWidth: MediaQuery.of(context).size.width*0.78,
+            blurSize: 5.0,
+            menuItemExtent: 45,
+            menuBoxDecoration: BoxDecoration(
+              //color: Colors.red,
+              //shape: BoxShape.rectangle,
+              gradient: LinearGradient(colors: themeController.isDarkMode?[MateColors.drawerTileColor,MateColors.drawerTileColor]:[Colors.white,Colors.white]),
+              borderRadius: BorderRadius.all(Radius.circular(8.0)),
             ),
-            if(widget.sentByMe)
+            duration: Duration(milliseconds: 100),
+            animateMenuItems: true,
+            blurBackgroundColor: Colors.black54,
+            openWithTap: false, // Open Focused-Menu on Tap rather than Long Press
+            menuOffset: 16.0, // Offset value to show menuItem from the selected item
+            bottomOffsetHeight: 80.0, // Offset height to consider, for showing the menu item ( for example bottom navigation bar), so that the popup menu will be shown on top of selected item.
+            menuItems: <FocusedMenuItem>[
               FocusedMenuItem(
                 title: Row(
                   children: [
+                    InkWell(
+                      onTap: ()async{
+                        Navigator.pop(context);
+                        String previousValue = "";
+                        bool add = true;
+                        print(widget.messageId);
+                        if(widget.messageId!=""){
+                          for(int i=0; i< widget.messageReaction.length ;i++){
+                            if(widget.messageReaction[i].contains(widget.userId)){
+                              add = false;
+                              previousValue = widget.messageReaction[i];
+                              await DatabaseService(uid: widget.userId).updateMessageReactionOneToOne(widget.personChatId, widget.messageId,previousValue);
+                              await DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 0.toString(),widget.displayName,widget.photo);
+                              break;
+                            }
+                          }
+                          if(add){
+                            DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 0.toString(),widget.displayName,widget.photo);
+                          }
+                        }
+                      },
+                      child: Image.asset(chatReactionImages[0],
+                        height: 30,
+                        width: 30,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: InkWell(
+                        onTap: ()async{
+                          Navigator.pop(context);
+                          String previousValue = "";
+                          bool add = true;
+                          print(widget.messageId);
+                          if(widget.messageId!=""){
+                            for(int i=0; i< widget.messageReaction.length ;i++){
+                              if(widget.messageReaction[i].contains(widget.userId)){
+                                add = false;
+                                previousValue = widget.messageReaction[i];
+                                await DatabaseService(uid: widget.userId).updateMessageReactionOneToOne(widget.personChatId, widget.messageId,previousValue);
+                                await DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 1.toString(),widget.displayName,widget.photo);
+                                break;
+                              }
+                            }
+                            if(add){
+                              DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 1.toString(),widget.displayName,widget.photo);
+                            }
+                          }
+                        },
+                        child: Image.asset(chatReactionImages[1],
+                          height: 30,
+                          width: 30,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: InkWell(
+                        onTap: ()async{
+                          Navigator.pop(context);
+                          String previousValue = "";
+                          bool add = true;
+                          print(widget.messageId);
+                          if(widget.messageId!=""){
+                            for(int i=0; i< widget.messageReaction.length ;i++){
+                              if(widget.messageReaction[i].contains(widget.userId)){
+                                add = false;
+                                previousValue = widget.messageReaction[i];
+                                await DatabaseService(uid: widget.userId).updateMessageReactionOneToOne(widget.personChatId, widget.messageId,previousValue);
+                                await DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 2.toString(),widget.displayName,widget.photo);
+                                break;
+                              }
+                            }
+                            if(add){
+                              DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 2.toString(),widget.displayName,widget.photo);
+                            }
+                          }
+                        },
+                        child: Image.asset(chatReactionImages[2],
+                          height: 30,
+                          width: 30,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: InkWell(
+                        onTap: ()async{
+                          Navigator.pop(context);
+                          String previousValue = "";
+                          bool add = true;
+                          print(widget.messageId);
+                          if(widget.messageId!=""){
+                            for(int i=0; i< widget.messageReaction.length ;i++){
+                              if(widget.messageReaction[i].contains(widget.userId)){
+                                add = false;
+                                previousValue = widget.messageReaction[i];
+                                await DatabaseService(uid: widget.userId).updateMessageReactionOneToOne(widget.personChatId, widget.messageId,previousValue);
+                                await DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 3.toString(),widget.displayName,widget.photo);
+                                break;
+                              }
+                            }
+                            if(add){
+                              DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 3.toString(),widget.displayName,widget.photo);
+                            }
+                          }
+                        },
+                        child: Image.asset(chatReactionImages[3],
+                          height: 30,
+                          width: 30,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: InkWell(
+                        onTap: ()async{
+                          Navigator.pop(context);
+                          String previousValue = "";
+                          bool add = true;
+                          print(widget.messageId);
+                          if(widget.messageId!=""){
+                            for(int i=0; i< widget.messageReaction.length ;i++){
+                              if(widget.messageReaction[i].contains(widget.userId)){
+                                add = false;
+                                previousValue = widget.messageReaction[i];
+                                await DatabaseService(uid: widget.userId).updateMessageReactionOneToOne(widget.personChatId, widget.messageId,previousValue);
+                                await DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 4.toString(),widget.displayName,widget.photo);
+                                break;
+                              }
+                            }
+                            if(add){
+                              DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 4.toString(),widget.displayName,widget.photo);
+                            }
+                          }
+                        },
+                        child: Image.asset(chatReactionImages[4],
+                          height: 30,
+                          width: 30,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: InkWell(
+                        onTap: ()async{
+                          Navigator.pop(context);
+                          String previousValue = "";
+                          bool add = true;
+                          print(widget.messageId);
+                          if(widget.messageId!=""){
+                            for(int i=0; i< widget.messageReaction.length ;i++){
+                              if(widget.messageReaction[i].contains(widget.userId)){
+                                add = false;
+                                previousValue = widget.messageReaction[i];
+                                await DatabaseService(uid: widget.userId).updateMessageReactionOneToOne(widget.personChatId, widget.messageId,previousValue);
+                                await DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 5.toString(),widget.displayName,widget.photo);
+                                break;
+                              }
+                            }
+                            if(add){
+                              DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 5.toString(),widget.displayName,widget.photo);
+                            }
+                          }
+                        },
+                        child: Image.asset(chatReactionImages[5],
+                          height: 30,
+                          width: 30,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: InkWell(
+                        onTap: ()async{
+                          Navigator.pop(context);
+                          String previousValue = "";
+                          bool add = true;
+                          print(widget.messageId);
+                          if(widget.messageId!=""){
+                            for(int i=0; i< widget.messageReaction.length ;i++){
+                              if(widget.messageReaction[i].contains(widget.userId)){
+                                add = false;
+                                previousValue = widget.messageReaction[i];
+                                await DatabaseService(uid: widget.userId).updateMessageReactionOneToOne(widget.personChatId, widget.messageId,previousValue);
+                                await DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 6.toString(),widget.displayName,widget.photo);
+                                break;
+                              }
+                            }
+                            if(add){
+                              DatabaseService(uid: widget.userId).setMessageReactionOneToOne(widget.personChatId, widget.messageId, 6.toString(),widget.displayName,widget.photo);
+                            }
+                          }
+                        },
+                        child: Image.asset(chatReactionImages[6],
+                          height: 30,
+                          width: 30,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+                onPressed: (){},
+              ),
+              if(widget.sentByMe)
+                FocusedMenuItem(
+                  title: Row(
+                    children: [
+                      Image.asset(
+                        "lib/asset/icons/delete.png",
+                        color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                        height: 20,
+                        width: 20,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 16),
+                        child: Text(
+                          "Delete",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontFamily: "Poppins",
+                            fontWeight: FontWeight.w500,
+                            color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+                  onPressed: ()async{
+                    if(widget.messageId!="")
+                     await DatabaseService().deleteMessageOneToOne(widget.personChatId,widget.messageId);
+                  },
+                ),
+                FocusedMenuItem(
+                title: Row(
+                  children: [
                     Image.asset(
-                      "lib/asset/icons/delete.png",
+                      "lib/asset/icons/forward.png",
                       color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
                       height: 20,
                       width: 20,
@@ -395,7 +437,7 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                     Padding(
                       padding: const EdgeInsets.only(left: 16),
                       child: Text(
-                        "Delete",
+                        "Forward",
                         style: TextStyle(
                           fontSize: 15,
                           fontFamily: "Poppins",
@@ -407,133 +449,44 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                   ],
                 ),
                 backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-                onPressed: ()async{
-                  if(widget.messageId!="")
-                   await DatabaseService().deleteMessageOneToOne(widget.personChatId,widget.messageId);
+                onPressed: (){
+                  Map<String, dynamic> chatMessageMap = {
+                    "message": widget.message,
+                    "sender": widget.displayName,
+                    'senderId': widget.userId,
+                    'time': DateTime.now().millisecondsSinceEpoch,
+                    'isImage': widget.isImage,
+                    'isFile': widget.isFile,
+                    'isGif' : false,
+                    'isAudio':widget.isAudio,
+                  };
+                  if (widget.fileExtension.isNotEmpty) {
+                    chatMessageMap['fileExtension'] = widget.fileExtension;
+                  }
+                  if (widget.fileName.isNotEmpty) {
+                    chatMessageMap['fileName'] = widget.fileName;
+                  }
+                  if (widget.fileSizeFull>0) {
+                    chatMessageMap['fileSize'] = widget.fileSizeFull;
+                  }
+
+                  Get.to(ForwardMessagePage(messageData: chatMessageMap,));
+                  //DatabaseService().sendMessage(widget.groupId, chatMessageMap,widget.photo);
                 },
               ),
-              FocusedMenuItem(
-              title: Row(
-                children: [
-                  Image.asset(
-                    "lib/asset/icons/forward.png",
-                    color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                    height: 20,
-                    width: 20,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16),
-                    child: Text(
-                      "Forward",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontFamily: "Poppins",
-                        fontWeight: FontWeight.w500,
-                        color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-              onPressed: (){
-                Map<String, dynamic> chatMessageMap = {
-                  "message": widget.message,
-                  "sender": widget.displayName,
-                  'senderId': widget.userId,
-                  'time': DateTime.now().millisecondsSinceEpoch,
-                  'isImage': widget.isImage,
-                  'isFile': widget.isFile,
-                  'isGif' : false
-                };
-                if (widget.fileExtension.isNotEmpty) {
-                  chatMessageMap['fileExtension'] = widget.fileExtension;
-                }
-                if (widget.fileName.isNotEmpty) {
-                  chatMessageMap['fileName'] = widget.fileName;
-                }
-                if (widget.fileSizeFull>0) {
-                  chatMessageMap['fileSize'] = widget.fileSizeFull;
-                }
-
-                Get.to(ForwardMessagePage(messageData: chatMessageMap,));
-                //DatabaseService().sendMessage(widget.groupId, chatMessageMap,widget.photo);
-              },
-            ),
-
-
-            FocusedMenuItem(
-              title: Row(
-                children: [
-                  Image.asset(
-                    "lib/asset/icons/reply.png",
-                    color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                    height: 20,
-                    width: 20,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16),
-                    child: Text(
-                      "Reply",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontFamily: "Poppins",
-                        fontWeight: FontWeight.w500,
-                        color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-              onPressed: (){
-                print(widget.sender);
-                widget.selectMessage(widget.message.trim(),widget.sender,true);
-                //Clipboard.setData(ClipboardData(text: widget.message));
-              },
-            ),
-
-            FocusedMenuItem(
-              title: Row(
-                children: [
-                  Image.asset(
-                    "lib/asset/icons/copy.png",
-                    color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                    height: 20,
-                    width: 20,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16),
-                    child: Text(
-                      "Copy",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontFamily: "Poppins",
-                        fontWeight: FontWeight.w500,
-                        color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-              onPressed: (){
-                Clipboard.setData(ClipboardData(text: widget.message));
-              },
-            ),
-            if(!widget.sentByMe)
               FocusedMenuItem(
                 title: Row(
                   children: [
                     Image.asset(
-                      "lib/asset/icons/report.png",
+                      "lib/asset/icons/reply.png",
+                      color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
                       height: 20,
                       width: 20,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 16),
                       child: Text(
-                        "Report",
+                        "Reply",
                         style: TextStyle(
                           fontSize: 15,
                           fontFamily: "Poppins",
@@ -545,162 +498,216 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                   ],
                 ),
                 backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-                onPressed: ()async{
-                  SharedPreferences preferences = await SharedPreferences.getInstance();
-                  String token = preferences.getString("token");
-                  bool response = await CommunityTabService().reportPersonalMessage(roomId: widget.roomId, messageId: widget.messageId, uid: widget.userId, token: token,);
-                  if(response){
-                    Fluttertoast.showToast(msg: "Your feedback added successfully", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
-                  }else{
-                    Fluttertoast.showToast(msg: "Something went wrong", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
-                  }
+                onPressed: (){
+                  widget.selectMessage(widget.message.trim(),widget.sender,true);
                 },
               ),
-          ],
-          onPressed: (){},
-
-
-          child: Container(
-            padding: EdgeInsets.only(top: 4, bottom: 4, left: widget.sentByMe ? 0 : 24, right: widget.sentByMe ? 24 : 0),
-            alignment: widget.sentByMe ? Alignment.centerRight : Alignment.centerLeft,
-            child: Container(
-              margin: widget.sentByMe ? EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.2,top: 10) : EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.2,top: 10),
-              padding: EdgeInsets.only(top: widget.isImage ? 15 : 15, bottom: 15, left: 20, right:20),
-              decoration: BoxDecoration(
-                borderRadius: widget.sentByMe
-                    ? BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20), bottomLeft: Radius.circular(20))
-                    : BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20), bottomRight: Radius.circular(20)),
-                color: widget.sentByMe ? chatTealColor : themeController.isDarkMode? chatGreyColor: MateColors.lightDivider,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  widget.isForwarded?
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                      Image.asset(
-                        "lib/asset/icons/forward.png",
-                        color: themeController.isDarkMode?
-                        widget.sentByMe?MateColors.blackTextColor : Colors.white:
-                        widget.sentByMe?
-                        Colors.white :MateColors.blackTextColor,
-                        height: 18,
-                        width: 18,
-                      ),
-                      SizedBox(width: 5,),
-                      Text("Forwarded",
-                        textAlign: TextAlign.start,
+              FocusedMenuItem(
+                title: Row(
+                  children: [
+                    Image.asset(
+                      "lib/asset/icons/copy.png",
+                      color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                      height: 20,
+                      width: 20,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: Text(
+                        "Copy",
                         style: TextStyle(
+                          fontSize: 15,
                           fontFamily: "Poppins",
-                          fontSize: 12.0,
-                          fontWeight: FontWeight.w400,
-                          letterSpacing: 0.1,
-                          color: widget.sentByMe?
-                          themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
-                          themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                          fontWeight: FontWeight.w500,
+                          color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
                         ),
                       ),
-                    ]),
-                  ):SizedBox(),
-
-                  widget.previousMessage!=""?
-                  Column(
+                    ),
+                  ],
+                ),
+                backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+                onPressed: (){
+                  Clipboard.setData(ClipboardData(text: widget.message));
+                },
+              ),
+              if(!widget.sentByMe)
+                FocusedMenuItem(
+                  title: Row(
                     children: [
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color:  widget.sentByMe?
+                      Image.asset(
+                        "lib/asset/icons/report.png",
+                        height: 20,
+                        width: 20,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 16),
+                        child: Text(
+                          "Report",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontFamily: "Poppins",
+                            fontWeight: FontWeight.w500,
+                            color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+                  onPressed: ()async{
+                    SharedPreferences preferences = await SharedPreferences.getInstance();
+                    String token = preferences.getString("token");
+                    bool response = await CommunityTabService().reportPersonalMessage(roomId: widget.roomId, messageId: widget.messageId, uid: widget.userId, token: token,);
+                    if(response){
+                      Fluttertoast.showToast(msg: "Your feedback added successfully", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+                    }else{
+                      Fluttertoast.showToast(msg: "Something went wrong", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+                    }
+                  },
+                ),
+            ],
+            onPressed: (){},
+            child: Container(
+              padding: EdgeInsets.only(top: 4, bottom: 4, left: widget.sentByMe ? 0 : 24, right: widget.sentByMe ? 24 : 0),
+              alignment: widget.sentByMe ? Alignment.centerRight : Alignment.centerLeft,
+              child: Container(
+                margin: widget.sentByMe ? EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.2,top: 10) : EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.2,top: 10),
+                padding: EdgeInsets.only(top: widget.isImage ? 15 : 15, bottom: 15, left: 20, right:20),
+                decoration: BoxDecoration(
+                  borderRadius: widget.sentByMe
+                      ? BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20), bottomLeft: Radius.circular(20))
+                      : BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20), bottomRight: Radius.circular(20)),
+                  color: widget.sentByMe ? chatTealColor : themeController.isDarkMode? chatGreyColor: MateColors.lightDivider,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    widget.isForwarded?
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                        Image.asset(
+                          "lib/asset/icons/forward.png",
+                          color: themeController.isDarkMode?
+                          widget.sentByMe?MateColors.blackTextColor : Colors.white:
+                          widget.sentByMe?
+                          Colors.white :MateColors.blackTextColor,
+                          height: 18,
+                          width: 18,
+                        ),
+                        SizedBox(width: 5,),
+                        Text("Forwarded",
+                          textAlign: TextAlign.start,
+                          style: TextStyle(
+                            fontFamily: "Poppins",
+                            fontSize: 12.0,
+                            fontWeight: FontWeight.w400,
+                            letterSpacing: 0.1,
+                            color: widget.sentByMe?
                             themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
                             themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
                           ),
-                          borderRadius: BorderRadius.circular(5),
-                          //color: themeController.isDarkMode?MateColors.iconLight:MateColors.lightDivider,
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.displayName==widget.previousSender?"You":
-                              widget.previousSender,
-                              style: TextStyle(
-                                fontFamily: "Poppins",
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.1,
-                                color: widget.sentByMe?
-                                themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
-                                themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                      ]),
+                    ):SizedBox(),
+
+                    widget.previousMessage!=""?
+                    Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color:  widget.sentByMe?
+                              themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                              themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                            ),
+                            borderRadius: BorderRadius.circular(5),
+                            //color: themeController.isDarkMode?MateColors.iconLight:MateColors.lightDivider,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.displayName==widget.previousSender?"You":
+                                widget.previousSender,
+                                style: TextStyle(
+                                  fontFamily: "Poppins",
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.1,
+                                  color: widget.sentByMe?
+                                  themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                                  themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                                ),
+                                textAlign: TextAlign.start,
                               ),
-                              textAlign: TextAlign.start,
-                            ),
-                            SizedBox(
-                              height: 2,
-                            ),
-                            Text(
-                              widget.previousMessage,
-                              style: TextStyle(
-                                fontFamily: "Poppins",
-                                fontSize: 14.0,
-                                fontWeight: FontWeight.w400,
-                                letterSpacing: 0.1,
-                                color: widget.sentByMe?
-                                themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
-                                themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                              SizedBox(
+                                height: 2,
                               ),
-                              textAlign: TextAlign.start,
-                            ),
-                          ],
+                              Text(
+                                widget.previousMessage,
+                                style: TextStyle(
+                                  fontFamily: "Poppins",
+                                  fontSize: 14.0,
+                                  fontWeight: FontWeight.w400,
+                                  letterSpacing: 0.1,
+                                  color: widget.sentByMe?
+                                  themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                                  themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                                ),
+                                textAlign: TextAlign.start,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                    ],
-                  ):Offstage(),
+                        SizedBox(
+                          height: 8,
+                        ),
+                      ],
+                    ):Offstage(),
 
 
-                  widget.isImage ?
-                  _chatImage(widget.message, context) :
-                  widget.isFile ?
-                  _chatFile(widget.message, context) :
-                  Linkify(
-                    onOpen: (link) async {
-                      print("Clicked ${link.url}!");
-                      if (await canLaunch(link.url))
-                        await launch(link.url);
-                      else
-                        throw "Could not launch ${link.url}";
-                    },
-                    text: widget.message.trim(),
-                    style: TextStyle(
-                      fontFamily: "Poppins",
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: 0.1,
-                      color: widget.sentByMe?
-                      themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
-                      themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                    widget.isImage ? _chatImage(widget.message, context) :
+                    widget.isFile ? _chatFile(widget.message, context) :
+                    widget.isAudio?_chatAudio(widget.message, context):
+                    Linkify(
+                      onOpen: (link) async {
+                        print("Clicked ${link.url}!");
+                        if (await canLaunch(link.url))
+                          await launch(link.url);
+                        else
+                          throw "Could not launch ${link.url}";
+                      },
+                      text: widget.message.trim(),
+                      style: TextStyle(
+                        fontFamily: "Poppins",
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: 0.1,
+                        color: widget.sentByMe?
+                        themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                        themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                      ),
+                      textAlign: TextAlign.start,
+                      linkStyle: TextStyle(color: Colors.blue,fontWeight: FontWeight.bold,fontSize: 14.0,letterSpacing: 0.1),
                     ),
-                    textAlign: TextAlign.start,
-                    linkStyle: TextStyle(color: Colors.blue,fontWeight: FontWeight.bold,fontSize: 14.0,letterSpacing: 0.1),
-                  ),
-                  // Text(message.trim(),
-                  //   textAlign: TextAlign.start,
-                  //   style: TextStyle(
-                  //     fontFamily: "Poppins",
-                  //     fontSize: 14.0,
-                  //     fontWeight: FontWeight.w400,
-                  //     letterSpacing: 0.1,
-                  //     color: sentByMe?
-                  //     themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
-                  //     themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
-                  //   ),
-                  // ),
-                ],
+                    // Text(message.trim(),
+                    //   textAlign: TextAlign.start,
+                    //   style: TextStyle(
+                    //     fontFamily: "Poppins",
+                    //     fontSize: 14.0,
+                    //     fontWeight: FontWeight.w400,
+                    //     letterSpacing: 0.1,
+                    //     color: sentByMe?
+                    //     themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                    //     themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                    //   ),
+                    // ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -1346,6 +1353,89 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
         child: Text(widget.fileName,
             maxLines: 2, overflow: TextOverflow.ellipsis, textAlign: TextAlign.start, style: TextStyle(fontSize: 11.7.sp, color: widget.sentByMe ? Colors.black : Colors.white, fontWeight: FontWeight.w500)),
       ),
+    );
+  }
+
+  Widget _chatAudio(String chatContent, BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: (){
+            if(widget.isLoadingAudio==false){
+              widget.isPlaying ? widget.pauseAudio(widget.index): widget.startAudio(chatContent,widget.index);
+            }
+          },
+          child: widget.isLoadingAudio?
+          Container(
+            height: 30,
+            width: 30,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: widget.sentByMe?
+              themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+              themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+            ),
+          ):
+          Icon(
+            widget.isPlaying ? Icons.pause: Icons.play_arrow,
+            size: 30,
+            color: widget.sentByMe?
+            themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+            themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+          ),
+        ),
+        SizedBox(width: 10,),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.multitrack_audio_sharp,color: widget.sentByMe?
+                themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                themeController.isDarkMode? Colors.white : MateColors.blackTextColor,),
+                Icon(Icons.multitrack_audio_sharp,color: widget.sentByMe?
+                themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                themeController.isDarkMode? Colors.white : MateColors.blackTextColor,),
+                Icon(Icons.multitrack_audio_sharp,color: widget.sentByMe?
+                themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                themeController.isDarkMode? Colors.white : MateColors.blackTextColor,),
+                Icon(Icons.multitrack_audio_sharp,color: widget.sentByMe?
+                themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                themeController.isDarkMode? Colors.white : MateColors.blackTextColor,),
+                Icon(Icons.multitrack_audio_sharp,color: widget.sentByMe?
+                themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                themeController.isDarkMode? Colors.white : MateColors.blackTextColor,),
+              ],
+            ),
+            if(widget.isPlaying)
+              Padding(
+                padding: const EdgeInsets.only(top: 5),
+                child: Row(
+                  children: [
+                    widget.currentDuration!=null?
+                    Text(widget.currentDuration.inMinutes.toString().padLeft(2,'0') +":"+ widget.currentDuration.inSeconds.toString().padLeft(2,"0"),
+                      style: TextStyle(
+                        color: widget.sentByMe?
+                        themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                        themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                      ),
+                    ):Offstage(),
+                    SizedBox(width: MediaQuery.of(context).size.width*0.13,),
+                    widget.duration!=null?
+                    Text(widget.duration.inMinutes.toString().padLeft(2,'0') +":"+ widget.duration.inSeconds.toString().padLeft(2,"0"),
+                      style: TextStyle(
+                        color: widget.sentByMe?
+                        themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                        themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                      ),
+                    ):Offstage(),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ],
     );
   }
 

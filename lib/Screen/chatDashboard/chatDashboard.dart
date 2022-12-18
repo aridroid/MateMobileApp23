@@ -666,7 +666,7 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                 shrinkWrap: true,
                 physics: ScrollPhysics(),
                 children: [
-                  if( chatProvider.mergedChatModelData.archived.length>0)
+                  if(chatProvider.mergedChatModelData.archived.length>0)
                   InkWell(
                     onTap: ()async{
                       await Get.to(()=>ArchivedView());
@@ -841,10 +841,7 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                   itemCount: snapshot.data.docs.length,
                                   physics: ScrollPhysics(),
                                   itemBuilder: (context, index) {
-                                    if (_user.uid.hashCode <=
-                                        {
-                                          snapshot.data.docs[index].data()["uid"]
-                                        }.hashCode) {
+                                    if (_user.uid.hashCode <= snapshot.data.docs[index].data()["uid"].hashCode) {
                                       personChatId = '${_user.uid}-${snapshot.data.docs[index].data()["uid"]}';
                                     } else {
                                       personChatId = '${snapshot.data.docs[index].data()["uid"]}-${_user.uid}';
@@ -940,14 +937,17 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                       child: Padding(
                                         padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 2.0),
                                         child: ListTile(
-                                          onTap: () => Get.to(() => Chat(
-                                            peerUuid: snapshot.data.docs[index].data()["uuid"],
-                                            currentUserId: _user.uid,
-                                            peerId: snapshot.data.docs[index].data()["uid"],
-                                            peerName: snapshot.data.docs[index].data()["displayName"],
-                                            peerAvatar: snapshot.data.docs[index].data()["photoURL"],
-                                            roomId: chatProvider.messageList[indexMain].roomId,
-                                          )),
+                                          onTap: ()async {
+                                           await Get.to(() => Chat(
+                                              peerUuid: snapshot.data.docs[index].data()["uuid"],
+                                              currentUserId: _user.uid,
+                                              peerId: snapshot.data.docs[index].data()["uid"],
+                                              peerName: snapshot.data.docs[index].data()["displayName"],
+                                              peerAvatar: snapshot.data.docs[index].data()["photoURL"],
+                                              roomId: chatProvider.messageList[indexMain].roomId,
+                                            ));
+                                           loadData();
+                                          },
                                           leading: CircleAvatar(
                                             radius: 24,
                                             backgroundColor: MateColors.activeIcons,
@@ -983,6 +983,8 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                                   print(snapshot.data.docs);
                                                   if (snapshot.data.docs.length > 0) {
                                                     return Text(
+                                                      snapshot.data.docs[0].data()['type'] == 4?
+                                                      "Audio" :
                                                       snapshot.data.docs[0].data()['type'] == 0 ?
                                                       "${snapshot.data.docs[0].data()['content']}" : snapshot.data.docs[0].data()['type'] == 1 ?
                                                       "🖼️ Image" :

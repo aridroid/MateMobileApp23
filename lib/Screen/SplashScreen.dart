@@ -206,7 +206,7 @@ class _SplashScreenState extends State<SplashScreen>{
         //navigatorKey.currentState.push(MaterialPageRoute(builder: (context)=>GroupDetailsBeforeJoining(groupId: groupId,)));
         if(res!=null && ModalRoute.of(context).isCurrent){
           Timer(Duration(seconds: 1), () async {
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => HomeScreen(groupId: groupId, index: 0,)));
+            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen(groupId: groupId, index: 0,)));
           });
         }
       }else{
@@ -219,7 +219,7 @@ class _SplashScreenState extends State<SplashScreen>{
       Provider.of<AuthUserProvider>(context, listen: false).autoLogin().then((value) async {
         if (value) {
           print('autologin attempt was fine');
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) => HomeScreen(index: 2,)));
+          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen(index: 2,)));
           //var res = await Get.to(GroupDetailsBeforeJoining(groupId: groupId,));
           //navigatorKey.currentState.push(MaterialPageRoute(builder: (context)=>GroupDetailsBeforeJoining(groupId: groupId,)));
           // if(res!=null && ModalRoute.of(context).isCurrent){
@@ -240,7 +240,7 @@ class _SplashScreenState extends State<SplashScreen>{
     Provider.of<AuthUserProvider>(ctx, listen: false).autoLogin().then((value) {
       if (value) {
         print('autologin attempt was fine');
-        Navigator.of(ctx).push(MaterialPageRoute(builder: (context) => HomeScreen(groupId: groupId, index: pageIndex,)));
+        Navigator.of(ctx).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen(groupId: groupId, index: pageIndex,)));
         // Navigator.of(ctx).push(MaterialPageRoute(builder: (context) => FeedDetailsScreen(feedId: 111,)));
         // Navigator.of(ctx).push(MaterialPageRoute(builder: (context) => CampusLiveDetailsScreen(postId: 206,)));
         // Navigator.of(ctx).push(MaterialPageRoute(builder: (context) => CampusTalkDetailsPage(talkId: 5,)));
