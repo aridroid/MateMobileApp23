@@ -281,7 +281,7 @@ class _CommunityTabState extends State<CommunityTab> with TickerProviderStateMix
                                                 ),
                                                 trailing: InkWell(
                                                   onTap: () async {
-                                                    print(_user.uid );
+                                                    print(_user.uid);
                                                     if(snapshot.data["members"].contains(_user.uid + '_' + _user.displayName)){
                                                       Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(
                                                           groupId: snapshot.data["groupId"],

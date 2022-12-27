@@ -61,7 +61,8 @@ class MessageTile extends StatefulWidget {
   Function(int index) pauseAudio;
   Duration duration;
   Duration currentDuration;
-  MessageTile({this.currentDuration,this.duration,this.startAudio,this.pauseAudio,this.senderId,this.isForwarded=false,this.fileSizeFull,this.time,this.date,this.index,this.senderImage,this.displayName,this.photo,this.messageReaction,this.groupId,this.userId,this.messageId,this.message, this.sender, this.sentByMe, this.messageTime,
+  Function(String groupId,String messageId,String previousMessage) editMessage;
+  MessageTile({this.editMessage,this.currentDuration,this.duration,this.startAudio,this.pauseAudio,this.senderId,this.isForwarded=false,this.fileSizeFull,this.time,this.date,this.index,this.senderImage,this.displayName,this.photo,this.messageReaction,this.groupId,this.userId,this.messageId,this.message, this.sender, this.sentByMe, this.messageTime,
     this.isImage = false, this.isFile = false, this.isGif = false, this.fileExtension, this.fileName, this.fileSize, this.fileSizeUnit ,this.selectMessage, this.previousMessage, this.previousSender, this.isAudio, this.isPlaying, this.isPaused, this.isLoadingAudio});
 
   @override
@@ -571,6 +572,33 @@ class _MessageTileState extends State<MessageTile> {
                     }else{
                       Fluttertoast.showToast(msg: "Something went wrong", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
                     }
+                  },
+                ),
+                if(widget.sentByMe && !widget.isImage && !widget.isGif && !widget.isFile && !widget.isAudio && widget.messageId !="")
+                FocusedMenuItem(
+                  title: Row(
+                    children: [
+                      Icon(Icons.mode_edit_outlined,
+                        size: 20,
+                        color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 16),
+                        child: Text(
+                          "Edit",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontFamily: "Poppins",
+                            fontWeight: FontWeight.w500,
+                            color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+                  onPressed: ()async{
+                    widget.editMessage(widget.groupId,widget.messageId,widget.message);
                   },
                 ),
               ],

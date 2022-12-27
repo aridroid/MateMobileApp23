@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:googleapis/spanner/v1.dart';
 import 'package:http/http.dart'as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mate_app/groupChat/services/database_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -19,7 +21,9 @@ class ConnectingScreen extends StatefulWidget {
   final String callType;
   final List<dynamic> uid;
   final bool isGroupCalling;
-  const ConnectingScreen({Key key, this.receiverImage, this.receiverName, this.callType, this.uid, this.isGroupCalling}) : super(key: key);
+  final String groupOrPeerId;
+  final String groupOrCallerName;
+  const ConnectingScreen({Key key, this.receiverImage, this.receiverName, this.callType, this.uid, this.isGroupCalling, this.groupOrPeerId, this.groupOrCallerName}) : super(key: key);
 
   @override
   State<ConnectingScreen> createState() => _ConnectingScreenState();
@@ -135,7 +139,7 @@ class _ConnectingScreenState extends State<ConnectingScreen> {
     const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
     Random _rnd = Random();
     String getRandomString(int length) => String.fromCharCodes(Iterable.generate(length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
-    String channelNameRand = getRandomString(30);
+    String channelNameRand = getRandomString(30) + DateTime.now().millisecondsSinceEpoch.toString();
 
     String response = await joinVideoCall(channelName: channelNameRand);
     print(response);
@@ -157,12 +161,20 @@ class _ConnectingScreenState extends State<ConnectingScreen> {
         );
         if(res=="success"){
           await [Permission.microphone, Permission.camera].request();
+          await DatabaseService().createCall(
+            channelName: channelNameRand,
+            groupIdORPeerId: widget.groupOrPeerId,
+            groupNameORCallerName: widget.groupOrCallerName,
+            videoOrAudio: widget.callType,
+            token: response,
+          );
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Calling(
             channelName: channelNameRand,
             token: response,
             callType: widget.callType,
             image: widget.receiverImage,
             name: widget.receiverName,
+            isGroupCall: widget.isGroupCalling,
           )));
           SharedPreferences preferences = await SharedPreferences.getInstance();
           preferences.setBool("isCallOngoing",true);

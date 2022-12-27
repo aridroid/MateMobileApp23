@@ -58,7 +58,8 @@ class PersonMessageTile extends StatefulWidget {
   Function(int index) pauseAudio;
   Duration duration;
   Duration currentDuration;
-  PersonMessageTile({this.currentDuration,this.duration,this.pauseAudio,this.startAudio,this.isForwarded,this.message, this.sender, this.sentByMe, this.messageTime, this.isImage = false, this.isFile = false, this.fileExtension, this.fileName, this.fileSize, this.fileSizeUnit, this.index, this.date, this.time,this.messageReaction, this.messageId, this.userId, this.displayName, this.photo, this.personChatId, this.fileSizeFull, this.previousMessage, this.previousSender,this.selectMessage, this.roomId, this.isAudio, this.isPlaying, this.isPaused, this.isLoadingAudio});
+  Function(String personChatId,String messageId,String previousMessage) editMessage;
+  PersonMessageTile({this.editMessage,this.currentDuration,this.duration,this.pauseAudio,this.startAudio,this.isForwarded,this.message, this.sender, this.sentByMe, this.messageTime, this.isImage = false, this.isFile = false, this.fileExtension, this.fileName, this.fileSize, this.fileSizeUnit, this.index, this.date, this.time,this.messageReaction, this.messageId, this.userId, this.displayName, this.photo, this.personChatId, this.fileSizeFull, this.previousMessage, this.previousSender,this.selectMessage, this.roomId, this.isAudio, this.isPlaying, this.isPaused, this.isLoadingAudio});
 
   @override
   State<PersonMessageTile> createState() => _PersonMessageTileState();
@@ -563,6 +564,33 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                     }else{
                       Fluttertoast.showToast(msg: "Something went wrong", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
                     }
+                  },
+                ),
+              if(widget.sentByMe && !widget.isImage && !widget.isFile && !widget.isAudio && widget.messageId !="")
+                FocusedMenuItem(
+                  title: Row(
+                    children: [
+                      Icon(Icons.mode_edit_outlined,
+                        size: 20,
+                        color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 16),
+                        child: Text(
+                          "Edit",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontFamily: "Poppins",
+                            fontWeight: FontWeight.w500,
+                            color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+                  onPressed: ()async{
+                    widget.editMessage(widget.personChatId,widget.messageId,widget.message);
                   },
                 ),
             ],

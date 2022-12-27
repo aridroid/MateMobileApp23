@@ -32,6 +32,7 @@ import '../../Screen/Profile/ProfileScreen.dart';
 import '../../Screen/Profile/UserProfileScreen.dart';
 import 'package:giphy_picker/giphy_picker.dart';
 
+import '../../audioAndVideoCalling/calling.dart';
 import '../../audioAndVideoCalling/connectingScreen.dart';
 import 'package:http/http.dart' as http;
 
@@ -70,6 +71,18 @@ class _ChatPageState extends State<ChatPage> {
   String selectedMessage = "";
   String sender = "";
   bool showSelected = false;
+
+  bool isEditing = false;
+  String editGroupId;
+  String editMessageId;
+  void editMessage(String groupId,String messageId,String previousMessage)async{
+    setState(() {
+      isEditing = true;
+      editGroupId = groupId;
+      editMessageId = messageId;
+      messageEditingController.text = previousMessage;
+    });
+  }
 
   Widget _chatMessages() {
     return StreamBuilder(
@@ -190,6 +203,7 @@ class _ChatPageState extends State<ChatPage> {
                   pauseAudio: pauseAudio,
                   duration: duration,
                   currentDuration: currentDuration,
+                  editMessage: editMessage,
                 );
               });
         } else {
@@ -255,7 +269,7 @@ class _ChatPageState extends State<ChatPage> {
         setState(() {});
 
         var dir = await getApplicationDocumentsDirectory();
-        var filePathAndName = dir.path + "/audios/" +url.split("/").last + ".mp3";
+        var filePathAndName = dir.path + "/audios/" +url.split("/").last + ".m4a";
         if(File(filePathAndName).existsSync()){
           print("------File Already Exist-------");
           duration = await audioPlayer.setFilePath(filePathAndName);
@@ -302,7 +316,7 @@ class _ChatPageState extends State<ChatPage> {
   Future<String> downloadAudio(String url)async{
     var dir = await getApplicationDocumentsDirectory();
     var firstPath = dir.path + "/audios";
-    var filePathAndName = dir.path + "/audios/" +url.split("/").last + ".mp3";
+    var filePathAndName = dir.path + "/audios/" +url.split("/").last + ".m4a";
     await Directory(firstPath).create(recursive: true);
     File file = new File(filePathAndName);
     try{
@@ -826,7 +840,16 @@ class _ChatPageState extends State<ChatPage> {
                             color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
                           ),
                           onPressed: ()async{
-                            _sendMessage(messageEditingController.text.trim());
+                            if(isEditing){
+                              if(messageEditingController.text.isNotEmpty)
+                                await DatabaseService().editMessage(editGroupId, editMessageId, messageEditingController.text.trim());
+                              setState(() {
+                                isEditing = false;
+                                messageEditingController.text = "";
+                              });
+                            }else{
+                              _sendMessage(messageEditingController.text.trim());
+                            }
                           },
                         ),
                         hintText: "Write a message...",
@@ -864,6 +887,19 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                   ),
                 ),
+                isEditing?
+                IconButton(
+                    onPressed: (){
+                      setState(() {
+                        isEditing = false;
+                        messageEditingController.text = "";
+                      });
+                    },
+                    icon: Icon(
+                      Icons.clear,
+                      color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                    )
+                ):
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   mainAxisSize: MainAxisSize.max,
@@ -1164,7 +1200,15 @@ class _ChatPageState extends State<ChatPage> {
   startRecording()async{
     try {
       if (await _audioRecorder.hasPermission()) {
-        await _audioRecorder.start();
+        Directory appDocDir = await getApplicationDocumentsDirectory();
+        String appDocPath = appDocDir.path + "/" + _user.uid + ".m4a";
+        if(File(appDocPath).existsSync()){
+          print("Deleted");
+          await File(appDocPath).delete();
+        }
+        await _audioRecorder.start(
+          path: appDocPath,
+        );
         _recordDuration = 0;
         minute = 0;
         second = 0;
@@ -1356,26 +1400,86 @@ class _ChatPageState extends State<ChatPage> {
         ),
         actions: [
           IconButton(
-            onPressed: (){
-              Get.to(()=>ConnectingScreen(
-                callType: "Audio Calling",
-                receiverImage: widget.photoURL,
-                receiverName: widget.groupName,
-                uid: widget.memberList,
-                isGroupCalling: true,
-              ));
+            onPressed: ()async{
+              QuerySnapshot res = await DatabaseService().checkCallIsOngoing(widget.groupId);
+              if(res.docs.length>0){
+                DateTime dateTimeLocal = DateTime.now();
+                DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(res.docs[0]['createdAt'].toString()));
+                Duration diff = dateTimeLocal.difference(dateFormatServer);
+                print(diff.inMinutes);
+                if(diff.inMinutes<120){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => Calling(
+                    channelName: res.docs[0]['channelName'],
+                    token: res.docs[0]['token'],
+                    callType: res.docs[0]['callType'],
+                    image: widget.photoURL,
+                    name: widget.groupName,
+                    isGroupCall: true,
+                  )));
+                }else{
+                  Get.to(()=>ConnectingScreen(
+                    callType: "Audio Calling",
+                    receiverImage: widget.photoURL,
+                    receiverName: widget.groupName,
+                    uid: widget.memberList,
+                    isGroupCalling: true,
+                    groupOrPeerId: widget.groupId,
+                    groupOrCallerName: widget.groupName,
+                  ));
+                }
+              }else{
+                Get.to(()=>ConnectingScreen(
+                  callType: "Audio Calling",
+                  receiverImage: widget.photoURL,
+                  receiverName: widget.groupName,
+                  uid: widget.memberList,
+                  isGroupCalling: true,
+                  groupOrPeerId: widget.groupId,
+                  groupOrCallerName: widget.groupName,
+                ));
+              }
             },
             icon: Icon(Icons.call,color: MateColors.activeIcons,),
           ),
           IconButton(
-            onPressed: (){
-              Get.to(()=>ConnectingScreen(
-                callType: "Video Calling",
-                receiverImage: widget.photoURL,
-                receiverName: widget.groupName,
-                uid: widget.memberList,
-                isGroupCalling: true,
-              ));
+            onPressed: ()async{
+              QuerySnapshot res = await DatabaseService().checkCallIsOngoing(widget.groupId);
+              if(res.docs.length>0){
+                DateTime dateTimeLocal = DateTime.now();
+                DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(res.docs[0]['createdAt'].toString()));
+                Duration diff = dateTimeLocal.difference(dateFormatServer);
+                print(diff.inMinutes);
+                if(diff.inMinutes<120){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => Calling(
+                    channelName: res.docs[0]['channelName'],
+                    token: res.docs[0]['token'],
+                    callType: res.docs[0]['callType'],
+                    image: widget.photoURL,
+                    name: widget.groupName,
+                    isGroupCall: true,
+                  )));
+                }else{
+                  Get.to(()=>ConnectingScreen(
+                    callType: "Video Calling",
+                    receiverImage: widget.photoURL,
+                    receiverName: widget.groupName,
+                    uid: widget.memberList,
+                    isGroupCalling: true,
+                    groupOrPeerId: widget.groupId,
+                    groupOrCallerName: widget.groupName,
+                  ));
+                }
+              }else{
+                Get.to(()=>ConnectingScreen(
+                  callType: "Video Calling",
+                  receiverImage: widget.photoURL,
+                  receiverName: widget.groupName,
+                  uid: widget.memberList,
+                  isGroupCalling: true,
+                  groupOrPeerId: widget.groupId,
+                  groupOrCallerName: widget.groupName,
+                ));
+              }
             },
             icon: Icon(Icons.video_call_rounded,color: MateColors.activeIcons,),
           ),

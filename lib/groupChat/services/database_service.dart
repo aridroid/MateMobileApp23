@@ -13,9 +13,10 @@ class DatabaseService {
   // Collection reference
   final CollectionReference userCollection = FirebaseFirestore.instance.collection('chat-users');
   final CollectionReference groupCollection = FirebaseFirestore.instance.collection('chat-group');
+  final CollectionReference callCollection = FirebaseFirestore.instance.collection('call-details');
 
   // update userdata
-  Future<void> updateUserData(User userData, String uuid, String displayName) async {
+  Future<void> updateUserData(User userData, String uuid, String displayName,String profileImage) async {
     // return await userCollection.doc(uid).set({
     //   'uid': userData.uid,
     //   'displayName': userData.displayName,
@@ -28,25 +29,25 @@ class DatabaseService {
     final List<DocumentSnapshot> documents = result.docs;
     if (documents.length == 0) {
       // Update data to server if new user
-      await saveNewUser(userData,uuid,displayName);
+      await saveNewUser(userData,uuid,displayName,profileImage);
     }
-    await updateOldUser(userData,uuid,displayName);
+    await updateOldUser(userData,uuid,displayName,profileImage);
   }
 
-  updateOldUser(User logInUser, String uuid, String displayName) {
+  updateOldUser(User logInUser, String uuid, String displayName,String profileImage) {
     userCollection.doc(logInUser.uid).update({
       'displayName': displayName,
-      'photoURL': logInUser.photoURL,
+      'photoURL': profileImage??logInUser.photoURL,
       'uuid': uuid,
     });
   }
 
-  saveNewUser(User logInUser, String uuid, String displayName) {
+  saveNewUser(User logInUser, String uuid, String displayName,String profileImage) {
     userCollection.doc(logInUser.uid).set({
       'uid': logInUser.uid,
       'displayName': displayName,
       'email': logInUser.email,
-      'photoURL': logInUser.photoURL,
+      'photoURL': profileImage??logInUser.photoURL,
       'chat-group': [],
       'chattingWith': [],
       'createdAt': DateTime.now().millisecondsSinceEpoch.toString(),
@@ -532,8 +533,18 @@ class DatabaseService {
   deleteMessage(String groupId, String messageId){
     FirebaseFirestore.instance.collection('chat-group').doc(groupId).collection("messages").doc(messageId).delete();
   }
+  
+  editMessage(String groupId, String messageId,String message){
+    FirebaseFirestore.instance.collection('chat-group').doc(groupId).collection("messages").doc(messageId).update({
+      'message':message,
+    });
+  }
 
-
+  editMessageOneToOne(String personChatId, String messageId,String message){
+    FirebaseFirestore.instance.collection('messages').doc(personChatId).collection(personChatId).doc(messageId).update({
+      'content':message
+    });
+  }
 
 
   Future<void> updateUserDataLoginWithEmail(AuthUser userData) async {
@@ -603,5 +614,55 @@ class DatabaseService {
       SetOptions(merge: true),
     );
   }
+
+  ///Call related functions
+
+  createCall({String channelName, String groupIdORPeerId, String groupNameORCallerName,String videoOrAudio,String token}) async {
+    Map<String,dynamic> body = {
+      'channelName' : channelName,
+      'groupIdORPeerId' : groupIdORPeerId,
+      'groupNameORCallerName' : groupNameORCallerName,
+      'isCallOnGoing' : true,
+      'createdAt' : DateTime.now().millisecondsSinceEpoch,
+      'callType' : videoOrAudio,
+      'membersWhoJoined' : [],
+      'memberWhoIsOnCall' : [],
+      'token' : token,
+    };
+    callCollection.doc(channelName).set(body).then((_) => print('Added')).catchError((error) => print('Add failed: $error'));
+  }
+
+  joinCall({String channelName,String uid}) async {
+    callCollection.doc(channelName).set(
+      {'membersWhoJoined': FieldValue.arrayUnion([uid]),'memberWhoIsOnCall':FieldValue.arrayUnion([uid])},
+      SetOptions(merge: true),
+    );
+  }
+
+  leaveCall({String channelName,String uid}) async {
+    DocumentSnapshot result = await callCollection.doc(channelName).get();
+    if(result['memberWhoIsOnCall'].length==1){
+      callCollection.doc(channelName).set(
+        {'memberWhoIsOnCall':FieldValue.arrayRemove([uid]),'isCallOnGoing':false},
+        SetOptions(merge: true),
+      );
+    }else{
+      callCollection.doc(channelName).set(
+        {'memberWhoIsOnCall':FieldValue.arrayRemove([uid])},
+        SetOptions(merge: true),
+      );
+    }
+  }
+
+  Stream<DocumentSnapshot> getCallDetailByChannelName(String channelName) {
+    Stream<DocumentSnapshot> snapshot = callCollection.doc(channelName).snapshots();
+    return snapshot;
+  }
+
+  Future<QuerySnapshot> checkCallIsOngoing(String groupOrPeerId) {
+    Future<QuerySnapshot> snapshot = callCollection.where('groupIdORPeerId', isEqualTo: groupOrPeerId).where('isCallOnGoing',isEqualTo: true).get();
+    return snapshot;
+  }
+
 
 }

@@ -239,9 +239,11 @@ class AuthUserProvider with ChangeNotifier {
       print("deviceId : $deviceId");
       AuthUser userData = await _authUserService.login(googleToken: googleToken, deviceId: deviceId);
       if(userData != null){
-        DatabaseService(uid: user.uid).updateUserData(user, userData.id, userData.displayName);
+        DatabaseService(uid: user.uid).updateUserData(user, userData.id, userData.displayName,userData.photoUrl);
         authUser = userData;
         result = true;
+        var _user = FirebaseAuth.instance.currentUser;
+        await _user.updateProfile(displayName: authUser.displayName,photoURL: authUser.photoUrl);
         // if(userData.universityId!=null){
         //   DatabaseService(uid: user.uid).updateUserData(user, userData.id, userData.displayName);
         //   authUser = userData;
@@ -329,6 +331,9 @@ class AuthUserProvider with ChangeNotifier {
 
       if (saveToSharedPref) {
         await _authUserService.storeAuthUserToSharedPreference(authUser);
+        await DatabaseService().updateOldUserLoginWithEmail(authUser);
+        var _user = FirebaseAuth.instance.currentUser;
+        await _user.updateProfile(displayName: authUser.displayName,photoURL: authUser.photoUrl);
       }
 
       print(_authUser.firstName.toString());

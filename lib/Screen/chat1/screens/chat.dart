@@ -20,8 +20,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:record/record.dart';
 import '../../../Utility/Utility.dart';
+import '../../../audioAndVideoCalling/calling.dart';
 import '../../../audioAndVideoCalling/connectingScreen.dart';
 import '../../../controller/theme_controller.dart';
+import '../../../groupChat/services/database_service.dart';
 import '../chatWidget.dart';
 import 'package:mate_app/Utility/Utility.dart' as config;
 import '../constForChat.dart';
@@ -103,26 +105,104 @@ class Chat extends StatelessWidget {
         ),
         actions: [
           IconButton(
-              onPressed: (){
-                Get.to(()=>ConnectingScreen(
-                  callType: "Audio Calling",
-                  receiverImage: peerAvatar,
-                  receiverName: peerName,
-                  uid: [peerId],
-                  isGroupCalling: false,
-                ));
+              onPressed: ()async{
+                String id = currentUserId ?? '';
+                String personChatId;
+                if (id.hashCode <= peerId.hashCode) {
+                  personChatId = '$id-$peerId';
+                } else {
+                  personChatId = '$peerId-$id';
+                }
+                String callerName = FirebaseAuth.instance.currentUser.displayName;
+
+                QuerySnapshot res = await DatabaseService().checkCallIsOngoing(personChatId);
+                if(res.docs.length>0){
+                  DateTime dateTimeLocal = DateTime.now();
+                  DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(res.docs[0]['createdAt'].toString()));
+                  Duration diff = dateTimeLocal.difference(dateFormatServer);
+                  print(diff.inMinutes);
+                  if(diff.inMinutes<120){
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Calling(
+                      channelName: res.docs[0]['channelName'],
+                      token: res.docs[0]['token'],
+                      callType: res.docs[0]['callType'],
+                      image: peerAvatar,
+                      name: peerName,
+                      isGroupCall: false,
+                    )));
+                  }else{
+                    Get.to(()=>ConnectingScreen(
+                      callType: "Audio Calling",
+                      receiverImage: peerAvatar,
+                      receiverName: peerName,
+                      uid: [peerId],
+                      isGroupCalling: false,
+                      groupOrPeerId: personChatId,
+                      groupOrCallerName: callerName,
+                    ));
+                  }
+                }else{
+                  Get.to(()=>ConnectingScreen(
+                    callType: "Audio Calling",
+                    receiverImage: peerAvatar,
+                    receiverName: peerName,
+                    uid: [peerId],
+                    isGroupCalling: false,
+                    groupOrPeerId: personChatId,
+                    groupOrCallerName: callerName,
+                  ));
+                }
               },
               icon: Icon(Icons.call,color: MateColors.activeIcons,),
           ),
           IconButton(
-            onPressed: (){
-              Get.to(()=>ConnectingScreen(
-                callType: "Video Calling",
-                receiverImage: peerAvatar,
-                receiverName: peerName,
-                uid: [peerId],
-                isGroupCalling: false,
-              ));
+            onPressed: ()async{
+              String id = currentUserId ?? '';
+              String personChatId;
+              if (id.hashCode <= peerId.hashCode) {
+                personChatId = '$id-$peerId';
+              } else {
+                personChatId = '$peerId-$id';
+              }
+              String callerName = FirebaseAuth.instance.currentUser.displayName;
+
+              QuerySnapshot res = await DatabaseService().checkCallIsOngoing(personChatId);
+              if(res.docs.length>0){
+                DateTime dateTimeLocal = DateTime.now();
+                DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(res.docs[0]['createdAt'].toString()));
+                Duration diff = dateTimeLocal.difference(dateFormatServer);
+                print(diff.inMinutes);
+                if(diff.inMinutes<120){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => Calling(
+                    channelName: res.docs[0]['channelName'],
+                    token: res.docs[0]['token'],
+                    callType: res.docs[0]['callType'],
+                    image: peerAvatar,
+                    name: peerName,
+                    isGroupCall: false,
+                  )));
+                }else{
+                  Get.to(()=>ConnectingScreen(
+                    callType: "Video Calling",
+                    receiverImage: peerAvatar,
+                    receiverName: peerName,
+                    uid: [peerId],
+                    isGroupCalling: false,
+                    groupOrPeerId: personChatId,
+                    groupOrCallerName: callerName,
+                  ));
+                }
+              }else{
+                Get.to(()=>ConnectingScreen(
+                  callType: "Video Calling",
+                  receiverImage: peerAvatar,
+                  receiverName: peerName,
+                  uid: [peerId],
+                  isGroupCalling: false,
+                  groupOrPeerId: personChatId,
+                  groupOrCallerName: callerName,
+                ));
+              }
             },
             icon: Icon(Icons.video_call_rounded,color: MateColors.activeIcons,),
           ),
@@ -209,7 +289,15 @@ class _ChatScreenState extends State<_ChatScreen> {
   startRecording()async{
     try {
       if (await _audioRecorder.hasPermission()) {
-        await _audioRecorder.start();
+        Directory appDocDir = await getApplicationDocumentsDirectory();
+        String appDocPath = appDocDir.path + "/" + _user.uid + ".m4a";
+        if(File(appDocPath).existsSync()){
+          print("Deleted");
+          await File(appDocPath).delete();
+        }
+        await _audioRecorder.start(
+          path: appDocPath,
+        );
         _recordDuration = 0;
         minute = 0;
         second = 0;
@@ -355,7 +443,7 @@ class _ChatScreenState extends State<_ChatScreen> {
         setState(() {});
 
         var dir = await getApplicationDocumentsDirectory();
-        var filePathAndName = dir.path + "/audios/" +url.split("/").last + ".mp3";
+        var filePathAndName = dir.path + "/audios/" +url.split("/").last + ".m4a";
         if(File(filePathAndName).existsSync()){
           print("------File Already Exist-------");
           duration = await audioPlayer.setFilePath(filePathAndName);
@@ -402,7 +490,7 @@ class _ChatScreenState extends State<_ChatScreen> {
   Future<String> downloadAudio(String url)async{
     var dir = await getApplicationDocumentsDirectory();
     var firstPath = dir.path + "/audios";
-    var filePathAndName = dir.path + "/audios/" +url.split("/").last + ".mp3";
+    var filePathAndName = dir.path + "/audios/" +url.split("/").last + ".m4a";
     await Directory(firstPath).create(recursive: true);
     File file = new File(filePathAndName);
     try{
@@ -622,6 +710,18 @@ class _ChatScreenState extends State<_ChatScreen> {
 
   int messageLength = 0;
 
+  bool isEditing = false;
+  String editPersonChatId;
+  String editMessageId;
+  void editMessage(String personChatId,String messageId,String previousMessage)async{
+    setState(() {
+      isEditing = true;
+      editPersonChatId = personChatId;
+      editMessageId = messageId;
+      textEditingController.text = previousMessage;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -758,6 +858,7 @@ class _ChatScreenState extends State<_ChatScreen> {
                             pauseAudio: pauseAudio,
                             duration: duration,
                             currentDuration: currentDuration,
+                            editMessage: editMessage,
                           );
                         },
                         // ChatWidget.widgetChatBuildItem(context, listMessage, widget.currentUserId, index, snapshot.data.documents[index], peerAvatar),
@@ -1019,7 +1120,16 @@ class _ChatScreenState extends State<_ChatScreen> {
                              color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
                            ),
                            onPressed: ()async{
-                             onSendMessage(textEditingController.text, 0);
+                             if(isEditing){
+                               if(textEditingController.text.isNotEmpty)
+                                 await DatabaseService().editMessageOneToOne(editPersonChatId, editMessageId, textEditingController.text.trim());
+                               setState(() {
+                                 isEditing = false;
+                                 textEditingController.text = "";
+                               });
+                             }else{
+                               onSendMessage(textEditingController.text, 0);
+                             }
                            },
                          ),
                        ),
@@ -1058,6 +1168,19 @@ class _ChatScreenState extends State<_ChatScreen> {
                    ),
                  ),
                ),
+               isEditing?
+               IconButton(
+                   onPressed: (){
+                     setState(() {
+                       isEditing = false;
+                       textEditingController.text = "";
+                     });
+                   },
+                   icon: Icon(
+                     Icons.clear,
+                     color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                   )
+               ):
                Column(
                  crossAxisAlignment: CrossAxisAlignment.end,
                  mainAxisSize: MainAxisSize.max,
