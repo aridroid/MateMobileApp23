@@ -71,3 +71,58 @@ class Datum {
     "updated_at": updatedAt.toIso8601String(),
   };
 }
+
+
+class ConnectionGetSentData {
+  int id;
+  int connUserId;
+  String connUid;
+  String connName;
+  int senderUserId;
+  String senderUid;
+  String senderName;
+  Null status;
+  String createdAt;
+  String updatedAt;
+
+  ConnectionGetSentData(
+      {this.id,
+        this.connUserId,
+        this.connUid,
+        this.connName,
+        this.senderUserId,
+        this.senderUid,
+        this.senderName,
+        this.status,
+        this.createdAt,
+        this.updatedAt});
+
+  ConnectionGetSentData.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    connUserId = json['conn_user_id'];
+    connUid = json['conn_uid'];
+    connName = json['conn_name'];
+    senderUserId = json['sender_user_id'];
+    senderUid = json['sender_uid'];
+    senderName = json['sender_name'];
+    status = json['status'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['conn_user_id'] = this.connUserId;
+    data['conn_uid'] = this.connUid;
+    data['conn_name'] = this.connName;
+    data['sender_user_id'] = this.senderUserId;
+    data['sender_uid'] = this.senderUid;
+    data['sender_name'] = this.senderName;
+    data['status'] = this.status;
+    data['created_at'] = this.createdAt;
+    data['updated_at'] = this.updatedAt;
+    return data;
+  }
+}
+

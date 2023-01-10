@@ -617,7 +617,7 @@ class DatabaseService {
 
   ///Call related functions
 
-  createCall({String channelName, String groupIdORPeerId, String groupNameORCallerName,String videoOrAudio,String token}) async {
+  createCall({String channelName, String groupIdORPeerId, String groupNameORCallerName,String videoOrAudio,String token,String callerUid,List<String> groupMember}) async {
     Map<String,dynamic> body = {
       'channelName' : channelName,
       'groupIdORPeerId' : groupIdORPeerId,
@@ -628,6 +628,8 @@ class DatabaseService {
       'membersWhoJoined' : [],
       'memberWhoIsOnCall' : [],
       'token' : token,
+      'callerUid' : callerUid,
+      'groupMember' : groupMember,
     };
     callCollection.doc(channelName).set(body).then((_) => print('Added')).catchError((error) => print('Add failed: $error'));
   }
@@ -664,5 +666,9 @@ class DatabaseService {
     return snapshot;
   }
 
+  Future<QuerySnapshot> getCallHistory() {
+    Future<QuerySnapshot> snapshot = callCollection.where('isCallOnGoing',isEqualTo: false).orderBy('createdAt',descending: true).get();
+    return snapshot;
+  }
 
 }

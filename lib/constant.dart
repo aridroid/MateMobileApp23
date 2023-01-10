@@ -15,8 +15,16 @@ const Token = "007eJxTYEhd8O6Mycu164wFTK5/WDJb5mrT9pC2dRqsvZPqAp6nOF1VYDC3sDQwNE
 
 
 
+
 List<Datum> connectionGlobalList = [];
 List<String> connectionGlobalUidList = [];
+ConnectionService _connectionService = ConnectionService();
+List<ConnectionGetSentData> requestSent = [];
+List<String> requestSentUid = [];
+List<ConnectionGetSentData> requestGet = [];
+List<String> requestGetUid = [];
+List<String> requestGetUidSender = [];
+
 Future<bool> getConnection()async{
   print("Global connection api calling");
   SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -33,6 +41,22 @@ Future<bool> getConnection()async{
   print("Global connection api calling done list is now");
   print(connectionGlobalList.length);
   print(connectionGlobalList);
+
+  requestGet = await _connectionService.getConnectionRequestsGet(token: token);
+  requestGetUid.clear();
+  requestGetUidSender.clear();
+  for(int i=0;i<requestGet.length;i++){
+    requestGetUid.add(requestGet[i].connUid);
+    requestGetUidSender.add(requestGet[i].senderUid);
+  }
+  print("Request Get length : $requestGet");
+
+  requestSent = await _connectionService.getConnectionRequestsSent(token: token);
+  requestSentUid.clear();
+  for(int i=0;i<requestSent.length;i++){
+    requestSentUid.add(requestSent[i].connUid);
+  }
+  print("Request Sent length : $requestSent");
 
   return true;
 }

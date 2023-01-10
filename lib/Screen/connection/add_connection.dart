@@ -35,6 +35,7 @@ class _AddConnectionState extends State<AddConnection> {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     token = preferences.getString("token");
     log(token);
+    print(requestSentUid);
   }
 
   @override
@@ -173,11 +174,19 @@ class _AddConnectionState extends State<AddConnection> {
             ),
             trailing: InkWell(
               onTap: ()async{
-                _showAddConnectionAlertDialog(uid: peerId, name: peerName,uuid: peerUuid);
+                if(requestGetUid.contains(peerId)){
+                  Get.back();
+                }else if(!requestSentUid.contains(peerId)){
+                  _showAddConnectionAlertDialog(uid: peerId, name: peerName,uuid: peerUuid);
+                }
               },
               child: Padding(
                 padding: const EdgeInsets.only(right: 4,left: 4),
-                child: Image.asset("lib/asset/icons/addPerson.png",height: 21,),
+                child: requestSentUid.contains(peerId)?
+                    Text("Sent",style: TextStyle(color: MateColors.activeIcons, fontWeight: FontWeight.w500,fontSize: 12),):
+                requestGetUid.contains(peerId)?
+                Text("Accept/Delete",style: TextStyle(color: MateColors.activeIcons, fontWeight: FontWeight.w500,fontSize: 12),):
+                Image.asset("lib/asset/icons/addPerson.png",height: 21,),
               ),
             ),
           ),

@@ -584,6 +584,7 @@ import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:mate_app/constant.dart';
 import 'package:provider/provider.dart';
@@ -905,7 +906,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             padding: EdgeInsets.fromLTRB(8, 8, 0, 8),
             iconSize: 22,
             onPressed: (){
-              _showAddConnectionAlertDialog(uid: routeArgs['firebaseUid'], name: routeArgs['name'],uuid: routeArgs['id']);
+              if(requestSentUid.contains(routeArgs['firebaseUid'])){
+                Fluttertoast.showToast(msg: "Connection request already sent", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+              }else if(requestGetUidSender.contains(routeArgs['firebaseUid'])){
+                Fluttertoast.showToast(msg: "Please go to connection screen to accept request", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+              }else{
+                _showAddConnectionAlertDialog(uid: routeArgs['firebaseUid'], name: routeArgs['name'],uuid: routeArgs['id']);
+              }
             },
             icon: !connectionGlobalUidList.contains(routeArgs['firebaseUid'])?
             Image.asset(
@@ -1079,9 +1086,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               isDefaultAction: true,
               child: Text("Yes"),
               onPressed: ()async{
-                String res = await ConnectionService().addConnection(uid: uid,name: name,uuid:uuid,token: token);
-                //Connection saved successfully
-                //Connection already exists
+                if(!connectionGlobalUidList.contains(uid)){
+                  await ConnectionService().addConnection(uid: uid,name: name,uuid:uuid,token: token);
+                }else{
+                  int index = connectionGlobalUidList.indexOf(uid);
+                  int connId = connectionGlobalList[index].id;
+                  await ConnectionService().removeConnection(connId: connId,token: token);
+                }
                 Navigator.of(context).pop();
                 await getConnection();
                 setState(() {});

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:googleapis/spanner/v1.dart';
@@ -161,12 +162,23 @@ class _ConnectingScreenState extends State<ConnectingScreen> {
         );
         if(res=="success"){
           await [Permission.microphone, Permission.camera].request();
+          List<String> members = [];
+          if(widget.isGroupCalling){
+            DocumentSnapshot groupDetails = await DatabaseService().getGroupDetailsOnce(widget.groupOrPeerId);
+            List<dynamic> groupMembers = groupDetails["members"];
+            for(int i=0;i<groupMembers.length;i++){
+              String temp = groupMembers[i].toString().split("_").first;
+              members.add(temp);
+            }
+          }
           await DatabaseService().createCall(
             channelName: channelNameRand,
             groupIdORPeerId: widget.groupOrPeerId,
             groupNameORCallerName: widget.groupOrCallerName,
             videoOrAudio: widget.callType,
             token: response,
+            callerUid: _user.uid,
+            groupMember: members,
           );
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Calling(
             channelName: channelNameRand,

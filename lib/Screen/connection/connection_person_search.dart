@@ -176,11 +176,20 @@ class _ConnectionPersonSearchState extends State<ConnectionPersonSearch> {
       ),
       trailing: InkWell(
         onTap: ()async{
-          _showAddConnectionAlertDialog(uid: peerId, name: peerName,uuid: peerUuid);
+          if(requestGetUid.contains(peerId)){
+            Get.back();
+            Get.back();
+          }else if(!requestSentUid.contains(peerId)){
+            _showAddConnectionAlertDialog(uid: peerId, name: peerName,uuid: peerUuid);
+          }
         },
         child: Padding(
           padding: const EdgeInsets.only(right: 4),
-          child: Image.asset("lib/asset/icons/addPerson.png",height: 21,),
+          child: requestSentUid.contains(peerId)?
+          Text("Sent",style: TextStyle(color: MateColors.activeIcons, fontWeight: FontWeight.w500,fontSize: 12),):
+          requestGetUid.contains(peerId)?
+          Text("Accept/Delete",style: TextStyle(color: MateColors.activeIcons, fontWeight: FontWeight.w500,fontSize: 12),):
+          Image.asset("lib/asset/icons/addPerson.png",height: 21,),
         ),
       ),
     );
@@ -199,9 +208,7 @@ class _ConnectionPersonSearchState extends State<ConnectionPersonSearch> {
               isDefaultAction: true,
               child: Text("Yes"),
               onPressed: ()async{
-                String res = await ConnectionService().addConnection(uid: uid,name: name,uuid: uuid,token: token);
-                //Connection saved successfully
-                //Connection already exists
+                await ConnectionService().addConnection(uid: uid,name: name,uuid: uuid,token: token);
                 Navigator.of(context).pop();
                 await getConnection();
                 setState(() {});

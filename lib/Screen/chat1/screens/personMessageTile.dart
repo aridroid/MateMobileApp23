@@ -595,148 +595,198 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                 ),
             ],
             onPressed: (){},
-            child: Container(
-              padding: EdgeInsets.only(top: 4, bottom: 4, left: widget.sentByMe ? 0 : 24, right: widget.sentByMe ? 24 : 0),
-              alignment: widget.sentByMe ? Alignment.centerRight : Alignment.centerLeft,
-              child: Container(
-                margin: widget.sentByMe ? EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.2,top: 10) : EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.2,top: 10),
-                padding: EdgeInsets.only(top: widget.isImage ? 15 : 15, bottom: 15, left: 20, right:20),
-                decoration: BoxDecoration(
-                  borderRadius: widget.sentByMe
-                      ? BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20), bottomLeft: Radius.circular(20))
-                      : BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20), bottomRight: Radius.circular(20)),
-                  color: widget.sentByMe ? chatTealColor : themeController.isDarkMode? chatGreyColor: MateColors.lightDivider,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    widget.isForwarded?
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                        Image.asset(
-                          "lib/asset/icons/forward.png",
-                          color: themeController.isDarkMode?
-                          widget.sentByMe?MateColors.blackTextColor : Colors.white:
-                          widget.sentByMe?
-                          Colors.white :MateColors.blackTextColor,
-                          height: 18,
-                          width: 18,
-                        ),
-                        SizedBox(width: 5,),
-                        Text("Forwarded",
-                          textAlign: TextAlign.start,
-                          style: TextStyle(
-                            fontFamily: "Poppins",
-                            fontSize: 12.0,
-                            fontWeight: FontWeight.w400,
-                            letterSpacing: 0.1,
-                            color: widget.sentByMe?
-                            themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
-                            themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
-                          ),
-                        ),
-                      ]),
-                    ):SizedBox(),
-
-                    widget.previousMessage!=""?
-                    Column(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color:  widget.sentByMe?
-                              themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
-                              themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
-                            ),
-                            borderRadius: BorderRadius.circular(5),
-                            //color: themeController.isDarkMode?MateColors.iconLight:MateColors.lightDivider,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.displayName==widget.previousSender?"You":
-                                widget.previousSender,
-                                style: TextStyle(
-                                  fontFamily: "Poppins",
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.1,
-                                  color: widget.sentByMe?
-                                  themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
-                                  themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
-                                ),
+            child: Row(
+              mainAxisAlignment: widget.sentByMe?MainAxisAlignment.end:MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Container(
+                    padding: EdgeInsets.only(top: 4, bottom: 4, left: widget.sentByMe ? 0 : 24, right: widget.sentByMe ? 24 : 0),
+                    alignment: widget.sentByMe ? Alignment.centerRight : Alignment.centerLeft,
+                    child: Container(
+                      margin: widget.sentByMe ? EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.2,top: 10) : EdgeInsets.only(right: !widget.sentByMe && (widget.isImage)?0:MediaQuery.of(context).size.width * 0.2,top: 10),
+                      padding: EdgeInsets.only(top: widget.isImage ? 15 : 15, bottom: 15, left: 20, right:20),
+                      decoration: BoxDecoration(
+                        borderRadius: widget.sentByMe
+                            ? BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20), bottomLeft: Radius.circular(20))
+                            : BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20), bottomRight: Radius.circular(20)),
+                        color: widget.sentByMe ? chatTealColor : themeController.isDarkMode? chatGreyColor: MateColors.lightDivider,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          widget.isForwarded?
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                              Image.asset(
+                                "lib/asset/icons/forward.png",
+                                color: themeController.isDarkMode?
+                                widget.sentByMe?MateColors.blackTextColor : Colors.white:
+                                widget.sentByMe?
+                                Colors.white :MateColors.blackTextColor,
+                                height: 18,
+                                width: 18,
+                              ),
+                              SizedBox(width: 5,),
+                              Text("Forwarded",
                                 textAlign: TextAlign.start,
-                              ),
-                              SizedBox(
-                                height: 2,
-                              ),
-                              Text(
-                                widget.previousMessage,
                                 style: TextStyle(
                                   fontFamily: "Poppins",
-                                  fontSize: 14.0,
+                                  fontSize: 12.0,
                                   fontWeight: FontWeight.w400,
                                   letterSpacing: 0.1,
                                   color: widget.sentByMe?
                                   themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
                                   themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
                                 ),
-                                textAlign: TextAlign.start,
+                              ),
+                            ]),
+                          ):SizedBox(),
+
+                          widget.previousMessage!=""?
+                          Column(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color:  widget.sentByMe?
+                                    themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                                    themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                                  ),
+                                  borderRadius: BorderRadius.circular(5),
+                                  //color: themeController.isDarkMode?MateColors.iconLight:MateColors.lightDivider,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      widget.displayName==widget.previousSender?"You":
+                                      widget.previousSender,
+                                      style: TextStyle(
+                                        fontFamily: "Poppins",
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.1,
+                                        color: widget.sentByMe?
+                                        themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                                        themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                                      ),
+                                      textAlign: TextAlign.start,
+                                    ),
+                                    SizedBox(
+                                      height: 2,
+                                    ),
+                                    Text(
+                                      widget.previousMessage,
+                                      style: TextStyle(
+                                        fontFamily: "Poppins",
+                                        fontSize: 14.0,
+                                        fontWeight: FontWeight.w400,
+                                        letterSpacing: 0.1,
+                                        color: widget.sentByMe?
+                                        themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                                        themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                                      ),
+                                      textAlign: TextAlign.start,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                height: 8,
                               ),
                             ],
+                          ):Offstage(),
+
+
+                          widget.isImage ? _chatImage(widget.message, context) :
+                          widget.isFile ? _chatFile(widget.message, context) :
+                          widget.isAudio?_chatAudio(widget.message, context):
+                          Linkify(
+                            onOpen: (link) async {
+                              print("Clicked ${link.url}!");
+                              if (await canLaunch(link.url))
+                                await launch(link.url);
+                              else
+                                throw "Could not launch ${link.url}";
+                            },
+                            text: widget.message.trim(),
+                            style: TextStyle(
+                              fontFamily: "Poppins",
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: 0.1,
+                              color: widget.sentByMe?
+                              themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                              themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                            ),
+                            textAlign: TextAlign.start,
+                            linkStyle: TextStyle(color: Colors.blue,fontWeight: FontWeight.bold,fontSize: 14.0,letterSpacing: 0.1),
                           ),
-                        ),
-                        SizedBox(
-                          height: 8,
-                        ),
-                      ],
-                    ):Offstage(),
-
-
-                    widget.isImage ? _chatImage(widget.message, context) :
-                    widget.isFile ? _chatFile(widget.message, context) :
-                    widget.isAudio?_chatAudio(widget.message, context):
-                    Linkify(
-                      onOpen: (link) async {
-                        print("Clicked ${link.url}!");
-                        if (await canLaunch(link.url))
-                          await launch(link.url);
-                        else
-                          throw "Could not launch ${link.url}";
-                      },
-                      text: widget.message.trim(),
-                      style: TextStyle(
-                        fontFamily: "Poppins",
-                        fontSize: 14.0,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: 0.1,
-                        color: widget.sentByMe?
-                        themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
-                        themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                          // Text(message.trim(),
+                          //   textAlign: TextAlign.start,
+                          //   style: TextStyle(
+                          //     fontFamily: "Poppins",
+                          //     fontSize: 14.0,
+                          //     fontWeight: FontWeight.w400,
+                          //     letterSpacing: 0.1,
+                          //     color: sentByMe?
+                          //     themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                          //     themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                          //   ),
+                          // ),
+                        ],
                       ),
-                      textAlign: TextAlign.start,
-                      linkStyle: TextStyle(color: Colors.blue,fontWeight: FontWeight.bold,fontSize: 14.0,letterSpacing: 0.1),
                     ),
-                    // Text(message.trim(),
-                    //   textAlign: TextAlign.start,
-                    //   style: TextStyle(
-                    //     fontFamily: "Poppins",
-                    //     fontSize: 14.0,
-                    //     fontWeight: FontWeight.w400,
-                    //     letterSpacing: 0.1,
-                    //     color: sentByMe?
-                    //     themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
-                    //     themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
-                    //   ),
-                    // ),
-                  ],
+                  ),
                 ),
-              ),
+                !widget.sentByMe && (widget.isImage)?
+                InkWell(
+                  onTap: (){
+                    Map<String, dynamic> chatMessageMap = {
+                      "message": widget.message,
+                      "sender": widget.displayName,
+                      'senderId': widget.userId,
+                      'time': DateTime.now().millisecondsSinceEpoch,
+                      'isImage': widget.isImage,
+                      'isFile': widget.isFile,
+                      'isGif' : false,
+                      'isAudio':widget.isAudio,
+                    };
+                    if (widget.fileExtension.isNotEmpty) {
+                      chatMessageMap['fileExtension'] = widget.fileExtension;
+                    }
+                    if (widget.fileName.isNotEmpty) {
+                      chatMessageMap['fileName'] = widget.fileName;
+                    }
+                    if (widget.fileSizeFull>0) {
+                      chatMessageMap['fileSize'] = widget.fileSizeFull;
+                    }
+
+                    Get.to(ForwardMessagePage(messageData: chatMessageMap,));
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(left: 10,right: MediaQuery.of(context).size.width*0.17),
+                    height: 45,
+                    width: 45,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                    ),
+                    child: Image.asset(
+                      "lib/asset/icons/forward.png",
+                      color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,
+                      height: 20,
+                      width: 20,
+                    ),
+                  ),
+                ):SizedBox(),
+              ],
             ),
           ),
         ),
