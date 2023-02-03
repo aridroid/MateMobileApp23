@@ -148,6 +148,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
               callType: documentSnapshot["callType"],
               callerName: documentSnapshot["callerName"],
               callerImage: documentSnapshot["callerImage"],
+              isGroupCall: documentSnapshot["is_group"]=="1"?true:false,
             )
         );
         SharedPreferences preferences = await SharedPreferences.getInstance();

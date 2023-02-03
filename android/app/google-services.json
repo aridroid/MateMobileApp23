@@ -8,19 +8,39 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:237545926078:android:053ace08c09f0e57f41def",
+        "mobilesdk_app_id": "1:237545926078:android:fe5f45341c9021cff41def",
         "android_client_info": {
-          "package_name": "com.mate.app"
+          "package_name": "com.mateinc.mateapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "237545926078-9biln72s9c5h9vot53l84me39unhhnbf.apps.googleusercontent.com",
+          "client_id": "237545926078-36ukd6f34b39g5clh6h92rcje8ms94be.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.mate.app",
-            "certificate_hash": "d5aeb93cd3e002987869bf4dd9532146cca17794"
+            "package_name": "com.mateinc.mateapp",
+            "certificate_hash": "2b415738805f71a72f535e45777a4a886527401a"
           }
+        },
+        {
+          "client_id": "237545926078-739ob6l7dhbkp5qkj5qjehts06nspaqt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mateinc.mateapp",
+            "certificate_hash": "14f755d224c5007efca2fc0b1b315435b3343c3f"
+          }
+        },
+        {
+          "client_id": "237545926078-s508kluruplvcpopj1ed947o8l3es9ft.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mateinc.mateapp",
+            "certificate_hash": "dfd760ccd18b97ed8d0cd48435339291c797ab67"
+          }
+        },
+        {
+          "client_id": "237545926078-4ilabidc9rp49gn25caj82ona7uuuj50.apps.googleusercontent.com",
+          "client_type": 3
         }
       ],
       "api_key": [
@@ -30,7 +50,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "237545926078-4ilabidc9rp49gn25caj82ona7uuuj50.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "237545926078-99q5c35ugs0b49spmhf1ru0ghie7opnp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mate.apps"
+              }
+            }
+          ]
         }
       }
     }

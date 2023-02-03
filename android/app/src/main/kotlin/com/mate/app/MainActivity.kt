@@ -1,4 +1,4 @@
-package com.mate.app
+package com.mateinc.mateapp
 
 import io.flutter.embedding.android.FlutterActivity
 

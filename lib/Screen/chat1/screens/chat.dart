@@ -19,6 +19,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:record/record.dart';
+import 'package:vibration/vibration.dart';
 import '../../../Utility/Utility.dart';
 import '../../../audioAndVideoCalling/calling.dart';
 import '../../../audioAndVideoCalling/connectingScreen.dart';
@@ -285,6 +286,13 @@ class _ChatScreenState extends State<_ChatScreen> {
   bool showCancelLock = false;
   bool showLockedView = false;
   bool isPausedRecording = false;
+  bool showDate = false;
+
+  void showDateToggle(){
+    setState(() {
+      showDate = !showDate;
+    });
+  }
 
   startRecording()async{
     try {
@@ -693,10 +701,10 @@ class _ChatScreenState extends State<_ChatScreen> {
     }
   }
 
-  Future<bool> onBackPress() {
-    Navigator.pop(context);
-    return Future.value(false);
-  }
+  // Future<bool> onBackPress() {
+  //   Navigator.pop(context);
+  //   return Future.value(false);
+  // }
 
   String selectedMessage = "";
   String sender = "";
@@ -724,20 +732,26 @@ class _ChatScreenState extends State<_ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      child: Stack(
-        children: <Widget>[
-          Column(
-            children: <Widget>[
-              // List of messages
-              // ChatWidget.widgetChatBuildListMessage(personChatId, listMessage, widget.currentUserId, peerAvatar, listScrollController),
+    return Stack(
+      children: <Widget>[
+        Column(
+          children: <Widget>[
+            // List of messages
+            // ChatWidget.widgetChatBuildListMessage(personChatId, listMessage, widget.currentUserId, peerAvatar, listScrollController),
 
-              Flexible(
-                child: personChatId == ''
-                    ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(themeColor)))
-                    : StreamBuilder(
-                  stream: FirebaseFirestore.instance.collection('messages').doc(personChatId).collection(personChatId).orderBy('timestamp', descending: true) /*.limit(20)*/ .snapshots(),
-                  builder: (context, snapshot) {
+            Flexible(
+              child: personChatId == ''
+                  ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(themeColor)))
+                  : GestureDetector(
+                onHorizontalDragStart: (val){
+                  showDateToggle();
+                },
+                onHorizontalDragEnd: (val){
+                  showDateToggle();
+                },
+                    child: StreamBuilder(
+                stream: FirebaseFirestore.instance.collection('messages').doc(personChatId).collection(personChatId).orderBy('timestamp', descending: true) /*.limit(20)*/ .snapshots(),
+                builder: (context, snapshot) {
                     if (!snapshot.hasData) {
                       return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(themeColor)));
                     } else {
@@ -859,6 +873,8 @@ class _ChatScreenState extends State<_ChatScreen> {
                             duration: duration,
                             currentDuration: currentDuration,
                             editMessage: editMessage,
+                            showDate: showDate,
+                            showDateToggle: showDateToggle,
                           );
                         },
                         // ChatWidget.widgetChatBuildItem(context, listMessage, widget.currentUserId, index, snapshot.data.documents[index], peerAvatar),
@@ -867,19 +883,18 @@ class _ChatScreenState extends State<_ChatScreen> {
                         controller: listScrollController,
                       );
                     }
-                  },
-                ),
+                },
               ),
-              // Input content
-              buildInput(),
-            ],
-          ),
+                  ),
+            ),
+            // Input content
+            buildInput(),
+          ],
+        ),
 
-          // Loading
-          buildLoading()
-        ],
-      ),
-      onWillPop: onBackPress,
+        // Loading
+        buildLoading()
+      ],
     );
   }
 
@@ -1189,8 +1204,8 @@ class _ChatScreenState extends State<_ChatScreen> {
                      DragTarget(
                        builder: (context,a,r){
                          return Container(
-                           height: 150,
-                           width: 45,
+                           height: 160,
+                           width: 50,
                            decoration: BoxDecoration(
                              borderRadius: BorderRadius.circular(25),
                              gradient: themeController.isDarkMode?LinearGradient(colors: [Colors.white.withOpacity(0.7),Colors.white]):LinearGradient(colors: [Colors.black.withOpacity(0.7),Colors.black]),
@@ -1214,15 +1229,16 @@ class _ChatScreenState extends State<_ChatScreen> {
                        },
                      ),
                    if(showCancelLock)
-                     SizedBox(height: 20,width: MediaQuery.of(context).size.width*0.92,),
+                     SizedBox(height: 0,width: MediaQuery.of(context).size.width*0.92,),
                    Row(
                      children: [
                        if(showCancelLock)
                          DragTarget(
                            builder: (context,a,r){
                              return Container(
-                               height: 45,
-                               width: MediaQuery.of(context).size.width*0.7,
+                               margin: EdgeInsets.only(bottom: 15),
+                               height: 50,
+                               width: MediaQuery.of(context).size.width*0.85,
                                decoration: BoxDecoration(
                                  borderRadius: BorderRadius.circular(25),
                                  gradient: themeController.isDarkMode?LinearGradient(colors: [Colors.white.withOpacity(0.7),Colors.white]):LinearGradient(colors: [Colors.black.withOpacity(0.7),Colors.black]),
@@ -1263,13 +1279,15 @@ class _ChatScreenState extends State<_ChatScreen> {
                          ),
                        if(showCancelLock)
                          SizedBox(
-                           height: 90,
-                           width: 80,
+                           //height: 50,
+                           width: 40,
                          ),
                        LongPressDraggable<int>(
                          dragAnchorStrategy: (Draggable<Object> _, BuildContext __, Offset ___) => const Offset(50, 50),
                          onDragStarted: (){
-                           HapticFeedback.vibrate();
+                           Vibration.vibrate(
+                               pattern: [1, 150, 1, 150], intensities: [100, 100]
+                           );
                            setState(() {
                              isPressed = true;
                              sendAudio = true;
@@ -1278,7 +1296,9 @@ class _ChatScreenState extends State<_ChatScreen> {
                            startRecording();
                          },
                          onDragEnd: (v){
-                           HapticFeedback.vibrate();
+                           Vibration.vibrate(
+                               pattern: [1, 150, 1, 150], intensities: [100, 100]
+                           );
                            setState(() {
                              isPressed = false;
                              showCancelLock = false;

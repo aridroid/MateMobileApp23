@@ -1020,14 +1020,23 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                                   padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 2.0),
                                                   child: ListTile(
                                                     onTap: ()async {
-                                                      await Get.to(() => Chat(
-                                                        peerUuid: snapshot.data.docs[index].data()["uuid"],
-                                                        currentUserId: _user.uid,
-                                                        peerId: snapshot.data.docs[index].data()["uid"],
-                                                        peerName: snapshot.data.docs[index].data()["displayName"],
-                                                        peerAvatar: snapshot.data.docs[index].data()["photoURL"],
-                                                        roomId: chatProvider.messageList[indexMain].roomId,
-                                                      ));
+                                                      await Navigator.push(context, MaterialPageRoute(
+                                                          builder: (context) => Chat(
+                                                            peerUuid: snapshot.data.docs[index].data()["uuid"],
+                                                            currentUserId: _user.uid,
+                                                            peerId: snapshot.data.docs[index].data()["uid"],
+                                                            peerName: snapshot.data.docs[index].data()["displayName"],
+                                                            peerAvatar: snapshot.data.docs[index].data()["photoURL"],
+                                                            roomId: chatProvider.messageList[indexMain].roomId,
+                                                          )));
+                                                      // Get.to(() => Chat(
+                                                      //   peerUuid: snapshot.data.docs[index].data()["uuid"],
+                                                      //   currentUserId: _user.uid,
+                                                      //   peerId: snapshot.data.docs[index].data()["uid"],
+                                                      //   peerName: snapshot.data.docs[index].data()["displayName"],
+                                                      //   peerAvatar: snapshot.data.docs[index].data()["photoURL"],
+                                                      //   roomId: chatProvider.messageList[indexMain].roomId,
+                                                      // ));
                                                       loadData();
                                                     },
                                                     leading: CircleAvatar(

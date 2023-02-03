@@ -72,8 +72,10 @@ class _SplashScreenState extends State<SplashScreen>{
                 callType: message.data["callType"],
                 callerName: message.data["callerName"],
                 callerImage: message.data["callerImage"],
+                isGroupCall: message.data["is_group"]=="1"?true:false,
               )
           );
+          print(message.data["is_group"].runtimeType);
           preferences.setBool("isCallOngoing",true);
         }else{
           Get.snackbar('Missed call from ${message.data["callerName"]}', "",

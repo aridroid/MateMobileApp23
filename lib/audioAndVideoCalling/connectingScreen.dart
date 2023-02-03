@@ -159,6 +159,7 @@ class _ConnectingScreenState extends State<ConnectingScreen> {
           callerImage: widget.isGroupCalling ? widget.receiverImage!=""?widget.receiverImage:"" : _user.photoURL??"",
           callerName: widget.isGroupCalling ? widget.receiverName : _user.displayName,
           uid: uid,
+          isGroupCall: widget.isGroupCalling,
         );
         if(res=="success"){
           await [Permission.microphone, Permission.camera].request();
@@ -222,7 +223,7 @@ class _ConnectingScreenState extends State<ConnectingScreen> {
     return result;
   }
 
-  Future<String> notifyPushNotification({String channelName,String token,String callerName,String callerImage,List<String> uid})async{
+  Future<String> notifyPushNotification({String channelName,String token,String callerName,String callerImage,List<String> uid,bool isGroupCall})async{
     String result = "";
     debugPrint("https://api.mateapp.us/api/agora/callPushNotify");
     Map body = {
@@ -232,6 +233,7 @@ class _ConnectingScreenState extends State<ConnectingScreen> {
       "callerImage": callerImage,
       "callType": widget.callType,
       "uids": uid,
+      "is_group" : isGroupCall?1:0,
     };
     print(jsonEncode(body));
     try {

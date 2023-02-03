@@ -81,6 +81,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       'callerName':message.data["callerName"],
       'callerImage': message.data["callerImage"],
       'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
+      'is_group' : message.data["is_group"],
     };
     FirebaseFirestore.instance.runTransaction((transaction) async {
        transaction.set(

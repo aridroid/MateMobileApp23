@@ -1,17 +1,15 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:mate_app/Providers/campusLiveProvider.dart';
 import 'package:mate_app/Screen/Home/HomeScreen.dart';
 import 'package:mate_app/Utility/Utility.dart';
 import 'package:mate_app/asset/Colors/MateColors.dart';
 import 'package:dotted_border/dotted_border.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nuts_activity_indicator/nuts_activity_indicator.dart';
 import 'package:provider/provider.dart';
-import 'package:video_compress/video_compress.dart';
+//import 'package:video_compress/video_compress.dart';
 import 'package:video_player/video_player.dart';
 import 'package:sizer/sizer.dart';
 

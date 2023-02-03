@@ -25,6 +25,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:record/record.dart';
 import 'package:sizer/sizer.dart';
+import 'package:vibration/vibration.dart';
 
 import '../../Providers/AuthUserProvider.dart';
 import '../../Providers/chatProvider.dart';
@@ -71,6 +72,13 @@ class _ChatPageState extends State<ChatPage> {
   String selectedMessage = "";
   String sender = "";
   bool showSelected = false;
+  bool showDate = false;
+
+  void showDateToggle(){
+    setState(() {
+      showDate = !showDate;
+    });
+  }
 
   bool isEditing = false;
   String editGroupId;
@@ -85,131 +93,141 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _chatMessages() {
-    return StreamBuilder(
-      stream: _chats,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          messageLength = snapshot.data.docs.length;
-          if(messageLength!=isPlaying.length){
-            if(messageLength>isPlaying.length && messageLength<isPlaying.length+2){
-              isPlaying.add(false);
-              isPaused.add(false);
-              isLoadingAudio.add(false);
-            }else{
-              isPlaying.clear();
-              isPaused.clear();
-              isLoadingAudio.clear();
-              for(int i=0;i<messageLength;i++){
+    return GestureDetector(
+      onHorizontalDragStart: (val){
+        showDateToggle();
+      },
+      onHorizontalDragEnd: (val){
+        showDateToggle();
+      },
+      child: StreamBuilder(
+        stream: _chats,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            messageLength = snapshot.data.docs.length;
+            if(messageLength!=isPlaying.length){
+              if(messageLength>isPlaying.length && messageLength<isPlaying.length+2){
                 isPlaying.add(false);
                 isPaused.add(false);
                 isLoadingAudio.add(false);
-              }
-            }
-            print(isPlaying.length);
-            print(isPaused.length);
-            print(isLoadingAudio.length);
-          }
-          if (readMessageUpdate) {
-            Map<String, dynamic> body = {"group_id": widget.groupId, "read_by": _user.uid, "messages_read": messageLength};
-            Future.delayed(Duration.zero, () {
-              Provider.of<ChatProvider>(context, listen: false).groupChatMessageReadUpdate(body);
-              Provider.of<ChatProvider>(context, listen: false).groupChatDataFetch(_user.uid);
-            });
-            readMessageUpdate = false;
-          }
-
-
-          List<String> date = [];
-          List<String> time = [];
-
-          var dateTimeNowToday = DateTime.now();
-          List<String> splitToday = dateTimeNowToday.toString().split(" ");
-          DateTime dateParsedToday = DateTime.parse(splitToday[0]);
-          String dateFormattedToday = DateFormat('dd MMMM yyyy').format(dateParsedToday);
-
-          var dateTimeNowYesterday = DateTime.now().subtract(const Duration(days:1));
-          List<String> splitYesterday = dateTimeNowYesterday.toString().split(" ");
-          DateTime dateParsedYesterday = DateTime.parse(splitYesterday[0]);
-          String dateFormattedYesterday = DateFormat('dd MMMM yyyy').format(dateParsedYesterday);
-
-          for(int i=0; i<snapshot.data.docs.length; i++){
-            DateTime dateFormat = new DateTime.fromMillisecondsSinceEpoch(int.parse(snapshot.data.docs[i].data()["time"].toString()));
-            String dateFormatted = DateFormat('dd MMMM yyyy').format(dateFormat);
-            if(dateFormatted == dateFormattedToday){
-              date.add("Today");
-            }else if(dateFormatted == dateFormattedYesterday){
-              date.add("Yesterday");
-            }else{
-              date.add(dateFormatted);
-            }
-            String formattedTime = DateFormat.jm().format(dateFormat);
-            time.add(formattedTime);
-          }
-
-          List<String> dateReversed = date.reversed.toList();
-          List<String> timeReversed = time.reversed.toList();
-
-          return ListView.builder(
-              itemCount: snapshot.data.docs.length,
-              reverse: true,
-              controller: listScrollController,
-              itemBuilder: (context, index) {
-                double size = 0;
-                String unit = "";
-                if (snapshot.data.docs[index].data()["fileSize"] != null) {
-                  if (snapshot.data.docs[index].data()["fileSize"] < 100000) {
-                    size = snapshot.data.docs[index].data()["fileSize"] / 1000;
-                    unit = "KB";
-                  } else if (snapshot.data.docs[index].data()["fileSize"] > 100000) {
-                    size = snapshot.data.docs[index].data()["fileSize"] / 1000000;
-                    unit = "MB";
-                  }
+              }else{
+                isPlaying.clear();
+                isPaused.clear();
+                isLoadingAudio.clear();
+                for(int i=0;i<messageLength;i++){
+                  isPlaying.add(false);
+                  isPaused.add(false);
+                  isLoadingAudio.add(false);
                 }
-                int itemCount = snapshot.data.docs.length ?? 0;
-                int reversedIndex = itemCount - 1 - index;
-                return MessageTile(
-                  messageId: snapshot.data.docs[index].data()["messageId"]??"",
-                  messageReaction: snapshot.data.docs[index].data()["messageReaction"]??[],
-                  groupId: widget.groupId,
-                  message: snapshot.data.docs[index].data()["message"],
-                  sender: snapshot.data.docs[index].data()["sender"],
-                  senderImage: snapshot.data.docs[index].data()["senderImage"]??"",
-                  sentByMe: _user.uid == snapshot.data.docs[index].data()["senderId"],
-                  messageTime: snapshot.data.docs[index].data()["time"].toString(),
-                  isImage: snapshot.data.docs[index].data()["isImage"] ?? false,
-                  isFile: snapshot.data.docs[index].data()["isFile"] ?? false,
-                  isGif: snapshot.data.docs[index].data()["isGif"] ?? false,
-                  fileExtension: snapshot.data.docs[index].data()["fileExtension"] ?? "",
-                  fileName: snapshot.data.docs[index].data()["fileName"] ?? "",
-                  fileSize: size.toStringAsPrecision(2),
-                  fileSizeUnit: unit,
-                  userId: _user.uid,
-                  displayName: _user.displayName,
-                  photo: _user.photoURL,
-                  index: reversedIndex,
-                  date: dateReversed,
-                  time: timeReversed,
-                  fileSizeFull: snapshot.data.docs[index].data()["fileSize"]??0,
-                  isForwarded: snapshot.data.docs[index].data()["isForwarded"]!=null?true:false,
-                  senderId: snapshot.data.docs[index].data()["senderId"],
-                  selectMessage: selectedMessageFunc,
-                  previousMessage: snapshot.data.docs[index].data()["previousMessage"]??"",
-                  previousSender: snapshot.data.docs[index].data()["previousSender"]??"",
-                  isAudio: snapshot.data.docs[index].data()["isAudio"] ?? false,
-                  isPlaying: isPlaying[reversedIndex],
-                  isPaused: isPaused[reversedIndex],
-                  isLoadingAudio: isLoadingAudio[reversedIndex],
-                  startAudio: startAudio,
-                  pauseAudio: pauseAudio,
-                  duration: duration,
-                  currentDuration: currentDuration,
-                  editMessage: editMessage,
-                );
+              }
+              print(isPlaying.length);
+              print(isPaused.length);
+              print(isLoadingAudio.length);
+            }
+            if (readMessageUpdate) {
+              Map<String, dynamic> body = {"group_id": widget.groupId, "read_by": _user.uid, "messages_read": messageLength};
+              Future.delayed(Duration.zero, () {
+                Provider.of<ChatProvider>(context, listen: false).groupChatMessageReadUpdate(body);
+                Provider.of<ChatProvider>(context, listen: false).groupChatDataFetch(_user.uid);
               });
-        } else {
-          return Container();
-        }
-      },
+              readMessageUpdate = false;
+            }
+
+
+            List<String> date = [];
+            List<String> time = [];
+
+            var dateTimeNowToday = DateTime.now();
+            List<String> splitToday = dateTimeNowToday.toString().split(" ");
+            DateTime dateParsedToday = DateTime.parse(splitToday[0]);
+            String dateFormattedToday = DateFormat('dd MMMM yyyy').format(dateParsedToday);
+
+            var dateTimeNowYesterday = DateTime.now().subtract(const Duration(days:1));
+            List<String> splitYesterday = dateTimeNowYesterday.toString().split(" ");
+            DateTime dateParsedYesterday = DateTime.parse(splitYesterday[0]);
+            String dateFormattedYesterday = DateFormat('dd MMMM yyyy').format(dateParsedYesterday);
+
+            for(int i=0; i<snapshot.data.docs.length; i++){
+              DateTime dateFormat = new DateTime.fromMillisecondsSinceEpoch(int.parse(snapshot.data.docs[i].data()["time"].toString()));
+              String dateFormatted = DateFormat('dd MMMM yyyy').format(dateFormat);
+              if(dateFormatted == dateFormattedToday){
+                date.add("Today");
+              }else if(dateFormatted == dateFormattedYesterday){
+                date.add("Yesterday");
+              }else{
+                date.add(dateFormatted);
+              }
+              String formattedTime = DateFormat.jm().format(dateFormat);
+              time.add(formattedTime);
+            }
+
+            List<String> dateReversed = date.reversed.toList();
+            List<String> timeReversed = time.reversed.toList();
+
+            return ListView.builder(
+                itemCount: snapshot.data.docs.length,
+                reverse: true,
+                controller: listScrollController,
+                itemBuilder: (context, index) {
+                  double size = 0;
+                  String unit = "";
+                  if (snapshot.data.docs[index].data()["fileSize"] != null) {
+                    if (snapshot.data.docs[index].data()["fileSize"] < 100000) {
+                      size = snapshot.data.docs[index].data()["fileSize"] / 1000;
+                      unit = "KB";
+                    } else if (snapshot.data.docs[index].data()["fileSize"] > 100000) {
+                      size = snapshot.data.docs[index].data()["fileSize"] / 1000000;
+                      unit = "MB";
+                    }
+                  }
+                  int itemCount = snapshot.data.docs.length ?? 0;
+                  int reversedIndex = itemCount - 1 - index;
+                  return MessageTile(
+                    messageId: snapshot.data.docs[index].data()["messageId"]??"",
+                    messageReaction: snapshot.data.docs[index].data()["messageReaction"]??[],
+                    groupId: widget.groupId,
+                    message: snapshot.data.docs[index].data()["message"],
+                    sender: snapshot.data.docs[index].data()["sender"],
+                    senderImage: snapshot.data.docs[index].data()["senderImage"]??"",
+                    sentByMe: _user.uid == snapshot.data.docs[index].data()["senderId"],
+                    messageTime: snapshot.data.docs[index].data()["time"].toString(),
+                    isImage: snapshot.data.docs[index].data()["isImage"] ?? false,
+                    isFile: snapshot.data.docs[index].data()["isFile"] ?? false,
+                    isGif: snapshot.data.docs[index].data()["isGif"] ?? false,
+                    fileExtension: snapshot.data.docs[index].data()["fileExtension"] ?? "",
+                    fileName: snapshot.data.docs[index].data()["fileName"] ?? "",
+                    fileSize: size.toStringAsPrecision(2),
+                    fileSizeUnit: unit,
+                    userId: _user.uid,
+                    displayName: _user.displayName,
+                    photo: _user.photoURL,
+                    index: reversedIndex,
+                    date: dateReversed,
+                    time: timeReversed,
+                    fileSizeFull: snapshot.data.docs[index].data()["fileSize"]??0,
+                    isForwarded: snapshot.data.docs[index].data()["isForwarded"]!=null?true:false,
+                    senderId: snapshot.data.docs[index].data()["senderId"],
+                    selectMessage: selectedMessageFunc,
+                    previousMessage: snapshot.data.docs[index].data()["previousMessage"]??"",
+                    previousSender: snapshot.data.docs[index].data()["previousSender"]??"",
+                    isAudio: snapshot.data.docs[index].data()["isAudio"] ?? false,
+                    isPlaying: isPlaying[reversedIndex],
+                    isPaused: isPaused[reversedIndex],
+                    isLoadingAudio: isLoadingAudio[reversedIndex],
+                    startAudio: startAudio,
+                    pauseAudio: pauseAudio,
+                    duration: duration,
+                    currentDuration: currentDuration,
+                    editMessage: editMessage,
+                    showDate: showDate,
+                    showDateToggle: showDateToggle,
+                  );
+                });
+          } else {
+            return Container();
+          }
+        },
+      ),
     );
   }
 
@@ -908,8 +926,8 @@ class _ChatPageState extends State<ChatPage> {
                       DragTarget(
                         builder: (context,a,r){
                           return Container(
-                            height: 150,
-                            width: 45,
+                            height: 160,
+                            width: 50,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(25),
                               gradient: themeController.isDarkMode?LinearGradient(colors: [Colors.white.withOpacity(0.7),Colors.white]):LinearGradient(colors: [Colors.black.withOpacity(0.7),Colors.black]),
@@ -933,15 +951,16 @@ class _ChatPageState extends State<ChatPage> {
                         },
                       ),
                     if(showCancelLock)
-                     SizedBox(height: 20,width: MediaQuery.of(context).size.width*0.92,),
+                     SizedBox(height: 0,width: MediaQuery.of(context).size.width*0.92,),
                     Row(
                       children: [
                         if(showCancelLock)
                           DragTarget(
                             builder: (context,a,r){
                               return Container(
-                                height: 45,
-                                width: MediaQuery.of(context).size.width*0.7,
+                                margin: EdgeInsets.only(bottom: 15),
+                                height: 50,
+                                width: MediaQuery.of(context).size.width*0.85,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(25),
                                   gradient: themeController.isDarkMode?LinearGradient(colors: [Colors.white.withOpacity(0.7),Colors.white]):LinearGradient(colors: [Colors.black.withOpacity(0.7),Colors.black]),
@@ -982,13 +1001,15 @@ class _ChatPageState extends State<ChatPage> {
                           ),
                         if(showCancelLock)
                           SizedBox(
-                            height: 90,
-                            width: 80,
+                            //height: 50,
+                            width: 40,
                           ),
                         LongPressDraggable<int>(
                           dragAnchorStrategy: (Draggable<Object> _, BuildContext __, Offset ___) => const Offset(50, 50),
                           onDragStarted: (){
-                            HapticFeedback.vibrate();
+                            Vibration.vibrate(
+                                pattern: [1, 150, 1, 150], intensities: [100, 100]
+                            );
                             setState(() {
                               isPressed = true;
                               sendAudio = true;
@@ -997,7 +1018,9 @@ class _ChatPageState extends State<ChatPage> {
                             startRecording();
                           },
                           onDragEnd: (v){
-                            HapticFeedback.vibrate();
+                            Vibration.vibrate(
+                                pattern: [1, 150, 1, 150], intensities: [100, 100]
+                            );
                             setState(() {
                               isPressed = false;
                               showCancelLock = false;

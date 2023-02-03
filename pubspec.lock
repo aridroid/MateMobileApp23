@@ -737,13 +737,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.2"
-  open_file:
-    dependency: "direct main"
-    description:
-      name: open_file
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "3.2.1"
   overlay_support:
     dependency: "direct main"
     description:
@@ -1141,13 +1134,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.1"
-  swipe_to:
-    dependency: "direct main"
-    description:
-      name: swipe_to
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.2"
   synchronized:
     dependency: transitive
     description:
@@ -1239,13 +1225,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.2"
+  vibration:
+    dependency: "direct main"
+    description:
+      name: vibration
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.7.6"
   video_compress:
     dependency: "direct main"
     description:
       name: video_compress
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.1.0"
+    version: "3.1.2"
   video_player:
     dependency: "direct main"
     description:

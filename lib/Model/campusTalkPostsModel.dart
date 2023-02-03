@@ -104,7 +104,7 @@ class Result {
     status = json['status'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
-    isAnonymous = json['is_anonymous'];
+    isAnonymous = int.parse(json['is_anonymous']);
     anonymousUser = json['anonymous_user'];
     bookmarksCount = json['bookmarks_count'];
     likesCount = json['likes_count'];
