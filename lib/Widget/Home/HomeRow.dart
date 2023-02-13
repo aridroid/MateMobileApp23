@@ -34,10 +34,12 @@ import 'package:googleapis/calendar/v3.dart' as gCal;
 import 'package:flutter_reaction_button/flutter_reaction_button.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../Screen/Home/TimeLine/editFeed.dart';
 import '../../Screen/Home/TimeLine/feed_search.dart';
 import '../../Services/FeedService.dart';
 import '../../controller/theme_controller.dart';
 import '../../textStyles.dart';
+import '../mediaViewer.dart';
 
 // ignore: must_be_immutable
 
@@ -184,10 +186,11 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
               maxHeight: 300.0,
             ),
             child: InkWell(
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => FullImageWidget(
-                        imagePath: media[i].url,
-                      ))),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>MediaViewer(url: media[i].url,))),
+                  // Navigator.of(context).push(MaterialPageRoute(
+                  // builder: (context) => FullImageWidget(
+                  //       imagePath: media[i].url,
+                  //     ))),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12.0),
                 clipBehavior: Clip.hardEdge,
@@ -331,6 +334,17 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                         ),
                       ));
                 }
+                else if (index == 6) {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditFeedPost(
+                    id: widget.feedId,
+                    title: widget.title,
+                    description: widget.description,
+                    link: widget.hyperlink,
+                    linkText: widget.hyperlinkText,
+                    imageUrl: widget.media.isNotEmpty?widget.media[0].url:"",
+                    feedType: widget.feedType,
+                  ),));
+                }
               },
               itemBuilder: (context) => [
             //   PopupMenuItem(
@@ -386,6 +400,25 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                     "Report Post",
                     textAlign: TextAlign.start,
                     style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                  ),
+                ),
+                (!widget.isFeedDetailsPage && widget.user.id != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user.id))
+                    ? PopupMenuItem(
+                  value: 6,
+                  height: 40,
+                  child: Text(
+                    "Edit Post",
+                    textAlign: TextAlign.start,
+                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                  ),
+                )
+                    : PopupMenuItem(
+                  value: 6,
+                  enabled: false,
+                  height: 0,
+                  child: SizedBox(
+                    height: 0,
+                    width: 0,
                   ),
                 ),
               ]
@@ -1744,10 +1777,11 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
               maxHeight: 300.0,
             ),
             child: InkWell(
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => FullImageWidget(
-                    imagePath: media[i].url,
-                  ))),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>MediaViewer(url: media[i].url,))),
+                  // Navigator.of(context).push(MaterialPageRoute(
+                  // builder: (context) => FullImageWidget(
+                  //   imagePath: media[i].url,
+                  // ))),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12.0),
                 clipBehavior: Clip.hardEdge,

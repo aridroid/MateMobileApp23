@@ -31,101 +31,112 @@ class _GroupNamePageState extends State<GroupNamePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      //backgroundColor: myHexColor,
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(width: 1, color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
-          ),),
-        width: double.infinity,
-        height: 50,
-        child: Row(
-          children: [
-            Expanded(
-              child: TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text("Cancel",
-                    style: TextStyle(
-                      color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 17.0,
-                    ),
-                ),
-              ),
-            ),
-            VerticalDivider(
-              color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
-              width: 1,
-              thickness: 1,
-            ),
-            Expanded(
-              child: TextButton(
-                onPressed: () {
-                  DatabaseService().updateGroupName(widget.groupId, groupNameText.text);
-                  Navigator.pop(context);
-                  // Navigator.of(context).pushAndRemoveUntil(
-                  //     MaterialPageRoute(builder: (context) => HomeScreen(index: 3)),
-                  //     ModalRoute.withName("/home"));
-                },
-                child: Text("Save",
-                    style: TextStyle(
-                      color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 17.0,
-                    ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      appBar: AppBar(
+    return GestureDetector(
+       behavior: HitTestBehavior.translucent,
+          onTap: null,
+          onPanUpdate: (details) {
+            if (details.delta.dy > 0){
+              FocusScope.of(context).requestFocus(FocusNode());
+              print("Dragging in +Y direction");
+            }
+          },
+      child: Scaffold(
         //backgroundColor: myHexColor,
-        elevation: 0,
-        iconTheme: IconThemeData(
-          color: MateColors.activeIcons,
-        ),
-        centerTitle: false,
-        title: Text("Group Name",
-          style: TextStyle(
-            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-            fontWeight: FontWeight.w700,
-            fontSize: 17.0,
-          ),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(width: 1, color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
+            ),),
+          width: double.infinity,
+          height: 50,
+          child: Row(
             children: [
-              Padding(
-                padding: EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 10.0),
-                child: Text(
-                  "Name",
-                  style: TextStyle(
-                    color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 17.0,
+              Expanded(
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Cancel",
+                      style: TextStyle(
+                        color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 17.0,
+                      ),
                   ),
                 ),
               ),
-              TextFormField(
-                controller: groupNameText,
-                decoration: _customInputDecoration(labelText: 'Add group Name', icon: Icons.perm_identity),
-                style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
-                cursorColor: MateColors.activeIcons,
-                //textInputAction: TextInputAction.newline,
-                // minLines: 1,
-                // maxLines: 5,
+              VerticalDivider(
+                color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
+                width: 1,
+                thickness: 1,
+              ),
+              Expanded(
+                child: TextButton(
+                  onPressed: () {
+                    DatabaseService().updateGroupName(widget.groupId, groupNameText.text);
+                    Navigator.pop(context);
+                    // Navigator.of(context).pushAndRemoveUntil(
+                    //     MaterialPageRoute(builder: (context) => HomeScreen(index: 3)),
+                    //     ModalRoute.withName("/home"));
+                  },
+                  child: Text("Save",
+                      style: TextStyle(
+                        color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 17.0,
+                      ),
+                  ),
+                ),
               ),
             ],
           ),
         ),
-      ),
+        appBar: AppBar(
+          //backgroundColor: myHexColor,
+          elevation: 0,
+          iconTheme: IconThemeData(
+            color: MateColors.activeIcons,
+          ),
+          centerTitle: false,
+          title: Text("Group Name",
+            style: TextStyle(
+              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+              fontWeight: FontWeight.w700,
+              fontSize: 17.0,
+            ),
+          ),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 10.0),
+                  child: Text(
+                    "Name",
+                    style: TextStyle(
+                      color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 17.0,
+                    ),
+                  ),
+                ),
+                TextFormField(
+                  controller: groupNameText,
+                  decoration: _customInputDecoration(labelText: 'Add group Name', icon: Icons.perm_identity),
+                  style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
+                  cursorColor: MateColors.activeIcons,
+                  //textInputAction: TextInputAction.newline,
+                  // minLines: 1,
+                  // maxLines: 5,
+                ),
+              ],
+            ),
+          ),
+        ),
 
+      ),
     );
   }
 

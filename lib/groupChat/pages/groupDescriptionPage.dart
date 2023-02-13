@@ -30,109 +30,120 @@ class _GroupDescriptionPageState extends State<GroupDescriptionPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(width: 1, color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
-          ),),
-        width: double.infinity,
-        height: 50,
-        child: Row(
-          children: [
-            Expanded(
-              child: TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text("Cancel",
-                    style: TextStyle(
-                      color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 17.0,
-                    ),
-                ),
-              ),
-            ),
-            VerticalDivider(
-              color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
-              width: 1,
-              thickness: 1,
-            ),
-            Expanded(
-              child: TextButton(
-                onPressed: () {
-                  DatabaseService().updateGroupDescription(widget.groupId, descText.text,_user.displayName,_user.photoURL);
-                  Navigator.pop(context);
-                },
-                child: Text("Save",
-                    style: TextStyle(
-                      color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 17.0,
-                    ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      appBar: AppBar(
-        //backgroundColor: myHexColor,
-        centerTitle: false,
-        elevation: 0,
-        iconTheme: IconThemeData(
-          color: MateColors.activeIcons,
-        ),
-        title: Text("Community Description",
-          style: TextStyle(
-            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-            fontWeight: FontWeight.w700,
-            fontSize: 17.0,
-          ),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return GestureDetector(
+       behavior: HitTestBehavior.translucent,
+          onTap: null,
+          onPanUpdate: (details) {
+            if (details.delta.dy > 0){
+              FocusScope.of(context).requestFocus(FocusNode());
+              print("Dragging in +Y direction");
+            }
+          },
+      child: Scaffold(
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(width: 1, color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
+            ),),
+          width: double.infinity,
+          height: 50,
+          child: Row(
             children: [
-              Padding(
-                padding: EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 10.0),
-                child: Text(
-                  "Description",
-                  style: TextStyle(
-                    color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 17.0,
+              Expanded(
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Cancel",
+                      style: TextStyle(
+                        color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 17.0,
+                      ),
                   ),
                 ),
               ),
-              TextFormField(
-                controller: descText,
-                decoration: _customInputDecoration(labelText: 'Add group description', icon: Icons.perm_identity),
-                style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
-                cursorColor: MateColors.activeIcons,
-                textInputAction: TextInputAction.done,
-                minLines: 3,
-                maxLines: 10,
-                maxLength: 512,
+              VerticalDivider(
+                color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
+                width: 1,
+                thickness: 1,
               ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(8.0, 16.0, 8.0, 10.0),
-                child: Text(
-                  "The group description is visible to all the participants of this group.",
-                  style: TextStyle(
-                    color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                    fontWeight: FontWeight.w400,
-                    fontSize: 14.0,
+              Expanded(
+                child: TextButton(
+                  onPressed: () {
+                    DatabaseService().updateGroupDescription(widget.groupId, descText.text,_user.displayName,_user.photoURL);
+                    Navigator.pop(context);
+                  },
+                  child: Text("Save",
+                      style: TextStyle(
+                        color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 17.0,
+                      ),
                   ),
                 ),
               ),
             ],
           ),
         ),
-      ),
+        appBar: AppBar(
+          //backgroundColor: myHexColor,
+          centerTitle: false,
+          elevation: 0,
+          iconTheme: IconThemeData(
+            color: MateColors.activeIcons,
+          ),
+          title: Text("Community Description",
+            style: TextStyle(
+              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+              fontWeight: FontWeight.w700,
+              fontSize: 17.0,
+            ),
+          ),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 10.0),
+                  child: Text(
+                    "Description",
+                    style: TextStyle(
+                      color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 17.0,
+                    ),
+                  ),
+                ),
+                TextFormField(
+                  controller: descText,
+                  decoration: _customInputDecoration(labelText: 'Add group description', icon: Icons.perm_identity),
+                  style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
+                  cursorColor: MateColors.activeIcons,
+                  textInputAction: TextInputAction.done,
+                  minLines: 3,
+                  maxLines: 10,
+                  maxLength: 512,
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(8.0, 16.0, 8.0, 10.0),
+                  child: Text(
+                    "The group description is visible to all the participants of this group.",
+                    style: TextStyle(
+                      color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 14.0,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
 
+      ),
     );
   }
 

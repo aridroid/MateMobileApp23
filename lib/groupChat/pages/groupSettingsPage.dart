@@ -49,6 +49,8 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
   QuerySnapshot searchResultSnapshot;
   bool isLoadedGroup = false;
   final GlobalKey<ScaffoldState> _key = GlobalKey();
+  bool isUserMember = false;
+  bool updateIsUserMember = true;
 
   String groupName;
   String groupIcon;
@@ -117,6 +119,11 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
               Future.delayed(Duration.zero,(){
                 groupName = snapshot.data['groupName'];
                 groupIcon = snapshot.data['groupIcon']??"";
+                if(updateIsUserMember){
+                  isUserMember = snapshot.data['members'].contains(_user.uid + '_' + _user.displayName);
+                  updateIsUserMember = false;
+                  setState(() {});
+                }
               });
               return ListView(
                 shrinkWrap: true,
@@ -137,7 +144,7 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                     child: Column(
                       children: [
                         InkWell(
-                          onTap: () => modalSheetGroupIconChange(snapshot.data['groupIcon'] != ""),
+                          onTap: () => isUserMember?modalSheetGroupIconChange(snapshot.data['groupIcon'] != ""):null,
                           child:  snapshot.data['groupIcon']!=""?
                           CircleAvatar(
                             radius: 50,
@@ -158,7 +165,9 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: InkWell(
                               onTap: (){
-                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => GroupNamePage(groupId: snapshot.data['groupId'], groupName: snapshot.data['groupName'] ?? "",)));
+                                if(isUserMember){
+                                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => GroupNamePage(groupId: snapshot.data['groupId'], groupName: snapshot.data['groupName'] ?? "",)));
+                                }
                               },
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 20),
@@ -204,7 +213,9 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                     ),
                     child: InkWell(
                       onTap: (){
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=>GroupMembersPage(groupId: widget.groupId,addPerson: true,)));
+                        if(isUserMember){
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context)=>GroupMembersPage(groupId: widget.groupId,addPerson: true,)));
+                        }
                       },
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -317,10 +328,10 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                         InkWell(
                           splashColor:  Colors.transparent,
                           highlightColor: Colors.transparent,
-                          onTap: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context) => GroupDescriptionPage(
+                          onTap: ()=>isUserMember?Navigator.of(context).push(MaterialPageRoute(builder: (context) => GroupDescriptionPage(
                             groupId: snapshot.data['groupId'],
                             description: snapshot.data['description'] ?? "",
-                          ))),
+                          ))):null,
                           child: Text("Add group description",
                             style:  TextStyle(fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.w400,color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,),
                           ),
@@ -328,13 +339,13 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                         InkWell(
                           splashColor:  Colors.transparent,
                           highlightColor: Colors.transparent,
-                          onTap: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context) => GroupDescriptionShowPage(
+                          onTap: ()=>isUserMember?Navigator.of(context).push(MaterialPageRoute(builder: (context) => GroupDescriptionShowPage(
                             groupId: snapshot.data['groupId'],
                             description: snapshot.data['description'] ?? "",
                             descriptionCreatorName: snapshot.data['descriptionCreatorName']??"",
                             descriptionCreatorImage: snapshot.data['descriptionCreatorImage']??"",
                             descriptionCreationTime: snapshot.data['descriptionCreationTime']??0,
-                          ))),
+                          ))):null,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -356,6 +367,7 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                       ],
                     ),
                   ),
+                  if(isUserMember)
                   Container(
                     margin: EdgeInsets.only(left: 16,right: 16,top: 0,bottom: 20),
                     padding: EdgeInsets.fromLTRB(20,20,20,20),
@@ -509,10 +521,15 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                   ),
                   InkWell(
                     onTap: ()async{
-                      DatabaseService(uid: _user.uid).togglingGroupJoin(snapshot.data['groupId'],snapshot.data['groupName'],_user.displayName);
-                      await CommunityTabService().exitGroup(token: token,uid: _user.uid,groupId: snapshot.data['groupId']);
-                      Get.back();
-                      Get.back();
+                      if(isUserMember){
+                        await DatabaseService(uid: _user.uid).togglingGroupJoin(snapshot.data['groupId'],snapshot.data['groupName'],_user.displayName);
+                        isUserMember = false;
+                        setState(() {});
+                      }else{
+                        await CommunityTabService().exitGroup(token: token,uid: _user.uid,groupId: snapshot.data['groupId']);
+                        Get.back();
+                        Get.back();
+                      }
                     },
                     child: Container(
                       height: 50,
@@ -531,7 +548,8 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                         ],
                       ),
                       child: Text(
-                        'Exit Group',
+                        isUserMember?
+                        'Exit Group':"Delete Group",
                         style: TextStyle(
                           color: Colors.red,
                           fontWeight: FontWeight.w500,

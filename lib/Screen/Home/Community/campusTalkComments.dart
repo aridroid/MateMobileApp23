@@ -35,26 +35,36 @@ class _CampusTalkCommentsState extends State<CampusTalkComments> {
   ThemeController themeController = Get.find<ThemeController>();
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      //backgroundColor: myHexColor,
-      appBar: AppBar(
-        elevation: 0,
-        iconTheme: IconThemeData(
-          color: MateColors.activeIcons,
+    return GestureDetector(
+       behavior: HitTestBehavior.translucent,
+          onTap: null,
+          onPanUpdate: (details) {
+            if (details.delta.dy > 0){
+              FocusScope.of(context).requestFocus(FocusNode());
+              print("Dragging in +Y direction");
+            }
+          },
+      child: Scaffold(
+        //backgroundColor: myHexColor,
+        appBar: AppBar(
+          elevation: 0,
+          iconTheme: IconThemeData(
+            color: MateColors.activeIcons,
+          ),
+          title: Text('Comments', style: TextStyle(
+          color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+            fontWeight: FontWeight.w700,
+            fontSize: 17.0,
+          ),
         ),
-        title: Text('Comments', style: TextStyle(
-        color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-          fontWeight: FontWeight.w700,
-          fontSize: 17.0,
+          centerTitle: true,
         ),
-      ),
-        centerTitle: true,
-      ),
-      body: CampusTalkCommentsWidget(
-        isUserProfile: widget.isUserProfile,
-        isBookmarkedPage: widget.isBookmarkedPage,
-        postId: widget.postId,
-        postIndex: widget.postIndex,
+        body: CampusTalkCommentsWidget(
+          isUserProfile: widget.isUserProfile,
+          isBookmarkedPage: widget.isBookmarkedPage,
+          postId: widget.postId,
+          postIndex: widget.postIndex,
+        ),
       ),
     );
   }
@@ -109,6 +119,7 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
                 return ListView(
                   children: [
                     ListView.builder(
+                      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                       shrinkWrap: true,
                       reverse: true,
                       physics: ScrollPhysics(),

@@ -92,144 +92,155 @@ class _GroupMembersSearchState extends State<GroupMembersSearch> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        titleSpacing: 0,
-        automaticallyImplyLeading: false,
-        title: TextField(
-          onChanged: (val) => setState((){
-            searchedName=val;
-          }),
-          style: TextStyle(color: themeController.isDarkMode?Colors.white:Colors.black),
-          decoration: InputDecoration(
-            hintStyle: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              letterSpacing: 0.1,
-              color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-            ),
-            hintText: "Search",
-            prefixIcon: Padding(
-              padding: const EdgeInsets.only(left: 15,top: 15,bottom: 15),
-              child: Image.asset(
-                "lib/asset/homePageIcons/searchPurple@3x.png",
-                height: 10,
-                width: 10,
-                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+    return GestureDetector(
+       behavior: HitTestBehavior.translucent,
+          onTap: null,
+          onPanUpdate: (details) {
+            if (details.delta.dy > 0){
+              FocusScope.of(context).requestFocus(FocusNode());
+              print("Dragging in +Y direction");
+            }
+          },
+      child: Scaffold(
+        appBar: AppBar(
+          elevation: 0,
+          titleSpacing: 0,
+          automaticallyImplyLeading: false,
+          title: TextField(
+            onChanged: (val) => setState((){
+              searchedName=val;
+            }),
+            style: TextStyle(color: themeController.isDarkMode?Colors.white:Colors.black),
+            decoration: InputDecoration(
+              hintStyle: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 0.1,
+                color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
               ),
-            ),
-            suffixIcon: InkWell(
-              onTap: (){
-                Get.back();
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(top: 16,right: 15),
-                child: Text(
-                  "Close",
-                  style: TextStyle(
-                    fontSize: 15,
-                    letterSpacing: 0.1,
-                    fontWeight: FontWeight.w700,
-                    color: MateColors.activeIcons,
+              hintText: "Search",
+              prefixIcon: Padding(
+                padding: const EdgeInsets.only(left: 15,top: 15,bottom: 15),
+                child: Image.asset(
+                  "lib/asset/homePageIcons/searchPurple@3x.png",
+                  height: 10,
+                  width: 10,
+                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                ),
+              ),
+              suffixIcon: InkWell(
+                onTap: (){
+                  Get.back();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 16,right: 15),
+                  child: Text(
+                    "Close",
+                    style: TextStyle(
+                      fontSize: 15,
+                      letterSpacing: 0.1,
+                      fontWeight: FontWeight.w700,
+                      color: MateColors.activeIcons,
+                    ),
                   ),
                 ),
               ),
-            ),
-            enabledBorder: UnderlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(4)),
-              borderSide: BorderSide(width: 3,color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(4)),
-              borderSide: BorderSide(width: 3,color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
+              enabledBorder: UnderlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(4)),
+                borderSide: BorderSide(width: 3,color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(4)),
+                borderSide: BorderSide(width: 3,color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
+              ),
             ),
           ),
         ),
-      ),
-      body: StreamBuilder<DocumentSnapshot>(
-          stream: DatabaseService().getGroupDetails(widget.groupId),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              print(snapshot.data['createdAt']);
-              return ListView(
-                shrinkWrap: true,
-                children: [
-                  isLoading?
-                  Container(
-                    height: MediaQuery.of(context).size.height,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: MateColors.activeIcons,
+        body: StreamBuilder<DocumentSnapshot>(
+            stream: DatabaseService().getGroupDetails(widget.groupId),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                print(snapshot.data['createdAt']);
+                return ListView(
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  shrinkWrap: true,
+                  children: [
+                    isLoading?
+                    Container(
+                      height: MediaQuery.of(context).size.height,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: MateColors.activeIcons,
+                        ),
                       ),
-                    ),
-                  ):
-                  ListView.builder(
-                      padding: EdgeInsets.fromLTRB(25,0,20,0),
-                      shrinkWrap: true,
-                      physics: ScrollPhysics(),
-                      itemCount: userList.length,
-                      itemBuilder: (context, index) {
-                        return Visibility(
-                          visible: searchedName==""?true:searchedName!="" && userList[index].displayName.toString().toLowerCase().contains(searchedName.toLowerCase()),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(vertical: 12.0),
-                            child: ListTile(
-                              onTap: (){
-                                if(userList[index].uuid!=null){
-                                  if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == userList[index].uuid) {
-                                    Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
-                                  } else {
-                                    Navigator.of(context).pushNamed(UserProfileScreen.routeName,
-                                        arguments: {"id": userList[index].uuid,
-                                          "name": userList[index].displayName,
-                                          "photoUrl": userList[index].photoURL,
-                                          "firebaseUid": userList[index].uid
-                                        });
+                    ):
+                    ListView.builder(
+                        padding: EdgeInsets.fromLTRB(25,0,20,0),
+                        shrinkWrap: true,
+                        physics: ScrollPhysics(),
+                        itemCount: userList.length,
+                        itemBuilder: (context, index) {
+                          return Visibility(
+                            visible: searchedName==""?true:searchedName!="" && userList[index].displayName.toString().toLowerCase().contains(searchedName.toLowerCase()),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12.0),
+                              child: ListTile(
+                                onTap: (){
+                                  if(userList[index].uuid!=null){
+                                    if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == userList[index].uuid) {
+                                      Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
+                                    } else {
+                                      Navigator.of(context).pushNamed(UserProfileScreen.routeName,
+                                          arguments: {"id": userList[index].uuid,
+                                            "name": userList[index].displayName,
+                                            "photoUrl": userList[index].photoURL,
+                                            "firebaseUid": userList[index].uid
+                                          });
+                                    }
                                   }
-                                }
-                              },
-                              leading: userList[index].photoURL!=null?
-                              CircleAvatar(
-                                radius: 24,
-                                backgroundColor: MateColors.activeIcons,
-                                backgroundImage: NetworkImage(
-                                  userList[index].photoURL,
-                                ),
-                              ):CircleAvatar(
-                                radius: 24,
-                                backgroundColor: MateColors.activeIcons,
-                                child: Text(userList[index].displayName.substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
-                              ),
-                              trailing: userList[index].uid == snapshot.data['creatorId']?
-                              Container(
-                                height: 28,
-                                width: 63,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(14),
-                                  color: Color(0xFFFF8740),
-                                ),
-                                child: Text("Owner",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white,
+                                },
+                                leading: userList[index].photoURL!=null?
+                                CircleAvatar(
+                                  radius: 24,
+                                  backgroundColor: MateColors.activeIcons,
+                                  backgroundImage: NetworkImage(
+                                    userList[index].photoURL,
                                   ),
+                                ):CircleAvatar(
+                                  radius: 24,
+                                  backgroundColor: MateColors.activeIcons,
+                                  child: Text(userList[index].displayName.substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
                                 ),
-                              ):
-                              Offstage(),
-                              contentPadding: EdgeInsets.only(top: 5),
-                              title: Text(currentUser.uid==userList[index].uid?"You":userList[index].displayName, style: TextStyle(fontFamily: "Poppins",fontSize: 15.0, fontWeight: FontWeight.w500, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),),
+                                trailing: userList[index].uid == snapshot.data['creatorId']?
+                                Container(
+                                  height: 28,
+                                  width: 63,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    color: Color(0xFFFF8740),
+                                  ),
+                                  child: Text("Owner",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ):
+                                Offstage(),
+                                contentPadding: EdgeInsets.only(top: 5),
+                                title: Text(currentUser.uid==userList[index].uid?"You":userList[index].displayName, style: TextStyle(fontFamily: "Poppins",fontSize: 15.0, fontWeight: FontWeight.w500, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),),
+                              ),
                             ),
-                          ),
-                        );
-                      }),
-                ],
-              );
-            }else
-              return Center(child: Text("Oops! Something went wrong! \nplease trey again..", style: TextStyle(fontSize: 10.9.sp)));
-          }
+                          );
+                        }),
+                  ],
+                );
+              }else
+                return Center(child: Text("Oops! Something went wrong! \nplease trey again..", style: TextStyle(fontSize: 10.9.sp)));
+            }
+        ),
       ),
     );
   }

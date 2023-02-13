@@ -8,6 +8,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:mate_app/Screen/chatDashboard/forwardMessagePage.dart';
 import 'package:mate_app/Services/community_tab_services.dart';
 import 'package:mate_app/Utility/Utility.dart';
+import 'package:mate_app/Widget/mediaViewer.dart';
 import 'package:mate_app/groupChat/pages/customAlertDialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +66,8 @@ class MessageTile extends StatefulWidget {
   Function(String groupId,String messageId,String previousMessage) editMessage;
   final bool showDate;
   Function() showDateToggle;
-  MessageTile({this.showDateToggle,this.editMessage,this.currentDuration,this.duration,this.startAudio,this.pauseAudio,this.senderId,this.isForwarded=false,this.fileSizeFull,this.time,this.date,this.index,this.senderImage,this.displayName,this.photo,this.messageReaction,this.groupId,this.userId,this.messageId,this.message, this.sender, this.sentByMe, this.messageTime,
+  bool isUserMember;
+  MessageTile({this.isUserMember,this.showDateToggle,this.editMessage,this.currentDuration,this.duration,this.startAudio,this.pauseAudio,this.senderId,this.isForwarded=false,this.fileSizeFull,this.time,this.date,this.index,this.senderImage,this.displayName,this.photo,this.messageReaction,this.groupId,this.userId,this.messageId,this.message, this.sender, this.sentByMe, this.messageTime,
     this.isImage = false, this.isFile = false, this.isGif = false, this.fileExtension, this.fileName, this.fileSize, this.fileSizeUnit ,this.selectMessage, this.previousMessage, this.previousSender, this.isAudio, this.isPlaying, this.isPaused, this.isLoadingAudio, this.showDate});
 
   @override
@@ -73,11 +75,9 @@ class MessageTile extends StatefulWidget {
 }
 
 class _MessageTileState extends State<MessageTile> {
-  //bool show = false;
-  //bool showDate = false;
+
   @override
   Widget build(BuildContext context) {
-
     int firstLength = 0;
     int secondLength = 0;
     int thirdLength = 0;
@@ -260,12 +260,38 @@ class _MessageTileState extends State<MessageTile> {
             ],
           ),
         ):Offstage(),
+        
+        widget.message.contains("This is missed call@#%")?
+        Container(
+          margin: EdgeInsets.only(left: MediaQuery.of(context).size.width*0.22,right: MediaQuery.of(context).size.width*0.22,top: 20),
+          decoration: BoxDecoration(
+            color: themeController.isDarkMode?Colors.grey.shade900:Colors.grey.shade200,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.call_missed,color: Colors.red,),
+              SizedBox(width: 5,),
+              Text(
+                widget.message.split("___").last,
+                textAlign: TextAlign.end,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: "Poppins",
+                  color: Colors.red,
+                ),
+              ),
+            ],
+          ),
+        ):Offstage(),
+
+        if(!widget.message.contains("This is missed call@#%"))
         CustomSwipeTo(
           onRightSwipe: (){
             if(widget.showDate){
               widget.showDateToggle();
             }else{
-              // HapticFeedback.heavyImpact();
               Vibration.vibrate(
                   pattern: [1, 150, 1, 150], intensities: [100, 100]
               );
@@ -275,10 +301,6 @@ class _MessageTileState extends State<MessageTile> {
           showDateToggle: widget.showDateToggle,
           showDate: widget.showDate,
 
-          // onLeftSwipe: (){
-          //   print("------");
-          //   widget.showDateToggle();
-          // },
           child: Padding(
             padding: EdgeInsets.only(top: 4, bottom: 4, left: widget.sentByMe ? 0 : 14, right: widget.sentByMe ? 14 : 0),
             child: FocusedMenuHolder(
@@ -286,13 +308,12 @@ class _MessageTileState extends State<MessageTile> {
               blurSize: 5.0,
               menuItemExtent: 45,
               menuBoxDecoration: BoxDecoration(
-                //color: Colors.red,
-                //shape: BoxShape.rectangle,
                 gradient: LinearGradient(colors: themeController.isDarkMode?[MateColors.drawerTileColor,MateColors.drawerTileColor]:[Colors.white,Colors.white]),
                 borderRadius: BorderRadius.all(Radius.circular(8.0)),
               ),
               duration: Duration(milliseconds: 100),
               animateMenuItems: true,
+              isUserMember: widget.isUserMember,
               blurBackgroundColor: Colors.black54,
               openWithTap: false, // Open Focused-Menu on Tap rather than Long Press
               menuOffset: 16.0, // Offset value to show menuItem from the selected item
@@ -3594,36 +3615,36 @@ class _MessageTileState extends State<MessageTile> {
 
   Widget _chatGif(String chatContent, BuildContext context) {
     return InkWell(
-      onTap: ()=>
-          showDialog(
-              context: context,
-              barrierDismissible: true,
-              builder: (context) =>
-                 CustomDialog(
-                  backgroundColor: Colors.transparent,
-                  clipBehavior: Clip.hardEdge,
-                  insetPadding: EdgeInsets.all(0),
-                  child: Padding(
-                    padding: const EdgeInsets.all(00.0),
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width*0.9,
-                      height: MediaQuery.of(context).size.height*0.8,
-                      child: InteractiveViewer(
-                        panEnabled: true, // Set it to false to prevent panning.
-                        boundaryMargin: EdgeInsets.all(50),
-                        minScale: 0.5,
-                        maxScale: 4,
-                        child: CachedNetworkImage(
-                            imageUrl: chatContent,
-                            height: 150,
-                            width: 200,
-                            placeholder: (context, url) => Center(child: SizedBox(width: 30,height: 30,child: CircularProgressIndicator())),
-                            errorWidget: (context, url, error) => Icon(Icons.error)),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+      onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>MediaViewer(url: chatContent,))),
+          // showDialog(
+          //     context: context,
+          //     barrierDismissible: true,
+          //     builder: (context) =>
+          //        CustomDialog(
+          //         backgroundColor: Colors.transparent,
+          //         clipBehavior: Clip.hardEdge,
+          //         insetPadding: EdgeInsets.all(0),
+          //         child: Padding(
+          //           padding: const EdgeInsets.all(00.0),
+          //           child: SizedBox(
+          //             width: MediaQuery.of(context).size.width*0.9,
+          //             height: MediaQuery.of(context).size.height*0.8,
+          //             child: InteractiveViewer(
+          //               panEnabled: true, // Set it to false to prevent panning.
+          //               boundaryMargin: EdgeInsets.all(50),
+          //               minScale: 0.5,
+          //               maxScale: 4,
+          //               child: CachedNetworkImage(
+          //                   imageUrl: chatContent,
+          //                   height: 150,
+          //                   width: 200,
+          //                   placeholder: (context, url) => Center(child: SizedBox(width: 30,height: 30,child: CircularProgressIndicator())),
+          //                   errorWidget: (context, url, error) => Icon(Icons.error)),
+          //             ),
+          //           ),
+          //         ),
+          //       ),
+          //     ),
       child: Container(
         height: 150,
         width: 200,
@@ -3639,41 +3660,42 @@ class _MessageTileState extends State<MessageTile> {
 
   Widget _chatImage(String chatContent, BuildContext context) {
     return InkWell(
-      onTap: ()=>
-          showDialog(
-              context: context,
-              barrierDismissible: true,
-              builder: (context) =>
-                 Dismissible(
-                   direction: DismissDirection.vertical,
-                   key: const Key('key'),
-                   onDismissed: (_) => Navigator.of(context).pop(),
-                   child: CustomDialog(
-                    backgroundColor: Colors.transparent,
-                    clipBehavior: Clip.hardEdge,
-                    insetPadding: EdgeInsets.all(0),
-                    child: Padding(
-                      padding: const EdgeInsets.all(00.0),
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width*0.9,
-                        height: MediaQuery.of(context).size.height*0.8,
-                        child: InteractiveViewer(
-                          panEnabled: true, // Set it to false to prevent panning.
-                          boundaryMargin: EdgeInsets.all(50),
-                          minScale: 0.5,
-                          maxScale: 4,
-                          child: CachedNetworkImage(
-                              imageUrl: chatContent,
-                              height: 150,
-                              width: 200,
-                              placeholder: (context, url) => Center(child: SizedBox(width: 30,height: 30,child: CircularProgressIndicator())),
-                              errorWidget: (context, url, error) => Icon(Icons.error)),
-                        ),
-                      ),
-                    ),
-                ),
-                 ),
-              ),
+      onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (context)=>MediaViewer(url: chatContent,))),
+          // showDialog(
+          //     context: context,
+          //     barrierDismissible: true,
+          //     builder: (context) =>
+          //        Dismissible(
+          //          direction: DismissDirection.vertical,
+          //          key: const Key('key'),
+          //          onDismissed: (_) => Navigator.of(context).pop(),
+          //          child: CustomDialog(
+          //           backgroundColor: Colors.transparent,
+          //           clipBehavior: Clip.hardEdge,
+          //           insetPadding: EdgeInsets.all(0),
+          //           child: Padding(
+          //             padding: const EdgeInsets.all(00.0),
+          //             child: SizedBox(
+          //               width: MediaQuery.of(context).size.width*0.9,
+          //               height: MediaQuery.of(context).size.height*0.8,
+          //               child: InteractiveViewer(
+          //                 panEnabled: true, // Set it to false to prevent panning.
+          //                 boundaryMargin: EdgeInsets.all(50),
+          //                 minScale: 0.5,
+          //                 maxScale: 4,
+          //                 child: CachedNetworkImage(
+          //                     imageUrl: chatContent,
+          //                     fit: BoxFit.contain,
+          //                     height: 150,
+          //                     width: 200,
+          //                     placeholder: (context, url) => Center(child: SizedBox(width: 30,height: 30,child: CircularProgressIndicator())),
+          //                     errorWidget: (context, url, error) => Icon(Icons.error)),
+          //               ),
+          //             ),
+          //           ),
+          //       ),
+          //        ),
+          //     ),
       child: Container(
         height: 150,
         width: 200,

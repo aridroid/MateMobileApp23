@@ -98,415 +98,439 @@ class _SearchFindAMateState extends State<SearchFindAMate> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        titleSpacing: 0,
-        automaticallyImplyLeading: false,
-        title: TextField(
-          controller: _textEditingController,
-          onChanged: (value){
-            if(value.length>2){
-              _onSearchChanged();
+    return GestureDetector(
+       behavior: HitTestBehavior.translucent,
+          onTap: null,
+          onPanUpdate: (details) {
+            if (details.delta.dy > 0){
+              FocusScope.of(context).requestFocus(FocusNode());
+              print("Dragging in +Y direction");
             }
           },
-          style: TextStyle(color: themeController.isDarkMode?Colors.white:Colors.black),
-          decoration: InputDecoration(
-            hintStyle: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              letterSpacing: 0.1,
-              color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-            ),
-            hintText: "Search",
-            prefixIcon: Padding(
-              padding: const EdgeInsets.only(left: 15,top: 15,bottom: 15),
-              child: Image.asset(
-                "lib/asset/homePageIcons/searchPurple@3x.png",
-                height: 10,
-                width: 10,
-                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+      child: Scaffold(
+        appBar: AppBar(
+          elevation: 0,
+          titleSpacing: 0,
+          automaticallyImplyLeading: false,
+          title: TextField(
+            controller: _textEditingController,
+            onChanged: (value){
+              if(value.length>2){
+                _onSearchChanged();
+              }
+            },
+            style: TextStyle(color: themeController.isDarkMode?Colors.white:Colors.black),
+            decoration: InputDecoration(
+              hintStyle: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 0.1,
+                color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
               ),
-            ),
-            suffixIcon: InkWell(
-              onTap: (){
-                Get.back();
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(top: 16,right: 15),
-                child: Text(
-                  "Close",
-                  style: TextStyle(
-                    fontSize: 15,
-                    letterSpacing: 0.1,
-                    fontWeight: FontWeight.w700,
-                    color: MateColors.activeIcons,
+              hintText: "Search",
+              prefixIcon: Padding(
+                padding: const EdgeInsets.only(left: 15,top: 15,bottom: 15),
+                child: Image.asset(
+                  "lib/asset/homePageIcons/searchPurple@3x.png",
+                  height: 10,
+                  width: 10,
+                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                ),
+              ),
+              suffixIcon: InkWell(
+                onTap: (){
+                  Get.back();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 16,right: 15),
+                  child: Text(
+                    "Close",
+                    style: TextStyle(
+                      fontSize: 15,
+                      letterSpacing: 0.1,
+                      fontWeight: FontWeight.w700,
+                      color: MateColors.activeIcons,
+                    ),
                   ),
                 ),
               ),
-            ),
-            enabledBorder: UnderlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(4)),
-              borderSide: BorderSide(width: 3,color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(4)),
-              borderSide: BorderSide(width: 3,color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
+              enabledBorder: UnderlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(4)),
+                borderSide: BorderSide(width: 3,color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(4)),
+                borderSide: BorderSide(width: 3,color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
+              ),
             ),
           ),
         ),
-      ),
-      body: ListView(
-        controller: _scrollController,
-        scrollDirection: Axis.vertical,
-        shrinkWrap: true,
-        physics: const ScrollPhysics(),
-        children: [
-          FutureBuilder<fampm.FindAMatePostsModel>(
-            future: future,
-            builder: (context,snapshot){
-              if(snapshot.hasData){
-                if(snapshot.data.success==true || doingPagination==true){
-                  if(enterFutureBuilder){
-                    if(doingPagination==false){
-                      _findAMatePostsDataList.clear();
+        body: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          controller: _scrollController,
+          scrollDirection: Axis.vertical,
+          shrinkWrap: true,
+          physics: const ScrollPhysics(),
+          children: [
+            FutureBuilder<fampm.FindAMatePostsModel>(
+              future: future,
+              builder: (context,snapshot){
+                if(snapshot.hasData){
+                  if(snapshot.data.success==true || doingPagination==true){
+                    if(enterFutureBuilder){
+                      if(doingPagination==false){
+                        _findAMatePostsDataList.clear();
+                      }
+                      for(int i=0;i<snapshot.data.data.result.length;i++){
+                        _findAMatePostsDataList.add(snapshot.data.data.result[i]);
+                      }
+                      Future.delayed(Duration.zero,(){
+                        enterFutureBuilder = false;
+                        setState(() {});
+                      });
                     }
-                    for(int i=0;i<snapshot.data.data.result.length;i++){
-                      _findAMatePostsDataList.add(snapshot.data.data.result[i]);
-                    }
-                    Future.delayed(Duration.zero,(){
-                      enterFutureBuilder = false;
-                      setState(() {});
-                    });
-                  }
-                  return ListView(
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                    physics: ScrollPhysics(),
-                    children: [
-                      ListView.builder(
-                        scrollDirection: Axis.vertical,
-                        shrinkWrap: true,
-                        physics: ScrollPhysics(),
-                        itemCount: _findAMatePostsDataList.length,
-                        itemBuilder: (context,index){
-                          fampm.Result findAMateData = findAMateProvider.findAMatePostsDataList[index];
-                          return FindAMateRow(
-                            findAMateId: findAMateData.id,
-                            description: findAMateData.description,
-                            title: findAMateData.title,
-                            fromDate: findAMateData.fromDate,
-                            toDate: findAMateData.toDate,
-                            fromTime: findAMateData.timeFrom,
-                            toTime: findAMateData.timeTo,
-                            hyperlinkText: findAMateData.hyperLinkText,
-                            hyperlink: findAMateData.hyperLink,
-                            user: findAMateData.user,
-                            createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(findAMateData.createdAt, true))}",
-                            rowIndex: index,
-                            isActive: findAMateData.isActive,
-                          );
+                    return ListView(
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      physics: ScrollPhysics(),
+                      children: [
+                        ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          physics: ScrollPhysics(),
+                          itemCount: _findAMatePostsDataList.length,
+                          itemBuilder: (context,index){
+                            fampm.Result findAMateData = findAMateProvider.findAMatePostsDataList[index];
+                            return FindAMateRow(
+                              findAMateId: findAMateData.id,
+                              description: findAMateData.description,
+                              title: findAMateData.title,
+                              fromDate: findAMateData.fromDate,
+                              toDate: findAMateData.toDate,
+                              fromTime: findAMateData.timeFrom,
+                              toTime: findAMateData.timeTo,
+                              hyperlinkText: findAMateData.hyperLinkText,
+                              hyperlink: findAMateData.hyperLink,
+                              user: findAMateData.user,
+                              createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(findAMateData.createdAt, true))}",
+                              rowIndex: index,
+                              isActive: findAMateData.isActive,
+                            );
 
 
 
-                          // Container(
-                          //   margin: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
-                          //   padding: EdgeInsets.only(top: 5,bottom: 16),
-                          //   decoration: BoxDecoration(
-                          //     color: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-                          //     borderRadius: BorderRadius.circular(16),
-                          //     boxShadow: [
-                          //       BoxShadow(
-                          //         color: Colors.black.withOpacity(0.05),
-                          //         spreadRadius: 5,
-                          //         blurRadius: 7,
-                          //         offset: Offset(0, 3),
-                          //       ),
-                          //     ],
-                          //   ),
-                          //   child: Column(
-                          //     crossAxisAlignment: CrossAxisAlignment.start,
-                          //     children: [
-                          //       ListTile(
-                          //         leading: InkWell(
-                          //           onTap: () {
-                          //             if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == _findAMatePostsDataList[index].user.uuid) {
-                          //               Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
-                          //             } else {
-                          //               Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": _findAMatePostsDataList[index].user.uuid, "name": _findAMatePostsDataList[index].user.displayName, "photoUrl": _findAMatePostsDataList[index].user.profilePhoto, "firebaseUid": _findAMatePostsDataList[index].user.firebaseUid});
-                          //             }
-                          //           },
-                          //           child: _findAMatePostsDataList[index].user.profilePhoto != null ?
-                          //           ClipOval(
-                          //             child: Image.network(
-                          //               _findAMatePostsDataList[index].user.profilePhoto,
-                          //               height: 32,
-                          //               width: 32,
-                          //               fit: BoxFit.cover,
-                          //             ),
-                          //           ) :
-                          //           ClipOval(
-                          //             child: Image.asset(
-                          //               "lib/asset/logo.png",
-                          //               height: 32,
-                          //               width: 32,
-                          //               fit: BoxFit.fitWidth,
-                          //             ),
-                          //           ),
-                          //         ),
-                          //         title: InkWell(
-                          //           onTap: () {
-                          //             if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == _findAMatePostsDataList[index].user.uuid) {
-                          //               Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
-                          //             } else {
-                          //               Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": _findAMatePostsDataList[index].user.uuid, "name": _findAMatePostsDataList[index].user.displayName, "photoUrl": _findAMatePostsDataList[index].user.profilePhoto, "firebaseUid": _findAMatePostsDataList[index].user.firebaseUid});
-                          //             }
-                          //           },
-                          //           child: Text(
-                          //             _findAMatePostsDataList[index].user.displayName,
-                          //             style: TextStyle(
-                          //               fontSize: 14,
-                          //               fontWeight: FontWeight.w500,
-                          //               letterSpacing: 0.1,
-                          //               color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                          //             ),
-                          //           ),
-                          //         ),
-                          //         trailing: PopupMenuButton<int>(
-                          //           padding: EdgeInsets.only(bottom: 0, top: 0, left: 0, right: 0),
-                          //           color: themeController.isDarkMode?backgroundColor:Colors.white,
-                          //           icon: Image.asset(
-                          //             "lib/asset/icons/menu@3x.png",
-                          //             height: 18,
-                          //             color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,
-                          //           ),
-                          //           onSelected: (index1) async{
-                          //             if(index1==0){
-                          //
-                          //             }else if(index1==1){
-                          //               _showDeleteAlertDialog(findAMateId: _findAMatePostsDataList[index].id, rowIndex: index);
-                          //             }else if(index1==2){
-                          //               Navigator.push(context, MaterialPageRoute(builder: (context) => ReportPage(moduleId: _findAMatePostsDataList[index].id,moduleType: "findMate",),));
-                          //             }
-                          //           },
-                          //           itemBuilder: (context) => [
-                          //             (_findAMatePostsDataList[index].user.uuid != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == _findAMatePostsDataList[index].user.uuid))
-                          //                 ? PopupMenuItem(
-                          //               value: 1,
-                          //               height: 40,
-                          //               child: Text(
-                          //                 "Delete Post",
-                          //                 textAlign: TextAlign.start,
-                          //                 style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
-                          //               ),
-                          //             )
-                          //                 : PopupMenuItem(
-                          //               value: 1,
-                          //               enabled: false,
-                          //               height: 0,
-                          //               child: SizedBox(
-                          //                 height: 0,
-                          //                 width: 0,
-                          //               ),
-                          //             ),
-                          //             PopupMenuItem(
-                          //               value: 2,
-                          //               height: 40,
-                          //               child: Text(
-                          //                 "Report",
-                          //                 textAlign: TextAlign.start,
-                          //                 style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
-                          //               ),
-                          //             ),
-                          //           ],
-                          //         ),
-                          //         subtitle: Text(
-                          //           "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(_findAMatePostsDataList[index].createdAt, true))}",
-                          //           style: TextStyle(
-                          //             fontSize: 12,
-                          //             color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                          //           ),
-                          //         ),
-                          //       ),
-                          //       Padding(
-                          //         padding: EdgeInsets.only(left: 16,top: 0),
-                          //         child: Text(
-                          //           _findAMatePostsDataList[index].title,
-                          //           style: TextStyle(
-                          //             fontSize: 17,
-                          //             fontWeight: FontWeight.w700,
-                          //             color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                          //           ),
-                          //         ),
-                          //       ),
-                          //       Padding(
-                          //         padding: EdgeInsets.fromLTRB(15, 10, 14, 0),
-                          //         child:  Linkify(
-                          //           onOpen: (link) async {
-                          //             print("Clicked ${link.url}!");
-                          //             if (await canLaunch(link.url))
-                          //               await launch(link.url);
-                          //             else
-                          //               // can't launch url, there is some error
-                          //               throw "Could not launch ${link.url}";
-                          //           },
-                          //           text: _findAMatePostsDataList[index].description,
-                          //           style: TextStyle(
-                          //             fontSize: 14,
-                          //             fontWeight: FontWeight.w400,
-                          //             letterSpacing: 0.1,
-                          //             color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                          //           ),
-                          //           overflow: TextOverflow.visible,
-                          //           linkStyle: TextStyle(color: MateColors.activeIcons, fontSize: 11.4.sp),
-                          //         ),
-                          //       ),
-                          //       Padding(
-                          //         padding: EdgeInsets.fromLTRB(15, 10, 14, 0),
-                          //         child: Row(
-                          //           children: [
-                          //             _findAMatePostsDataList[index].fromDate != null
-                          //                 ? Text(
-                          //               "Available Dates : ${_findAMatePostsDataList[index].fromDate}",
-                          //               style: TextStyle(
-                          //                 fontSize: 14,
-                          //                 fontWeight: FontWeight.w400,
-                          //                 letterSpacing: 0.1,
-                          //                 color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                          //               ),
-                          //               overflow: TextOverflow.visible,
-                          //             )
-                          //                 : SizedBox(),
-                          //             _findAMatePostsDataList[index].toDate != null
-                          //                 ? Text(
-                          //               "  -  ${_findAMatePostsDataList[index].toDate}",
-                          //               style: TextStyle(
-                          //                 fontSize: 14,
-                          //                 fontWeight: FontWeight.w400,
-                          //                 letterSpacing: 0.1,
-                          //                 color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                          //               ),
-                          //               overflow: TextOverflow.visible,
-                          //             )
-                          //                 : SizedBox(),
-                          //           ],
-                          //         ),
-                          //       ),
-                          //       Padding(
-                          //         padding: EdgeInsets.fromLTRB(15, 10, 14, 0),
-                          //         child: Row(
-                          //           children: [
-                          //             _findAMatePostsDataList[index].timeFrom != null
-                          //                 ? Text(
-                          //               "Available times : ${_findAMatePostsDataList[index].timeFrom}",
-                          //               style: TextStyle(
-                          //                 fontSize: 14,
-                          //                 fontWeight: FontWeight.w400,
-                          //                 letterSpacing: 0.1,
-                          //                 color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                          //               ),
-                          //               overflow: TextOverflow.visible,
-                          //             )
-                          //                 : SizedBox(),
-                          //             _findAMatePostsDataList[index].timeTo != null
-                          //                 ? Text(
-                          //               "  -  ${_findAMatePostsDataList[index].timeTo}",
-                          //               style: TextStyle(
-                          //                 fontSize: 14,
-                          //                 fontWeight: FontWeight.w400,
-                          //                 letterSpacing: 0.1,
-                          //                 color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                          //               ),
-                          //               overflow: TextOverflow.visible,
-                          //             )
-                          //                 : SizedBox(),
-                          //           ],
-                          //         ),
-                          //       ),
-                          //       Padding(
-                          //         padding: const EdgeInsets.only(left: 16,top: 16),
-                          //         child: Row(
-                          //           children: [
-                          //             // Expanded(child: Text(title, textAlign: TextAlign.left, style: TextStyle(fontFamily: 'Quicksand', color: MateColors.activeIcons, fontSize: 12.0.sp, fontWeight: FontWeight.w600))),
-                          //             Visibility(
-                          //                 visible: (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == _findAMatePostsDataList[index].user.uuid),
-                          //                 child: Padding(
-                          //                   padding: const EdgeInsets.only(right: 7.0),
-                          //                   child: Text(_findAMatePostsDataList[index].isActive ? "Active" : "Inactive", textAlign: TextAlign.left,
-                          //                     style: TextStyle(
-                          //                       fontSize: 14,
-                          //                       fontWeight: FontWeight.w500,
-                          //                       color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                          //                     ),
-                          //                   ),
-                          //                 )),
-                          //             Visibility(
-                          //               visible: (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == _findAMatePostsDataList[index].user.uuid),
-                          //               child: Consumer<FindAMateProvider>(
-                          //                 builder: (context, value, child) {
-                          //                   return /*!(value.findAMatePostsDataList[widget.rowIndex].toggleLoader)?*/
-                          //                     FlutterSwitch(
-                          //                       width: 48,
-                          //                       height: 24,
-                          //                       valueFontSize: 25.0,
-                          //                       toggleSize: 20.0,
-                          //                       activeText: "",
-                          //                       inactiveText: "",
-                          //                       toggleColor: themeController.isDarkMode?Color(0xFF0B0B0D):Colors.white,
-                          //                       inactiveColor: themeController.isDarkMode?Color(0xFF414147):Color(0xFFB4B4C2),
-                          //                       activeColor: MateColors.activeIcons,
-                          //                       value: _findAMatePostsDataList[index].isActive,
-                          //                       borderRadius: 14.0,
-                          //                       showOnOff: true,
-                          //                       onToggle: (val) async {
-                          //                         bool updated = await Provider.of<FindAMateProvider>(context, listen: false).activeFindAMatePost(_findAMatePostsDataList[index].id, index, val);
-                          //                         if (updated) {
-                          //                           if (value.findAMateActiveData != null) {
-                          //                             // IsBookmarked
-                          //                             if (value.findAMateActiveData.message == "Post activated successfully" && value.findAMateActiveData.data.id == _findAMatePostsDataList[index].id) {
-                          //                               value.findAMatePostsDataList[index].isActive = true;
-                          //                               _findAMatePostsDataList[index].isActive = true;
-                          //                             } else if (value.findAMateActiveData.message == "Post de-activated successfully" && value.findAMateActiveData.data.id == _findAMatePostsDataList[index].id) {
-                          //                               value.findAMatePostsDataList[index].isActive = false;
-                          //                               _findAMatePostsDataList[index].isActive = false;
-                          //                             }
-                          //                           }
-                          //                         }
-                          //                         setState(() {
-                          //
-                          //                         });
-                          //                       },
-                          //                     );
-                          //                 },
-                          //               ),
-                          //             ),
-                          //           ],
-                          //         ),
-                          //       ),
-                          //       // Padding(
-                          //       //   padding: EdgeInsets.fromLTRB(15, 10, 14, 0),
-                          //       //   child: Text(
-                          //       //     "Posted: $createdAt",
-                          //       //     style: TextStyle(fontFamily: 'Quicksand', color: Colors.white70, fontSize: 9.2.sp),
-                          //       //     overflow: TextOverflow.visible,
-                          //       //   ),
-                          //       // ),
-                          //       // Divider(
-                          //       //   thickness: 1.5,
-                          //       //   color: MateColors.line,
-                          //       // ),
-                          //     ],
-                          //   ),
-                          // );
-                        },
+                            // Container(
+                            //   margin: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
+                            //   padding: EdgeInsets.only(top: 5,bottom: 16),
+                            //   decoration: BoxDecoration(
+                            //     color: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+                            //     borderRadius: BorderRadius.circular(16),
+                            //     boxShadow: [
+                            //       BoxShadow(
+                            //         color: Colors.black.withOpacity(0.05),
+                            //         spreadRadius: 5,
+                            //         blurRadius: 7,
+                            //         offset: Offset(0, 3),
+                            //       ),
+                            //     ],
+                            //   ),
+                            //   child: Column(
+                            //     crossAxisAlignment: CrossAxisAlignment.start,
+                            //     children: [
+                            //       ListTile(
+                            //         leading: InkWell(
+                            //           onTap: () {
+                            //             if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == _findAMatePostsDataList[index].user.uuid) {
+                            //               Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
+                            //             } else {
+                            //               Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": _findAMatePostsDataList[index].user.uuid, "name": _findAMatePostsDataList[index].user.displayName, "photoUrl": _findAMatePostsDataList[index].user.profilePhoto, "firebaseUid": _findAMatePostsDataList[index].user.firebaseUid});
+                            //             }
+                            //           },
+                            //           child: _findAMatePostsDataList[index].user.profilePhoto != null ?
+                            //           ClipOval(
+                            //             child: Image.network(
+                            //               _findAMatePostsDataList[index].user.profilePhoto,
+                            //               height: 32,
+                            //               width: 32,
+                            //               fit: BoxFit.cover,
+                            //             ),
+                            //           ) :
+                            //           ClipOval(
+                            //             child: Image.asset(
+                            //               "lib/asset/logo.png",
+                            //               height: 32,
+                            //               width: 32,
+                            //               fit: BoxFit.fitWidth,
+                            //             ),
+                            //           ),
+                            //         ),
+                            //         title: InkWell(
+                            //           onTap: () {
+                            //             if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == _findAMatePostsDataList[index].user.uuid) {
+                            //               Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
+                            //             } else {
+                            //               Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": _findAMatePostsDataList[index].user.uuid, "name": _findAMatePostsDataList[index].user.displayName, "photoUrl": _findAMatePostsDataList[index].user.profilePhoto, "firebaseUid": _findAMatePostsDataList[index].user.firebaseUid});
+                            //             }
+                            //           },
+                            //           child: Text(
+                            //             _findAMatePostsDataList[index].user.displayName,
+                            //             style: TextStyle(
+                            //               fontSize: 14,
+                            //               fontWeight: FontWeight.w500,
+                            //               letterSpacing: 0.1,
+                            //               color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            //             ),
+                            //           ),
+                            //         ),
+                            //         trailing: PopupMenuButton<int>(
+                            //           padding: EdgeInsets.only(bottom: 0, top: 0, left: 0, right: 0),
+                            //           color: themeController.isDarkMode?backgroundColor:Colors.white,
+                            //           icon: Image.asset(
+                            //             "lib/asset/icons/menu@3x.png",
+                            //             height: 18,
+                            //             color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,
+                            //           ),
+                            //           onSelected: (index1) async{
+                            //             if(index1==0){
+                            //
+                            //             }else if(index1==1){
+                            //               _showDeleteAlertDialog(findAMateId: _findAMatePostsDataList[index].id, rowIndex: index);
+                            //             }else if(index1==2){
+                            //               Navigator.push(context, MaterialPageRoute(builder: (context) => ReportPage(moduleId: _findAMatePostsDataList[index].id,moduleType: "findMate",),));
+                            //             }
+                            //           },
+                            //           itemBuilder: (context) => [
+                            //             (_findAMatePostsDataList[index].user.uuid != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == _findAMatePostsDataList[index].user.uuid))
+                            //                 ? PopupMenuItem(
+                            //               value: 1,
+                            //               height: 40,
+                            //               child: Text(
+                            //                 "Delete Post",
+                            //                 textAlign: TextAlign.start,
+                            //                 style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                            //               ),
+                            //             )
+                            //                 : PopupMenuItem(
+                            //               value: 1,
+                            //               enabled: false,
+                            //               height: 0,
+                            //               child: SizedBox(
+                            //                 height: 0,
+                            //                 width: 0,
+                            //               ),
+                            //             ),
+                            //             PopupMenuItem(
+                            //               value: 2,
+                            //               height: 40,
+                            //               child: Text(
+                            //                 "Report",
+                            //                 textAlign: TextAlign.start,
+                            //                 style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                            //               ),
+                            //             ),
+                            //           ],
+                            //         ),
+                            //         subtitle: Text(
+                            //           "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(_findAMatePostsDataList[index].createdAt, true))}",
+                            //           style: TextStyle(
+                            //             fontSize: 12,
+                            //             color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                            //           ),
+                            //         ),
+                            //       ),
+                            //       Padding(
+                            //         padding: EdgeInsets.only(left: 16,top: 0),
+                            //         child: Text(
+                            //           _findAMatePostsDataList[index].title,
+                            //           style: TextStyle(
+                            //             fontSize: 17,
+                            //             fontWeight: FontWeight.w700,
+                            //             color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            //           ),
+                            //         ),
+                            //       ),
+                            //       Padding(
+                            //         padding: EdgeInsets.fromLTRB(15, 10, 14, 0),
+                            //         child:  Linkify(
+                            //           onOpen: (link) async {
+                            //             print("Clicked ${link.url}!");
+                            //             if (await canLaunch(link.url))
+                            //               await launch(link.url);
+                            //             else
+                            //               // can't launch url, there is some error
+                            //               throw "Could not launch ${link.url}";
+                            //           },
+                            //           text: _findAMatePostsDataList[index].description,
+                            //           style: TextStyle(
+                            //             fontSize: 14,
+                            //             fontWeight: FontWeight.w400,
+                            //             letterSpacing: 0.1,
+                            //             color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            //           ),
+                            //           overflow: TextOverflow.visible,
+                            //           linkStyle: TextStyle(color: MateColors.activeIcons, fontSize: 11.4.sp),
+                            //         ),
+                            //       ),
+                            //       Padding(
+                            //         padding: EdgeInsets.fromLTRB(15, 10, 14, 0),
+                            //         child: Row(
+                            //           children: [
+                            //             _findAMatePostsDataList[index].fromDate != null
+                            //                 ? Text(
+                            //               "Available Dates : ${_findAMatePostsDataList[index].fromDate}",
+                            //               style: TextStyle(
+                            //                 fontSize: 14,
+                            //                 fontWeight: FontWeight.w400,
+                            //                 letterSpacing: 0.1,
+                            //                 color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            //               ),
+                            //               overflow: TextOverflow.visible,
+                            //             )
+                            //                 : SizedBox(),
+                            //             _findAMatePostsDataList[index].toDate != null
+                            //                 ? Text(
+                            //               "  -  ${_findAMatePostsDataList[index].toDate}",
+                            //               style: TextStyle(
+                            //                 fontSize: 14,
+                            //                 fontWeight: FontWeight.w400,
+                            //                 letterSpacing: 0.1,
+                            //                 color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            //               ),
+                            //               overflow: TextOverflow.visible,
+                            //             )
+                            //                 : SizedBox(),
+                            //           ],
+                            //         ),
+                            //       ),
+                            //       Padding(
+                            //         padding: EdgeInsets.fromLTRB(15, 10, 14, 0),
+                            //         child: Row(
+                            //           children: [
+                            //             _findAMatePostsDataList[index].timeFrom != null
+                            //                 ? Text(
+                            //               "Available times : ${_findAMatePostsDataList[index].timeFrom}",
+                            //               style: TextStyle(
+                            //                 fontSize: 14,
+                            //                 fontWeight: FontWeight.w400,
+                            //                 letterSpacing: 0.1,
+                            //                 color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            //               ),
+                            //               overflow: TextOverflow.visible,
+                            //             )
+                            //                 : SizedBox(),
+                            //             _findAMatePostsDataList[index].timeTo != null
+                            //                 ? Text(
+                            //               "  -  ${_findAMatePostsDataList[index].timeTo}",
+                            //               style: TextStyle(
+                            //                 fontSize: 14,
+                            //                 fontWeight: FontWeight.w400,
+                            //                 letterSpacing: 0.1,
+                            //                 color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            //               ),
+                            //               overflow: TextOverflow.visible,
+                            //             )
+                            //                 : SizedBox(),
+                            //           ],
+                            //         ),
+                            //       ),
+                            //       Padding(
+                            //         padding: const EdgeInsets.only(left: 16,top: 16),
+                            //         child: Row(
+                            //           children: [
+                            //             // Expanded(child: Text(title, textAlign: TextAlign.left, style: TextStyle(fontFamily: 'Quicksand', color: MateColors.activeIcons, fontSize: 12.0.sp, fontWeight: FontWeight.w600))),
+                            //             Visibility(
+                            //                 visible: (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == _findAMatePostsDataList[index].user.uuid),
+                            //                 child: Padding(
+                            //                   padding: const EdgeInsets.only(right: 7.0),
+                            //                   child: Text(_findAMatePostsDataList[index].isActive ? "Active" : "Inactive", textAlign: TextAlign.left,
+                            //                     style: TextStyle(
+                            //                       fontSize: 14,
+                            //                       fontWeight: FontWeight.w500,
+                            //                       color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                            //                     ),
+                            //                   ),
+                            //                 )),
+                            //             Visibility(
+                            //               visible: (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == _findAMatePostsDataList[index].user.uuid),
+                            //               child: Consumer<FindAMateProvider>(
+                            //                 builder: (context, value, child) {
+                            //                   return /*!(value.findAMatePostsDataList[widget.rowIndex].toggleLoader)?*/
+                            //                     FlutterSwitch(
+                            //                       width: 48,
+                            //                       height: 24,
+                            //                       valueFontSize: 25.0,
+                            //                       toggleSize: 20.0,
+                            //                       activeText: "",
+                            //                       inactiveText: "",
+                            //                       toggleColor: themeController.isDarkMode?Color(0xFF0B0B0D):Colors.white,
+                            //                       inactiveColor: themeController.isDarkMode?Color(0xFF414147):Color(0xFFB4B4C2),
+                            //                       activeColor: MateColors.activeIcons,
+                            //                       value: _findAMatePostsDataList[index].isActive,
+                            //                       borderRadius: 14.0,
+                            //                       showOnOff: true,
+                            //                       onToggle: (val) async {
+                            //                         bool updated = await Provider.of<FindAMateProvider>(context, listen: false).activeFindAMatePost(_findAMatePostsDataList[index].id, index, val);
+                            //                         if (updated) {
+                            //                           if (value.findAMateActiveData != null) {
+                            //                             // IsBookmarked
+                            //                             if (value.findAMateActiveData.message == "Post activated successfully" && value.findAMateActiveData.data.id == _findAMatePostsDataList[index].id) {
+                            //                               value.findAMatePostsDataList[index].isActive = true;
+                            //                               _findAMatePostsDataList[index].isActive = true;
+                            //                             } else if (value.findAMateActiveData.message == "Post de-activated successfully" && value.findAMateActiveData.data.id == _findAMatePostsDataList[index].id) {
+                            //                               value.findAMatePostsDataList[index].isActive = false;
+                            //                               _findAMatePostsDataList[index].isActive = false;
+                            //                             }
+                            //                           }
+                            //                         }
+                            //                         setState(() {
+                            //
+                            //                         });
+                            //                       },
+                            //                     );
+                            //                 },
+                            //               ),
+                            //             ),
+                            //           ],
+                            //         ),
+                            //       ),
+                            //       // Padding(
+                            //       //   padding: EdgeInsets.fromLTRB(15, 10, 14, 0),
+                            //       //   child: Text(
+                            //       //     "Posted: $createdAt",
+                            //       //     style: TextStyle(fontFamily: 'Quicksand', color: Colors.white70, fontSize: 9.2.sp),
+                            //       //     overflow: TextOverflow.visible,
+                            //       //   ),
+                            //       // ),
+                            //       // Divider(
+                            //       //   thickness: 1.5,
+                            //       //   color: MateColors.line,
+                            //       // ),
+                            //     ],
+                            //   ),
+                            // );
+                          },
+                        ),
+                      ],
+                    );
+                  }else{
+                    return Container(
+                      height: MediaQuery.of(context).size.height,
+                      child: Center(
+                        child: Text("No data found",
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                          ),
+                        ),
                       ),
-                    ],
-                  );
-                }else{
+                    );
+                  }
+                }else if(snapshot.hasError){
                   return Container(
                     height: MediaQuery.of(context).size.height,
                     child: Center(
-                      child: Text("No data found",
+                      child: Text("Something went wrong",
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w700,
@@ -515,26 +539,13 @@ class _SearchFindAMateState extends State<SearchFindAMate> {
                       ),
                     ),
                   );
+                }else{
+                  return Container();
                 }
-              }else if(snapshot.hasError){
-                return Container(
-                  height: MediaQuery.of(context).size.height,
-                  child: Center(
-                    child: Text("Something went wrong",
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                        color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                      ),
-                    ),
-                  ),
-                );
-              }else{
-                return Container();
-              }
-            },
-          ),
-        ],
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

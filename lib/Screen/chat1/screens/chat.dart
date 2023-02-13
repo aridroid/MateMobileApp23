@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
@@ -21,12 +20,13 @@ import 'package:provider/provider.dart';
 import 'package:record/record.dart';
 import 'package:vibration/vibration.dart';
 import '../../../Utility/Utility.dart';
+import '../../../Widget/social_media_recorder/audio_encoder_type.dart';
+import '../../../Widget/social_media_recorder/provider/sound_record_notifier.dart';
+import '../../../Widget/social_media_recorder/screen/social_media_recorder.dart';
 import '../../../audioAndVideoCalling/calling.dart';
 import '../../../audioAndVideoCalling/connectingScreen.dart';
 import '../../../controller/theme_controller.dart';
 import '../../../groupChat/services/database_service.dart';
-import '../chatWidget.dart';
-import 'package:mate_app/Utility/Utility.dart' as config;
 import '../constForChat.dart';
 import 'package:sizer/sizer.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -46,9 +46,7 @@ class Chat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      //backgroundColor: config.myHexColor,
       appBar: AppBar(
-        //leadingWidth: 30,
         leading: IconButton(
             onPressed: () {
               Navigator.pop(context);
@@ -824,6 +822,7 @@ class _ChatScreenState extends State<_ChatScreen> {
 
 
                       return ListView.builder(
+                        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                         itemBuilder: (context, index) {
                           double size = 0;
                           String unit = "";
@@ -912,457 +911,485 @@ class _ChatScreenState extends State<_ChatScreen> {
   }
 
   Widget buildInput() {
-    return Column(
-      children: [
-        Visibility(
-          visible: showLockedView,
-          child: Container(
-            height: 110,
-            width: MediaQuery.of(context).size.width,
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: themeController.isDarkMode ? Colors.white: backgroundColor,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text("${minute.toString().padLeft(2,'0')} : ${second.toString().padLeft(2,'0')}",
-                      style: TextStyle(
-                        color: themeController.isDarkMode ? Colors.black:Colors.white,
-                      ),
-                    ),
-                    SizedBox(width: 16,),
-                    Row(
-                      children: [
-                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                      ],
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    InkWell(
-                      onTap: (){
-                        _cancelRecording();
-                      },
-                      child: Icon(Icons.delete,size: 30,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                    ),
-                    InkWell(
-                      onTap: (){
-                        if(isPausedRecording){
-                          _resumeRecording();
-                        }else{
-                          _pauseRecording();
-                        }
-                      },
-                      child: Icon(isPausedRecording? Icons.mic:Icons.pause_circle_outline,size: 30,color: Colors.red,),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 5),
-                      child: InkWell(
-                        onTap: (){
-                          setState(() {
-                            showLockedView = false;
-                            isPausedRecording = false;
-                          });
-                          _stopRecording();
-                        },
-                        child: Icon(Icons.send,size: 26,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-        Visibility(
-          visible: showSelected,
-          child: Container(
-            margin: EdgeInsets.only(left: 10,right: 10,bottom: 0),
-            width: MediaQuery.of(context).size.width,
-            padding: EdgeInsets.only(
-              left: 20,
-              right: 10,
-              top: 5,
-              bottom: 20,
-            ),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
-                topRight: Radius.circular(10),
-                topLeft: Radius.circular(10),
-                // bottomLeft: Radius.circular(10),
-                // bottomRight: Radius.circular(10),
+    return Padding(
+      padding: EdgeInsets.only(top: 20),
+      child: Column(
+        children: [
+          // Visibility(
+          //   visible: showLockedView,
+          //   child: Container(
+          //     height: 110,
+          //     width: MediaQuery.of(context).size.width,
+          //     padding: EdgeInsets.all(16),
+          //     decoration: BoxDecoration(
+          //       color: themeController.isDarkMode ? Colors.white: backgroundColor,
+          //     ),
+          //     child: Column(
+          //       crossAxisAlignment: CrossAxisAlignment.start,
+          //       children: [
+          //         Row(
+          //           children: [
+          //             Text("${minute.toString().padLeft(2,'0')} : ${second.toString().padLeft(2,'0')}",
+          //               style: TextStyle(
+          //                 color: themeController.isDarkMode ? Colors.black:Colors.white,
+          //               ),
+          //             ),
+          //             SizedBox(width: 16,),
+          //             Row(
+          //               children: [
+          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //               ],
+          //             ),
+          //           ],
+          //         ),
+          //         SizedBox(height: 16,),
+          //         Row(
+          //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //           children: [
+          //             InkWell(
+          //               onTap: (){
+          //                 _cancelRecording();
+          //               },
+          //               child: Icon(Icons.delete,size: 30,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //             ),
+          //             InkWell(
+          //               onTap: (){
+          //                 if(isPausedRecording){
+          //                   _resumeRecording();
+          //                 }else{
+          //                   _pauseRecording();
+          //                 }
+          //               },
+          //               child: Icon(isPausedRecording? Icons.mic:Icons.pause_circle_outline,size: 30,color: Colors.red,),
+          //             ),
+          //             Padding(
+          //               padding: const EdgeInsets.only(right: 5),
+          //               child: InkWell(
+          //                 onTap: (){
+          //                   setState(() {
+          //                     showLockedView = false;
+          //                     isPausedRecording = false;
+          //                   });
+          //                   _stopRecording();
+          //                 },
+          //                 child: Icon(Icons.send,size: 26,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //               ),
+          //             ),
+          //           ],
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // ),
+          Visibility(
+            visible: showSelected,
+            child: Container(
+              margin: EdgeInsets.only(left: 10,right: 10,bottom: 0),
+              width: MediaQuery.of(context).size.width,
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 10,
+                top: 5,
+                bottom: 20,
               ),
-              color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Align(
-                  alignment: Alignment.topRight,
-                  child: InkWell(
-                    onTap: (){
-                      showSelected = false;
-                      setState(() {});
-                    },
-                    child: Icon(Icons.clear,size: 20,),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(10),
+                  topLeft: Radius.circular(10),
+                  // bottomLeft: Radius.circular(10),
+                  // bottomRight: Radius.circular(10),
+                ),
+                color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: InkWell(
+                      onTap: (){
+                        showSelected = false;
+                        setState(() {});
+                      },
+                      child: Icon(Icons.clear,size: 20,),
+                    ),
                   ),
-                ),
-                Text(
-                  sender,
-                  style: TextStyle(
-                    fontFamily: "Poppins",
-                    fontSize: 14.0,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: 0.1,
-                    color: MateColors.activeIcons,
-                    //color: themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                  Text(
+                    sender,
+                    style: TextStyle(
+                      fontFamily: "Poppins",
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 0.1,
+                      color: MateColors.activeIcons,
+                      //color: themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                    ),
+                    textAlign: TextAlign.start,
                   ),
-                  textAlign: TextAlign.start,
-                ),
-                SizedBox(
-                  height: 4,
-                ),
-                Text(
-                  selectedMessage,
-                  style: TextStyle(
-                    fontFamily: "Poppins",
-                    fontSize: 14.0,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: 0.1,
-                    color: themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                  SizedBox(
+                    height: 4,
                   ),
-                  textAlign: TextAlign.start,
-                ),
-              ],
+                  Text(
+                    selectedMessage,
+                    style: TextStyle(
+                      fontFamily: "Poppins",
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 0.1,
+                      color: themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                    ),
+                    textAlign: TextAlign.start,
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-        if(showLockedView==false)
-         Container(
-           //alignment: Alignment.bottomCenter,
-           // width: MediaQuery.of(context).size.width * 0.5,
-           //margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
-           //padding: EdgeInsets.only(left: 15),
-           decoration: BoxDecoration(
-               //borderRadius: BorderRadius.all(Radius.circular(12.0)),
-             border: Border(
-               top: BorderSide(
-                 color: !isPressed?themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider:Colors.transparent,
-                 width: 0.3,
-               ),
-             ),
-           ),
-           child: Row(
-             mainAxisSize: MainAxisSize.min,
-             children: [
-               Visibility(
-                 visible: !isPressed,
-                 child: Expanded(
-                   child: TextField(
-                     controller: textEditingController,
-                     cursorColor: Colors.cyanAccent,
-                     style: TextStyle(fontSize: 12.5.sp, height: 2.0, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
-                     textInputAction: TextInputAction.done,
-                     minLines: 1,
-                     maxLines: 4,
-                     decoration: InputDecoration(
-                       hintStyle: TextStyle(
-                         fontSize: 14,
-                         fontWeight: FontWeight.w400,
-                         letterSpacing: 0.1,
-                         color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                       ),
-                       prefixIcon:  Padding(
-                         padding: const EdgeInsets.only(left: 10,right: 10),
-                         child: SpeedDial(
-                           child: Padding(
-                             padding: const EdgeInsets.all(15.0),
-                             child: Image.asset("lib/asset/icons/attachment.png"),
-                           ),
-                           activeIcon: Icons.close,
-                           spaceBetweenChildren: 6,
-                           backgroundColor: themeController.isDarkMode?Colors.transparent:Colors.white,
-                           elevation: 0,
-                           foregroundColor: Colors.transparent,
-                           activeForegroundColor: MateColors.activeIcons,
-                           overlayColor: Colors.transparent,
-                           overlayOpacity: 0.5,
-                           switchLabelPosition: true,
-                           tooltip: "Send File",
-                           children: [
-                             SpeedDialChild(
-                               child:Icon(Icons.image),
-                               label: "Image",
-                               elevation: 2.0,
-                               onTap: () => getImage(0),
-                             ),
-                             SpeedDialChild(
-                               child:Icon(Icons.camera_alt),
-                               label: "Camera",
-                               elevation: 2.0,
-                               onTap: () => getImage(1),
-                             ),
-                             SpeedDialChild(
-                               child:Icon(Icons.file_present),
-                               label: "Document",
-                               elevation: 2.0,
-                               onTap: () => _getFile(),
-                             ),
-                           ],
-                         ),
-                       ),
-                       suffixIcon: Padding(
-                         padding: const EdgeInsets.only(right: 10),
-                         child: IconButton(
-                           icon: Icon(
-                             Icons.send,
-                             size: 20,
-                             color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                           ),
-                           onPressed: ()async{
-                             if(isEditing){
-                               if(textEditingController.text.isNotEmpty)
-                                 await DatabaseService().editMessageOneToOne(editPersonChatId, editMessageId, textEditingController.text.trim());
-                               setState(() {
-                                 isEditing = false;
-                                 textEditingController.text = "";
-                               });
-                             }else{
-                               onSendMessage(textEditingController.text, 0);
-                             }
-                           },
-                         ),
-                       ),
-                       hintText: "Write a message...",
-                       focusedBorder: OutlineInputBorder(
-                         borderSide:  BorderSide(
-                           color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                         ),
-                         borderRadius: BorderRadius.circular(26.0),
-                       ),
-                       enabledBorder: OutlineInputBorder(
-                         borderSide:  BorderSide(
-                           color:  themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                         ),
-                         borderRadius: BorderRadius.circular(26.0),
-                       ),
-                       disabledBorder: OutlineInputBorder(
-                         borderSide:  BorderSide(
-                           color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                         ),
-                         borderRadius: BorderRadius.circular(26.0),
-                       ),
-                       errorBorder: OutlineInputBorder(
-                         borderSide:  BorderSide(
-                           color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                         ),
-                         borderRadius: BorderRadius.circular(26.0),
-                       ),
-                       focusedErrorBorder: OutlineInputBorder(
-                         borderSide:  BorderSide(
-                           color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                         ),
-                         borderRadius: BorderRadius.circular(26.0),
-                       ),
-                     ),
-                   ),
+          //if(showLockedView==false)
+           Container(
+             //alignment: Alignment.bottomCenter,
+             // width: MediaQuery.of(context).size.width * 0.5,
+             //margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
+             //padding: EdgeInsets.only(left: 15),
+             decoration: BoxDecoration(
+                 //borderRadius: BorderRadius.all(Radius.circular(12.0)),
+               border: Border(
+                 top: BorderSide(
+                   color: !isPressed?themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider:Colors.transparent,
+                   width: 0.3,
                  ),
                ),
-               isEditing?
-               IconButton(
-                   onPressed: (){
-                     setState(() {
-                       isEditing = false;
-                       textEditingController.text = "";
-                     });
-                   },
-                   icon: Icon(
-                     Icons.clear,
-                     color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                   )
-               ):
-               Column(
-                 crossAxisAlignment: CrossAxisAlignment.end,
-                 mainAxisSize: MainAxisSize.max,
-                 children: [
-                   if(showCancelLock)
-                     DragTarget(
-                       builder: (context,a,r){
-                         return Container(
-                           height: 160,
-                           width: 50,
-                           decoration: BoxDecoration(
-                             borderRadius: BorderRadius.circular(25),
-                             gradient: themeController.isDarkMode?LinearGradient(colors: [Colors.white.withOpacity(0.7),Colors.white]):LinearGradient(colors: [Colors.black.withOpacity(0.7),Colors.black]),
-                           ),
-                           child: Column(
-                             children: [
-                               SizedBox(height: 25,),
-                               Icon(Icons.lock,size: 16,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                               SizedBox(height: 15,),
-                               Icon(Icons.keyboard_arrow_up,size: 16,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                             ],
-                           ),
-                         );
-                       },
-                       onAccept: (val){
-                         setState(() {
-                           sendAudio = false;
-                           showLockedView = true;
-                         });
-                         print("Recording locked");
-                       },
-                     ),
-                   if(showCancelLock)
-                     SizedBox(height: 0,width: MediaQuery.of(context).size.width*0.92,),
-                   Row(
-                     children: [
-                       if(showCancelLock)
-                         DragTarget(
-                           builder: (context,a,r){
-                             return Container(
-                               margin: EdgeInsets.only(bottom: 15),
-                               height: 50,
-                               width: MediaQuery.of(context).size.width*0.85,
-                               decoration: BoxDecoration(
-                                 borderRadius: BorderRadius.circular(25),
-                                 gradient: themeController.isDarkMode?LinearGradient(colors: [Colors.white.withOpacity(0.7),Colors.white]):LinearGradient(colors: [Colors.black.withOpacity(0.7),Colors.black]),
-                               ),
-                               child: Row(
-                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+             ),
+             child: Consumer<SoundRecordNotifier>(
+               builder: (cnt,state,child){
+                 return Row(
+                   mainAxisSize: MainAxisSize.min,
+                   children: [
+                     Visibility(
+                       visible: !state.buttonPressed,//!isPressed,
+                       child: Expanded(
+                         child: TextField(
+                           controller: textEditingController,
+                           cursorColor: Colors.cyanAccent,
+                           style: TextStyle(fontSize: 12.5.sp, height: 2.0, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
+                           textInputAction: TextInputAction.done,
+                           minLines: 1,
+                           maxLines: 4,
+                           decoration: InputDecoration(
+                             hintStyle: TextStyle(
+                               fontSize: 14,
+                               fontWeight: FontWeight.w400,
+                               letterSpacing: 0.1,
+                               color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                             ),
+                             prefixIcon:  Padding(
+                               padding: const EdgeInsets.only(left: 10,right: 10),
+                               child: SpeedDial(
+                                 child: Padding(
+                                   padding: const EdgeInsets.all(15.0),
+                                   child: Image.asset("lib/asset/icons/attachment.png"),
+                                 ),
+                                 activeIcon: Icons.close,
+                                 spaceBetweenChildren: 6,
+                                 backgroundColor: themeController.isDarkMode?Colors.transparent:Colors.white,
+                                 elevation: 0,
+                                 foregroundColor: Colors.transparent,
+                                 activeForegroundColor: MateColors.activeIcons,
+                                 overlayColor: Colors.transparent,
+                                 overlayOpacity: 0.5,
+                                 switchLabelPosition: true,
+                                 tooltip: "Send File",
                                  children: [
-                                   Padding(
-                                     padding: const EdgeInsets.only(left: 16),
-                                     child: Text("${minute.toString().padLeft(2,'0')} : ${second.toString().padLeft(2,'0')}",
-                                       style: TextStyle(
-                                         color: themeController.isDarkMode ? Colors.black:Colors.white,
-                                       ),
-                                     ),
+                                   SpeedDialChild(
+                                     child:Icon(Icons.image),
+                                     label: "Image",
+                                     elevation: 2.0,
+                                     onTap: () => getImage(0),
                                    ),
-                                   Row(
-                                     children: [
-                                       Icon(Icons.arrow_back_ios,size: 16,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                                       Text("Slide to cancel",
-                                         style: TextStyle(
-                                           color: themeController.isDarkMode ? Colors.black:Colors.white,
-                                         ),
-                                       ),
-                                       SizedBox(width: 16,),
-                                     ],
+                                   SpeedDialChild(
+                                     child:Icon(Icons.camera_alt),
+                                     label: "Camera",
+                                     elevation: 2.0,
+                                     onTap: () => getImage(1),
+                                   ),
+                                   SpeedDialChild(
+                                     child:Icon(Icons.file_present),
+                                     label: "Document",
+                                     elevation: 2.0,
+                                     onTap: () => _getFile(),
                                    ),
                                  ],
                                ),
-                             );
-                           },
-                           onAccept: (val){
-                             setState(() {
-                               sendAudio = false;
-                             });
-                             _cancelRecording();
-                             print("Recording cancel");
-                           },
-                         ),
-                       if(showCancelLock)
-                         SizedBox(
-                           //height: 50,
-                           width: 40,
-                         ),
-                       LongPressDraggable<int>(
-                         dragAnchorStrategy: (Draggable<Object> _, BuildContext __, Offset ___) => const Offset(50, 50),
-                         onDragStarted: (){
-                           Vibration.vibrate(
-                               pattern: [1, 150, 1, 150], intensities: [100, 100]
-                           );
-                           setState(() {
-                             isPressed = true;
-                             sendAudio = true;
-                             showCancelLock = true;
-                           });
-                           startRecording();
-                         },
-                         onDragEnd: (v){
-                           Vibration.vibrate(
-                               pattern: [1, 150, 1, 150], intensities: [100, 100]
-                           );
-                           setState(() {
-                             isPressed = false;
-                             showCancelLock = false;
-                           });
-                           if(sendAudio){
-                             _stopRecording();
-                           }
-                         },
-                         data: 10,
-                         feedback: Container(
-                           margin: EdgeInsets.only(bottom: 0,right: 400),
-                           height: MediaQuery.of(context).size.width*0.22,
-                           width: MediaQuery.of(context).size.width*0.22,
-                           decoration: BoxDecoration(
-                             shape: BoxShape.circle,
-                             color: MateColors.activeIcons,
-                           ),
-                           child: Center(
-                             child: Icon(Icons.mic,size: 28,),
-                           ),
-                         ),
-                         childWhenDragging: Container(),
-                         child: Container(
-                           margin: EdgeInsets.only(bottom: isPressed?0:MediaQuery.of(context).size.height*0.005,),
-                           height: isPressed?MediaQuery.of(context).size.width*0.15:MediaQuery.of(context).size.width*0.09,
-                           width: isPressed?MediaQuery.of(context).size.width*0.15:MediaQuery.of(context).size.width*0.09,
-                           decoration: BoxDecoration(
-                             shape: BoxShape.circle,
-                             color: MateColors.activeIcons,
-                           ),
-                           child: Center(
-                             child: Icon(Icons.mic,size: 18,),
+                             ),
+                             suffixIcon: Padding(
+                               padding: const EdgeInsets.only(right: 10),
+                               child: IconButton(
+                                 icon: Icon(
+                                   Icons.send,
+                                   size: 20,
+                                   color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                                 ),
+                                 onPressed: ()async{
+                                   if(isEditing){
+                                     if(textEditingController.text.isNotEmpty)
+                                       await DatabaseService().editMessageOneToOne(editPersonChatId, editMessageId, textEditingController.text.trim());
+                                     setState(() {
+                                       isEditing = false;
+                                       textEditingController.text = "";
+                                     });
+                                   }else{
+                                     onSendMessage(textEditingController.text, 0);
+                                   }
+                                 },
+                               ),
+                             ),
+                             hintText: "Write a message...",
+                             focusedBorder: OutlineInputBorder(
+                               borderSide:  BorderSide(
+                                 color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+                               ),
+                               borderRadius: BorderRadius.circular(26.0),
+                             ),
+                             enabledBorder: OutlineInputBorder(
+                               borderSide:  BorderSide(
+                                 color:  themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+                               ),
+                               borderRadius: BorderRadius.circular(26.0),
+                             ),
+                             disabledBorder: OutlineInputBorder(
+                               borderSide:  BorderSide(
+                                 color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+                               ),
+                               borderRadius: BorderRadius.circular(26.0),
+                             ),
+                             errorBorder: OutlineInputBorder(
+                               borderSide:  BorderSide(
+                                 color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+                               ),
+                               borderRadius: BorderRadius.circular(26.0),
+                             ),
+                             focusedErrorBorder: OutlineInputBorder(
+                               borderSide:  BorderSide(
+                                 color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+                               ),
+                               borderRadius: BorderRadius.circular(26.0),
+                             ),
                            ),
                          ),
                        ),
-                     ],
-                   ),
-                 ],
-               ),
-               SizedBox(width: 16,),
-             ],
+                     ),
+                     isEditing?
+                     IconButton(
+                         onPressed: (){
+                           setState(() {
+                             isEditing = false;
+                             textEditingController.text = "";
+                           });
+                         },
+                         icon: Icon(
+                           Icons.clear,
+                           color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                         )
+                     ):
+                     Container(
+                       margin: EdgeInsets.only(top: state.buttonPressed?120:0,right: 5),
+                       child: SocialMediaRecorder(
+                         backGroundColor: MateColors.activeIcons,
+                         recordIconBackGroundColor: MateColors.activeIcons,
+                         sendRequestFunction: (soundFile) {
+                           print("the current path is ${soundFile.path}");
+                           file = File(soundFile.path);
+                           fileSize = soundFile.lengthSync();
+                           if (fileSize > 10480000) {
+                             Fluttertoast.showToast(msg: 'This file size must be within 10MB');
+                           } else {
+                             setState(() {
+                               isLoading = true;
+                             });
+                             _uploadAudio();
+                           }
+                         },
+                         encode: AudioEncoderType.AAC,
+                       ),
+                     ),
+                     // Column(
+                     //   crossAxisAlignment: CrossAxisAlignment.end,
+                     //   mainAxisSize: MainAxisSize.max,
+                     //   children: [
+                     //     if(showCancelLock)
+                     //       DragTarget(
+                     //         builder: (context,a,r){
+                     //           return Container(
+                     //             height: 160,
+                     //             width: 50,
+                     //             decoration: BoxDecoration(
+                     //               borderRadius: BorderRadius.circular(25),
+                     //               gradient: themeController.isDarkMode?LinearGradient(colors: [Colors.white.withOpacity(0.7),Colors.white]):LinearGradient(colors: [Colors.black.withOpacity(0.7),Colors.black]),
+                     //             ),
+                     //             child: Column(
+                     //               children: [
+                     //                 SizedBox(height: 25,),
+                     //                 Icon(Icons.lock,size: 16,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                     //                 SizedBox(height: 15,),
+                     //                 Icon(Icons.keyboard_arrow_up,size: 16,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                     //               ],
+                     //             ),
+                     //           );
+                     //         },
+                     //         onAccept: (val){
+                     //           setState(() {
+                     //             sendAudio = false;
+                     //             showLockedView = true;
+                     //           });
+                     //           print("Recording locked");
+                     //         },
+                     //       ),
+                     //     if(showCancelLock)
+                     //       SizedBox(height: 0,width: MediaQuery.of(context).size.width*0.92,),
+                     //     Row(
+                     //       children: [
+                     //         if(showCancelLock)
+                     //           DragTarget(
+                     //             builder: (context,a,r){
+                     //               return Container(
+                     //                 margin: EdgeInsets.only(bottom: 15),
+                     //                 height: 50,
+                     //                 width: MediaQuery.of(context).size.width*0.85,
+                     //                 decoration: BoxDecoration(
+                     //                   borderRadius: BorderRadius.circular(25),
+                     //                   gradient: themeController.isDarkMode?LinearGradient(colors: [Colors.white.withOpacity(0.7),Colors.white]):LinearGradient(colors: [Colors.black.withOpacity(0.7),Colors.black]),
+                     //                 ),
+                     //                 child: Row(
+                     //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                     //                   children: [
+                     //                     Padding(
+                     //                       padding: const EdgeInsets.only(left: 16),
+                     //                       child: Text("${minute.toString().padLeft(2,'0')} : ${second.toString().padLeft(2,'0')}",
+                     //                         style: TextStyle(
+                     //                           color: themeController.isDarkMode ? Colors.black:Colors.white,
+                     //                         ),
+                     //                       ),
+                     //                     ),
+                     //                     Row(
+                     //                       children: [
+                     //                         Icon(Icons.arrow_back_ios,size: 16,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                     //                         Text("Slide to cancel",
+                     //                           style: TextStyle(
+                     //                             color: themeController.isDarkMode ? Colors.black:Colors.white,
+                     //                           ),
+                     //                         ),
+                     //                         SizedBox(width: 16,),
+                     //                       ],
+                     //                     ),
+                     //                   ],
+                     //                 ),
+                     //               );
+                     //             },
+                     //             onAccept: (val){
+                     //               setState(() {
+                     //                 sendAudio = false;
+                     //               });
+                     //               _cancelRecording();
+                     //               print("Recording cancel");
+                     //             },
+                     //           ),
+                     //         if(showCancelLock)
+                     //           SizedBox(
+                     //             //height: 50,
+                     //             width: 40,
+                     //           ),
+                     //         LongPressDraggable<int>(
+                     //           dragAnchorStrategy: (Draggable<Object> _, BuildContext __, Offset ___) => const Offset(50, 50),
+                     //           onDragStarted: (){
+                     //             Vibration.vibrate(
+                     //                 pattern: [1, 150, 1, 150], intensities: [100, 100]
+                     //             );
+                     //             setState(() {
+                     //               isPressed = true;
+                     //               sendAudio = true;
+                     //               showCancelLock = true;
+                     //             });
+                     //             startRecording();
+                     //           },
+                     //           onDragEnd: (v){
+                     //             Vibration.vibrate(
+                     //                 pattern: [1, 150, 1, 150], intensities: [100, 100]
+                     //             );
+                     //             setState(() {
+                     //               isPressed = false;
+                     //               showCancelLock = false;
+                     //             });
+                     //             if(sendAudio){
+                     //               _stopRecording();
+                     //             }
+                     //           },
+                     //           data: 10,
+                     //           feedback: Container(
+                     //             margin: EdgeInsets.only(bottom: 0,right: 400),
+                     //             height: MediaQuery.of(context).size.width*0.22,
+                     //             width: MediaQuery.of(context).size.width*0.22,
+                     //             decoration: BoxDecoration(
+                     //               shape: BoxShape.circle,
+                     //               color: MateColors.activeIcons,
+                     //             ),
+                     //             child: Center(
+                     //               child: Icon(Icons.mic,size: 28,),
+                     //             ),
+                     //           ),
+                     //           childWhenDragging: Container(),
+                     //           child: Container(
+                     //             margin: EdgeInsets.only(bottom: isPressed?0:MediaQuery.of(context).size.height*0.005,),
+                     //             height: isPressed?MediaQuery.of(context).size.width*0.15:MediaQuery.of(context).size.width*0.09,
+                     //             width: isPressed?MediaQuery.of(context).size.width*0.15:MediaQuery.of(context).size.width*0.09,
+                     //             decoration: BoxDecoration(
+                     //               shape: BoxShape.circle,
+                     //               color: MateColors.activeIcons,
+                     //             ),
+                     //             child: Center(
+                     //               child: Icon(Icons.mic,size: 18,),
+                     //             ),
+                     //           ),
+                     //         ),
+                     //       ],
+                     //     ),
+                     //   ],
+                     // ),
+                     //SizedBox(width: 16,),
+                   ],
+                 );
+               },
+             ),
+
+
+             // TextField(
+             //   controller: textEditingController,
+             //   cursorColor: Colors.cyanAccent,
+             //   style: TextStyle(
+             //     color: Colors.white,
+             //     fontSize: 12.5.sp,
+             //   ),
+             //   textInputAction: TextInputAction.done,
+             //   minLines: 1,
+             //   maxLines: 4,
+             //   decoration: InputDecoration(
+             //       hintText: "Type message ...",
+             //       hintStyle: TextStyle(
+             //         color: Colors.white38,
+             //         fontSize: 13.0.sp,
+             //       ),
+             //       border: InputBorder.none),
+             // ),
            ),
-
-
-           // TextField(
-           //   controller: textEditingController,
-           //   cursorColor: Colors.cyanAccent,
-           //   style: TextStyle(
-           //     color: Colors.white,
-           //     fontSize: 12.5.sp,
-           //   ),
-           //   textInputAction: TextInputAction.done,
-           //   minLines: 1,
-           //   maxLines: 4,
-           //   decoration: InputDecoration(
-           //       hintText: "Type message ...",
-           //       hintStyle: TextStyle(
-           //         color: Colors.white38,
-           //         fontSize: 13.0.sp,
-           //       ),
-           //       border: InputBorder.none),
-           // ),
-         ),
-      ],
+        ],
+      ),
     );
   }
 }

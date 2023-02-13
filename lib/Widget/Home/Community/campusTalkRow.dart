@@ -6,6 +6,7 @@ import 'package:mate_app/Providers/campusTalkProvider.dart';
 import 'package:mate_app/Providers/externalShareProvider.dart';
 import 'package:mate_app/Screen/Home/Community/campusTalkComments.dart';
 import 'package:mate_app/Screen/Home/Community/campusTalkDetailsFullScreen.dart';
+import 'package:mate_app/Screen/Home/Community/editCampusTalk.dart';
 import 'package:mate_app/Screen/Profile/ProfileScreen.dart';
 import 'package:mate_app/Screen/Profile/UserProfileScreen.dart';
 import 'package:mate_app/Screen/Report/reportPage.dart';
@@ -208,6 +209,18 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                           moduleType: "DiscussionForum",
                         ),
                       ));
+                }else if (index == 3) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditCampusTalk(
+                          id: widget.talkId,
+                          title: widget.title,
+                          description: widget.description,
+                          isAnonymous: widget.isAnonymous,
+                          anonymousUser: widget.anonymousUser,
+                        ),
+                      ));
                 }
               },
               itemBuilder: (context) => [
@@ -246,6 +259,24 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                     "Report",
                     textAlign: TextAlign.start,
                     style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                  ),
+                ),
+                (widget.user.uuid != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user.uuid))?
+                PopupMenuItem(
+                  value: 3,
+                  height: 40,
+                  child: Text(
+                    "Edit",
+                    textAlign: TextAlign.start,
+                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                  ),
+                ):PopupMenuItem(
+                  value: 3,
+                  enabled: false,
+                  height: 0,
+                  child: SizedBox(
+                    height: 0,
+                    width: 0,
                   ),
                 ),
               ],

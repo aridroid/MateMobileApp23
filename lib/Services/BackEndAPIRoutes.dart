@@ -86,6 +86,9 @@ class BackEndAPIRoutes {
   Uri postAFeed() =>
       Uri(scheme: _scheme, host: _host, path: '$_path/feeds'); // method POST
 
+  Uri updateAFeed(int id) =>
+      Uri(scheme: _scheme, host: _host, path: '$_path/feed/$id/update');
+
   Uri postAStory() =>
       Uri(scheme: _scheme, host: _host, path: '$_path/stories'); // method POST
 
@@ -248,6 +251,8 @@ class BackEndAPIRoutes {
   );
 
   Uri postACampusTalk() => Uri(scheme: _scheme, host: _host, path: '$_path/discussion/post');
+
+  Uri updateACampusTalk(int id) => Uri(scheme: _scheme, host: _host, path: '$_path/discussion/post/$id/update');
 
   Uri fetchLikesOfACampusTalk(int postId) => Uri(
       scheme: _scheme,

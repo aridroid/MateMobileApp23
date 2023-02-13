@@ -63,76 +63,87 @@ class _ConnectionPersonSearchState extends State<ConnectionPersonSearch> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        titleSpacing: 0,
-        automaticallyImplyLeading: false,
-        title: TextField(
-          onChanged: (val) => setState((){
-            searchedName=val;
-          }),
-          style: TextStyle(color: themeController.isDarkMode?Colors.white:Colors.black),
-          decoration: InputDecoration(
-            hintStyle: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              letterSpacing: 0.1,
-              color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-            ),
-            hintText: "Search",
-            prefixIcon: Padding(
-              padding: const EdgeInsets.only(left: 15,top: 15,bottom: 15),
-              child: Image.asset(
-                "lib/asset/homePageIcons/searchPurple@3x.png",
-                height: 10,
-                width: 10,
-                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: null,
+      onPanUpdate: (details) {
+        if (details.delta.dy > 0){
+          FocusScope.of(context).requestFocus(FocusNode());
+          print("Dragging in +Y direction");
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          elevation: 0,
+          titleSpacing: 0,
+          automaticallyImplyLeading: false,
+          title: TextField(
+            onChanged: (val) => setState((){
+              searchedName=val;
+            }),
+            style: TextStyle(color: themeController.isDarkMode?Colors.white:Colors.black),
+            decoration: InputDecoration(
+              hintStyle: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 0.1,
+                color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
               ),
-            ),
-            suffixIcon: InkWell(
-              onTap: (){
-                Get.back();
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(top: 16,right: 15),
-                child: Text(
-                  "Close",
-                  style: TextStyle(
-                    fontSize: 15,
-                    letterSpacing: 0.1,
-                    fontWeight: FontWeight.w700,
-                    color: MateColors.activeIcons,
+              hintText: "Search",
+              prefixIcon: Padding(
+                padding: const EdgeInsets.only(left: 15,top: 15,bottom: 15),
+                child: Image.asset(
+                  "lib/asset/homePageIcons/searchPurple@3x.png",
+                  height: 10,
+                  width: 10,
+                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                ),
+              ),
+              suffixIcon: InkWell(
+                onTap: (){
+                  Get.back();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 16,right: 15),
+                  child: Text(
+                    "Close",
+                    style: TextStyle(
+                      fontSize: 15,
+                      letterSpacing: 0.1,
+                      fontWeight: FontWeight.w700,
+                      color: MateColors.activeIcons,
+                    ),
                   ),
                 ),
               ),
-            ),
-            enabledBorder: UnderlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(4)),
-              borderSide: BorderSide(width: 3,color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(4)),
-              borderSide: BorderSide(width: 3,color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
+              enabledBorder: UnderlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(4)),
+                borderSide: BorderSide(width: 3,color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(4)),
+                borderSide: BorderSide(width: 3,color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
+              ),
             ),
           ),
         ),
+        body: isLoading ?
+        Container(
+          child: Center(
+            child: CircularProgressIndicator(
+              color: MateColors.activeIcons,
+            ),
+          ),
+        ):
+        groupList(),
       ),
-      body: isLoading ?
-      Container(
-        child: Center(
-          child: CircularProgressIndicator(
-            color: MateColors.activeIcons,
-          ),
-        ),
-      ):
-      groupList(),
     );
   }
 
   Widget groupList() {
     return hasUserSearched ?
     ListView.builder(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         shrinkWrap: true,
         itemCount: searchResultSnapshot.docs.length,
         padding: EdgeInsets.only(top: 5,bottom: 5),

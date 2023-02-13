@@ -12,7 +12,6 @@ import 'package:mate_app/Screen/Home/events/event_search.dart';
 import 'package:mate_app/Screen/Home/events/memberList.dart';
 import 'package:mate_app/Services/eventService.dart';
 import 'package:mate_app/Widget/video_thumbnail.dart';
-import 'package:mate_app/audioAndVideoCalling/acceptRejectScreen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
@@ -24,6 +23,7 @@ import '../../../Utility/Utility.dart';
 import '../../../Widget/Drawer/DrawerWidget.dart';
 import '../../../Widget/Home/HomeRow.dart';
 import '../../../Widget/Loaders/Shimmer.dart';
+import '../../../Widget/mediaViewer.dart';
 import '../../../asset/Colors/MateColors.dart';
 import '../../../controller/theme_controller.dart';
 import 'package:googleapis/calendar/v3.dart' as gCal;
@@ -33,6 +33,8 @@ import '../../Report/reportPage.dart';
 import '../../chat1/screens/chat.dart';
 import 'createEvent.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
+
+import 'editEvent.dart';
 
 class EventDashBoard extends StatefulWidget {
   static final String routeName = '/eventDashboard';
@@ -77,7 +79,6 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
       refreshPageOnBottomClick = true;
     });
     getStoredValue();
-    //_scrollController.jumpTo(_scrollController.position.minScrollExtent);
     _tabController = new TabController(length: 2, vsync: this);
     _scrollController = new ScrollController()..addListener(_scrollListener);
     if (Platform.isAndroid) {
@@ -222,7 +223,6 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
       setState(() {});
     }
   }
-
 
   refreshPage()async{
     if(_tabController.index==0){
@@ -492,6 +492,9 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                                                   Navigator.push(context, MaterialPageRoute(builder: (context) => ReportPage(moduleId: list[index].id, moduleType: "Event",),));
                                                 }else if(index1 == 4){
                                                   _showDeleteAlertDialog(eventId: list[index].id, indexVal: index,tabIndex: 0);
+                                                }else if(index1 == 5){
+                                                  await Navigator.push(context, MaterialPageRoute(builder: (context) => EditEvent(data: list[index]),));
+                                                  getStoredValue();
                                                 }
                                               },
                                               itemBuilder: (context) => [
@@ -542,6 +545,24 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                                                   ),
                                                 ):PopupMenuItem(
                                                   value: 4,
+                                                  enabled: false,
+                                                  height: 0,
+                                                  child: SizedBox(
+                                                    height: 0,
+                                                    width: 0,
+                                                  ),
+                                                ),
+                                                ((Provider.of<AuthUserProvider>(context, listen: false).authUser.id == list[index].user.uuid))?
+                                                PopupMenuItem(
+                                                  value: 5,
+                                                  height: 40,
+                                                  child: Text(
+                                                    "Edit Event",
+                                                    textAlign: TextAlign.start,
+                                                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                                                  ),
+                                                ):PopupMenuItem(
+                                                  value: 5,
                                                   enabled: false,
                                                   height: 0,
                                                   child: SizedBox(
@@ -644,13 +665,15 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                                                 fit: BoxFit.fitHeight,
                                               ),
                                               SizedBox(width: 8,),
-                                              Text(
-                                                list[index].location,
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w400,
-                                                  letterSpacing: 0.1,
-                                                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                                              Expanded(
+                                                child: Text(
+                                                  list[index].location,
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w400,
+                                                    letterSpacing: 0.1,
+                                                    color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                                                  ),
                                                 ),
                                               ),
                                             ],
@@ -770,10 +793,11 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                                                       height: 150,
                                                       width: MediaQuery.of(context).size.width/1.2,
                                                       child: InkWell(
-                                                        onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                                                            builder: (context) => FullImageWidget(
-                                                              imagePath: list[index].photoUrl,
-                                                            ))),
+                                                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>MediaViewer(url: list[index].photoUrl,))),
+                                                            // Navigator.of(context).push(MaterialPageRoute(
+                                                            // builder: (context) => FullImageWidget(
+                                                            //   imagePath: list[index].photoUrl,
+                                                            // ))),
                                                         child: ClipRRect(
                                                           borderRadius: BorderRadius.circular(12.0),
                                                           clipBehavior: Clip.hardEdge,
@@ -1107,6 +1131,9 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                                                   Navigator.push(context, MaterialPageRoute(builder: (context) => ReportPage(moduleId: listLocal[index].id, moduleType: "Event",),));
                                                 }else if(index1 == 4){
                                                   _showDeleteAlertDialog(eventId: listLocal[index].id, indexVal: index,tabIndex: 1);
+                                                }else if(index1 == 5){
+                                                  await Navigator.push(context, MaterialPageRoute(builder: (context) => EditEvent(data: listLocal[index]),));
+                                                  getStoredValue();
                                                 }
                                               },
                                               itemBuilder: (context) => [
@@ -1157,6 +1184,24 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                                                   ),
                                                 ):PopupMenuItem(
                                                   value: 4,
+                                                  enabled: false,
+                                                  height: 0,
+                                                  child: SizedBox(
+                                                    height: 0,
+                                                    width: 0,
+                                                  ),
+                                                ),
+                                                ((Provider.of<AuthUserProvider>(context, listen: false).authUser.id == list[index].user.uuid))?
+                                                PopupMenuItem(
+                                                  value: 5,
+                                                  height: 40,
+                                                  child: Text(
+                                                    "Edit Event",
+                                                    textAlign: TextAlign.start,
+                                                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                                                  ),
+                                                ):PopupMenuItem(
+                                                  value: 5,
                                                   enabled: false,
                                                   height: 0,
                                                   child: SizedBox(
@@ -1259,13 +1304,15 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                                                 fit: BoxFit.fitHeight,
                                               ),
                                               SizedBox(width: 8,),
-                                              Text(
-                                                listLocal[index].location,
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w400,
-                                                  letterSpacing: 0.1,
-                                                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                                              Expanded(
+                                                child: Text(
+                                                  listLocal[index].location,
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w400,
+                                                    letterSpacing: 0.1,
+                                                    color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                                                  ),
                                                 ),
                                               ),
                                             ],
@@ -1385,10 +1432,11 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                                                           height: 150,
                                                           width: MediaQuery.of(context).size.width/1.2,
                                                           child: InkWell(
-                                                            onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                                                                builder: (context) => FullImageWidget(
-                                                                  imagePath: listLocal[index].photoUrl,
-                                                                ))),
+                                                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>MediaViewer(url: listLocal[index].photoUrl,))),
+                                                                // Navigator.of(context).push(MaterialPageRoute(
+                                                                // builder: (context) => FullImageWidget(
+                                                                //   imagePath: listLocal[index].photoUrl,
+                                                                // ))),
                                                             child: ClipRRect(
                                                               borderRadius: BorderRadius.circular(12.0),
                                                               clipBehavior: Clip.hardEdge,

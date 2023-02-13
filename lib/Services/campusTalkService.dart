@@ -114,6 +114,23 @@ class CampusTalkService {
     }
   }
 
+  Future updateACampusTalk(Map<String, dynamic> body,int id) async {
+    try {
+      final response = await _apiService.post(
+          uri: _backEndAPIRoutes.updateACampusTalk(id), data: body);
+      print(response);
+      return response.body.toString();
+    } on SocketException catch (error) {
+      throw Exception('NO INTERNET :: $error');
+    } on ValidationFailureException catch (error) {
+      throw error;
+    } catch (error) {
+      print(
+          'error occurred fetching from ${_backEndAPIRoutes.postACampusTalk().toString()} :: $error');
+      throw Exception('$error');
+    }
+  }
+
 
   Future<dynamic> upVoteAPost(int postId) async {
     try {

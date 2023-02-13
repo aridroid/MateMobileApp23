@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:mate_app/Model/communityTabModel.dart';
+import 'package:mate_app/Screen/Home/CommunityTab/addPersonWhileCreatingGroup.dart';
 import 'package:mate_app/Services/community_tab_services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -124,7 +125,7 @@ class _CommunityTabState extends State<CommunityTab> with TickerProviderStateMix
           _addUserController.addConnectionUid.clear();
           _addUserController.addConnectionDisplayName.clear();
           _addUserController.selected.clear();
-          await Get.to(()=>AddPersonToGroupUsingConnection());
+          await Get.to(()=>AddPersonWhileCreatingGroup());
           print(_addUserController.addConnectionUid);
           if(_addUserController.addConnectionUid.isNotEmpty){
             _popupDialog(context);

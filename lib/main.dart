@@ -18,6 +18,7 @@ import 'package:mate_app/Screen/chatDashboard/new_message.dart';
 import 'package:mate_app/Screen/connection/add_connection.dart';
 import 'package:mate_app/Screen/connection/connection_screen.dart';
 import 'package:mate_app/Screen/inviteMates/invites_mates.dart';
+import 'package:mate_app/Widget/social_media_recorder/provider/sound_record_notifier.dart';
 import 'package:mate_app/controller/theme_controller.dart';
 import 'package:sizer/sizer.dart';
 import 'package:mate_app/Block/ChatBlock.dart';
@@ -185,6 +186,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (ctx) => BeAMateProvider()),
         ChangeNotifierProvider(create: (ctx) => ReportProvider()),
         ChangeNotifierProvider(create: (ctx) => ChatProvider()),
+        ChangeNotifierProvider(create: (context) => SoundRecordNotifier()),
       ],
       child: OverlaySupport(
         child: LayoutBuilder(

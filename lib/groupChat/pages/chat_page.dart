@@ -1,12 +1,10 @@
 import 'dart:async';
-
-import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:mate_app/Widget/Loaders/Shimmer.dart';
+import 'package:mate_app/Widget/social_media_recorder/provider/sound_record_notifier.dart';
 import 'package:mate_app/asset/Colors/MateColors.dart';
 import 'dart:io';
 import 'package:mate_app/Utility/Utility.dart';
@@ -32,7 +30,8 @@ import '../../Providers/chatProvider.dart';
 import '../../Screen/Profile/ProfileScreen.dart';
 import '../../Screen/Profile/UserProfileScreen.dart';
 import 'package:giphy_picker/giphy_picker.dart';
-
+import '../../Widget/social_media_recorder/audio_encoder_type.dart';
+import '../../Widget/social_media_recorder/screen/social_media_recorder.dart';
 import '../../audioAndVideoCalling/calling.dart';
 import '../../audioAndVideoCalling/connectingScreen.dart';
 import 'package:http/http.dart' as http;
@@ -73,6 +72,7 @@ class _ChatPageState extends State<ChatPage> {
   String sender = "";
   bool showSelected = false;
   bool showDate = false;
+  bool isUserMember = true;
 
   void showDateToggle(){
     setState(() {
@@ -165,6 +165,7 @@ class _ChatPageState extends State<ChatPage> {
             List<String> timeReversed = time.reversed.toList();
 
             return ListView.builder(
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 itemCount: snapshot.data.docs.length,
                 reverse: true,
                 controller: listScrollController,
@@ -221,6 +222,7 @@ class _ChatPageState extends State<ChatPage> {
                     editMessage: editMessage,
                     showDate: showDate,
                     showDateToggle: showDateToggle,
+                    isUserMember: isUserMember,
                   );
                 });
           } else {
@@ -290,6 +292,7 @@ class _ChatPageState extends State<ChatPage> {
         var filePathAndName = dir.path + "/audios/" +url.split("/").last + ".m4a";
         if(File(filePathAndName).existsSync()){
           print("------File Already Exist-------");
+          print(filePathAndName);
           duration = await audioPlayer.setFilePath(filePathAndName);
           audioPlayer.play();
           setState(() {
@@ -631,84 +634,85 @@ class _ChatPageState extends State<ChatPage> {
   Widget _messageSendWidget() {
     return Padding(
       padding: EdgeInsets.only(top: 20),
-      child: Column(
+      child: isUserMember?
+      Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Visibility(
-            visible: showLockedView,
-            child: Container(
-              height: 110,
-              width: MediaQuery.of(context).size.width,
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: themeController.isDarkMode ? Colors.white: backgroundColor,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text("${minute.toString().padLeft(2,'0')} : ${second.toString().padLeft(2,'0')}",
-                        style: TextStyle(
-                          color: themeController.isDarkMode ? Colors.black:Colors.white,
-                        ),
-                      ),
-                      SizedBox(width: 16,),
-                      Row(
-                        children: [
-                          Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                          Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                          Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                          Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                          Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                          Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                          Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                          Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                          Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                          Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                        ],
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      InkWell(
-                        onTap: (){
-                          _cancelRecording();
-                        },
-                        child: Icon(Icons.delete,size: 30,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                      ),
-                      InkWell(
-                        onTap: (){
-                         if(isPausedRecording){
-                           _resumeRecording();
-                         }else{
-                           _pauseRecording();
-                         }
-                        },
-                        child: Icon(isPausedRecording? Icons.mic:Icons.pause_circle_outline,size: 30,color: Colors.red,),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 5),
-                        child: InkWell(
-                          onTap: (){
-                            setState(() {
-                              showLockedView = false;
-                              isPausedRecording = false;
-                            });
-                            _stopRecording();
-                          },
-                          child: Icon(Icons.send,size: 26,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
+          // Visibility(
+          //   visible: showLockedView,
+          //   child: Container(
+          //     height: 110,
+          //     width: MediaQuery.of(context).size.width,
+          //     padding: EdgeInsets.all(16),
+          //     decoration: BoxDecoration(
+          //       color: themeController.isDarkMode ? Colors.white: backgroundColor,
+          //     ),
+          //     child: Column(
+          //       crossAxisAlignment: CrossAxisAlignment.start,
+          //       children: [
+          //         Row(
+          //           children: [
+          //             Text("${minute.toString().padLeft(2,'0')} : ${second.toString().padLeft(2,'0')}",
+          //               style: TextStyle(
+          //                 color: themeController.isDarkMode ? Colors.black:Colors.white,
+          //               ),
+          //             ),
+          //             SizedBox(width: 16,),
+          //             Row(
+          //               children: [
+          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //               ],
+          //             ),
+          //           ],
+          //         ),
+          //         SizedBox(height: 16,),
+          //         Row(
+          //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //           children: [
+          //             InkWell(
+          //               onTap: (){
+          //                 _cancelRecording();
+          //               },
+          //               child: Icon(Icons.delete,size: 30,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //             ),
+          //             InkWell(
+          //               onTap: (){
+          //                if(isPausedRecording){
+          //                  _resumeRecording();
+          //                }else{
+          //                  _pauseRecording();
+          //                }
+          //               },
+          //               child: Icon(isPausedRecording? Icons.mic:Icons.pause_circle_outline,size: 30,color: Colors.red,),
+          //             ),
+          //             Padding(
+          //               padding: const EdgeInsets.only(right: 5),
+          //               child: InkWell(
+          //                 onTap: (){
+          //                   setState(() {
+          //                     showLockedView = false;
+          //                     isPausedRecording = false;
+          //                   });
+          //                   _stopRecording();
+          //                 },
+          //                 child: Icon(Icons.send,size: 26,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+          //               ),
+          //             ),
+          //           ],
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // ),
           Visibility(
             visible: showSelected,
             child: Container(
@@ -772,8 +776,9 @@ class _ChatPageState extends State<ChatPage> {
               ),
             ),
           ),
-          if(showLockedView==false)
+          //if(showLockedView==false)
           Container(
+            padding: EdgeInsets.only(right: 5),
             decoration: BoxDecoration(
               border: Border(
                 top: BorderSide(
@@ -782,286 +787,311 @@ class _ChatPageState extends State<ChatPage> {
                 ),
               ),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Visibility(
-                  visible: !isPressed,
-                  child: Expanded(
-                    child: TextField(
-                      controller: messageEditingController,
-                      cursorColor: Colors.cyanAccent,
-                      style: TextStyle(fontSize: 12.5.sp, height: 2.0, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
-                      textInputAction: TextInputAction.done,
-                      minLines: 1,
-                      maxLines: 4,
-                      decoration: InputDecoration(
-                        hintStyle: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          letterSpacing: 0.1,
-                          color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                        ),
-                        prefixIcon:  Padding(
-                          padding: const EdgeInsets.only(left: 10,right: 10),
-                          child: SpeedDial(
-                            child: Padding(
-                              padding: const EdgeInsets.all(15.0),
-                              child: Image.asset("lib/asset/icons/attachment.png"),
-                            ),
-                            activeIcon: Icons.close,
-                            spaceBetweenChildren: 6,
-                            backgroundColor: themeController.isDarkMode?Colors.transparent:Colors.white,
-                            elevation: 0,
-                            foregroundColor: Colors.transparent,
-                            activeForegroundColor: MateColors.activeIcons,
-                            overlayColor: Colors.transparent,
-                            overlayOpacity: 0.5,
-                            switchLabelPosition: true,
-                            tooltip: "Send File",
-                            children: [
-                              SpeedDialChild(
-                                child:  Image.asset(
-                                  "lib/asset/chatPageAssets/gif@3x.png",
-                                  width: 15.5.sp,
-                                  color: Colors.black,
-                                ),
-                                label: "Gif",
-                                elevation: 2.0,
-                                onTap: () => _getGif(),
-                              ),
-                              SpeedDialChild(
-                                child: Icon(Icons.image),
-                                label: "Image",
-                                elevation: 2.0,
-                                onTap: () => _getImage(0),
-                              ),
-                              SpeedDialChild(
-                                child:Icon(Icons.camera_alt),
-                                label: "Camera",
-                                elevation: 2.0,
-                                onTap: () => _getImage(1),
-                              ),
-                              SpeedDialChild(
-                                child:Icon(Icons.file_present),
-                                label: "Document",
-                                elevation: 2.0,
-                                onTap: () => _getFile(),
-                              ),
-                            ],
-                          ),
-                        ),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            Icons.send,
-                            size: 20,
-                            color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                          ),
-                          onPressed: ()async{
-                            if(isEditing){
-                              if(messageEditingController.text.isNotEmpty)
-                                await DatabaseService().editMessage(editGroupId, editMessageId, messageEditingController.text.trim());
-                              setState(() {
-                                isEditing = false;
-                                messageEditingController.text = "";
-                              });
-                            }else{
-                              _sendMessage(messageEditingController.text.trim());
-                            }
-                          },
-                        ),
-                        hintText: "Write a message...",
-                        focusedBorder: OutlineInputBorder(
-                          borderSide:  BorderSide(
-                            color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                          ),
-                          borderRadius: BorderRadius.circular(26.0),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide:  BorderSide(
-                            color:  themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                          ),
-                          borderRadius: BorderRadius.circular(26.0),
-                        ),
-                        disabledBorder: OutlineInputBorder(
-                          borderSide:  BorderSide(
-                            color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                          ),
-                          borderRadius: BorderRadius.circular(26.0),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderSide:  BorderSide(
-                            color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                          ),
-                          borderRadius: BorderRadius.circular(26.0),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderSide:  BorderSide(
-                            color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                          ),
-                          borderRadius: BorderRadius.circular(26.0),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                isEditing?
-                IconButton(
-                    onPressed: (){
-                      setState(() {
-                        isEditing = false;
-                        messageEditingController.text = "";
-                      });
-                    },
-                    icon: Icon(
-                      Icons.clear,
-                      color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                    )
-                ):
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisSize: MainAxisSize.max,
+            child: Consumer<SoundRecordNotifier>(
+              builder: (cnt,state,child){
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    if(showCancelLock)
-                      DragTarget(
-                        builder: (context,a,r){
-                          return Container(
-                            height: 160,
-                            width: 50,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(25),
-                              gradient: themeController.isDarkMode?LinearGradient(colors: [Colors.white.withOpacity(0.7),Colors.white]):LinearGradient(colors: [Colors.black.withOpacity(0.7),Colors.black]),
+                    Visibility(
+                      visible: !state.buttonPressed,//!isPressed,
+                      child: Expanded(
+                        child: TextField(
+                          controller: messageEditingController,
+                          cursorColor: Colors.cyanAccent,
+                          style: TextStyle(fontSize: 12.5.sp, height: 2.0, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
+                          textInputAction: TextInputAction.done,
+                          minLines: 1,
+                          maxLines: 4,
+                          decoration: InputDecoration(
+                            hintStyle: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: 0.1,
+                              color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
                             ),
-                            child: Column(
-                              children: [
-                                SizedBox(height: 25,),
-                                Icon(Icons.lock,size: 16,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                                SizedBox(height: 15,),
-                                Icon(Icons.keyboard_arrow_up,size: 16,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                              ],
-                            ),
-                          );
-                        },
-                        onAccept: (val){
-                          setState(() {
-                            sendAudio = false;
-                            showLockedView = true;
-                          });
-                          print("Recording locked");
-                        },
-                      ),
-                    if(showCancelLock)
-                     SizedBox(height: 0,width: MediaQuery.of(context).size.width*0.92,),
-                    Row(
-                      children: [
-                        if(showCancelLock)
-                          DragTarget(
-                            builder: (context,a,r){
-                              return Container(
-                                margin: EdgeInsets.only(bottom: 15),
-                                height: 50,
-                                width: MediaQuery.of(context).size.width*0.85,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(25),
-                                  gradient: themeController.isDarkMode?LinearGradient(colors: [Colors.white.withOpacity(0.7),Colors.white]):LinearGradient(colors: [Colors.black.withOpacity(0.7),Colors.black]),
+                            prefixIcon:  Padding(
+                              padding: const EdgeInsets.only(left: 10,right: 10),
+                              child: SpeedDial(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(15.0),
+                                  child: Image.asset("lib/asset/icons/attachment.png"),
                                 ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 16),
-                                      child: Text("${minute.toString().padLeft(2,'0')} : ${second.toString().padLeft(2,'0')}",
-                                        style: TextStyle(
-                                          color: themeController.isDarkMode ? Colors.black:Colors.white,
-                                        ),
-                                      ),
+                                activeIcon: Icons.close,
+                                spaceBetweenChildren: 6,
+                                backgroundColor: themeController.isDarkMode?Colors.transparent:Colors.white,
+                                elevation: 0,
+                                foregroundColor: Colors.transparent,
+                                activeForegroundColor: MateColors.activeIcons,
+                                overlayColor: Colors.transparent,
+                                overlayOpacity: 0.5,
+                                switchLabelPosition: true,
+                                tooltip: "Send File",
+                                children: [
+                                  SpeedDialChild(
+                                    child:  Image.asset(
+                                      "lib/asset/chatPageAssets/gif@3x.png",
+                                      width: 15.5.sp,
+                                      color: Colors.black,
                                     ),
-                                    Row(
-                                      children: [
-                                        Icon(Icons.arrow_back_ios,size: 16,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                                        Text("Slide to cancel",
-                                          style: TextStyle(
-                                            color: themeController.isDarkMode ? Colors.black:Colors.white,
-                                          ),
-                                        ),
-                                        SizedBox(width: 16,),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                            onAccept: (val){
-                              setState(() {
-                                sendAudio = false;
-                              });
-                              _cancelRecording();
-                              print("Recording cancel");
-                            },
-                          ),
-                        if(showCancelLock)
-                          SizedBox(
-                            //height: 50,
-                            width: 40,
-                          ),
-                        LongPressDraggable<int>(
-                          dragAnchorStrategy: (Draggable<Object> _, BuildContext __, Offset ___) => const Offset(50, 50),
-                          onDragStarted: (){
-                            Vibration.vibrate(
-                                pattern: [1, 150, 1, 150], intensities: [100, 100]
-                            );
-                            setState(() {
-                              isPressed = true;
-                              sendAudio = true;
-                              showCancelLock = true;
-                            });
-                            startRecording();
-                          },
-                          onDragEnd: (v){
-                            Vibration.vibrate(
-                                pattern: [1, 150, 1, 150], intensities: [100, 100]
-                            );
-                            setState(() {
-                              isPressed = false;
-                              showCancelLock = false;
-                            });
-                            if(sendAudio){
-                              _stopRecording();
-                            }
-                          },
-                          data: 10,
-                          feedback: Container(
-                            margin: EdgeInsets.only(bottom: 0,right: 400),
-                            height: MediaQuery.of(context).size.width*0.22,
-                            width: MediaQuery.of(context).size.width*0.22,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: MateColors.activeIcons,
+                                    label: "Gif",
+                                    elevation: 2.0,
+                                    onTap: () => _getGif(),
+                                  ),
+                                  SpeedDialChild(
+                                    child: Icon(Icons.image),
+                                    label: "Image",
+                                    elevation: 2.0,
+                                    onTap: () => _getImage(0),
+                                  ),
+                                  SpeedDialChild(
+                                    child:Icon(Icons.camera_alt),
+                                    label: "Camera",
+                                    elevation: 2.0,
+                                    onTap: () => _getImage(1),
+                                  ),
+                                  SpeedDialChild(
+                                    child:Icon(Icons.file_present),
+                                    label: "Document",
+                                    elevation: 2.0,
+                                    onTap: () => _getFile(),
+                                  ),
+                                ],
+                              ),
                             ),
-                            child: Center(
-                              child: Icon(Icons.mic,size: 28,),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                Icons.send,
+                                size: 20,
+                                color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                              ),
+                              onPressed: ()async{
+                                if(isEditing){
+                                  if(messageEditingController.text.isNotEmpty)
+                                    await DatabaseService().editMessage(editGroupId, editMessageId, messageEditingController.text.trim());
+                                  setState(() {
+                                    isEditing = false;
+                                    messageEditingController.text = "";
+                                  });
+                                }else{
+                                  _sendMessage(messageEditingController.text.trim());
+                                }
+                              },
                             ),
-                          ),
-                          childWhenDragging: Container(),
-                          child: Container(
-                            margin: EdgeInsets.only(bottom: isPressed?0:MediaQuery.of(context).size.height*0.005,),
-                            height: isPressed?MediaQuery.of(context).size.width*0.15:MediaQuery.of(context).size.width*0.09,
-                            width: isPressed?MediaQuery.of(context).size.width*0.15:MediaQuery.of(context).size.width*0.09,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: MateColors.activeIcons,
+                            hintText: "Write a message...",
+                            focusedBorder: OutlineInputBorder(
+                              borderSide:  BorderSide(
+                                color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+                              ),
+                              borderRadius: BorderRadius.circular(26.0),
                             ),
-                            child: Center(
-                              child: Icon(Icons.mic,size: 18,),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide:  BorderSide(
+                                color:  themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+                              ),
+                              borderRadius: BorderRadius.circular(26.0),
+                            ),
+                            disabledBorder: OutlineInputBorder(
+                              borderSide:  BorderSide(
+                                color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+                              ),
+                              borderRadius: BorderRadius.circular(26.0),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderSide:  BorderSide(
+                                color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+                              ),
+                              borderRadius: BorderRadius.circular(26.0),
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderSide:  BorderSide(
+                                color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+                              ),
+                              borderRadius: BorderRadius.circular(26.0),
                             ),
                           ),
                         ),
-                      ],
+                      ),
                     ),
+                    isEditing?
+                    IconButton(
+                        onPressed: (){
+                          setState(() {
+                            isEditing = false;
+                            messageEditingController.text = "";
+                          });
+                        },
+                        icon: Icon(
+                          Icons.clear,
+                          color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                        )
+                    ):
+                    Container(
+                      margin: EdgeInsets.only(top: state.buttonPressed?120:0),
+                      child: SocialMediaRecorder(
+                        backGroundColor: MateColors.activeIcons,
+                        recordIconBackGroundColor: MateColors.activeIcons,
+                        sendRequestFunction: (soundFile) {
+                          print("the current path is ${soundFile.path}");
+                          file = File(soundFile.path);
+                          fileSize = soundFile.lengthSync();
+                          if (fileSize > 10480000) {
+                            Fluttertoast.showToast(msg: 'This file size must be within 10MB');
+                          } else {
+                            setState(() {
+                              isLoading = true;
+                            });
+                            _uploadAudio();
+                          }
+                        },
+                        encode: AudioEncoderType.AAC,
+                      ),
+                    ),
+
+                    // Column(
+                    //   crossAxisAlignment: CrossAxisAlignment.end,
+                    //   mainAxisSize: MainAxisSize.max,
+                    //   children: [
+                    //     if(showCancelLock)
+                    //       DragTarget(
+                    //         builder: (context,a,r){
+                    //           return Container(
+                    //             height: 160,
+                    //             width: 50,
+                    //             decoration: BoxDecoration(
+                    //               borderRadius: BorderRadius.circular(25),
+                    //               gradient: themeController.isDarkMode?LinearGradient(colors: [Colors.white.withOpacity(0.7),Colors.white]):LinearGradient(colors: [Colors.black.withOpacity(0.7),Colors.black]),
+                    //             ),
+                    //             child: Column(
+                    //               children: [
+                    //                 SizedBox(height: 25,),
+                    //                 Icon(Icons.lock,size: 16,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                    //                 SizedBox(height: 15,),
+                    //                 Icon(Icons.keyboard_arrow_up,size: 16,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                    //               ],
+                    //             ),
+                    //           );
+                    //         },
+                    //         onAccept: (val){
+                    //           setState(() {
+                    //             sendAudio = false;
+                    //             showLockedView = true;
+                    //           });
+                    //           print("Recording locked");
+                    //         },
+                    //       ),
+                    //     if(showCancelLock)
+                    //      SizedBox(height: 0,width: MediaQuery.of(context).size.width*0.92,),
+                    //     Row(
+                    //       children: [
+                    //         if(showCancelLock)
+                    //           DragTarget(
+                    //             builder: (context,a,r){
+                    //               return Container(
+                    //                 margin: EdgeInsets.only(bottom: 15),
+                    //                 height: 50,
+                    //                 width: MediaQuery.of(context).size.width*0.85,
+                    //                 decoration: BoxDecoration(
+                    //                   borderRadius: BorderRadius.circular(25),
+                    //                   gradient: themeController.isDarkMode?LinearGradient(colors: [Colors.white.withOpacity(0.7),Colors.white]):LinearGradient(colors: [Colors.black.withOpacity(0.7),Colors.black]),
+                    //                 ),
+                    //                 child: Row(
+                    //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //                   children: [
+                    //                     Padding(
+                    //                       padding: const EdgeInsets.only(left: 16),
+                    //                       child: Text("${minute.toString().padLeft(2,'0')} : ${second.toString().padLeft(2,'0')}",
+                    //                         style: TextStyle(
+                    //                           color: themeController.isDarkMode ? Colors.black:Colors.white,
+                    //                         ),
+                    //                       ),
+                    //                     ),
+                    //                     Row(
+                    //                       children: [
+                    //                         Icon(Icons.arrow_back_ios,size: 16,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                    //                         Text("Slide to cancel",
+                    //                           style: TextStyle(
+                    //                             color: themeController.isDarkMode ? Colors.black:Colors.white,
+                    //                           ),
+                    //                         ),
+                    //                         SizedBox(width: 16,),
+                    //                       ],
+                    //                     ),
+                    //                   ],
+                    //                 ),
+                    //               );
+                    //             },
+                    //             onAccept: (val){
+                    //               setState(() {
+                    //                 sendAudio = false;
+                    //               });
+                    //               _cancelRecording();
+                    //               print("Recording cancel");
+                    //             },
+                    //           ),
+                    //         if(showCancelLock)
+                    //           SizedBox(
+                    //             width: 40,
+                    //           ),
+                    //         LongPressDraggable<int>(
+                    //           dragAnchorStrategy: (Draggable<Object> _, BuildContext __, Offset ___) => const Offset(50, 50),
+                    //           onDragStarted: (){
+                    //             Vibration.vibrate(
+                    //                 pattern: [1, 150, 1, 150], intensities: [100, 100]
+                    //             );
+                    //             setState(() {
+                    //               isPressed = true;
+                    //               sendAudio = true;
+                    //               showCancelLock = true;
+                    //             });
+                    //             startRecording();
+                    //           },
+                    //           onDragEnd: (v){
+                    //             Vibration.vibrate(
+                    //                 pattern: [1, 150, 1, 150], intensities: [100, 100]
+                    //             );
+                    //             setState(() {
+                    //               isPressed = false;
+                    //               showCancelLock = false;
+                    //             });
+                    //             if(sendAudio){
+                    //               _stopRecording();
+                    //             }
+                    //           },
+                    //           data: 10,
+                    //           feedback: Container(
+                    //             margin: EdgeInsets.only(bottom: 0,right: 400),
+                    //             height: MediaQuery.of(context).size.width*0.22,
+                    //             width: MediaQuery.of(context).size.width*0.22,
+                    //             decoration: BoxDecoration(
+                    //               shape: BoxShape.circle,
+                    //               color: MateColors.activeIcons,
+                    //             ),
+                    //             child: Center(
+                    //               child: Icon(Icons.mic,size: 28,),
+                    //             ),
+                    //           ),
+                    //           childWhenDragging: Container(),
+                    //           child: Container(
+                    //             margin: EdgeInsets.only(bottom: isPressed?0:MediaQuery.of(context).size.height*0.005,),
+                    //             height: isPressed?MediaQuery.of(context).size.width*0.15:MediaQuery.of(context).size.width*0.09,
+                    //             width: isPressed?MediaQuery.of(context).size.width*0.15:MediaQuery.of(context).size.width*0.09,
+                    //             decoration: BoxDecoration(
+                    //               shape: BoxShape.circle,
+                    //               color: MateColors.activeIcons,
+                    //             ),
+                    //             child: Center(
+                    //               child: Icon(Icons.mic,size: 18,),
+                    //             ),
+                    //           ),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ],
+                    // ),
+                    //SizedBox(width: 16,),
                   ],
-                ),
-                SizedBox(width: 16,),
-              ],
+                );
+              },
             ),
           ),
           // Row(
@@ -1187,6 +1217,36 @@ class _ChatPageState extends State<ChatPage> {
           //   ],
           // ),
         ],
+      ):
+      Container(
+        width: MediaQuery.of(context).size.width,
+        padding: EdgeInsets.fromLTRB(20,20,20,20),
+        decoration: BoxDecoration(
+          color: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text("You can't send message to this group because",
+              style: TextStyle(letterSpacing: 0.1,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.w500,color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,),
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            Text("you're no longer a participant.",
+              style: TextStyle(letterSpacing: 0.1,fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.w500,color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1195,12 +1255,19 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
     _user = FirebaseAuth.instance.currentUser;
+    getGroupDetails();
     DatabaseService().getChats(widget.groupId).then((val) {
-      // print(val);
       setState(() {
         _chats = val;
       });
     });
+  }
+
+  DocumentSnapshot documentSnapshot;
+  getGroupDetails()async{
+    documentSnapshot =  await DatabaseService().getGroupDetailsOnce(widget.groupId);
+    isUserMember = documentSnapshot['members'].contains(_user.uid + '_' + _user.displayName);
+    setState(() {});
   }
 
   @override
@@ -1316,7 +1383,6 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //backgroundColor: myHexColor,
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
@@ -1338,10 +1404,13 @@ class _ChatPageState extends State<ChatPage> {
         title: Padding(
           padding: const EdgeInsets.only(right: 0,left: 0),
           child: InkWell(
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => GroupSettingsPage(
-                      groupId: widget.groupId,
-                    ))),
+            onTap: ()async{
+              await Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => GroupSettingsPage(
+                    groupId: widget.groupId,
+                  )));
+              getGroupDetails();
+            },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -1424,21 +1493,33 @@ class _ChatPageState extends State<ChatPage> {
         actions: [
           IconButton(
             onPressed: ()async{
-              QuerySnapshot res = await DatabaseService().checkCallIsOngoing(widget.groupId);
-              if(res.docs.length>0){
-                DateTime dateTimeLocal = DateTime.now();
-                DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(res.docs[0]['createdAt'].toString()));
-                Duration diff = dateTimeLocal.difference(dateFormatServer);
-                print(diff.inMinutes);
-                if(diff.inMinutes<120){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => Calling(
-                    channelName: res.docs[0]['channelName'],
-                    token: res.docs[0]['token'],
-                    callType: res.docs[0]['callType'],
-                    image: widget.photoURL,
-                    name: widget.groupName,
-                    isGroupCall: true,
-                  )));
+              if(isUserMember){
+                QuerySnapshot res = await DatabaseService().checkCallIsOngoing(widget.groupId);
+                if(res.docs.length>0){
+                  DateTime dateTimeLocal = DateTime.now();
+                  DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(res.docs[0]['createdAt'].toString()));
+                  Duration diff = dateTimeLocal.difference(dateFormatServer);
+                  print(diff.inMinutes);
+                  if(diff.inMinutes<120){
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => Calling(
+                      channelName: res.docs[0]['channelName'],
+                      token: res.docs[0]['token'],
+                      callType: res.docs[0]['callType'],
+                      image: widget.photoURL,
+                      name: widget.groupName,
+                      isGroupCall: true,
+                    )));
+                  }else{
+                    Get.to(()=>ConnectingScreen(
+                      callType: "Audio Calling",
+                      receiverImage: widget.photoURL,
+                      receiverName: widget.groupName,
+                      uid: widget.memberList,
+                      isGroupCalling: true,
+                      groupOrPeerId: widget.groupId,
+                      groupOrCallerName: widget.groupName,
+                    ));
+                  }
                 }else{
                   Get.to(()=>ConnectingScreen(
                     callType: "Audio Calling",
@@ -1450,37 +1531,39 @@ class _ChatPageState extends State<ChatPage> {
                     groupOrCallerName: widget.groupName,
                   ));
                 }
-              }else{
-                Get.to(()=>ConnectingScreen(
-                  callType: "Audio Calling",
-                  receiverImage: widget.photoURL,
-                  receiverName: widget.groupName,
-                  uid: widget.memberList,
-                  isGroupCalling: true,
-                  groupOrPeerId: widget.groupId,
-                  groupOrCallerName: widget.groupName,
-                ));
               }
             },
             icon: Icon(Icons.call,color: MateColors.activeIcons,),
           ),
           IconButton(
             onPressed: ()async{
-              QuerySnapshot res = await DatabaseService().checkCallIsOngoing(widget.groupId);
-              if(res.docs.length>0){
-                DateTime dateTimeLocal = DateTime.now();
-                DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(res.docs[0]['createdAt'].toString()));
-                Duration diff = dateTimeLocal.difference(dateFormatServer);
-                print(diff.inMinutes);
-                if(diff.inMinutes<120){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => Calling(
-                    channelName: res.docs[0]['channelName'],
-                    token: res.docs[0]['token'],
-                    callType: res.docs[0]['callType'],
-                    image: widget.photoURL,
-                    name: widget.groupName,
-                    isGroupCall: true,
-                  )));
+              if(isUserMember){
+                QuerySnapshot res = await DatabaseService().checkCallIsOngoing(widget.groupId);
+                if(res.docs.length>0){
+                  DateTime dateTimeLocal = DateTime.now();
+                  DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(res.docs[0]['createdAt'].toString()));
+                  Duration diff = dateTimeLocal.difference(dateFormatServer);
+                  print(diff.inMinutes);
+                  if(diff.inMinutes<120){
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => Calling(
+                      channelName: res.docs[0]['channelName'],
+                      token: res.docs[0]['token'],
+                      callType: res.docs[0]['callType'],
+                      image: widget.photoURL,
+                      name: widget.groupName,
+                      isGroupCall: true,
+                    )));
+                  }else{
+                    Get.to(()=>ConnectingScreen(
+                      callType: "Video Calling",
+                      receiverImage: widget.photoURL,
+                      receiverName: widget.groupName,
+                      uid: widget.memberList,
+                      isGroupCalling: true,
+                      groupOrPeerId: widget.groupId,
+                      groupOrCallerName: widget.groupName,
+                    ));
+                  }
                 }else{
                   Get.to(()=>ConnectingScreen(
                     callType: "Video Calling",
@@ -1492,16 +1575,6 @@ class _ChatPageState extends State<ChatPage> {
                     groupOrCallerName: widget.groupName,
                   ));
                 }
-              }else{
-                Get.to(()=>ConnectingScreen(
-                  callType: "Video Calling",
-                  receiverImage: widget.photoURL,
-                  receiverName: widget.groupName,
-                  uid: widget.memberList,
-                  isGroupCalling: true,
-                  groupOrPeerId: widget.groupId,
-                  groupOrCallerName: widget.groupName,
-                ));
               }
             },
             icon: Icon(Icons.video_call_rounded,color: MateColors.activeIcons,),

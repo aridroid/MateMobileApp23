@@ -29,6 +29,7 @@ class GroupTile extends StatelessWidget {
 
   GroupTile({this.userName, this.groupId, /*this.groupName,*/ this.photoURL, this.currentUserUid, this.unreadMessages, this.isMuted, this.loadData, this.isPinned, this.index});
   ThemeController themeController = Get.find<ThemeController>();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -131,9 +132,21 @@ class GroupTile extends StatelessWidget {
                           overflow: TextOverflow.clip,
                         ),
                         Text(
-                            snapshot.data.data().toString().contains('isAudio') && snapshot.data['isAudio']?
-                            "Audio" :
-                          "${snapshot.data.data().toString().contains('isImage') ? snapshot.data['isImage'] ? " 🖼️ Image" : snapshot.data['isGif'] != null ? snapshot.data['isGif'] ? " 🖼️ GIF File" : snapshot.data['isFile'] ? "File" : snapshot.data['recentMessage'] : snapshot.data['recentMessage'] : snapshot.data['recentMessage']}",
+                            snapshot.data.data().toString().contains('isAudio') && snapshot.data['isAudio']? "Audio" :
+                          "${snapshot.data.data().toString().contains('isImage') ?
+                          snapshot.data['isImage'] ? " 🖼️ Image" :
+                          snapshot.data['isGif'] != null ? snapshot.data['isGif'] ? " 🖼️ GIF File" :
+                          snapshot.data['isFile'] ? "File" :
+
+                          snapshot.data['recentMessage'].toString().contains('This is missed call@#%')?
+                          snapshot.data['recentMessage'].toString().split('___').last:snapshot.data['recentMessage'] :
+                          snapshot.data['recentMessage'].toString().contains('This is missed call@#%')?
+                          snapshot.data['recentMessage'].toString().split('___').last:snapshot.data['recentMessage'] :
+
+                          snapshot.data['recentMessage'].toString().contains('This is missed call@#%')?
+                          snapshot.data['recentMessage'].toString().split('___').last:snapshot.data['recentMessage']
+
+                          }",
                           style: TextStyle(
                             fontFamily: "Poppins",
                             fontSize: 14.0,

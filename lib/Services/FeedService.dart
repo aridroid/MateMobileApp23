@@ -221,6 +221,22 @@ class FeedService {
       throw Exception('$error');
     }
   }
+  Future updateAFeed(Map<String, dynamic> data,int id) async {
+    try {
+      final response = await _apiService.post(
+          uri: _backEndAPIRoutes.updateAFeed(id), data: data);
+
+      return json.decode(response.body)['message'];
+    } on SocketException catch (error) {
+      throw Exception('NO INTERNET :: $error');
+    } on ValidationFailureException catch (error) {
+      throw error;
+    } catch (error) {
+      print(
+          'error occurred fetching from ${_backEndAPIRoutes.postAFeed().toString()} :: $error');
+      throw Exception('$error');
+    }
+  }
   Future postAStory(FormData data) async {
     try {
       final response = await _apiService.postWithFormData(

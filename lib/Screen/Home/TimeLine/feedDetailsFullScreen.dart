@@ -107,46 +107,56 @@ class FeedDetailsFullScreenState extends State<FeedDetailsFullScreen>{
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Scaffold(
-        //backgroundColor: myHexColor,
-        // appBar: AppBar(
-        //   //backgroundColor: myHexColor,
-        //   title: Text("${widget.user.name}'s Post", style: TextStyle(fontSize: 16.0.sp)),
-        // ),
-        body: ListView(
-          children: [
-            HomeRow1(
-              isFeedDetailsPage: widget.isFeedDetailsPage,
-              id: widget.id,
-              feedId: widget.feedId,
-              title: widget.title,
-              feedType: widget.feedType,
-              start: widget.start,
-              end: widget.end,
-              calenderDate: widget.calenderDate,
-              description: widget.description,
-              created: widget.created,
-              user: widget.user,
-              location: widget.location,
-              hyperlinkText: widget.hyperlinkText,
-              hyperlink: widget.hyperlink,
-              media: widget.media,
-              isLiked: widget.isLiked,
-              liked: widget.liked,
-              bookMarked: widget.bookMarked,
-              likeCount: widget.likeCount,
-              bookmarkCount: widget.bookmarkCount,
-              shareCount: widget.shareCount,
-              commentCount: widget.commentCount,
-              isShared: widget.isShared,
-              indexVal: widget.indexVal,
-              navigateToDetailsPage: false,
-              pageType: widget.pageType,
-            ),
-            _messageSendWidget(),
-            _comments(),
-            //FeedCommentsWidget(feedIndex: widget.indexVal,feedId: widget.feedId,),
-          ],
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: null,
+        onPanUpdate: (details) {
+          if (details.delta.dy > 0){
+            FocusScope.of(context).requestFocus(FocusNode());
+            print("Dragging in +Y direction");
+          }
+        },
+        child: Scaffold(
+          //backgroundColor: myHexColor,
+          // appBar: AppBar(
+          //   //backgroundColor: myHexColor,
+          //   title: Text("${widget.user.name}'s Post", style: TextStyle(fontSize: 16.0.sp)),
+          // ),
+          body: ListView(
+            children: [
+              HomeRow1(
+                isFeedDetailsPage: widget.isFeedDetailsPage,
+                id: widget.id,
+                feedId: widget.feedId,
+                title: widget.title,
+                feedType: widget.feedType,
+                start: widget.start,
+                end: widget.end,
+                calenderDate: widget.calenderDate,
+                description: widget.description,
+                created: widget.created,
+                user: widget.user,
+                location: widget.location,
+                hyperlinkText: widget.hyperlinkText,
+                hyperlink: widget.hyperlink,
+                media: widget.media,
+                isLiked: widget.isLiked,
+                liked: widget.liked,
+                bookMarked: widget.bookMarked,
+                likeCount: widget.likeCount,
+                bookmarkCount: widget.bookmarkCount,
+                shareCount: widget.shareCount,
+                commentCount: widget.commentCount,
+                isShared: widget.isShared,
+                indexVal: widget.indexVal,
+                navigateToDetailsPage: false,
+                pageType: widget.pageType,
+              ),
+              _messageSendWidget(),
+              _comments(),
+              //FeedCommentsWidget(feedIndex: widget.indexVal,feedId: widget.feedId,),
+            ],
+          ),
         ),
       ),
     );
@@ -157,6 +167,7 @@ class FeedDetailsFullScreenState extends State<FeedDetailsFullScreen>{
       builder: (context, feedProvider, child) {
         if (!feedProvider.fetchCommentsLoader && feedProvider.commentFetchData != null) {
           return ListView.builder(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             shrinkWrap: true,
             reverse: true,
             physics: ScrollPhysics(),

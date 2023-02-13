@@ -18,6 +18,7 @@ import 'package:vibration/vibration.dart';
 import '../../../Providers/AuthUserProvider.dart';
 import '../../../Services/community_tab_services.dart';
 import '../../../Widget/custom_swipe_to.dart';
+import '../../../Widget/mediaViewer.dart';
 import '../../../asset/Colors/MateColors.dart';
 import '../../../asset/Reactions/reactionsContants.dart';
 import '../../../groupChat/services/database_service.dart';
@@ -254,6 +255,33 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
             ],
           ),
         ):Offstage(),
+
+        widget.message.contains("This is missed call@#%")?
+        Container(
+          margin: EdgeInsets.only(left: MediaQuery.of(context).size.width*0.22,right: MediaQuery.of(context).size.width*0.22,top: 20),
+          decoration: BoxDecoration(
+            color: themeController.isDarkMode?Colors.grey.shade900:Colors.grey.shade200,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.call_missed,color: Colors.red,),
+              SizedBox(width: 5,),
+              Text(
+                widget.message.split("___").last,
+                textAlign: TextAlign.end,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: "Poppins",
+                  color: Colors.red,
+                ),
+              ),
+            ],
+          ),
+        ):Offstage(),
+
+        if(!widget.message.contains("This is missed call@#%"))
         CustomSwipeTo(
           onRightSwipe: (){
             if(widget.showDate){
@@ -3397,40 +3425,41 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
 
   Widget _chatImage(String chatContent, BuildContext context) {
     return InkWell(
-      onTap: () => showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (context) => Dismissible(
-          direction: DismissDirection.vertical,
-          key: const Key('key'),
-          onDismissed: (_) => Navigator.of(context).pop(),
-          child: CustomDialog(
-            backgroundColor: Colors.transparent,
-            clipBehavior: Clip.hardEdge,
-            insetPadding: EdgeInsets.all(0),
-            child: Padding(
-              padding: const EdgeInsets.all(00.0),
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.9,
-                height: MediaQuery.of(context).size.height * 0.8,
-                child: InteractiveViewer(
-                  panEnabled: true,
-                  // Set it to false to prevent panning.
-                  boundaryMargin: EdgeInsets.all(50),
-                  minScale: 0.5,
-                  maxScale: 4,
-                  child: CachedNetworkImage(
-                      imageUrl: chatContent,
-                      height: 150,
-                      width: 200,
-                      placeholder: (context, url) => Center(child: SizedBox(width: 30, height: 30, child: CircularProgressIndicator())),
-                      errorWidget: (context, url, error) => Icon(Icons.error)),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>MediaViewer(url: chatContent,))),
+      //     showDialog(
+      //   context: context,
+      //   barrierDismissible: true,
+      //   builder: (context) => Dismissible(
+      //     direction: DismissDirection.vertical,
+      //     key: const Key('key'),
+      //     onDismissed: (_) => Navigator.of(context).pop(),
+      //     child: CustomDialog(
+      //       backgroundColor: Colors.transparent,
+      //       clipBehavior: Clip.hardEdge,
+      //       insetPadding: EdgeInsets.all(0),
+      //       child: Padding(
+      //         padding: const EdgeInsets.all(00.0),
+      //         child: SizedBox(
+      //           width: MediaQuery.of(context).size.width * 0.9,
+      //           height: MediaQuery.of(context).size.height * 0.8,
+      //           child: InteractiveViewer(
+      //             panEnabled: true,
+      //             // Set it to false to prevent panning.
+      //             boundaryMargin: EdgeInsets.all(50),
+      //             minScale: 0.5,
+      //             maxScale: 4,
+      //             child: CachedNetworkImage(
+      //                 imageUrl: chatContent,
+      //                 height: 150,
+      //                 width: 200,
+      //                 placeholder: (context, url) => Center(child: SizedBox(width: 30, height: 30, child: CircularProgressIndicator())),
+      //                 errorWidget: (context, url, error) => Icon(Icons.error)),
+      //           ),
+      //         ),
+      //       ),
+      //     ),
+      //   ),
+      // ),
       child: Container(
         height: 150,
         width: 200,

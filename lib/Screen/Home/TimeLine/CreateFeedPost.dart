@@ -362,725 +362,736 @@ class _CreateFeedPostState extends State<CreateFeedPost> {
     final scW = MediaQuery.of(context).size.width;
     return Stack(
       children: [
-        Scaffold(
-          appBar: AppBar(
-            elevation: 0,
-            iconTheme: IconThemeData(
-              color: MateColors.activeIcons,
-            ),
-            title: Text(
-              "Create Post",
-              style: TextStyle(
-                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                fontWeight: FontWeight.w700,
-                fontSize: 17.0,
+        GestureDetector(
+           behavior: HitTestBehavior.translucent,
+          onTap: null,
+          onPanUpdate: (details) {
+            if (details.delta.dy > 0){
+              FocusScope.of(context).requestFocus(FocusNode());
+              print("Dragging in +Y direction");
+            }
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              elevation: 0,
+              iconTheme: IconThemeData(
+                color: MateColors.activeIcons,
               ),
+              title: Text(
+                "Create Post",
+                style: TextStyle(
+                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 17.0,
+                ),
+              ),
+              centerTitle: true,
             ),
-            centerTitle: true,
-          ),
-          body: GestureDetector(
-            onTap: () {
-              FocusScope.of(context).unfocus();
-            },
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              child: Form(
-                key: _formKey,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Selector<FeedProvider, String>(
-                        builder: (ctx, error, _) {
-                          if (error != '') {
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Container(
-                                  color: Colors.red,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      "$error",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  )),
-                            );
-                          }
-                          return SizedBox.shrink();
-                        },
-                        selector: (ctx, feedProvider) => feedProvider.error,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 2,right: 2),
-                        child:  Text(
-                          "Title",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.1,
-                            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 10,),
-                      TextFormField(
-                        scrollPadding: const EdgeInsets.all(0.0),
-                        focusNode: focusNode,
-                        decoration: _customInputDecoration(labelText: 'Title', icon: Icons.title),
-                        style:  TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0.1,
-                          color: themeController.isDarkMode?Colors.white:Colors.black,
-                        ),
-                        cursorColor: MateColors.activeIcons,
-                        textInputAction: TextInputAction.next,
-                        // maxLength: 100,
-                        // onChanged: (value){
-                        //   titleLength = value.length;
-                        //   setState(() {});
-                        // },
-                        onFieldSubmitted: (val) {
-                          print('onFieldSubmitted :: title = $val');
-                          FocusScope.of(context).requestFocus(_descriptionFocusNode);
-                        },
-                        onSaved: (value) {
-                          print('onSaved title = $value');
-                          _title = value;
-                        },
-                        validator: (value) {
-                          if (value.length == 0) {
-                            return "Title field is Required";
-                          }else {
-                            return null;
-                          }
-                          //returning null means no error occurred. if there are any error then simply return a string
-                        },
-                      ),
-                      Consumer<FeedProvider>(
-                        builder: (ctx, feedProvider, _) {
-                          if (feedProvider.validationErrors.containsKey('title')) {
-                            return Padding(
-                              padding: const EdgeInsets.only(left: 8),
-                              child: Text(
-                                "${feedProvider.validationErrors['title'][0].toString()}",
-                                style: TextStyle(color: Colors.red),
-                              ),
-                            );
-                          }
-                          return SizedBox.shrink();
-                        },
-                      ),
-                      SizedBox(height: 40,),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 2,right: 2),
-                        child: Text(
-                          "Description",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.1,
-                            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 10,),
-                      TextFormField(
-                        decoration: _customInputDecoration(labelText: 'What’s on your mind?', icon: Icons.perm_identity),
-                        style:  TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0.1,
-                          color: themeController.isDarkMode?Colors.white:Colors.black,
-                        ),
-                        cursorColor: MateColors.activeIcons,
-                        textInputAction: TextInputAction.newline,
-                        minLines: 3,
-                        maxLines: 8,
-                        // maxLength: 512,
-                        // onChanged: (value){
-                        //   descriptionLength = value.length;
-                        //   setState(() {});
-                        // },
-                        onFieldSubmitted: (val) {
-                          print('onFieldSubmitted :: description = $val');
-                          FocusScope.of(context).requestFocus(_locationFocusNode);
-                        },
-                        onSaved: (value) {
-                          print('onSaved lastName = $value');
-                          _description = value;
-                        },
-                        validator: (value) {
-                          if (value.length == 0) {
-                            return "Description field is Required";
-                          }else {
-                            return null;
-                          }
-                        },
-                      ),
-                      Consumer<FeedProvider>(
-                        builder: (ctx, feedProvider, _) {
-                          if (feedProvider.validationErrors.containsKey('description')) {
-                            return Padding(
-                              padding: const EdgeInsets.only(left: 8),
-                              child: Text(
-                                "${feedProvider.validationErrors['description'][0].toString()}",
-                                style: TextStyle(color: Colors.red),
-                              ),
-                            );
-                          }
-                          return SizedBox.shrink();
-                        },
-                      ),
-
-
-
-
-                      SizedBox(height: 40,),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 2,right: 2),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Link Text – Optional",
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 0.1,
-                                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                              ),
-                            ),
-                            Text(
-                              "$linkTextLength/100",
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                                letterSpacing: 0.1,
-                                color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 10,),
-                      TextFormField(
-                        // focusNode: _locationFocusNode,
-                        decoration: _customInputDecoration(labelText: 'Link Text', icon: Icons.location_on),
-                        style:  TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0.1,
-                          color: themeController.isDarkMode?Colors.white:Colors.black,
-                        ),
-                        cursorColor: MateColors.activeIcons,
-                        textInputAction: TextInputAction.done,
-                        maxLength: 100,
-                        onChanged: (value){
-                          linkTextLength = value.length;
-                          setState(() {});
-                        },
-                        onFieldSubmitted: (val) {
-                          print('onFieldSubmitted :: _hyperlinkText = $val');
-                        },
-                        onSaved: (value) {
-                          print('onSaved _hyperlinkText = $value');
-                          _hyperlinkText = value;
-                        },
-                        validator: (value) {
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: 40,),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 2,right: 2),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Link – Optional",
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 0.1,
-                                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                              ),
-                            ),
-                            Text(
-                              "$linkLength/100",
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                                letterSpacing: 0.1,
-                                color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 10,),
-                      // Padding(
-                      //   padding: EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 10.0),
-                      //   child: Text(
-                      //     "Hyperlink URL",
-                      //     style: TextStyle(fontSize: 13.3.sp, color: MateColors.activeIcons),
-                      //   ),
-                      // ),
-                      TextFormField(
-                        // focusNode: _locationFocusNode,
-                        decoration: _customInputDecoration(labelText: 'Link', icon: Icons.location_on),
-                        style:  TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0.1,
-                          color: themeController.isDarkMode?Colors.white:Colors.black,
-                        ),
-                        cursorColor: MateColors.activeIcons,
-                        textInputAction: TextInputAction.done,
-                        maxLength: 100,
-                        onChanged: (value){
-                          linkLength = value.length;
-                          setState(() {});
-                        },
-                        onFieldSubmitted: (val) {
-                          print('onFieldSubmitted :: _hyperlink = $val');
-                        },
-                        onSaved: (value) {
-                          print('onSaved _hyperlink = $value');
-                          _hyperlink = value;
-                        },
-                        validator: (value) {
-                          return null;
-                        },
-                      ),
-                      // Padding(
-                      //   padding: EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 10.0),
-                      //   child: Text(
-                      //     "Location and Time",
-                      //     style: TextStyle(fontSize: 13.3.sp, color: MateColors.activeIcons),
-                      //   ),
-                      // ),
-                      // TextFormField(
-                      //   focusNode: _locationFocusNode,
-                      //   decoration: _customInputDecoration(labelText: 'Location', icon: Icons.location_on),
-                      //   style: TextStyle(color: Colors.white, fontSize: 15.0.sp),
-                      //   cursorColor: MateColors.activeIcons,
-                      //   textInputAction: TextInputAction.done,
-                      //   maxLength: 100,
-                      //   onFieldSubmitted: (val) {
-                      //     print('onFieldSubmitted :: location = $val');
-                      //   },
-                      //   onSaved: (value) {
-                      //     print('onSaved displayName = $value');
-                      //     _location = value;
-                      //   },
-                      //   validator: (value) {
-                      //     return null;
-                      //   },
-                      // ),
-
-                      Consumer<FeedProvider>(
-                        builder: (ctx, feedProvider, _) {
-                          if (feedProvider.validationErrors.containsKey('location')) {
-                            return Padding(
-                              padding: const EdgeInsets.only(left: 8),
-                              child: Text(
-                                "${feedProvider.validationErrors['location'][0].toString()}",
-                                style: TextStyle(color: Colors.red),
-                              ),
-                            );
-                          }
-                          return SizedBox.shrink();
-                        },
-                      ),
-                      //SizedBox(height: 30,),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(8.0, 30.0, 8.0, 10.0),
-                        child: Text(
-                          "Tags",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.1,
-                            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                          ),
-                        ),
-                      ),
-                     SizedBox(height: 5,),
-                      Consumer<FeedProvider>(
-                        builder: (ctx, feedProvider, _) {
-                          if(feedProvider.feedTypeList.isNotEmpty){
-                            if(feedInsertFirstCheck){
-                              feedProvider.feedTypeList.forEach((element) {
-                                feedTypeChek.add(false);
-                                feedTypeId.add(element.id);
-                              });
-                              feedInsertFirstCheck=false;
+            body: GestureDetector(
+              onTap: () {
+                FocusScope.of(context).unfocus();
+              },
+              child: SingleChildScrollView(
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                controller: _scrollController,
+                child: Form(
+                  key: _formKey,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Selector<FeedProvider, String>(
+                          builder: (ctx, error, _) {
+                            if (error != '') {
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                    color: Colors.red,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        "$error",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    )),
+                              );
                             }
-
-                            return Column(
-                              children: [
-                                Wrap(
-                                  spacing: 10,
-                                  runSpacing: 10,
-                                children: List.generate(feedProvider.feedTypeList.length+1, (index) =>
-                                index==feedProvider.feedTypeList.length?
-                                InkWell(
-                                    onTap: (){
-                                      feedTypeOtherCheck=!feedTypeOtherCheck;
-                                      print(feedTypeOtherCheck);
-                                      setState(() {});
-                                    },
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 18,vertical: 6),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(25),
-                                        color: feedTypeOtherCheck? MateColors.activeIcons:themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightDivider,
-                                        //border: Border.all(color: e.value.isSelected?AppColors.primaryColor:AppColors.lightBlueBorder,width: 1),
-                                      ),
-                                      child: Text("Others",
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
-                                          letterSpacing: 0.1,
-                                          color:
-                                          themeController.isDarkMode?
-                                          feedTypeOtherCheck?MateColors.blackTextColor:Colors.white:
-                                          feedTypeOtherCheck?
-                                          Colors.white:MateColors.blackTextColor,
-                                        ),
-                                      ),
-                                    )):
-                                    InkWell(
-                                        onTap: (){
-                                          feedTypeChek[index]=!feedTypeChek[index];
-                                          feedTypeOtherCheck=false;
-                                          setState(() {});
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(horizontal: 18,vertical: 6),
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(25),
-                                            color: feedTypeChek[index]? MateColors.activeIcons:themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightDivider,
-                                            //border: Border.all(color: e.value.isSelected?AppColors.primaryColor:AppColors.lightBlueBorder,width: 1),
-                                          ),
-                                          child: Text(feedProvider.feedTypeList[index].name,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w400,
-                                              letterSpacing: 0.1,
-                                              color:
-                                              themeController.isDarkMode?
-                                              feedTypeChek[index]?MateColors.blackTextColor:Colors.white:
-                                              feedTypeChek[index]?
-                                              Colors.white:MateColors.blackTextColor,
-                                            ),
-                                          ),
-                                        ))
+                            return SizedBox.shrink();
+                          },
+                          selector: (ctx, feedProvider) => feedProvider.error,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 2,right: 2),
+                          child:  Text(
+                            "Title",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.1,
+                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10,),
+                        TextFormField(
+                          scrollPadding: const EdgeInsets.all(0.0),
+                          focusNode: focusNode,
+                          decoration: _customInputDecoration(labelText: 'Title', icon: Icons.title),
+                          style:  TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.1,
+                            color: themeController.isDarkMode?Colors.white:Colors.black,
+                          ),
+                          cursorColor: MateColors.activeIcons,
+                          textInputAction: TextInputAction.next,
+                          // maxLength: 100,
+                          // onChanged: (value){
+                          //   titleLength = value.length;
+                          //   setState(() {});
+                          // },
+                          onFieldSubmitted: (val) {
+                            print('onFieldSubmitted :: title = $val');
+                            FocusScope.of(context).requestFocus(_descriptionFocusNode);
+                          },
+                          onSaved: (value) {
+                            print('onSaved title = $value');
+                            _title = value;
+                          },
+                          validator: (value) {
+                            if (value.length == 0) {
+                              return "Title field is Required";
+                            }else {
+                              return null;
+                            }
+                            //returning null means no error occurred. if there are any error then simply return a string
+                          },
+                        ),
+                        Consumer<FeedProvider>(
+                          builder: (ctx, feedProvider, _) {
+                            if (feedProvider.validationErrors.containsKey('title')) {
+                              return Padding(
+                                padding: const EdgeInsets.only(left: 8),
+                                child: Text(
+                                  "${feedProvider.validationErrors['title'][0].toString()}",
+                                  style: TextStyle(color: Colors.red),
                                 ),
+                              );
+                            }
+                            return SizedBox.shrink();
+                          },
+                        ),
+                        SizedBox(height: 40,),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 2,right: 2),
+                          child: Text(
+                            "Description",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.1,
+                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10,),
+                        TextFormField(
+                          decoration: _customInputDecoration(labelText: 'What’s on your mind?', icon: Icons.perm_identity),
+                          style:  TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.1,
+                            color: themeController.isDarkMode?Colors.white:Colors.black,
+                          ),
+                          cursorColor: MateColors.activeIcons,
+                          textInputAction: TextInputAction.newline,
+                          minLines: 3,
+                          maxLines: 8,
+                          // maxLength: 512,
+                          // onChanged: (value){
+                          //   descriptionLength = value.length;
+                          //   setState(() {});
+                          // },
+                          onFieldSubmitted: (val) {
+                            print('onFieldSubmitted :: description = $val');
+                            FocusScope.of(context).requestFocus(_locationFocusNode);
+                          },
+                          onSaved: (value) {
+                            print('onSaved lastName = $value');
+                            _description = value;
+                          },
+                          validator: (value) {
+                            if (value.length == 0) {
+                              return "Description field is Required";
+                            }else {
+                              return null;
+                            }
+                          },
+                        ),
+                        Consumer<FeedProvider>(
+                          builder: (ctx, feedProvider, _) {
+                            if (feedProvider.validationErrors.containsKey('description')) {
+                              return Padding(
+                                padding: const EdgeInsets.only(left: 8),
+                                child: Text(
+                                  "${feedProvider.validationErrors['description'][0].toString()}",
+                                  style: TextStyle(color: Colors.red),
                                 ),
-
-                                      Visibility(
-                                        visible: feedTypeOtherCheck,
-                                        child: Padding(
-                                          padding: const EdgeInsets.fromLTRB(5.0,20.0,5.0,0.0),
-                                          child: TextFormField(
-                                            controller: _otherFeedType,
-                                            decoration: _customInputDecoration(labelText: 'Enter Other Type',),
-                                            style:  TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              letterSpacing: 0.1,
-                                              color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                                            ),
-                                            cursorColor: MateColors.activeIcons,
-                                            textInputAction: TextInputAction.done,
-                                            maxLength: 12,
-                                            validator: (value) {
-                                              return null;
-                                            },
-                                          ),
-                                        ),
-                                      )
-
-
-
-                                //   Container(
-                                //   padding: EdgeInsets.fromLTRB(3, 0, 3, 12),
-                                //   decoration: BoxDecoration(borderRadius: BorderRadius.circular(15.0), border: Border.all(color: Colors.grey, width: 0.3)),
-                                //   child: Column(
-                                //     children: [
-                                //       GridView.builder(
-                                //         physics: ScrollPhysics(),
-                                //         shrinkWrap: true,
-                                //         itemCount: feedProvider.feedTypeList.length + 1,
-                                //         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                //           crossAxisCount: 2,
-                                //           mainAxisSpacing: 8,
-                                //           crossAxisSpacing: 8,
-                                //           childAspectRatio: 10 / 3,
-                                //         ),
-                                //         itemBuilder: (context, index) {
-                                //           if(index==feedProvider.feedTypeList.length){
-                                //             return CheckboxListTile(
-                                //               activeColor: MateColors.activeIcons,
-                                //               checkColor: Colors.black,
-                                //               contentPadding: EdgeInsets.symmetric(horizontal: 0.0),
-                                //               title: Text(
-                                //                 "Other",
-                                //                 style: TextStyle(
-                                //                   fontSize: 12.5.sp,
-                                //                   color: Colors.white70,
-                                //                   fontWeight: FontWeight.w500,
-                                //                 ),
-                                //               ),
-                                //               value: feedTypeOtherCheck,
-                                //               onChanged: (newValue) {
-                                //                 feedTypeOtherCheck=newValue;
-                                //                 // for(int i=0;i<feedTypeChek.length;i++){
-                                //                 //   feedTypeChek[i]=false;
-                                //                 // }
-                                //                 setState(() {});
-                                //               },
-                                //               controlAffinity: ListTileControlAffinity.leading, //  <-- leading Checkbox
-                                //             );
-                                //           }else{
-                                //             return CheckboxListTile(
-                                //               activeColor: MateColors.activeIcons,
-                                //               checkColor: Colors.black,
-                                //               contentPadding: EdgeInsets.symmetric(horizontal: 0.0),
-                                //               title: Text(
-                                //                 feedProvider.feedTypeList[index].name,
-                                //                 style: TextStyle(
-                                //                   fontSize: 12.5.sp,
-                                //                   color: Colors.white70,
-                                //                   fontWeight: FontWeight.w500,
-                                //                 ),
-                                //               ),
-                                //               value: feedTypeChek[index]??false,
-                                //               onChanged: (newValue) {
-                                //                 feedTypeChek[index]=newValue;
-                                //                 feedTypeOtherCheck=false;
-                                //                 setState(() {});
-                                //               },
-                                //               controlAffinity: ListTileControlAffinity.leading, //  <-- leading Checkbox
-                                //             );
-                                //           }
-                                //         },
-                                //       ),
-                                //       Visibility(
-                                //         visible: feedTypeOtherCheck,
-                                //         child: Padding(
-                                //           padding: const EdgeInsets.fromLTRB(10.0,8.0,10.0,0.0),
-                                //           child: TextFormField(
-                                //             controller: _otherFeedType,
-                                //             decoration: _customInputDecoration(labelText: 'Enter Other Type',),
-                                //             style:  TextStyle(
-                                //               fontSize: 14,
-                                //               fontWeight: FontWeight.w500,
-                                //               letterSpacing: 0.1,
-                                //               color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                                //             ),
-                                //             cursorColor: MateColors.activeIcons,
-                                //             textInputAction: TextInputAction.done,
-                                //             maxLength: 12,
-                                //             validator: (value) {
-                                //               return null;
-                                //             },
-                                //           ),
-                                //         ),
-                                //       )
-                                //     ],
-                                //   ),
-                                // ),
-
-
-                              ],
-                            );
+                              );
+                            }
+                            return SizedBox.shrink();
+                          },
+                        ),
 
 
 
 
-                          }else return SizedBox();
-
-                        },
-                      ),
-
-                      // InkWell(
-                      //   onTap: () {
-                      //     FocusScope.of(context).unfocus();
-                      //   },
-                      //   child: _dropdownMenuItems(),
-                      // ),
-                      Consumer<FeedProvider>(
-                        builder: (ctx, feedProvider, _) {
-                          if (feedProvider.validationErrors.containsKey('feed_type_id')) {
-                            return Padding(
-                              padding: const EdgeInsets.only(left: 8, top: 5),
-                              child: Text(
-                                "${feedProvider.validationErrors['feed_type_id'][0].toString()}",
-                                style: TextStyle(color: Colors.red),
+                        SizedBox(height: 40,),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 2,right: 2),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Link Text – Optional",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 0.1,
+                                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                                ),
                               ),
-                            );
-                          }
-                          return SizedBox.shrink();
-                        },
-                      ),
-                      /*_toggleStartDate
-                          ? Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                              child: _startDatePicker(),
-                            )
-                          : SizedBox.shrink(),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(8.0, 12.0, 8.0, 8.0),
-                        child: Text(
-                          "Start",
-                          style: TextStyle(fontSize: 16, color: MateColors.activeIcons),
+                              // Text(
+                              //   "$linkTextLength/100",
+                              //   style: TextStyle(
+                              //     fontSize: 12,
+                              //     fontWeight: FontWeight.w400,
+                              //     letterSpacing: 0.1,
+                              //     color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                              //   ),
+                              // ),
+                            ],
+                          ),
                         ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          RaisedButton(
-                            color: MateColors.activeIcons,
-                            onPressed: () {
-                              setState(() {
-                                _toggleStartDate = !_toggleStartDate;
-                              });
-                            },
-                            child: Text(_toggleStartDate ? 'Selct Start Date' : 'Set Start Date'),
+                        SizedBox(height: 10,),
+                        TextFormField(
+                          // focusNode: _locationFocusNode,
+                          decoration: _customInputDecoration(labelText: 'Link Text', icon: Icons.location_on),
+                          style:  TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.1,
+                            color: themeController.isDarkMode?Colors.white:Colors.black,
                           ),
-                          Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(width: 1.0, color: Colors.white38),
-                              borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: _startDate == null
-                                  ? Text(
-                                      "YYYY-MM-DD  hh : mm",
-                                      style: TextStyle(color: Colors.grey),
-                                    )
-                                  : Text(
-                                      "${_startDate.year}-${_startDate.month}-${_startDate.day} ${_startDate.hour}:${_startDate.minute}",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      _toggleEndDate
-                          ? Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                              child: _endDatePicker(),
-                            )
-                          : SizedBox.shrink(),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
-                        child: Text(
-                          "End",
-                          style: TextStyle(fontSize: 16, color: MateColors.activeIcons),
+                          cursorColor: MateColors.activeIcons,
+                          textInputAction: TextInputAction.done,
+                          //maxLength: 100,
+                          onChanged: (value){
+                            linkTextLength = value.length;
+                            setState(() {});
+                          },
+                          onFieldSubmitted: (val) {
+                            print('onFieldSubmitted :: _hyperlinkText = $val');
+                          },
+                          onSaved: (value) {
+                            print('onSaved _hyperlinkText = $value');
+                            _hyperlinkText = value;
+                          },
+                          validator: (value) {
+                            return null;
+                          },
                         ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          RaisedButton(
-                            color: MateColors.activeIcons,
-                            onPressed: () {
-                              setState(() {
-                                _toggleEndDate = !_toggleEndDate;
-                              });
-                            },
-                            child: Text(_toggleEndDate ? "Select End Date" : 'Set End Date'),
+                        SizedBox(height: 40,),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 2,right: 2),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Link – Optional",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 0.1,
+                                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                                ),
+                              ),
+                              // Text(
+                              //   "$linkLength/100",
+                              //   style: TextStyle(
+                              //     fontSize: 12,
+                              //     fontWeight: FontWeight.w400,
+                              //     letterSpacing: 0.1,
+                              //     color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                              //   ),
+                              // ),
+                            ],
                           ),
-                          Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(width: 1.0, color: Colors.white38),
-                              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        ),
+                        SizedBox(height: 10,),
+                        // Padding(
+                        //   padding: EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 10.0),
+                        //   child: Text(
+                        //     "Hyperlink URL",
+                        //     style: TextStyle(fontSize: 13.3.sp, color: MateColors.activeIcons),
+                        //   ),
+                        // ),
+                        TextFormField(
+                          // focusNode: _locationFocusNode,
+                          decoration: _customInputDecoration(labelText: 'Link', icon: Icons.location_on),
+                          style:  TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.1,
+                            color: themeController.isDarkMode?Colors.white:Colors.black,
+                          ),
+                          cursorColor: MateColors.activeIcons,
+                          textInputAction: TextInputAction.done,
+                          //maxLength: 100,
+                          onChanged: (value){
+                            linkLength = value.length;
+                            setState(() {});
+                          },
+                          onFieldSubmitted: (val) {
+                            print('onFieldSubmitted :: _hyperlink = $val');
+                          },
+                          onSaved: (value) {
+                            print('onSaved _hyperlink = $value');
+                            _hyperlink = value;
+                          },
+                          validator: (value) {
+                            return null;
+                          },
+                        ),
+                        // Padding(
+                        //   padding: EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 10.0),
+                        //   child: Text(
+                        //     "Location and Time",
+                        //     style: TextStyle(fontSize: 13.3.sp, color: MateColors.activeIcons),
+                        //   ),
+                        // ),
+                        // TextFormField(
+                        //   focusNode: _locationFocusNode,
+                        //   decoration: _customInputDecoration(labelText: 'Location', icon: Icons.location_on),
+                        //   style: TextStyle(color: Colors.white, fontSize: 15.0.sp),
+                        //   cursorColor: MateColors.activeIcons,
+                        //   textInputAction: TextInputAction.done,
+                        //   maxLength: 100,
+                        //   onFieldSubmitted: (val) {
+                        //     print('onFieldSubmitted :: location = $val');
+                        //   },
+                        //   onSaved: (value) {
+                        //     print('onSaved displayName = $value');
+                        //     _location = value;
+                        //   },
+                        //   validator: (value) {
+                        //     return null;
+                        //   },
+                        // ),
+
+                        Consumer<FeedProvider>(
+                          builder: (ctx, feedProvider, _) {
+                            if (feedProvider.validationErrors.containsKey('location')) {
+                              return Padding(
+                                padding: const EdgeInsets.only(left: 8),
+                                child: Text(
+                                  "${feedProvider.validationErrors['location'][0].toString()}",
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              );
+                            }
+                            return SizedBox.shrink();
+                          },
+                        ),
+                        //SizedBox(height: 30,),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(8.0, 30.0, 8.0, 10.0),
+                          child: Text(
+                            "Tags",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.1,
+                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: _endDate == null
-                                  ? Text(
-                                      'YYYY-MM-DD  hh : mm',
-                                      style: TextStyle(color: Colors.grey),
-                                    )
-                                  : Text(
-                                      "${_endDate.year}-${_endDate.month}-${_endDate.day} ${_endDate.hour}:${_endDate.minute}",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                            ),
                           ),
-                        ],
-                      ),*/
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 16.0, top: 5),
-                        child: _imageSelectionButton(),
-                      ),
-                      Consumer<FeedProvider>(
-                        builder: (ctx, fp, _) {
-                          if (fp.validationErrors.containsKey('media.0')) {
-                            return Text("${fp.validationErrors['media.0'][0].toString()}", style: TextStyle(color: Colors.red));
-                          }
-                          return SizedBox.shrink();
-                        },
-                      ),
-                      _image != null
-                          ? Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          InkWell(
-                            // onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (context) => CommentFullImage(imageFilePath: _image,),)),
-                            child: Container(
-                                clipBehavior: Clip.hardEdge,
-                                // width: 100,
-                                // height: 300,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(10.0), border: Border.all(color: Colors.grey, width: 0.3)),
-                                padding: EdgeInsets.all(5),
-                                margin: EdgeInsets.only(left: 0, bottom: 10),
-                                child: Image.file(
-                                  _image,
-                                  fit: BoxFit.fill,
-                                )),
+                        ),
+                       SizedBox(height: 5,),
+                        Consumer<FeedProvider>(
+                          builder: (ctx, feedProvider, _) {
+                            if(feedProvider.feedTypeList.isNotEmpty){
+                              if(feedInsertFirstCheck){
+                                feedProvider.feedTypeList.forEach((element) {
+                                  feedTypeChek.add(false);
+                                  feedTypeId.add(element.id);
+                                });
+                                feedInsertFirstCheck=false;
+                              }
+
+                              return Column(
+                                children: [
+                                  Wrap(
+                                    spacing: 10,
+                                    runSpacing: 10,
+                                  children: List.generate(feedProvider.feedTypeList.length+1, (index) =>
+                                  index==feedProvider.feedTypeList.length?
+                                  InkWell(
+                                      onTap: (){
+                                        feedTypeOtherCheck=!feedTypeOtherCheck;
+                                        print(feedTypeOtherCheck);
+                                        setState(() {});
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 18,vertical: 6),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(25),
+                                          color: feedTypeOtherCheck? MateColors.activeIcons:themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightDivider,
+                                          //border: Border.all(color: e.value.isSelected?AppColors.primaryColor:AppColors.lightBlueBorder,width: 1),
+                                        ),
+                                        child: Text("Others",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                            letterSpacing: 0.1,
+                                            color:
+                                            themeController.isDarkMode?
+                                            feedTypeOtherCheck?MateColors.blackTextColor:Colors.white:
+                                            feedTypeOtherCheck?
+                                            Colors.white:MateColors.blackTextColor,
+                                          ),
+                                        ),
+                                      )):
+                                      InkWell(
+                                          onTap: (){
+                                            feedTypeChek[index]=!feedTypeChek[index];
+                                            feedTypeOtherCheck=false;
+                                            setState(() {});
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(horizontal: 18,vertical: 6),
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(25),
+                                              color: feedTypeChek[index]? MateColors.activeIcons:themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightDivider,
+                                              //border: Border.all(color: e.value.isSelected?AppColors.primaryColor:AppColors.lightBlueBorder,width: 1),
+                                            ),
+                                            child: Text(feedProvider.feedTypeList[index].name,
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w400,
+                                                letterSpacing: 0.1,
+                                                color:
+                                                themeController.isDarkMode?
+                                                feedTypeChek[index]?MateColors.blackTextColor:Colors.white:
+                                                feedTypeChek[index]?
+                                                Colors.white:MateColors.blackTextColor,
+                                              ),
+                                            ),
+                                          ))
+                                  ),
+                                  ),
+
+                                        Visibility(
+                                          visible: feedTypeOtherCheck,
+                                          child: Padding(
+                                            padding: const EdgeInsets.fromLTRB(5.0,20.0,5.0,0.0),
+                                            child: TextFormField(
+                                              controller: _otherFeedType,
+                                              decoration: _customInputDecoration(labelText: 'Enter Other Type',),
+                                              style:  TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                letterSpacing: 0.1,
+                                                color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                                              ),
+                                              cursorColor: MateColors.activeIcons,
+                                              textInputAction: TextInputAction.done,
+                                              maxLength: 12,
+                                              validator: (value) {
+                                                return null;
+                                              },
+                                            ),
+                                          ),
+                                        )
+
+
+
+                                  //   Container(
+                                  //   padding: EdgeInsets.fromLTRB(3, 0, 3, 12),
+                                  //   decoration: BoxDecoration(borderRadius: BorderRadius.circular(15.0), border: Border.all(color: Colors.grey, width: 0.3)),
+                                  //   child: Column(
+                                  //     children: [
+                                  //       GridView.builder(
+                                  //         physics: ScrollPhysics(),
+                                  //         shrinkWrap: true,
+                                  //         itemCount: feedProvider.feedTypeList.length + 1,
+                                  //         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                  //           crossAxisCount: 2,
+                                  //           mainAxisSpacing: 8,
+                                  //           crossAxisSpacing: 8,
+                                  //           childAspectRatio: 10 / 3,
+                                  //         ),
+                                  //         itemBuilder: (context, index) {
+                                  //           if(index==feedProvider.feedTypeList.length){
+                                  //             return CheckboxListTile(
+                                  //               activeColor: MateColors.activeIcons,
+                                  //               checkColor: Colors.black,
+                                  //               contentPadding: EdgeInsets.symmetric(horizontal: 0.0),
+                                  //               title: Text(
+                                  //                 "Other",
+                                  //                 style: TextStyle(
+                                  //                   fontSize: 12.5.sp,
+                                  //                   color: Colors.white70,
+                                  //                   fontWeight: FontWeight.w500,
+                                  //                 ),
+                                  //               ),
+                                  //               value: feedTypeOtherCheck,
+                                  //               onChanged: (newValue) {
+                                  //                 feedTypeOtherCheck=newValue;
+                                  //                 // for(int i=0;i<feedTypeChek.length;i++){
+                                  //                 //   feedTypeChek[i]=false;
+                                  //                 // }
+                                  //                 setState(() {});
+                                  //               },
+                                  //               controlAffinity: ListTileControlAffinity.leading, //  <-- leading Checkbox
+                                  //             );
+                                  //           }else{
+                                  //             return CheckboxListTile(
+                                  //               activeColor: MateColors.activeIcons,
+                                  //               checkColor: Colors.black,
+                                  //               contentPadding: EdgeInsets.symmetric(horizontal: 0.0),
+                                  //               title: Text(
+                                  //                 feedProvider.feedTypeList[index].name,
+                                  //                 style: TextStyle(
+                                  //                   fontSize: 12.5.sp,
+                                  //                   color: Colors.white70,
+                                  //                   fontWeight: FontWeight.w500,
+                                  //                 ),
+                                  //               ),
+                                  //               value: feedTypeChek[index]??false,
+                                  //               onChanged: (newValue) {
+                                  //                 feedTypeChek[index]=newValue;
+                                  //                 feedTypeOtherCheck=false;
+                                  //                 setState(() {});
+                                  //               },
+                                  //               controlAffinity: ListTileControlAffinity.leading, //  <-- leading Checkbox
+                                  //             );
+                                  //           }
+                                  //         },
+                                  //       ),
+                                  //       Visibility(
+                                  //         visible: feedTypeOtherCheck,
+                                  //         child: Padding(
+                                  //           padding: const EdgeInsets.fromLTRB(10.0,8.0,10.0,0.0),
+                                  //           child: TextFormField(
+                                  //             controller: _otherFeedType,
+                                  //             decoration: _customInputDecoration(labelText: 'Enter Other Type',),
+                                  //             style:  TextStyle(
+                                  //               fontSize: 14,
+                                  //               fontWeight: FontWeight.w500,
+                                  //               letterSpacing: 0.1,
+                                  //               color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                                  //             ),
+                                  //             cursorColor: MateColors.activeIcons,
+                                  //             textInputAction: TextInputAction.done,
+                                  //             maxLength: 12,
+                                  //             validator: (value) {
+                                  //               return null;
+                                  //             },
+                                  //           ),
+                                  //         ),
+                                  //       )
+                                  //     ],
+                                  //   ),
+                                  // ),
+
+
+                                ],
+                              );
+
+
+
+
+                            }else return SizedBox();
+
+                          },
+                        ),
+
+                        // InkWell(
+                        //   onTap: () {
+                        //     FocusScope.of(context).unfocus();
+                        //   },
+                        //   child: _dropdownMenuItems(),
+                        // ),
+                        Consumer<FeedProvider>(
+                          builder: (ctx, feedProvider, _) {
+                            if (feedProvider.validationErrors.containsKey('feed_type_id')) {
+                              return Padding(
+                                padding: const EdgeInsets.only(left: 8, top: 5),
+                                child: Text(
+                                  "${feedProvider.validationErrors['feed_type_id'][0].toString()}",
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              );
+                            }
+                            return SizedBox.shrink();
+                          },
+                        ),
+                        /*_toggleStartDate
+                            ? Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                child: _startDatePicker(),
+                              )
+                            : SizedBox.shrink(),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(8.0, 12.0, 8.0, 8.0),
+                          child: Text(
+                            "Start",
+                            style: TextStyle(fontSize: 16, color: MateColors.activeIcons),
                           ),
-                          Positioned(
-                            top: -5,
-                            right: -5,
-                            child: InkWell(
-                              splashColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              onTap: () {
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            RaisedButton(
+                              color: MateColors.activeIcons,
+                              onPressed: () {
                                 setState(() {
-                                  _image = null;
-                                  _base64encodedImage = null;
+                                  _toggleStartDate = !_toggleStartDate;
                                 });
                               },
-                              child: SizedBox(
-                                width: 35,
-                                height: 35,
-                                child: Align(
-                                  alignment: Alignment.topRight,
-                                  child: CircleAvatar(
-                                    backgroundColor: myHexColor,
-                                    radius: 11,
-                                    child: ImageIcon(
-                                      AssetImage("lib/asset/icons/cross.png"),
-                                      size: 22,
-                                      color: Colors.white70,
+                              child: Text(_toggleStartDate ? 'Selct Start Date' : 'Set Start Date'),
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(width: 1.0, color: Colors.white38),
+                                borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: _startDate == null
+                                    ? Text(
+                                        "YYYY-MM-DD  hh : mm",
+                                        style: TextStyle(color: Colors.grey),
+                                      )
+                                    : Text(
+                                        "${_startDate.year}-${_startDate.month}-${_startDate.day} ${_startDate.hour}:${_startDate.minute}",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        _toggleEndDate
+                            ? Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                child: _endDatePicker(),
+                              )
+                            : SizedBox.shrink(),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
+                          child: Text(
+                            "End",
+                            style: TextStyle(fontSize: 16, color: MateColors.activeIcons),
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            RaisedButton(
+                              color: MateColors.activeIcons,
+                              onPressed: () {
+                                setState(() {
+                                  _toggleEndDate = !_toggleEndDate;
+                                });
+                              },
+                              child: Text(_toggleEndDate ? "Select End Date" : 'Set End Date'),
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(width: 1.0, color: Colors.white38),
+                                borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: _endDate == null
+                                    ? Text(
+                                        'YYYY-MM-DD  hh : mm',
+                                        style: TextStyle(color: Colors.grey),
+                                      )
+                                    : Text(
+                                        "${_endDate.year}-${_endDate.month}-${_endDate.day} ${_endDate.hour}:${_endDate.minute}",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                              ),
+                            ),
+                          ],
+                        ),*/
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 16.0, top: 5),
+                          child: _imageSelectionButton(),
+                        ),
+                        Consumer<FeedProvider>(
+                          builder: (ctx, fp, _) {
+                            if (fp.validationErrors.containsKey('media.0')) {
+                              return Text("${fp.validationErrors['media.0'][0].toString()}", style: TextStyle(color: Colors.red));
+                            }
+                            return SizedBox.shrink();
+                          },
+                        ),
+                        _image != null
+                            ? Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            InkWell(
+                              // onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (context) => CommentFullImage(imageFilePath: _image,),)),
+                              child: Container(
+                                  clipBehavior: Clip.hardEdge,
+                                  // width: 100,
+                                  // height: 300,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(10.0), border: Border.all(color: Colors.grey, width: 0.3)),
+                                  padding: EdgeInsets.all(5),
+                                  margin: EdgeInsets.only(left: 0, bottom: 10),
+                                  child: Image.file(
+                                    _image,
+                                    fit: BoxFit.fill,
+                                  )),
+                            ),
+                            Positioned(
+                              top: -5,
+                              right: -5,
+                              child: InkWell(
+                                splashColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                onTap: () {
+                                  setState(() {
+                                    _image = null;
+                                    _base64encodedImage = null;
+                                  });
+                                },
+                                child: SizedBox(
+                                  width: 35,
+                                  height: 35,
+                                  child: Align(
+                                    alignment: Alignment.topRight,
+                                    child: CircleAvatar(
+                                      backgroundColor: myHexColor,
+                                      radius: 11,
+                                      child: ImageIcon(
+                                        AssetImage("lib/asset/icons/cross.png"),
+                                        size: 22,
+                                        color: Colors.white70,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ):SizedBox(),
-                    ],
+                          ],
+                        ):SizedBox(),
+                      ],
+                    ),
                   ),
                 ),
               ),

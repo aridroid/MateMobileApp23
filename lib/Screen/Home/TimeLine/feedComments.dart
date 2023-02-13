@@ -30,22 +30,32 @@ class _CampusLivePostCommentsState extends State<FeedComments> {
   ThemeController themeController = Get.find<ThemeController>();
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      //backgroundColor: myHexColor,
-      appBar: AppBar(
-        elevation: 0,
-        iconTheme: IconThemeData(
-          color: MateColors.activeIcons,
+    return GestureDetector(
+       behavior: HitTestBehavior.translucent,
+          onTap: null,
+          onPanUpdate: (details) {
+            if (details.delta.dy > 0){
+              FocusScope.of(context).requestFocus(FocusNode());
+              print("Dragging in +Y direction");
+            }
+          },
+      child: Scaffold(
+        //backgroundColor: myHexColor,
+        appBar: AppBar(
+          elevation: 0,
+          iconTheme: IconThemeData(
+            color: MateColors.activeIcons,
+          ),
+          title: Text('Comments', style: TextStyle(
+            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+            fontWeight: FontWeight.w700,
+            fontSize: 17.0,
+          ),
+          ),
+          centerTitle: true,
         ),
-        title: Text('Comments', style: TextStyle(
-          color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-          fontWeight: FontWeight.w700,
-          fontSize: 17.0,
-        ),
-        ),
-        centerTitle: true,
+        body: FeedCommentsWidget(feedId: widget.feedId,feedIndex: widget.feedIndex,),
       ),
-      body: FeedCommentsWidget(feedId: widget.feedId,feedIndex: widget.feedIndex,),
     );
   }
 }
@@ -83,6 +93,7 @@ class _FeedCommentsWidgetState extends State<FeedCommentsWidget> {
           _messageSendWidget(),
           Expanded(
             child: SingleChildScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               child: Consumer<FeedProvider>(
                 builder: (context, feedProvider, child) {
                   if (!feedProvider.fetchCommentsLoader && feedProvider.commentFetchData != null) {

@@ -29,7 +29,6 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     final sch = MediaQuery.of(context).size.height;
@@ -47,7 +46,13 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
           children: [
             Center(
               child: _controller.value.isInitialized?
-              VideoPlayer(_controller):
+              FittedBox(
+                fit: BoxFit.cover,
+                child: SizedBox(
+                    height: _controller.value.size?.height ?? 0,
+                    width: _controller.value.size?.width ?? 0,
+                    child: VideoPlayer(_controller)),
+              ):
               CircularProgressIndicator(
                 color: Colors.white,
               ),
@@ -79,9 +84,6 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
                           padding: EdgeInsets.all(10),
                           shape: CircleBorder(side: BorderSide(color: Colors.white, width: 1.2)),
                         ),
-                        // color: Colors.grey.withOpacity(0.5),
-                        // padding: EdgeInsets.all(10),
-                        // shape: CircleBorder(side: BorderSide(color: Colors.white, width: 1.2)),
                         child: Icon(
                           _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
                           color: Colors.white,

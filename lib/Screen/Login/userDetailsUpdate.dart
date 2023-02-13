@@ -18,72 +18,82 @@ class _UserDetailsUpdateState extends State<UserDetailsUpdate> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: myHexColor,
-      body: Form(
-        child: ListView(
-          shrinkWrap: true,
-          padding: EdgeInsets.fromLTRB(16,10,16,0),
-          children: [
-            Text("Your Virtual Campus",style: TextStyle(fontSize: 16,color: MateColors.activeIcons),textAlign: TextAlign.center,),
-            SizedBox(height: 40,),
-            Image.asset(
-              "lib/asset/logo.png",
-              //color: Colors.white,
-              width: 30,
-              height: 30,
-            ),
-            SizedBox(height: 45,),
-            TextFormField(
-              decoration: _customInputDecoration(
-                  labelText: 'Username', icon: Icons.person_outline),
-              style: TextStyle(color: Colors.white, fontSize: 18.0),
-              cursorColor: Colors.cyanAccent,
-              textInputAction: TextInputAction.next,
-              controller: _userName,
-              validator: (value) {
-                return value.isEmpty ? "*Username Required" : null; //returning null means no error occurred. if there are any error then simply return a string
-              },
-            ),
-            SizedBox(height: 15,),
-            TextFormField(
-              decoration: _customInputDecoration(
-                  labelText: 'phone', icon: Icons.phone_iphone_rounded),
-              style: TextStyle(color: Colors.white, fontSize: 18.0),
-              cursorColor: Colors.cyanAccent,
-              textInputAction: TextInputAction.done,
-              maxLength: 10,
-              controller: _userName,
-              validator: (value) {
-                return value.isEmpty ? "*phone no. Required" : null; //returning null means no error occurred. if there are any error then simply return a string
-              },
-            ),
-            SizedBox(height: 25,),
-            ButtonTheme(
-              minWidth: MediaQuery.of(context).size.width - 40,
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: MateColors.activeIcons,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                ),
-                // shape: RoundedRectangleBorder(
-                //   borderRadius: BorderRadius.circular(15.0),
-                // ),
-                // color: MateColors.activeIcons,
-                child: Text(
-                  'Proceed',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                onPressed: () {
-                  _submitForm(context);
+    return GestureDetector(
+       behavior: HitTestBehavior.translucent,
+          onTap: null,
+          onPanUpdate: (details) {
+            if (details.delta.dy > 0){
+              FocusScope.of(context).requestFocus(FocusNode());
+              print("Dragging in +Y direction");
+            }
+          },
+      child: Scaffold(
+        backgroundColor: myHexColor,
+        body: Form(
+          child: ListView(
+            shrinkWrap: true,
+            padding: EdgeInsets.fromLTRB(16,10,16,0),
+            children: [
+              Text("Your Virtual Campus",style: TextStyle(fontSize: 16,color: MateColors.activeIcons),textAlign: TextAlign.center,),
+              SizedBox(height: 40,),
+              Image.asset(
+                "lib/asset/logo.png",
+                //color: Colors.white,
+                width: 30,
+                height: 30,
+              ),
+              SizedBox(height: 45,),
+              TextFormField(
+                decoration: _customInputDecoration(
+                    labelText: 'Username', icon: Icons.person_outline),
+                style: TextStyle(color: Colors.white, fontSize: 18.0),
+                cursorColor: Colors.cyanAccent,
+                textInputAction: TextInputAction.next,
+                controller: _userName,
+                validator: (value) {
+                  return value.isEmpty ? "*Username Required" : null; //returning null means no error occurred. if there are any error then simply return a string
                 },
               ),
-            ),
+              SizedBox(height: 15,),
+              TextFormField(
+                decoration: _customInputDecoration(
+                    labelText: 'phone', icon: Icons.phone_iphone_rounded),
+                style: TextStyle(color: Colors.white, fontSize: 18.0),
+                cursorColor: Colors.cyanAccent,
+                textInputAction: TextInputAction.done,
+                maxLength: 10,
+                controller: _userName,
+                validator: (value) {
+                  return value.isEmpty ? "*phone no. Required" : null; //returning null means no error occurred. if there are any error then simply return a string
+                },
+              ),
+              SizedBox(height: 25,),
+              ButtonTheme(
+                minWidth: MediaQuery.of(context).size.width - 40,
+                height: 50,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: MateColors.activeIcons,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                  ),
+                  // shape: RoundedRectangleBorder(
+                  //   borderRadius: BorderRadius.circular(15.0),
+                  // ),
+                  // color: MateColors.activeIcons,
+                  child: Text(
+                    'Proceed',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  onPressed: () {
+                    _submitForm(context);
+                  },
+                ),
+              ),
 
-          ],
+            ],
+          ),
         ),
       ),
     );

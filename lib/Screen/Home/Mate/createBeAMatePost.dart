@@ -65,415 +65,426 @@ class _CreateBeAMatePostState extends State<CreateBeAMatePost> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Scaffold(
-          appBar: AppBar(
-            elevation: 0,
-            iconTheme: IconThemeData(
-              color: MateColors.activeIcons,
-            ),
-            title: Text(
-              "Create Post",
-              style: TextStyle(
-                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                fontWeight: FontWeight.w700,
-                fontSize: 17.0,
+        GestureDetector(
+           behavior: HitTestBehavior.translucent,
+          onTap: null,
+          onPanUpdate: (details) {
+            if (details.delta.dy > 0){
+              FocusScope.of(context).requestFocus(FocusNode());
+              print("Dragging in +Y direction");
+            }
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              elevation: 0,
+              iconTheme: IconThemeData(
+                color: MateColors.activeIcons,
               ),
+              title: Text(
+                "Create Post",
+                style: TextStyle(
+                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 17.0,
+                ),
+              ),
+              centerTitle: true,
             ),
-            centerTitle: true,
-          ),
-          body: Form(
-            key: _formKey,
-            child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 2,right: 2),
-                    child:  Text(
-                      "I can help with...",
-                      style: TextStyle(
+            body: Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 2,right: 2),
+                      child:  Text(
+                        "I can help with...",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.1,
+                          color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10,),
+                    TextFormField(
+                      decoration: _customInputDecoration(labelText: 'Title', icon: Icons.perm_identity),
+                      style:  TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         letterSpacing: 0.1,
-                        color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                        color: themeController.isDarkMode?Colors.white:Colors.black,
+                      ),
+                      cursorColor: MateColors.activeIcons,
+                      textInputAction: TextInputAction.next,
+                      // maxLength: 50,
+                      // onChanged: (value){
+                      //   titleLength = value.length;
+                      //   setState(() {});
+                      // },
+                      focusNode: focusNode,
+                      onFieldSubmitted: (val) {
+                        print('onFieldSubmitted :: Title = $val');
+                      },
+                      onSaved: (value) {
+                        print('onSaved Title = $value');
+                        _title = value;
+                      },
+                      validator: (value) {
+                        if(value.isEmpty){
+                          return "Please Enter Title";
+                        }else
+                          return null;
+                      },
+                    ),
+                    SizedBox(height: 30,),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 2,right: 2),
+                      child: Text(
+                        "Description",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.1,
+                          color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 10,),
-                  TextFormField(
-                    decoration: _customInputDecoration(labelText: 'Title', icon: Icons.perm_identity),
-                    style:  TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.1,
-                      color: themeController.isDarkMode?Colors.white:Colors.black,
+                    SizedBox(height: 10,),
+                    TextFormField(
+                      decoration: _customInputDecoration(labelText: 'How can you help your mates?', icon: Icons.perm_identity),
+                      style:  TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.1,
+                        color: themeController.isDarkMode?Colors.white:Colors.black,
+                      ),
+                      cursorColor: MateColors.activeIcons,
+                      textInputAction: TextInputAction.done,
+                      minLines: 3,
+                      maxLines: 6,
+                      // maxLength: 256,
+                      // onChanged: (value){
+                      //   descriptionLength = value.length;
+                      //   setState(() {});
+                      // },
+                      onFieldSubmitted: (val) {
+                        print('onFieldSubmitted :: description = $val');
+                      },
+                      onSaved: (value) {
+                        print('onSaved lastName = $value');
+                        _description = value;
+                      },
+                      validator: (value) {
+                        if(value.isEmpty){
+                          return "Please Type Description";
+                        }else
+                          return null;
+                      },
                     ),
-                    cursorColor: MateColors.activeIcons,
-                    textInputAction: TextInputAction.next,
-                    // maxLength: 50,
-                    // onChanged: (value){
-                    //   titleLength = value.length;
-                    //   setState(() {});
-                    // },
-                    focusNode: focusNode,
-                    onFieldSubmitted: (val) {
-                      print('onFieldSubmitted :: Title = $val');
-                    },
-                    onSaved: (value) {
-                      print('onSaved Title = $value');
-                      _title = value;
-                    },
-                    validator: (value) {
-                      if(value.isEmpty){
-                        return "Please Enter Title";
-                      }else
+
+
+                    SizedBox(height: 30,),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 2,right: 2),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Link Text – Optional",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.1,
+                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            ),
+                          ),
+                          Text(
+                            "$linkTextLength/100",
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: 0.1,
+                              color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 10,),
+                    TextFormField(
+                      decoration: _customInputDecoration(labelText: 'Link Text', icon: Icons.location_on),
+                      style:  TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.1,
+                        color: themeController.isDarkMode?Colors.white:Colors.black,
+                      ),
+                      cursorColor: MateColors.activeIcons,
+                      textInputAction: TextInputAction.done,
+                      maxLength: 100,
+                      onChanged: (value){
+                        linkTextLength = value.length;
+                        setState(() {});
+                      },
+                      onSaved: (value) {
+                        print('onSaved link text = $value');
+                        _linkText = value;
+                      },
+                      validator: (value) {
                         return null;
-                    },
-                  ),
-                  SizedBox(height: 30,),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 2,right: 2),
-                    child: Text(
-                      "Description",
-                      style: TextStyle(
+                      },
+                    ),
+                    SizedBox(height: 30,),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 2,right: 2),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Link – Optional",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.1,
+                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            ),
+                          ),
+                          Text(
+                            "$linkLength/100",
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: 0.1,
+                              color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 10,),
+                    TextFormField(
+                      decoration: _customInputDecoration(labelText: 'Link', icon: Icons.location_on),
+                      style:  TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         letterSpacing: 0.1,
-                        color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                        color: themeController.isDarkMode?Colors.white:Colors.black,
                       ),
-                    ),
-                  ),
-                  SizedBox(height: 10,),
-                  TextFormField(
-                    decoration: _customInputDecoration(labelText: 'How can you help your mates?', icon: Icons.perm_identity),
-                    style:  TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.1,
-                      color: themeController.isDarkMode?Colors.white:Colors.black,
-                    ),
-                    cursorColor: MateColors.activeIcons,
-                    textInputAction: TextInputAction.done,
-                    minLines: 3,
-                    maxLines: 6,
-                    // maxLength: 256,
-                    // onChanged: (value){
-                    //   descriptionLength = value.length;
-                    //   setState(() {});
-                    // },
-                    onFieldSubmitted: (val) {
-                      print('onFieldSubmitted :: description = $val');
-                    },
-                    onSaved: (value) {
-                      print('onSaved lastName = $value');
-                      _description = value;
-                    },
-                    validator: (value) {
-                      if(value.isEmpty){
-                        return "Please Type Description";
-                      }else
+                      cursorColor: MateColors.activeIcons,
+                      textInputAction: TextInputAction.done,
+                      maxLength: 100,
+                      onChanged: (value){
+                        linkLength = value.length;
+                        setState(() {});
+                      },
+                      onSaved: (value) {
+                        print('onSaved link = $value');
+                        _link = value;
+                      },
+                      validator: (value) {
                         return null;
-                    },
-                  ),
-
-
-                  SizedBox(height: 30,),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 2,right: 2),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Link Text – Optional",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.1,
-                            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                          ),
-                        ),
-                        Text(
-                          "$linkTextLength/100",
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
-                            letterSpacing: 0.1,
-                            color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                          ),
-                        ),
-                      ],
+                      },
                     ),
-                  ),
-                  SizedBox(height: 10,),
-                  TextFormField(
-                    decoration: _customInputDecoration(labelText: 'Link Text', icon: Icons.location_on),
-                    style:  TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.1,
-                      color: themeController.isDarkMode?Colors.white:Colors.black,
-                    ),
-                    cursorColor: MateColors.activeIcons,
-                    textInputAction: TextInputAction.done,
-                    maxLength: 100,
-                    onChanged: (value){
-                      linkTextLength = value.length;
-                      setState(() {});
-                    },
-                    onSaved: (value) {
-                      print('onSaved link text = $value');
-                      _linkText = value;
-                    },
-                    validator: (value) {
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 30,),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 2,right: 2),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Link – Optional",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.1,
-                            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                          ),
-                        ),
-                        Text(
-                          "$linkLength/100",
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
-                            letterSpacing: 0.1,
-                            color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 10,),
-                  TextFormField(
-                    decoration: _customInputDecoration(labelText: 'Link', icon: Icons.location_on),
-                    style:  TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.1,
-                      color: themeController.isDarkMode?Colors.white:Colors.black,
-                    ),
-                    cursorColor: MateColors.activeIcons,
-                    textInputAction: TextInputAction.done,
-                    maxLength: 100,
-                    onChanged: (value){
-                      linkLength = value.length;
-                      setState(() {});
-                    },
-                    onSaved: (value) {
-                      print('onSaved link = $value');
-                      _link = value;
-                    },
-                    validator: (value) {
-                      return null;
-                    },
-                  ),
 
 
 
 
-                  SizedBox(height: 30,),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 2,right: 2),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Portfolio – Optional",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.1,
-                            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                    SizedBox(height: 30,),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 2,right: 2),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Portfolio – Optional",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.1,
+                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            ),
                           ),
-                        ),
-                        Text(
-                          "$linkLength/100",
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
-                            letterSpacing: 0.1,
-                            color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                          Text(
+                            "$linkLength/100",
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: 0.1,
+                              color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 10,),
-                  TextFormField(
-                    decoration: _customInputDecoration(labelText: 'Link', icon: Icons.perm_identity),
-                    style:  TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.1,
-                      color: themeController.isDarkMode?Colors.white:Colors.black,
-                    ),
-                    cursorColor: MateColors.activeIcons,
-                    textInputAction: TextInputAction.next,
-                    maxLength: 100,
-                    onChanged: (value){
-                      linkLength = value.length;
-                      setState(() {});
-                    },
-                    onFieldSubmitted: (val) {
-                      print('onFieldSubmitted :: Title = $val');
-                    },
-                    onSaved: (value) {
-                      print('onSaved Title = $value');
-                      _portfolio = value;
-                    },
-                  ),
-                  SizedBox(height: 30,),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 2,right: 2),
-                    child: Text(
-                      "Available Date",
-                      style: TextStyle(
+                    SizedBox(height: 10,),
+                    TextFormField(
+                      decoration: _customInputDecoration(labelText: 'Link', icon: Icons.perm_identity),
+                      style:  TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         letterSpacing: 0.1,
-                        color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                        color: themeController.isDarkMode?Colors.white:Colors.black,
+                      ),
+                      cursorColor: MateColors.activeIcons,
+                      textInputAction: TextInputAction.next,
+                      maxLength: 100,
+                      onChanged: (value){
+                        linkLength = value.length;
+                        setState(() {});
+                      },
+                      onFieldSubmitted: (val) {
+                        print('onFieldSubmitted :: Title = $val');
+                      },
+                      onSaved: (value) {
+                        print('onSaved Title = $value');
+                        _portfolio = value;
+                      },
+                    ),
+                    SizedBox(height: 30,),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 2,right: 2),
+                      child: Text(
+                        "Available Date",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.1,
+                          color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 10,),
-                  DateTimeField(
-                    format: dateFormat,
-                    decoration: _customInputDecoration(labelText: 'Available From', icon: Icons.perm_identity),
-                    style:  TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.1,
-                      color: themeController.isDarkMode?Colors.white:Colors.black,
-                    ),
-                    cursorColor: MateColors.activeIcons,
-                    textInputAction: TextInputAction.done,
-                    onShowPicker: (context, currentValue) {
-                      return showDatePicker(
-                          context: context,
-                          firstDate: DateTime(1900),
-                          initialDate: currentValue ?? DateTime.now(),
-                          lastDate: DateTime(2100));
-                    },
-                    onSaved: (value) {
-                      print('onSaved fromDate = $value');
-                      _fromDate = value!=null?value.toString():null;
-                    },
-                    // validator: (value) {
-                    //   if(value==null){
-                    //     return "Please Select Available Date";
-                    //   }else
-                    //     return null;
-                    // },
-                  ),
-                  SizedBox(height: 10,),
-                  DateTimeField(
-                    format: dateFormat,
-                    decoration: _customInputDecoration(labelText: 'Available To', icon: Icons.perm_identity),
-                    style:  TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.1,
-                      color: themeController.isDarkMode?Colors.white:Colors.black,
-                    ),
-                    cursorColor: MateColors.activeIcons,
-                    textInputAction: TextInputAction.done,
-
-                    onShowPicker: (context, currentValue) {
-                      return showDatePicker(
-                          context: context,
-                          firstDate: DateTime(1900),
-                          initialDate: currentValue ?? DateTime.now(),
-                          lastDate: DateTime(2100));
-                    },
-                    onSaved: (value) {
-                      print('onSaved toDate = $value');
-                      _toDate = value!=null?value.toString():null;
-                    },
-                  ),
-                  SizedBox(height: 30,),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 2,right: 2),
-                    child: Text(
-                      "Available Time",
-                      style: TextStyle(
+                    SizedBox(height: 10,),
+                    DateTimeField(
+                      format: dateFormat,
+                      decoration: _customInputDecoration(labelText: 'Available From', icon: Icons.perm_identity),
+                      style:  TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         letterSpacing: 0.1,
-                        color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                        color: themeController.isDarkMode?Colors.white:Colors.black,
+                      ),
+                      cursorColor: MateColors.activeIcons,
+                      textInputAction: TextInputAction.done,
+                      onShowPicker: (context, currentValue) {
+                        return showDatePicker(
+                            context: context,
+                            firstDate: DateTime(1900),
+                            initialDate: currentValue ?? DateTime.now(),
+                            lastDate: DateTime(2100));
+                      },
+                      onSaved: (value) {
+                        print('onSaved fromDate = $value');
+                        _fromDate = value!=null?value.toString():null;
+                      },
+                      // validator: (value) {
+                      //   if(value==null){
+                      //     return "Please Select Available Date";
+                      //   }else
+                      //     return null;
+                      // },
+                    ),
+                    SizedBox(height: 10,),
+                    DateTimeField(
+                      format: dateFormat,
+                      decoration: _customInputDecoration(labelText: 'Available To', icon: Icons.perm_identity),
+                      style:  TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.1,
+                        color: themeController.isDarkMode?Colors.white:Colors.black,
+                      ),
+                      cursorColor: MateColors.activeIcons,
+                      textInputAction: TextInputAction.done,
+
+                      onShowPicker: (context, currentValue) {
+                        return showDatePicker(
+                            context: context,
+                            firstDate: DateTime(1900),
+                            initialDate: currentValue ?? DateTime.now(),
+                            lastDate: DateTime(2100));
+                      },
+                      onSaved: (value) {
+                        print('onSaved toDate = $value');
+                        _toDate = value!=null?value.toString():null;
+                      },
+                    ),
+                    SizedBox(height: 30,),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 2,right: 2),
+                      child: Text(
+                        "Available Time",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.1,
+                          color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 10,),
-                  DateTimeField(
-                    format: timeFormat,
-                    decoration: _customInputDecoration(labelText: 'Available From', icon: Icons.perm_identity),
-                    style:  TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.1,
-                      color: themeController.isDarkMode?Colors.white:Colors.black,
-                    ),
-                    cursorColor: MateColors.activeIcons,
-                    textInputAction: TextInputAction.done,
+                    SizedBox(height: 10,),
+                    DateTimeField(
+                      format: timeFormat,
+                      decoration: _customInputDecoration(labelText: 'Available From', icon: Icons.perm_identity),
+                      style:  TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.1,
+                        color: themeController.isDarkMode?Colors.white:Colors.black,
+                      ),
+                      cursorColor: MateColors.activeIcons,
+                      textInputAction: TextInputAction.done,
 
-                    onShowPicker: (context, currentValue) async {
-                      final time = await showTimePicker(
-                        context: context,
-                        initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
-                      );
-                      return DateTimeField.convert(time);
-                    },
-                    onSaved: (value) {
-                      print('onSaved fromTime = $value');
-                      _fromTime = value!=null?value.toString():null;
-                    },
-                    // validator: (value) {
-                    //   if(value==null){
-                    //     return "Please Select Available Time";
-                    //   }else
-                    //     return null;
-                    // },
-                  ),
-                  SizedBox(height: 10,),
-                  DateTimeField(
-                    format: timeFormat,
-                    decoration: _customInputDecoration(labelText: 'Available To', icon: Icons.perm_identity),
-                    style:  TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.1,
-                      color: themeController.isDarkMode?Colors.white:Colors.black,
+                      onShowPicker: (context, currentValue) async {
+                        final time = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
+                        );
+                        return DateTimeField.convert(time);
+                      },
+                      onSaved: (value) {
+                        print('onSaved fromTime = $value');
+                        _fromTime = value!=null?value.toString():null;
+                      },
+                      // validator: (value) {
+                      //   if(value==null){
+                      //     return "Please Select Available Time";
+                      //   }else
+                      //     return null;
+                      // },
                     ),
-                    cursorColor: MateColors.activeIcons,
-                    textInputAction: TextInputAction.done,
+                    SizedBox(height: 10,),
+                    DateTimeField(
+                      format: timeFormat,
+                      decoration: _customInputDecoration(labelText: 'Available To', icon: Icons.perm_identity),
+                      style:  TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.1,
+                        color: themeController.isDarkMode?Colors.white:Colors.black,
+                      ),
+                      cursorColor: MateColors.activeIcons,
+                      textInputAction: TextInputAction.done,
 
-                    onShowPicker: (context, currentValue) async {
-                      final time = await showTimePicker(
-                        context: context,
-                        initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
-                      );
-                      return DateTimeField.convert(time);
-                    },
-                    onSaved: (value) {
-                      print('onSaved toTime = $value');
-                      _toTime = value!=null?value.toString():null;
-                    },
-                  ),
-                  _imageSelectionButton(),
-                ],
+                      onShowPicker: (context, currentValue) async {
+                        final time = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
+                        );
+                        return DateTimeField.convert(time);
+                      },
+                      onSaved: (value) {
+                        print('onSaved toTime = $value');
+                        _toTime = value!=null?value.toString():null;
+                      },
+                    ),
+                    _imageSelectionButton(),
+                  ],
+                ),
               ),
             ),
           ),

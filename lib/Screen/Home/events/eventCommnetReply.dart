@@ -51,217 +51,230 @@ class _EventCommentReplyState extends State<EventCommentReply> {
     token = preferences.getString("token");
   }
 
+  double a = 0.0;
+  double b = 0.0;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        iconTheme: IconThemeData(
-          color: MateColors.activeIcons,
-        ),
-        title: Text(
-          "Reply",
-          style: TextStyle(
-            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-            fontWeight: FontWeight.w700,
-            fontSize: 17.0,
+    return GestureDetector(
+       behavior: HitTestBehavior.translucent,
+          onTap: null,
+          onPanUpdate: (details) {
+            if (details.delta.dy > 0){
+              FocusScope.of(context).requestFocus(FocusNode());
+              print("Dragging in +Y direction");
+            }
+          },
+      child: Scaffold(
+        appBar: AppBar(
+          elevation: 0,
+          iconTheme: IconThemeData(
+            color: MateColors.activeIcons,
           ),
+          title: Text(
+            "Reply",
+            style: TextStyle(
+              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+              fontWeight: FontWeight.w700,
+              fontSize: 17.0,
+            ),
+          ),
+          centerTitle: true,
         ),
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView(
-              children: [
-                Container(
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(0.0), border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider, width: 1)),
-                  padding: EdgeInsets.fromLTRB(16, 15, 16, 15),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        child: GestureDetector(
-                          onTap: (){
-                            if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.result.user.uuid) {
-                              Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
-                            } else {
-                              Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                "id": widget.result.user.uuid,
-                                "name": widget.result.user.displayName,
-                                "photoUrl": widget.result.user.profilePhoto,
-                                "firebaseUid": widget.result.user.firebaseUid,
-                              });
-                            }
-                          },
-                          child: ListTile(
-                            horizontalTitleGap: 1,
-                            dense: true,
-                            leading: widget.result.user.profilePhoto != null?
-                            ClipOval(
-                              child: Image.network(
-                                widget.result.user.profilePhoto,
-                                height: 28,
-                                width: 28,
-                                fit: BoxFit.cover,
+        body: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(0.0), border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider, width: 1)),
+                    padding: EdgeInsets.fromLTRB(16, 15, 16, 15),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          child: GestureDetector(
+                            onTap: (){
+                              if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.result.user.uuid) {
+                                Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
+                              } else {
+                                Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
+                                  "id": widget.result.user.uuid,
+                                  "name": widget.result.user.displayName,
+                                  "photoUrl": widget.result.user.profilePhoto,
+                                  "firebaseUid": widget.result.user.firebaseUid,
+                                });
+                              }
+                            },
+                            child: ListTile(
+                              horizontalTitleGap: 1,
+                              dense: true,
+                              leading: widget.result.user.profilePhoto != null?
+                              ClipOval(
+                                child: Image.network(
+                                  widget.result.user.profilePhoto,
+                                  height: 28,
+                                  width: 28,
+                                  fit: BoxFit.cover,
+                                ),
+                              ):CircleAvatar(
+                                radius: 14,
+                                child: Text(widget.result.user.displayName[0]),
                               ),
-                            ):CircleAvatar(
-                              radius: 14,
-                              child: Text(widget.result.user.displayName[0]),
-                            ),
-                            title: Padding(
-                              padding: const EdgeInsets.only(top: 10),
-                              child: Text(
-                                widget.result.content,
-                                style:  TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 0.1,
-                                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                              title: Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: Text(
+                                  widget.result.content,
+                                  style:  TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 0.1,
+                                    color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                                  ),
                                 ),
                               ),
-                            ),
-                            subtitle: Padding(
-                              padding: const EdgeInsets.only(top: 5),
-                              child: Text(
-                                DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(widget.result.createdAt.toString(), true)),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400,
-                                  letterSpacing: 0.1,
-                                  color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                              subtitle: Padding(
+                                padding: const EdgeInsets.only(top: 5),
+                                child: Text(
+                                  DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(widget.result.createdAt.toString(), true)),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                    letterSpacing: 0.1,
+                                    color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 58,top: 5),
-                        child: Row(
-                          children: [
-                            InkWell(
-                              onTap: ()=> focusNode.requestFocus(),
-                              child: Text("Reply", style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontSize: 12.5, fontWeight: FontWeight.w400),),
-                            ),
-                            Text(widget.result.replies.isEmpty?"":widget.result.replies.length>1?
-                            "   •   ${widget.result.replies.length} Replies":
-                            "   •   ${widget.result.replies.length} Reply",
-                              style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontSize: 12.5, fontWeight: FontWeight.w400),),
-                          ],
+                        Padding(
+                          padding: const EdgeInsets.only(left: 58,top: 5),
+                          child: Row(
+                            children: [
+                              InkWell(
+                                onTap: ()=> focusNode.requestFocus(),
+                                child: Text("Reply", style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontSize: 12.5, fontWeight: FontWeight.w400),),
+                              ),
+                              Text(widget.result.replies.isEmpty?"":widget.result.replies.length>1?
+                              "   •   ${widget.result.replies.length} Replies":
+                              "   •   ${widget.result.replies.length} Reply",
+                                style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontSize: 12.5, fontWeight: FontWeight.w400),),
+                            ],
+                          ),
                         ),
-                      ),
-                      widget.result.replies.isNotEmpty?
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: ScrollPhysics(),
-                        itemCount: widget.result.replies.length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: EdgeInsets.fromLTRB(40, 0, 0, 5),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: InkWell(
-                                    onTap: () {
-                                      if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.result.replies[index].user.uuid) {
-                                        Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
-                                      } else {
-                                        Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                          "id": widget.result.replies[index].user.uuid,
-                                          "name": widget.result.replies[index].user.displayName,
-                                          "photoUrl": widget.result.replies[index].user.profilePhoto,
-                                          "firebaseUid": widget.result.replies[index].user.firebaseUid
-                                        });
-                                      }
-                                    },
-                                    child: ListTile(
-                                      horizontalTitleGap: 1,
-                                      dense: true,
-                                      leading: widget.result.replies[index].user.profilePhoto != null?
-                                      ClipOval(
-                                        child: Image.network(
-                                          widget.result.replies[index].user.profilePhoto,
-                                          height: 28,
-                                          width: 28,
-                                          fit: BoxFit.cover,
+                        widget.result.replies.isNotEmpty?
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: ScrollPhysics(),
+                          itemCount: widget.result.replies.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: EdgeInsets.fromLTRB(40, 0, 0, 5),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: InkWell(
+                                      onTap: () {
+                                        if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.result.replies[index].user.uuid) {
+                                          Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
+                                        } else {
+                                          Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
+                                            "id": widget.result.replies[index].user.uuid,
+                                            "name": widget.result.replies[index].user.displayName,
+                                            "photoUrl": widget.result.replies[index].user.profilePhoto,
+                                            "firebaseUid": widget.result.replies[index].user.firebaseUid
+                                          });
+                                        }
+                                      },
+                                      child: ListTile(
+                                        horizontalTitleGap: 1,
+                                        dense: true,
+                                        leading: widget.result.replies[index].user.profilePhoto != null?
+                                        ClipOval(
+                                          child: Image.network(
+                                            widget.result.replies[index].user.profilePhoto,
+                                            height: 28,
+                                            width: 28,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ):CircleAvatar(
+                                          radius: 14,
+                                          child: Text(widget.result.replies[index].user.displayName[0],),
                                         ),
-                                      ):CircleAvatar(
-                                        radius: 14,
-                                        child: Text(widget.result.replies[index].user.displayName[0],),
+                                        title: Padding(
+                                          padding: const EdgeInsets.only(top: 10),
+                                          child: Text(
+                                            widget.result.replies[index].content,
+                                            style:  TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              letterSpacing: 0.1,
+                                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                                            ),
+                                          ),
+                                        ),
+                                        subtitle: Padding(
+                                          padding: const EdgeInsets.only(top: 5),
+                                          child: Text(
+                                            DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(widget.result.replies[index].createdAt.toString(), true)),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w400,
+                                              letterSpacing: 0.1,
+                                              color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                                            ),
+                                          ),
+                                        ),
+                                        trailing: Visibility(
+                                          visible:  Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.result.replies[index].user.uuid,
+                                          child: widget.result.replies[index].isDeleting?
+                                          SizedBox(
+                                            height: 14,
+                                            width: 14,
+                                            child: CircularProgressIndicator(
+                                              color: themeController.isDarkMode?Colors.white:Colors.black,
+                                              strokeWidth: 1.2,
+                                            ),
+                                          ):
+                                          InkWell(
+                                            onTap: () async{
+                                              setState(() {
+                                                widget.result.replies[index].isDeleting = true;
+                                              });
+                                              await _eventService.deleteComment(id: widget.result.replies[index].id,token: token);
+                                              setState(() {
+                                                widget.result.replies[index].isDeleting = false;
+                                              });
+                                              widget.result.replies.removeAt(index);
+                                              setState(() {});
+                                              widget.changeCommentCount(false);
+                                            },
+                                            child: Icon(
+                                              Icons.delete_outline,
+                                              size: 18,
+                                              color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                                            ),
+                                          ),
+                                        )
                                       ),
-                                      title: Padding(
-                                        padding: const EdgeInsets.only(top: 10),
-                                        child: Text(
-                                          widget.result.replies[index].content,
-                                          style:  TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            letterSpacing: 0.1,
-                                            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                                          ),
-                                        ),
-                                      ),
-                                      subtitle: Padding(
-                                        padding: const EdgeInsets.only(top: 5),
-                                        child: Text(
-                                          DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(widget.result.replies[index].createdAt.toString(), true)),
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w400,
-                                            letterSpacing: 0.1,
-                                            color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                                          ),
-                                        ),
-                                      ),
-                                      trailing: Visibility(
-                                        visible:  Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.result.replies[index].user.uuid,
-                                        child: widget.result.replies[index].isDeleting?
-                                        SizedBox(
-                                          height: 14,
-                                          width: 14,
-                                          child: CircularProgressIndicator(
-                                            color: themeController.isDarkMode?Colors.white:Colors.black,
-                                            strokeWidth: 1.2,
-                                          ),
-                                        ):
-                                        InkWell(
-                                          onTap: () async{
-                                            setState(() {
-                                              widget.result.replies[index].isDeleting = true;
-                                            });
-                                            await _eventService.deleteComment(id: widget.result.replies[index].id,token: token);
-                                            setState(() {
-                                              widget.result.replies[index].isDeleting = false;
-                                            });
-                                            widget.result.replies.removeAt(index);
-                                            setState(() {});
-                                            widget.changeCommentCount(false);
-                                          },
-                                          child: Icon(
-                                            Icons.delete_outline,
-                                            size: 18,
-                                            color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                                          ),
-                                        ),
-                                      )
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ):SizedBox(),
-                    ],
+                                ],
+                              ),
+                            );
+                          },
+                        ):SizedBox(),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          _messageSendWidget(),
-        ],
+            _messageSendWidget(),
+          ],
+        ),
       ),
     );
   }

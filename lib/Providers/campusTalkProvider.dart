@@ -248,6 +248,30 @@ class CampusTalkProvider extends ChangeNotifier{
     return true;
   }
 
+  Future<bool> updateACampusTalkPost(int id,String title, String description, bool isAnonymous,String anonymousUser) async {
+    error = '';
+    _uploadPostLoader = true;
+    try {
+      var data = await _campusTalkService.updateACampusTalk(
+          {
+            "title":title,
+            "description": description,
+            "is_anonymous":isAnonymous,
+            if(anonymousUser!=null)
+              "anonymous_user":anonymousUser,
+
+          },
+        id,
+      );
+    } catch (err) {
+      _setError(err);
+      return false;
+    } finally {
+      _uploadPostLoader = false;
+    }
+    return true;
+  }
+
 
   Future<bool> upVoteAPost(int postId, int index, {bool isBookmarkedPage=false, bool isUserProfile=false}) async {
     error = '';
@@ -452,7 +476,8 @@ class CampusTalkProvider extends ChangeNotifier{
 
   Future<bool> deleteACampusTalk(int postId, int index) async {
     error = '';
-    campusTalkPostsModelData.data.result[index].deleteLoader=true;
+    campusTalkPostsResultsList[index].deleteLoader=true;
+    //campusTalkPostsModelData.data.result[index].deleteLoader=true;
     var data;
     try {
       data = await _campusTalkService.deleteACampusTalk(postId);
@@ -460,7 +485,8 @@ class CampusTalkProvider extends ChangeNotifier{
       _setError(err);
       return false;
     } finally {
-      campusTalkPostsModelData.data.result[index].deleteLoader=false;
+      campusTalkPostsResultsList[index].deleteLoader=false;
+      //campusTalkPostsModelData.data.result[index].deleteLoader=false;
     }
     return true;
     // notifyListeners();

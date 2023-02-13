@@ -1,27 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mate_app/Providers/AuthUserProvider.dart';
-import 'package:mate_app/Screen/Chat/StudyGroupsScreen.dart';
-import 'package:mate_app/Screen/Class/MyClassScreen.dart';
-import 'package:mate_app/Screen/Class/SearchClassScreen.dart';
-import 'package:mate_app/Screen/Home/Community/Community.dart';
-import 'package:mate_app/Screen/Home/Community/campusLive.dart';
 import 'package:mate_app/Screen/Home/Community/campusTalk.dart';
 import 'package:mate_app/Screen/Home/CommunityTab/communityTab.dart';
-import 'package:mate_app/Screen/Home/Group/GroupScreen.dart';
-import 'package:mate_app/Screen/Home/Mate/MateScreen.dart';
-import 'package:mate_app/Screen/Home/Mate/MateScreen.dart';
-import 'package:mate_app/Screen/Home/Seach/SearchScreen.dart';
 import 'package:mate_app/Screen/Home/TimeLine/CreateFeedPost.dart';
 import 'package:mate_app/Screen/Home/TimeLine/TimeLine.dart';
 import 'package:mate_app/Screen/Home/events/eventDashboard.dart';
-import 'package:mate_app/Screen/Login/userDetailsUpdate.dart';
-import 'package:mate_app/Screen/chat1/personalChatPage.dart';
 import 'package:mate_app/Widget/Drawer/DrawerWidget.dart';
 import 'package:mate_app/asset/Colors/MateColors.dart';
 import 'package:mate_app/constant.dart';
-import 'package:mate_app/groupChat/pages/home_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mate_app/Utility/Utility.dart' as config;
@@ -37,7 +24,6 @@ import '../../Providers/campusTalkProvider.dart';
 import '../../Providers/reportProvider.dart';
 import '../../Utility/Utility.dart';
 import '../../audioAndVideoCalling/acceptRejectScreen.dart';
-import '../../textStyles.dart';
 import '../chatDashboard/chatDashboard.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -46,7 +32,6 @@ class HomeScreen extends StatefulWidget {
   final String feedTypeName;
   final String groupId;
 
-
   const HomeScreen({Key key, this.index = 0, this.feedTypeName="", this.groupId}) : super(key: key);
   @override
   _HomeScreenState createState() => _HomeScreenState(index);
@@ -54,9 +39,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
   int _currentIndex;
-
   _HomeScreenState(this._currentIndex);
-
   String _projectVersion='';
   bool appCheckFirstTime=true;
   ReportProvider _reportProvider;
@@ -66,7 +49,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
-
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state)async{
@@ -89,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
         SharedPreferences preferences = await SharedPreferences.getInstance();
         bool check = preferences.getBool("isCallOngoing")??false;
         print(check);
-        if(diff.inMinutes<3 && check==false){
+        if(diff.inMinutes<1 && check==false){
           Get.to(
               AcceptRejectScreen(
                 channelName: documentSnapshot["channelName"],
@@ -140,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
       DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(documentSnapshot["timestamp"].toString()));
       Duration diff = dateTimeLocal.difference(dateFormatServer);
       print(diff.inMinutes);
-      if(diff.inMinutes<3){
+      if(diff.inMinutes<1){
         Get.to(
             AcceptRejectScreen(
               channelName: documentSnapshot["channelName"],

@@ -627,6 +627,7 @@ class DatabaseService {
       'callType' : videoOrAudio,
       'membersWhoJoined' : [],
       'memberWhoIsOnCall' : [],
+      'memberWhoseCallHistoryAddedToChat' : [],
       'token' : token,
       'callerUid' : callerUid,
       'groupMember' : groupMember,
@@ -654,6 +655,13 @@ class DatabaseService {
         SetOptions(merge: true),
       );
     }
+  }
+
+  updateCallHistory({String channelName,String uid}) async {
+    callCollection.doc(channelName).set(
+      {'memberWhoseCallHistoryAddedToChat': FieldValue.arrayUnion([uid])},
+      SetOptions(merge: true),
+    );
   }
 
   Stream<DocumentSnapshot> getCallDetailByChannelName(String channelName) {

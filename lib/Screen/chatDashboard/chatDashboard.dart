@@ -555,24 +555,32 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
       String callSymbol;
       String receiverId;
 
-      if(callHistory.docs[i]['groupIdORPeerId'].contains(_user.uid)){
-        callType = callHistory.docs[i]['callType'];
-        createdAt = callHistory.docs[i]['createdAt'].toString();
-        isPersonalCall = callHistory.docs[i]['groupIdORPeerId'].contains(_user.uid);
-        List<String> split = callHistory.docs[i]['groupIdORPeerId'].toString().split("-");
-        List<String> splitOther = split.where((element) => element!=_user.uid).toList();
-        callerId = _user.displayName ==  callHistory.docs[i]['groupNameORCallerName'] ? _user.uid : splitOther[0];
-        receiverId = _user.displayName ==  callHistory.docs[i]['groupNameORCallerName'] ? splitOther[0] : _user.uid;
-        callSymbol = _user.displayName ==  callHistory.docs[i]['groupNameORCallerName'] ? 'called' : callHistory.docs[i]['membersWhoJoined'].contains(_user.uid)? 'received' : 'missed';
-        callHistoryList.add(CallHistoryModel(callType, isPersonalCall, createdAt, callerId, callSymbol,receiverId));
-      }else if(callHistory.docs[i]['groupMember'].contains(_user.uid)){
-        callType = callHistory.docs[i]['callType'];
-        createdAt = callHistory.docs[i]['createdAt'].toString();
-        isPersonalCall = callHistory.docs[i]['groupIdORPeerId'].contains(_user.uid);
-        callerId = callHistory.docs[i]['groupIdORPeerId'];
-        receiverId = callHistory.docs[i]['groupIdORPeerId'];
-        callSymbol = _user.uid == callHistory.docs[i]['callerUid']?'called': callHistory.docs[i]['membersWhoJoined'].contains(_user.uid)?"received":"missed";
-        callHistoryList.add(CallHistoryModel(callType, isPersonalCall, createdAt, callerId, callSymbol,receiverId));
+      if(callHistory.docs[i]['groupIdORPeerId']!=null){
+        if(callHistory.docs[i]['groupIdORPeerId'].contains(_user.uid)){
+          callType = callHistory.docs[i]['callType'];
+          createdAt = callHistory.docs[i]['createdAt'].toString();
+          isPersonalCall = callHistory.docs[i]['groupIdORPeerId'].contains(_user.uid);
+          List<String> split = callHistory.docs[i]['groupIdORPeerId'].toString().split("-");
+          List<String> splitOther = split.where((element) => element!=_user.uid).toList();
+          callerId = _user.displayName ==  callHistory.docs[i]['groupNameORCallerName'] ? _user.uid : splitOther[0];
+          receiverId = _user.displayName ==  callHistory.docs[i]['groupNameORCallerName'] ? splitOther[0] : _user.uid;
+          callSymbol = _user.displayName ==  callHistory.docs[i]['groupNameORCallerName'] ? 'called' : callHistory.docs[i]['membersWhoJoined'].contains(_user.uid)? 'received' : 'missed';
+          callHistoryList.add(CallHistoryModel(callType, isPersonalCall, createdAt, callerId, callSymbol,receiverId));
+          if(callSymbol=="missed" && callHistory.docs[i]['memberWhoseCallHistoryAddedToChat']!=null && !callHistory.docs[i]['memberWhoseCallHistoryAddedToChat'].contains(_user.uid)){
+            _sendMessagePersonalChat(callHistory.docs[i]);
+          }
+        }else if(callHistory.docs[i]['groupMember'].contains(_user.uid)){
+          callType = callHistory.docs[i]['callType'];
+          createdAt = callHistory.docs[i]['createdAt'].toString();
+          isPersonalCall = callHistory.docs[i]['groupIdORPeerId'].contains(_user.uid);
+          callerId = callHistory.docs[i]['groupIdORPeerId'];
+          receiverId = callHistory.docs[i]['groupIdORPeerId'];
+          callSymbol = _user.uid == callHistory.docs[i]['callerUid']?'called': callHistory.docs[i]['membersWhoJoined'].contains(_user.uid)?"received":"missed";
+          callHistoryList.add(CallHistoryModel(callType, isPersonalCall, createdAt, callerId, callSymbol,receiverId));
+          if(callSymbol=="missed" && callHistory.docs[i]['memberWhoseCallHistoryAddedToChat']!=null && !callHistory.docs[i]['memberWhoseCallHistoryAddedToChat'].contains(_user.uid)){
+            _sendMessageGroupChat(callHistory.docs[i]);
+          }
+        }
       }
     }
     setState(() {
@@ -584,6 +592,50 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
     Future.delayed(Duration.zero, () {
       Provider.of<ChatProvider>(context, listen: false).mergedChatDataFetch(_user.uid,false);
     });
+  }
+
+  _sendMessageGroupChat(QueryDocumentSnapshot data,{bool isImage = false, bool isFile = false, bool isGif = false,bool isAudio=false}){
+    String callType = data['callType']=="Video Calling"?"video call":"voice call";
+    DateTime dateFormat = new DateTime.fromMillisecondsSinceEpoch(int.parse(data["createdAt"].toString()));
+    String formattedTime = DateFormat.jm().format(dateFormat);
+    String message = "This is missed call@#%___Missed $callType at $formattedTime";
+    print("-----Inserting missed call to group chat : $message----------");
+
+    Map<String, dynamic> chatMessageMap = {
+      "message": message.trim(),
+      "sender": _user.displayName,
+      'senderId': _user.uid,
+      'time': DateTime.now().millisecondsSinceEpoch,
+      'isImage': isImage,
+      'isFile': isFile,
+      'isGif' : isGif,
+      'isAudio':isAudio,
+    };
+
+    DatabaseService().sendMessage(data['groupIdORPeerId'], chatMessageMap,_user.photoURL);
+    DatabaseService().updateCallHistory(channelName: data['channelName'],uid: _user.uid);
+  }
+
+  _sendMessagePersonalChat(QueryDocumentSnapshot data) {
+    String callType = data['callType']=="Video Calling"?"video call":"voice call";
+    DateTime dateFormat = new DateTime.fromMillisecondsSinceEpoch(int.parse(data["createdAt"].toString()));
+    String formattedTime = DateFormat.jm().format(dateFormat);
+    String message = "This is missed call@#%___Missed $callType at $formattedTime";
+    print("-----Inserting missed call to personal chat : $message----------");
+    
+    String idTo = data['groupIdORPeerId'].toString().split('-').first == _user.uid? data['groupIdORPeerId'].toString().split('-').last : data['groupIdORPeerId'].toString().split('-').first;
+    
+    var documentReference = FirebaseFirestore.instance.collection('messages').doc(data['groupIdORPeerId']).collection(data['groupIdORPeerId']).doc(DateTime.now().millisecondsSinceEpoch.toString());
+
+    Map<String, dynamic> chatMessageMap = {'idFrom': _user.uid, 'idTo': idTo, 'timestamp': DateTime.now().millisecondsSinceEpoch.toString(), 'content': message.trim(), 'type': 0,'messageId':documentReference.id};
+
+    FirebaseFirestore.instance.runTransaction((transaction) async {
+      transaction.set(
+        documentReference,
+        chatMessageMap,
+      );
+    });
+    DatabaseService().updateCallHistory(channelName: data['channelName'],uid: _user.uid);
   }
 
   Widget _appBarLeading(BuildContext context) {
@@ -1077,7 +1129,10 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                                                 snapshot.data.docs[0].data()['type'] == 4?
                                                                 "Audio" :
                                                                 snapshot.data.docs[0].data()['type'] == 0 ?
-                                                                "${snapshot.data.docs[0].data()['content']}" : snapshot.data.docs[0].data()['type'] == 1 ?
+                                                                snapshot.data.docs[0].data()['content'].toString().contains('This is missed call@#%')?
+                                                                "${snapshot.data.docs[0].data()['content'].toString().split('___').last}":
+                                                                "${snapshot.data.docs[0].data()['content']}" : 
+                                                                snapshot.data.docs[0].data()['type'] == 1 ?
                                                                 "🖼️ Image" :
                                                                 snapshot.data.docs[0].data()['fileName'],
                                                                 style: TextStyle(
@@ -1238,11 +1293,13 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                       Icon(Icons.call_received,color: Colors.green,):
                                       Icon(Icons.call_received,color: Colors.red,),
                                       SizedBox(width: 5,),
-                                      Text(callTime,
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w400,
-                                          color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                                      Expanded(
+                                        child: Text(callTime,
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w400,
+                                            color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -1311,11 +1368,13 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                       Icon(Icons.call_received,color: Colors.green,):
                                       Icon(Icons.call_received,color: Colors.red,),
                                       SizedBox(width: 5,),
-                                      Text(callTime,
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w400,
-                                          color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                                      Expanded(
+                                        child: Text(callTime,
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w400,
+                                            color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                                          ),
                                         ),
                                       ),
                                     ],

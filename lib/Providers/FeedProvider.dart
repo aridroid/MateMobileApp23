@@ -433,6 +433,70 @@ class FeedProvider with ChangeNotifier {
     return true;
   }
 
+  Future<bool> updateFeed(
+      {@required List<String> id,
+        @required String title,
+        @required String description,
+        @required location,
+        @required int feedId,
+        String hyperlinkText,
+        String hyperlink,
+        String feedTypeOther,
+        String startDate,
+        String endDate,
+        String image,
+        bool imageDeleted,
+      }) async {
+    error = "";
+    feedPostLoaderStatus = true;
+    validationErrors = Map();
+
+    Map<String, dynamic> userInput = {"title": title, "description": description, "location": location};
+
+    if (id != null) {
+      userInput["feed_type_id"] = id;
+    }
+    if (feedTypeOther != null) {
+      userInput["custom_feed_type"] = feedTypeOther;
+    }
+
+    if (hyperlinkText!= null && hyperlink!= null) {
+      userInput["hyperlinkText"] = hyperlinkText;
+      userInput["hyperlink"] = hyperlink;
+    }
+
+    if (startDate != null) {
+      userInput["start"] = startDate;
+    }
+
+    if (endDate != null) {
+      userInput["end"] = endDate;
+    }
+
+    if (imageDeleted) {
+      userInput["delete_media"] = true;
+    }
+
+    if (image != null) {
+      print('image type is ${image.runtimeType}');
+      List media = [];
+      media.add(image);
+      userInput["media"] = media;
+    }
+
+    try {
+      print(userInput);
+      await _feedService.updateAFeed(userInput,feedId);
+    } catch (err) {
+      _setError(err);
+      return false;
+    } finally {
+      feedPostLoaderStatus = false;
+    }
+
+    return true;
+  }
+
   Future<bool> postStory({String text, File imageFile}) async {
     error = "";
 
