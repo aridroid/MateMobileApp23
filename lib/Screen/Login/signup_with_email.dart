@@ -25,420 +25,386 @@ class _SignupWithEmailState extends State<SignupWithEmail> {
     final scH = MediaQuery.of(context).size.height;
     final scW = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        iconTheme: IconThemeData(
-          color: MateColors.activeIcons,
-        ),
-        title: Text(
-          "Sign Up",
-          style: TextStyle(
-            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-            fontWeight: FontWeight.w700,
-            fontSize: 17.0,
+      body: Container(
+        height: scH,
+        width: scW,
+        decoration: BoxDecoration(
+          color: themeController.isDarkMode?Color(0xFF000000):Colors.white,
+          image: DecorationImage(
+            image: AssetImage(themeController.isDarkMode?'lib/asset/Background.png':'lib/asset/BackgroundLight.png'),
+            fit: BoxFit.cover,
           ),
         ),
-        centerTitle: true,
-      ),
-      body: ListView(
-        scrollDirection: Axis.vertical,
-        shrinkWrap: true,
-        physics: ScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        children: [
-          SizedBox(height: 30,),
-          Text(
-            "Who are you?",
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              letterSpacing: 0.1,
-              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              margin: EdgeInsets.only(
+                top: scH*0.08,
+                left: 20,
+              ),
+              width: 20,
+              child: IconButton(
+                icon: Icon(Icons.arrow_back_ios,
+                  size: 20,
+                  color: themeController.isDarkMode ? Colors.white : MateColors.blackText,
+                ),
+                onPressed: (){
+                  Get.back();
+                },
+              ),
             ),
-          ),
-          SizedBox(height: 30,),
-          GestureDetector(
-            onTap: (){
-              setState(() {
-                selected = 1;
-              });
-            },
-            child: Container(
-              height: 64,
-              width: scW,
-              decoration: BoxDecoration(
-                color: selected==1? MateColors.activeIcons:themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: Offset(0, 3),
+            Expanded(
+              child: ListView(
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                physics: ScrollPhysics(),
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                children: [
+                  SizedBox(height: 16,),
+                  Center(
+                    child: Text(
+                      "Who are you?",
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w600,
+                        color: themeController.isDarkMode?Colors.white:Colors.black,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 30,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: (){
+                          setState(() {
+                            selected = 1;
+                          });
+                        },
+                        child: Container(
+                          height: scH*0.18,
+                          width: scW/2.35,
+                          decoration: BoxDecoration(
+                            color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              width: selected==1?2:0,
+                              color: selected==1?themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight:
+                              themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset("lib/asset/iconsNewDesign/student.png",
+                                color: themeController.isDarkMode?Colors.white:Colors.black,
+                                height: 41,
+                                width: 38,
+                              ),
+                              SizedBox(
+                                height: scH*0.025,
+                              ),
+                              Text("Student",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                  fontFamily: 'Poppins',
+                                  color: themeController.isDarkMode?Colors.white:Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: (){
+                          setState(() {
+                            selected = 2;
+                          });
+                        },
+                        child: Container(
+                          height: scH*0.18,
+                          width: scW/2.35,
+                          decoration: BoxDecoration(
+                            color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              width: selected==2?2:0,
+                              color: selected==2?themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight:
+                              themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset("lib/asset/iconsNewDesign/organization.png",
+                                color: themeController.isDarkMode?Colors.white:Colors.black,
+                                height: 41,
+                                width: 38,
+                              ),
+                              SizedBox(
+                                height: scH*0.025,
+                              ),
+                              Text("Student organization",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                  fontFamily: 'Poppins',
+                                  color: themeController.isDarkMode?Colors.white:Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: (){
+                          setState(() {
+                            selected = 3;
+                          });
+                        },
+                        child: Container(
+                          height: scH*0.18,
+                          width: scW/2.35,
+                          decoration: BoxDecoration(
+                            color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              width: selected==3?2:0,
+                              color: selected==3?themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight:
+                              themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset("lib/asset/iconsNewDesign/university.png",
+                                color: themeController.isDarkMode?Colors.white:Colors.black,
+                                height: 41,
+                                width: 38,
+                              ),
+                              SizedBox(
+                                height: scH*0.025,
+                              ),
+                              Text("University department",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                  fontFamily: 'Poppins',
+                                  color: themeController.isDarkMode?Colors.white:Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: (){
+                          setState(() {
+                            selected = 4;
+                          });
+                        },
+                        child: Container(
+                          height: scH*0.18,
+                          width: scW/2.35,
+                          decoration: BoxDecoration(
+                            color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              width: selected==4?2:0,
+                              color: selected==4?themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight:
+                              themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset("lib/asset/iconsNewDesign/bussiness.png",
+                                color: themeController.isDarkMode?Colors.white:Colors.black,
+                                height: 41,
+                                width: 38,
+                              ),
+                              SizedBox(
+                                height: scH*0.025,
+                              ),
+                              Text("Business",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                  fontFamily: 'Poppins',
+                                  color: themeController.isDarkMode?Colors.white:Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: (){
+                          setState(() {
+                            selected = 5;
+                          });
+                        },
+                        child: Container(
+                          height: scH*0.18,
+                          width: scW/2.35,
+                          decoration: BoxDecoration(
+                            color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              width: selected==5?2:0,
+                              color: selected==5?themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight:
+                              themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset("lib/asset/iconsNewDesign/recuiter.png",
+                                color: themeController.isDarkMode?Colors.white:Colors.black,
+                                height: 41,
+                                width: 38,
+                              ),
+                              SizedBox(
+                                height: scH*0.025,
+                              ),
+                              Text("Recruiter",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                  fontFamily: 'Poppins',
+                                  color: themeController.isDarkMode?Colors.white:Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: (){
+                          setState(() {
+                            selected = 6;
+                          });
+                        },
+                        child: Container(
+                          height: scH*0.18,
+                          width: scW/2.35,
+                          decoration: BoxDecoration(
+                            color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              width: selected==6?2:0,
+                              color: selected==6?themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight:
+                              themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset("lib/asset/iconsNewDesign/others.png",
+                                color: themeController.isDarkMode?Colors.white:Colors.black,
+                                height: 41,
+                                width: 38,
+                              ),
+                              SizedBox(
+                                height: scH*0.025,
+                              ),
+                              Text("Other",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                  fontFamily: 'Poppins',
+                                  color: themeController.isDarkMode?Colors.white:Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    height: 60,
+                    width: scW,
+                    margin: EdgeInsets.only(top: 30,),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        primary: selected!=0?
+                        themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight:
+                        themeController.isDarkMode?MateColors.disableButtonColor:MateColors.whiteText,
+                        onPrimary: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      onPressed: (){
+                        if(selected==0){
+                          Fluttertoast.showToast(msg: "Please Select One Option", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+                        }else{
+                          if(selected == 1){
+                            signupController.category = "Student";
+                          }else if(selected == 2){
+                            signupController.category = "Student Organization";
+                          }else if(selected == 3){
+                            signupController.category = "University Organization";
+                          }else if(selected == 4){
+                            signupController.category = "Business";
+                          }else if(selected == 5){
+                            signupController.category = "Recruiter";
+                          }else if(selected == 6){
+                            signupController.category = "Others";
+                          }
+                          print(signupController.category);
+                          Navigator.of(context).pushNamed(SignupWithEmail2.routeName);
+                        }
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text("Continue",
+                            style: TextStyle(
+                              color: selected!=0? MateColors.blackTextColor:
+                              MateColors.greyButtonText,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: "Poppins",
+                              fontSize: 18.0,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Image.asset('lib/asset/iconsNewDesign/arrowRight.png',
+                            width: 20,
+                            color: selected!=0? MateColors.blackTextColor:
+                            MateColors.greyButtonText,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
-              child: Center(
-                child: ListTile(
-                  horizontalTitleGap: 13,
-                  leading: Container(
-                    height: 32,
-                    width: 32,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-                      border: Border.all(
-                        width: 2,
-                        color: themeController.isDarkMode?MateColors.darkDivider:
-                        selected==1? Colors.white: MateColors.lightDivider,
-                      ),
-                    ),
-                    child: Center(
-                      child: selected==1?Icon(Icons.check,color: MateColors.activeIcons,):Offstage(),
-                    ),
-                  ),
-                  title: Text("Student",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: 0.1,
-                      color:
-                      themeController.isDarkMode?
-                      selected==1?MateColors.blackTextColor:Colors.white:
-                      selected==1?
-                      Colors.white:MateColors.blackTextColor,
-                    ),
-                  ),
-                ),
-              ),
             ),
-          ),
-          SizedBox(height: 20,),
-          GestureDetector(
-            onTap: (){
-              setState(() {
-                selected = 2;
-              });
-            },
-            child: Container(
-              height: 64,
-              width: scW,
-              decoration: BoxDecoration(
-                color: selected==2? MateColors.activeIcons:themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: ListTile(
-                  horizontalTitleGap: 13,
-                  leading: Container(
-                    height: 32,
-                    width: 32,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-                      border: Border.all(
-                        width: 2,
-                        color: themeController.isDarkMode?MateColors.darkDivider:
-                        selected==2? Colors.white: MateColors.lightDivider,
-                      ),
-                    ),
-                    child: Center(
-                      child: selected==2?Icon(Icons.check,color: MateColors.activeIcons,):Offstage(),
-                    ),
-                  ),
-                  title: Text("Student organization",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: 0.1,
-                      color:
-                      themeController.isDarkMode?
-                      selected==2?MateColors.blackTextColor:Colors.white:
-                      selected==2?
-                      Colors.white:MateColors.blackTextColor,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: 20,),
-          GestureDetector(
-            onTap: (){
-              setState(() {
-                selected = 3;
-              });
-            },
-            child: Container(
-              height: 64,
-              width: scW,
-              decoration: BoxDecoration(
-                color: selected==3? MateColors.activeIcons:themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: ListTile(
-                  horizontalTitleGap: 13,
-                  leading: Container(
-                    height: 32,
-                    width: 32,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-                      border: Border.all(
-                        width: 2,
-                        color: themeController.isDarkMode?MateColors.darkDivider:
-                        selected==3? Colors.white: MateColors.lightDivider,
-                      ),
-                    ),
-                    child: Center(
-                      child: selected==3?Icon(Icons.check,color: MateColors.activeIcons,):Offstage(),
-                    ),
-                  ),
-                  title: Text("University department",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: 0.1,
-                      color:
-                      themeController.isDarkMode?
-                      selected==3?MateColors.blackTextColor:Colors.white:
-                      selected==3?
-                      Colors.white:MateColors.blackTextColor,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: 20,),
-          GestureDetector(
-            onTap: (){
-              setState(() {
-                selected = 4;
-              });
-            },
-            child: Container(
-              height: 64,
-              width: scW,
-              decoration: BoxDecoration(
-                color:  selected==4? MateColors.activeIcons:themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: ListTile(
-                  horizontalTitleGap: 13,
-                  leading: Container(
-                    height: 32,
-                    width: 32,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-                      border: Border.all(
-                        width: 2,
-                        color: themeController.isDarkMode?MateColors.darkDivider:
-                        selected==4? Colors.white: MateColors.lightDivider,
-                      ),
-                    ),
-                    child: Center(
-                      child: selected==4?Icon(Icons.check,color: MateColors.activeIcons,):Offstage(),
-                    ),
-                  ),
-                  title: Text("Business",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: 0.1,
-                      color:
-                      themeController.isDarkMode?
-                      selected==4?MateColors.blackTextColor:Colors.white:
-                      selected==4?
-                      Colors.white:MateColors.blackTextColor,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: 20,),
-          GestureDetector(
-            onTap: (){
-              setState(() {
-                selected = 5;
-              });
-            },
-            child: Container(
-              height: 64,
-              width: scW,
-              decoration: BoxDecoration(
-                color:  selected==5? MateColors.activeIcons:themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: ListTile(
-                  horizontalTitleGap: 13,
-                  leading: Container(
-                    height: 32,
-                    width: 32,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-                      border: Border.all(
-                        width: 2,
-                        color: themeController.isDarkMode?MateColors.darkDivider:
-                        selected==5? Colors.white: MateColors.lightDivider,
-                      ),
-                    ),
-                    child: Center(
-                      child: selected==5?Icon(Icons.check,color: MateColors.activeIcons,):Offstage(),
-                    ),
-                  ),
-                  title: Text("Recruiter",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: 0.1,
-                      color:
-                      themeController.isDarkMode?
-                      selected==5?MateColors.blackTextColor:Colors.white:
-                      selected==5?
-                      Colors.white:MateColors.blackTextColor,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: 20,),
-          GestureDetector(
-            onTap: (){
-              setState(() {
-                selected = 6;
-              });
-            },
-            child: Container(
-              height: 64,
-              width: scW,
-              decoration: BoxDecoration(
-                color: selected==6? MateColors.activeIcons:themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: ListTile(
-                  horizontalTitleGap: 13,
-                  leading: Container(
-                    height: 32,
-                    width: 32,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-                      border: Border.all(
-                        width: 2,
-                        color: themeController.isDarkMode?MateColors.darkDivider:
-                        selected==6? Colors.white: MateColors.lightDivider,
-                      ),
-                    ),
-                    child: Center(
-                      child: selected==6?Icon(Icons.check,color: MateColors.activeIcons,):Offstage(),
-                    ),
-                  ),
-                  title: Text("Other",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: 0.1,
-                      color:
-                      themeController.isDarkMode?
-                      selected==6?MateColors.blackTextColor:Colors.white:
-                      selected==6?
-                      Colors.white:MateColors.blackTextColor,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Container(
-            height: 56,
-            margin: EdgeInsets.only(top: 50,left: scW*0.25,right: scW*0.25),
-            width: 160,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                primary: MateColors.activeIcons,
-                onPrimary: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-              ),
-              onPressed: (){
-                if(selected==0){
-                  Fluttertoast.showToast(msg: "Please Select One Option", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
-                }else{
-                  if(selected == 1){
-                    signupController.category = "Student";
-                  }else if(selected == 2){
-                    signupController.category = "Student Organization";
-                  }else if(selected == 3){
-                    signupController.category = "University Organization";
-                  }else if(selected == 4){
-                    signupController.category = "Business";
-                  }else if(selected == 5){
-                    signupController.category = "Recruiter";
-                  }else if(selected == 6){
-                    signupController.category = "Others";
-                  }
-                  print(signupController.category);
-                  Navigator.of(context).pushNamed(SignupWithEmail2.routeName);
-                }
-              },
-              child: Text("Continue",
-                style: TextStyle(
-                  color: themeController.isDarkMode?MateColors.blackTextColor:Colors.white,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 17.0,
-                ),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

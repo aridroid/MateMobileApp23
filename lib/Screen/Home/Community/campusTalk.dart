@@ -9,8 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../../../Providers/AuthUserProvider.dart';
-import '../../../Widget/Drawer/DrawerWidget.dart';
 import '../../../controller/theme_controller.dart';
 
 class CampusTalkScreen extends StatefulWidget {
@@ -21,123 +19,133 @@ class CampusTalkScreen extends StatefulWidget {
 }
 
 class _CampusTalkScreenState extends State<CampusTalkScreen> with TickerProviderStateMixin {
-  TabController _tabController;
-  String searchText="";
   ThemeController themeController = Get.find<ThemeController>();
   final GlobalKey<ScaffoldState> _key = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    _tabController = new TabController(length: 2, vsync: this);
-  }
-
-  Widget _appBarLeading(BuildContext context) {
-    return Selector<AuthUserProvider, String>(
-      selector: (ctx, authUserProvider) => authUserProvider.authUserPhoto,
-      builder: (ctx, data, _) {
-        return InkWell(
-          onTap: () {
-            _key.currentState.openDrawer();
-          },
-          child: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            radius: 16,
-            child: CircleAvatar(
-              backgroundColor: Colors.transparent,
-              radius: 16,
-              backgroundImage: NetworkImage(data),
-            ),
-          ),
-        );
-      },
-    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final scH = MediaQuery.of(context).size.height;
+    final scW = MediaQuery.of(context).size.width;
     return Scaffold(
       key: _key,
-      appBar: AppBar(
-        elevation: 0,
-        leading: _appBarLeading(context),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 20),
-            child: InkWell(
-              onTap: ()async{
-              },
-              child: Image.asset(
-                "lib/asset/homePageIcons/searchPurple@3x.png",
-                height: 23.7,
-                width: 23.7,
-                color: MateColors.activeIcons,
-              ),
-            ),
-          ),
-        ],
-        title: Text(
-          "Campus Talk",
-          style: TextStyle(
-            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-            fontWeight: FontWeight.w700,
-            fontSize: 17.0,
+      body: Container(
+        height: scH,
+        width: scW,
+        decoration: BoxDecoration(
+          color: themeController.isDarkMode?Color(0xFF000000):Colors.white,
+          image: DecorationImage(
+            image: AssetImage(themeController.isDarkMode?'lib/asset/Background.png':'lib/asset/BackgroundLight.png'),
+            fit: BoxFit.cover,
           ),
         ),
-        centerTitle: true,
-      ),
-      drawer: DrawerWidget(),
-      body: Column(
-        children: [
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.0),
-              border: Border(bottom: BorderSide(color: Color(0xFF65656B).withOpacity(0.2), width: 0.8)),
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).size.height*0.07,
+                left: 16,
+                right: 16,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: (){
+                      Get.back();
+                    },
+                    child: Icon(Icons.arrow_back_ios,
+                      size: 20,
+                      color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
+                    ),
+                  ),
+                  Text(
+                    "Trending",
+                    style: TextStyle(
+                      color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 17.0,
+                    ),
+                  ),
+                  SizedBox(),
+                ],
+              ),
             ),
-            child: TabBar(
-              onTap: (value){
-                print(value);
-              },
-              controller: _tabController,
-              unselectedLabelColor: Color(0xFF656568),
-              indicatorColor: MateColors.activeIcons,
-              indicatorPadding: EdgeInsets.symmetric(horizontal: 20),
-              labelColor: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-              labelStyle: TextStyle(fontSize: 15.0,fontFamily: "Poppins",fontWeight: FontWeight.w500),
-              tabs: [
-                Tab(
-                  text: "Trending",
-                ),
-                Tab(
-                  text: "Latest",
-                ),
-              ],
+            Padding(
+              padding: EdgeInsets.only(top: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(left: 16),
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: EdgeInsets.only(left: 16, right: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Search here...",
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
+                              ),
+                            ),
+                            Container(
+                              height: 40,
+                              width: 40,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                color: themeController.isDarkMode?MateColors.textFieldSearchDark:MateColors.textFieldSearchLight,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Image.asset(
+                                  "lib/asset/iconsNewDesign/search.png",
+                                  color: themeController.isDarkMode?Colors.white:MateColors.blackText,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 16,),
+                  InkWell(
+                    onTap: () async {
+                      Get.to(CreateCampusTalkPost());
+                    },
+                    child: Container(
+                      height: 60,
+                      width: 60,
+                      margin: EdgeInsets.only(right: 16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+                      ),
+                      child: Icon(Icons.add, color: MateColors.blackTextColor, size: 28),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                CampusTalk(searchText: searchText,),
-                CampusTalk(searchText: searchText,),
-              ],
+            SizedBox(height: 10,),
+            Expanded(
+              child: CampusTalk(),
             ),
-          ),
-        ],
-      ),
-      floatingActionButton: InkWell(
-        onTap: () {
-          Get.to(CreateCampusTalkPost());
-        },
-        child: Container(
-          height: 56,
-          width: 56,
-          margin: EdgeInsets.only(bottom: 10),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: MateColors.activeIcons,
-          ),
-          child: Icon(Icons.add,color: themeController.isDarkMode?Colors.black:Colors.white,size: 28),
+          ],
         ),
       ),
     );
@@ -145,10 +153,7 @@ class _CampusTalkScreenState extends State<CampusTalkScreen> with TickerProvider
 }
 
 class CampusTalk extends StatefulWidget {
-
-  final String searchText;
-
-  const CampusTalk({Key key, this.searchText}) : super(key: key);
+  const CampusTalk({Key key}) : super(key: key);
 
   @override
   _CampusTalkState createState() => _CampusTalkState();
@@ -191,65 +196,74 @@ class _CampusTalkState extends State<CampusTalk> {
   Widget build(BuildContext context) {
     return Consumer<CampusTalkProvider>(
       builder: (ctx, campusTalkProvider, _) {
-        print("timline consumer is called");
-
         if (campusTalkProvider.talkPostLoader && campusTalkProvider.campusTalkPostsResultsList.length == 0) {
           return timelineLoader();
         }
         if (campusTalkProvider.error != '') {
           return Center(
-              child: Container(
-                  color: Colors.red,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      '${campusTalkProvider.error}',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  )));
-        }
-
-        return campusTalkProvider.campusTalkPostsResultsList.length == 0
-            ? Center(
+            child: Container(
+              color: Colors.red,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  'Nothing new',
-                  style: TextStyle(color: themeController.isDarkMode?Colors.white:Colors.black),
+                  '${campusTalkProvider.error}',
+                  style: TextStyle(
+                    decoration: TextDecoration.none,
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    fontFamily: 'Poppins',
+                  ),
                 ),
-              )
-            : RefreshIndicator(
-                onRefresh: () {
-                  _page = 1;
-                  return campusTalkProvider.fetchCampusTalkPostList(page: 1);
-                },
-                child: ListView.builder(
-                  controller: _scrollController,
-                  shrinkWrap: true,
-                  physics: ScrollPhysics(),
-                  scrollDirection: Axis.vertical,
-                  itemCount: campusTalkProvider.campusTalkPostsResultsList.length,
-                  itemBuilder: (context, index) {
-                    Result campusTalkData = campusTalkProvider.campusTalkPostsResultsList[index];
-                    return Visibility(
-                      visible: widget.searchText.isNotEmpty? campusTalkData.title.toLowerCase().contains(widget.searchText.trim().toLowerCase()): true,
-                      child: CampusTalkRow(
-                        talkId: campusTalkData.id,
-                        description: campusTalkData.description,
-                        title: campusTalkData.title,
-                        user: campusTalkData.user,
-                        isAnonymous: campusTalkData.isAnonymous,
-                        anonymousUser: campusTalkData.anonymousUser,
-                        url: campusTalkData.url,
-                        createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(campusTalkData.createdAt, true))}",
-                        rowIndex: index,
-                        isBookmarked: campusTalkData.isBookmarked,
-                        isLiked: campusTalkData.isLiked,
-                        likesCount: campusTalkData.likesCount,
-                        commentsCount: campusTalkData.commentsCount,
-                      ),
-                    );
-                  },
-                ),
+              ),
+            ),
+          );
+        }
+        return campusTalkProvider.campusTalkPostsResultsList.length == 0 ?
+        Center(
+          child: Text(
+            'Nothing new',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              fontFamily: 'Poppins',
+              letterSpacing: 0.1,
+              color: themeController.isDarkMode?Colors.white:Colors.black,
+            ),
+          ),
+        ):
+        RefreshIndicator(
+          onRefresh: () {
+            _page = 1;
+            return campusTalkProvider.fetchCampusTalkPostList(page: 1);
+          },
+          child: ListView.builder(
+            padding: EdgeInsets.zero,
+            controller: _scrollController,
+            shrinkWrap: true,
+            physics: ScrollPhysics(),
+            scrollDirection: Axis.vertical,
+            itemCount: campusTalkProvider.campusTalkPostsResultsList.length,
+            itemBuilder: (context, index) {
+              Result campusTalkData = campusTalkProvider.campusTalkPostsResultsList[index];
+              return CampusTalkRow(
+                talkId: campusTalkData.id,
+                description: campusTalkData.description,
+                title: campusTalkData.title,
+                user: campusTalkData.user,
+                isAnonymous: campusTalkData.isAnonymous,
+                anonymousUser: campusTalkData.anonymousUser,
+                url: campusTalkData.url,
+                createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(campusTalkData.createdAt, true))}",
+                rowIndex: index,
+                isBookmarked: campusTalkData.isBookmarked,
+                isLiked: campusTalkData.isLiked,
+                likesCount: campusTalkData.likesCount,
+                commentsCount: campusTalkData.commentsCount,
               );
+            },
+          ),
+        );
       },
     );
   }

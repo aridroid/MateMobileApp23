@@ -99,9 +99,10 @@ dependencies:
   record: ^4.4.3
   just_audio: ^0.9.30
   vibration: ^1.7.6
-  callkeep: ^0.3.3
+  #callkeep: ^0.3.3
   animated_text_kit: ^4.2.1
-  ffmpeg_kit_flutter: ^5.1.0
+  #ffmpeg_kit_flutter: ^5.1.0
+  card_swiper: ^2.0.4
 
 dev_dependencies:
   flutter_test:
@@ -152,6 +153,7 @@ flutter:
     - lib/asset/chatPageAssets/
     - lib/asset/homePageIcons/
     - lib/asset/introAssets/
+    - lib/asset/iconsNewDesign/
     # - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -176,6 +178,15 @@ flutter:
         - asset: lib/asset/fonts/Quicksand-Regular.ttf
         - asset: lib/asset/fonts/Quicksand-Bold.ttf
           weight: 700
+
+    - family: Poppins
+      fonts:
+        - asset: lib/asset/fonts/Poppins-Regular.ttf
+        - asset: lib/asset/fonts/Poppins-Bold.ttf
+          weight: 700
+        - asset: lib/asset/fonts/Poppins-SemiBold.ttf
+          weight: 500
+
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

@@ -1,47 +1,33 @@
-import 'dart:developer';
 import 'dart:io';
-
-import 'package:mate_app/Model/feedItemsLikeModel.dart';
+import 'package:flutter/material.dart';
 import 'package:mate_app/Providers/FeedProvider.dart';
 import 'package:mate_app/Screen/Home/HomeScreen.dart';
-import 'package:mate_app/Screen/Home/Seach/SearchScreen.dart';
 import 'package:mate_app/Screen/Home/TimeLine/feedComments.dart';
 import 'package:mate_app/Screen/Home/TimeLine/feedDetailsFullScreen.dart';
-import 'package:mate_app/Screen/Home/TimeLine/feedDetailsScreen.dart';
 import 'package:mate_app/Screen/Home/TimeLine/feedLikesDetails.dart';
 import 'package:mate_app/Screen/Profile/ProfileScreen.dart';
 import 'package:mate_app/Screen/Profile/UserProfileScreen.dart';
 import 'package:mate_app/Screen/Report/reportPage.dart';
 import 'package:mate_app/Screen/chat1/screens/chat.dart';
-import 'package:mate_app/Utility/Utility.dart';
-import 'package:mate_app/asset/Reactions/reactionsContants.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import '../../Model/FeedItem.dart';
-import '../../Providers/AuthUserProvider.dart';
-import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mate_app/asset/Colors/MateColors.dart';
 import "package:googleapis_auth/auth_io.dart";
 import 'package:googleapis/calendar/v3.dart' as gCal;
-import 'package:flutter_reaction_button/flutter_reaction_button.dart';
-import 'package:sizer/sizer.dart';
 
+import '../../Model/FeedItem.dart';
+import '../../Providers/AuthUserProvider.dart';
 import '../../Screen/Home/TimeLine/editFeed.dart';
 import '../../Screen/Home/TimeLine/feed_search.dart';
 import '../../Services/FeedService.dart';
 import '../../controller/theme_controller.dart';
-import '../../textStyles.dart';
 import '../mediaViewer.dart';
-
-// ignore: must_be_immutable
 
 class HomeRow extends StatefulWidget {
   String previousPageUserId;
@@ -110,8 +96,7 @@ class HomeRow extends StatefulWidget {
       this.isShared});
 
   @override
-  _HomeRowState createState() =>
-      _HomeRowState(this.id, this.feedId, this.title, this.feedType, this.start, this.end, this.calenderDate, this.description, this.created, this.user, this.location, this.media, this.liked, this.bookMarked,this.showUniversityTag);
+  _HomeRowState createState() => _HomeRowState(this.id, this.feedId, this.title, this.feedType, this.start, this.end, this.calenderDate, this.description, this.created, this.user, this.location, this.media, this.liked, this.bookMarked,this.showUniversityTag);
 }
 
 class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
@@ -126,39 +111,24 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
   var user;
   final String location;
   final List media;
-  // final List<Media> media;
   final List feedType;
-
-  // final List<FeedTypes> feedType;
   bool bookMarked;
   bool liked;
   bool showUniversityTag;
-
   auth.User _currentUser = auth.FirebaseAuth.instance.currentUser;
-
   _HomeRowState(this.id, this.feedId, this.title, this.feedType, this.startTime, this.endTime, this.calenderDate, this.description, this.created, this.user, this.location, this.media, this.liked, this.bookMarked,this.showUniversityTag);
 
   ClientId _credentials;
-
-  /// animations
-  AnimationController animationController;
-  Animation degOneTranslationAnimation, degTwoTranslationAnimation, degThreeTranslationAnimation;
-  Animation rotationAnimation;
+  String token;
+  ThemeController themeController = Get.find<ThemeController>();
+  FeedProvider feedProvider;
 
   @override
   void initState() {
     super.initState();
     getStoredValue();
     feedProvider = Provider.of<FeedProvider>(context, listen: false);
-    ///animations for likes
-    animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 250));
-    degOneTranslationAnimation = Tween(begin: 0.0, end: 1.0).animate(animationController);
-    rotationAnimation = Tween<double>(begin: 180.0, end: 0.0).animate(CurvedAnimation(parent: animationController, curve: Curves.easeOut));
     super.initState();
-    animationController.addListener(() {
-      setState(() {});
-    });
-
     if (Platform.isAndroid) {
       _credentials = new ClientId("237545926078-9biln72s9c5h9vot53l84me39unhhnbf.apps.googleusercontent.com", "");
     } else if (Platform.isIOS) {
@@ -166,68 +136,18 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
     }
   }
 
-  String token;
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
     token = preferences.getString("token");
   }
-  ThemeController themeController = Get.find<ThemeController>();
 
-  List _buildMedia(BuildContext context, List media) {
-    List mda = [];
-
-    for (int i = 0; i < media.length; i++) {
-      mda.add(
-        Padding(
-          padding: const EdgeInsets.only(bottom: 0.0, left: 14, right: 10, top: 10),
-          child: ConstrainedBox(
-            constraints: new BoxConstraints(
-              minHeight: 50.0,
-              maxHeight: 300.0,
-            ),
-            child: InkWell(
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>MediaViewer(url: media[i].url,))),
-                  // Navigator.of(context).push(MaterialPageRoute(
-                  // builder: (context) => FullImageWidget(
-                  //       imagePath: media[i].url,
-                  //     ))),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12.0),
-                clipBehavior: Clip.hardEdge,
-                child: Image.network(
-                  media[i].url,
-                  fit: BoxFit.contain,
-                  // height: 300,
-                  // width: 400,
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    return mda;
-  }
-
-  FeedProvider feedProvider;
   @override
   Widget build(BuildContext context) {
-    //print('media is::${media.toString()}');
-
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
-        color: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+        color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            spreadRadius: 5,
-            blurRadius: 7,
-            offset: Offset(0, 3),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -241,15 +161,15 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": user.id, "name": user.name, "photoUrl": user.photoUrl, "firebaseUid": user.firebaseUid});
                 }
               },
-              child: user.photoUrl.length == 0
-                  ? CircleAvatar(
-                radius: 16,
+              child: user.photoUrl.length == 0 ?
+              CircleAvatar(
+                radius: 20,
                 child: Text(
                   user.name[0],
                 ),
-              )
-                  : CircleAvatar(
-                radius: 16,
+              ):
+              CircleAvatar(
+                radius: 20,
                 backgroundImage: NetworkImage(
                   user.photoUrl,
                 ),
@@ -266,33 +186,28 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
               child: Text(
                 user.name,
                 style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0.1,
-                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                  fontSize: 15,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w600,
+                  color: themeController.isDarkMode?Colors.white:Colors.black,
                 ),
               ),
             ),
             subtitle: Text(
               "$created",
               style: TextStyle(
-                fontSize: 12,
-                color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                fontSize: 14,
+                color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
               ),
             ),
             trailing: PopupMenuButton<int>(
-              padding: EdgeInsets.only(bottom: 0, top: 0, left: 0, right: 0),
-              color: themeController.isDarkMode?backgroundColor:Colors.white,
-              icon: Image.asset(
-                "lib/asset/icons/menu@3x.png",
-                height: 18,
-                color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,
+              padding: EdgeInsets.zero,
+              elevation: 0,
+              color: themeController.isDarkMode?MateColors.popupDark:MateColors.popupLight,
+              icon: Icon(
+                Icons.more_vert,
+                color: themeController.isDarkMode?Colors.white:MateColors.blackText,
               ),
-              // Icon(
-              //   Icons.more_vert,
-              //   color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,
-              // ),
-              //color: Colors.grey[850],
               onSelected: (index) async {
                 if (index == 0) {
                   gCal.Event event = gCal.Event(); // Create object of event
@@ -300,14 +215,12 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                   event.description = description; //Setting summary of object
 
                   gCal.EventDateTime start = new gCal.EventDateTime(); //Setting start time
-                  // start.dateTime = DateTime.parse("2021-09-20 00:00:00.000").toLocal();
                   start.dateTime = DateTime.parse(calenderDate).toLocal();
                   start.timeZone = "GMT+05:00";
                   event.start = start;
 
                   gCal.EventDateTime end = new gCal.EventDateTime(); //setting end time
                   end.timeZone = "GMT+05:00";
-                  // end.dateTime = DateTime.parse("2021-09-21 00:00:00.000").toLocal();
                   end.dateTime = DateTime.parse(calenderDate).toLocal();
                   event.end = end;
 
@@ -319,10 +232,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                           builder: (context) => Chat(peerUuid: user.id, currentUserId: _currentUser.uid, peerId: user.firebaseUid, peerAvatar: user.photoUrl, peerName: user.name)));
                 } else if (index == 2) {
                   _showFollowAlertDialog(feedId: widget.feedId, indexVal: widget.indexVal);
-
-                } else if (index == 3) {
-                  modalSheetToShare();
-                } else if (index == 4) {
+                }else if (index == 4) {
                   _showDeleteAlertDialog(feedId: widget.feedId, indexVal: widget.indexVal);
                 } else if (index == 5) {
                   Navigator.push(
@@ -347,44 +257,64 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                 }
               },
               itemBuilder: (context) => [
-            //   PopupMenuItem(
-            //   value: 0,
-            //   height: 40,
-            //   child: Text(
-            //     "Calendar",
-            //     textAlign: TextAlign.start,
-            //     style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
-            //   ),
-            // ),
-            PopupMenuItem(
-              value: 1,
-              height: 40,
-              child: Text(
-                "Message",
-                textAlign: TextAlign.start,
-                style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
-              ),
-            ),
-            PopupMenuItem(
-              value: 2,
-              height: 40,
-              child: Text(
-                widget.isFollowed?"Unfollow Post":"Follow Post",
-                textAlign: TextAlign.start,
-                style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
-              ),
-            ),
-                (!widget.isFeedDetailsPage && widget.user.id != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user.id))
-                    ? PopupMenuItem(
+                // PopupMenuItem(
+                //   value: 0,
+                //   height: 40,
+                //   child: Text(
+                //     "Calendar",
+                //     textAlign: TextAlign.start,
+                //     style: TextStyle(
+                //       color: themeController.isDarkMode?Colors.white:Colors.black,
+                //       fontWeight: FontWeight.w500,
+                //       fontFamily: 'Poppins',
+                //       fontSize: 14,
+                //     ),
+                //   ),
+                // ),
+                PopupMenuItem(
+                  value: 1,
+                  height: 40,
+                  child: Text(
+                    "Message",
+                    textAlign: TextAlign.start,
+                    style: TextStyle(
+                      color: themeController.isDarkMode?Colors.white:Colors.black,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Poppins',
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 2,
+                  height: 40,
+                  child: Text(
+                    widget.isFollowed?"Unfollow Post":"Follow Post",
+                    textAlign: TextAlign.start,
+                    style: TextStyle(
+                      color: themeController.isDarkMode?Colors.white:Colors.black,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Poppins',
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                (!widget.isFeedDetailsPage && widget.user.id != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user.id)) ?
+                PopupMenuItem(
                   value: 4,
                   height: 40,
                   child: Text(
                     "Delete Post",
                     textAlign: TextAlign.start,
-                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                    style: TextStyle(
+                      color: themeController.isDarkMode?Colors.white:Colors.black,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Poppins',
+                      fontSize: 14,
+                    ),
                   ),
-                )
-                    : PopupMenuItem(
+                ) :
+                PopupMenuItem(
                   value: 4,
                   enabled: false,
                   height: 0,
@@ -399,20 +329,30 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                   child: Text(
                     "Report Post",
                     textAlign: TextAlign.start,
-                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                    style: TextStyle(
+                      color: themeController.isDarkMode?Colors.white:Colors.black,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Poppins',
+                      fontSize: 14,
+                    ),
                   ),
                 ),
-                (!widget.isFeedDetailsPage && widget.user.id != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user.id))
-                    ? PopupMenuItem(
+                (!widget.isFeedDetailsPage && widget.user.id != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user.id)) ?
+                PopupMenuItem(
                   value: 6,
                   height: 40,
                   child: Text(
                     "Edit Post",
                     textAlign: TextAlign.start,
-                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                    style: TextStyle(
+                      color: themeController.isDarkMode?Colors.white:Colors.black,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Poppins',
+                      fontSize: 14,
+                    ),
                   ),
-                )
-                    : PopupMenuItem(
+                ) :
+                PopupMenuItem(
                   value: 6,
                   enabled: false,
                   height: 0,
@@ -421,30 +361,39 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                     width: 0,
                   ),
                 ),
-              ]
+              ],
+            ),
           ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Divider(
+              thickness: 1,
+              color: themeController.isDarkMode?MateColors.dividerDark:MateColors.dividerLight,
+            ),
           ),
-
           if(showUniversityTag)
           Container(
             height: 28.0,
-            //width: 100,
-            margin: EdgeInsets.only(left: 16,top: 6,bottom: 2),
+            margin: EdgeInsets.only(left: 16,top: 6,bottom: 2,right: 16),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
+              borderRadius: BorderRadius.circular(25),
+              color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
             ),
             child: Padding(
               padding: const EdgeInsets.only(left: 15,right: 15),
               child: Center(child: Text(
                 user.university??"Others",
-                style: TextStyle(fontFamily: "Poppins",fontSize: 12,color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),)),
+                style: TextStyle(
+                  fontFamily: "Poppins",
+                  fontSize: 15,
+                  color: themeController.isDarkMode?Colors.white:Colors.black,
+                ),
+              ),
+              ),
             ),
           ),
-
-
           Container(
-            height: 28.0,
+            height: 39,
             margin: EdgeInsets.only(left: 16,top: 6),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
@@ -455,26 +404,23 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                   onTap: () {
                     final page = FeedSearch(text: feedType[index].type.name,);
                     Navigator.push(context,MaterialPageRoute(builder: (context) => page ));
-                    // if(feedType[index].type.status==1){
-                    //   final page = FeedSearch(text: feedType[index].type.name,);
-                    //   Navigator.push(context,MaterialPageRoute(builder: (context) => page ));
-                    //   // Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    //   //     builder: (context) => HomeScreen(
-                    //   //       index: 1,
-                    //   //       feedTypeName: feedType[index].type.name,
-                    //   //     )));
-                    // }
                   },
                   child: Container(
-                    height: 28.0,
-                    //width: 92.0,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
+                      borderRadius: BorderRadius.circular(25),
+                      color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
                     ),
                     child: Padding(
                       padding: const EdgeInsets.only(left: 15,right: 15),
-                      child: Center(child: Text("${feedType[index].type.name}",style: TextStyle(fontFamily: "Poppins",fontSize: 12,color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),)),
+                      child: Center(
+                        child: Text("${feedType[index].type.name}",
+                          style: TextStyle(
+                            fontFamily: "Poppins",
+                            fontSize: 15,
+                            color: themeController.isDarkMode?Colors.white:Colors.black,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -484,7 +430,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
           InkWell(
             onTap: () async{
               if (widget.navigateToDetailsPage) {
-               await  Navigator.push(context,
+               await Navigator.push(context,
                     MaterialPageRoute(
                       builder: (context) => FeedDetailsFullScreen(
                           isFeedDetailsPage: widget.isFeedDetailsPage,
@@ -512,9 +458,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                           pageType: widget.pageType,
                           indexVal: widget.indexVal),
                     ));
-               setState(() {
-
-               });
+               setState(() {});
               }
             },
             child: Column(
@@ -524,9 +468,10 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                   child: Text(
                     title,
                     style: TextStyle(
-                      fontSize: 17,
+                      fontSize: 16,
+                      fontFamily: 'Poppins',
                       fontWeight: FontWeight.w700,
-                      color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                      color: themeController.isDarkMode?Colors.white:Colors.black,
                     ),
                   ),
                 ),
@@ -546,12 +491,17 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
               text: description,
               style: TextStyle(
                 fontSize: 14,
+                fontFamily: 'Poppins',
                 fontWeight: FontWeight.w400,
                 letterSpacing: 0.1,
-                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                color: themeController.isDarkMode?Colors.white:Colors.black,
               ),
               textAlign: TextAlign.left,
-              linkStyle: TextStyle(color: MateColors.activeIcons, fontSize: 11.4.sp),
+              linkStyle: TextStyle(
+                fontSize: 14,
+                fontFamily: 'Poppins',
+                color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+              ),
             ),
           ),
           widget.hyperlinkText!=null && widget.hyperlink!=null ?
@@ -571,37 +521,33 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                 widget.hyperlinkText,
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0.1,
-                  color: MateColors.activeIcons,
+                  fontFamily: 'Poppins',
+                  color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
                 ),
               ),
             ),
           ):SizedBox(),
-
           ..._buildMedia(context, media),
           widget.isShared != null ? _sharedWidget(widget.isShared) : SizedBox(),
-
           location!=null?
           Padding(
             padding: const EdgeInsets.only(top: 16.0, left: 16, bottom: 5),
             child: Row(
               children: [
                 Icon(
-                  Icons.location_on,
-                  size: 18,
-                  color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,
+                  Icons.location_on_sharp,
+                  size: 25,
+                  color: themeController.isDarkMode?Colors.white:Colors.black,
                 ),
                 Expanded(
                   child: Text(
                     ' $location',
                     style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w300,
-                      letterSpacing: 0.1,
-                      color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                      fontSize: 14,
+                      fontFamily: 'Poppins',
+                      color: themeController.isDarkMode?Colors.white.withOpacity(0.7):Colors.black.withOpacity(0.7),
                     ),
-                    overflow: TextOverflow.fade,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -612,74 +558,6 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Consumer<FeedProvider>(
-                //     builder: (context, feedProvider, child){
-                //       return InkWell(
-                //         onDoubleTap: ()async{
-                //           if(widget.likeCount.length==0){
-                //             widget.likeCount.add(LikeCount(emojiValue: 1,count: 0));
-                //             widget.likeCount.add(LikeCount(emojiValue: 2,count: 0));
-                //           }else if(widget.likeCount.length==1){
-                //             if(widget.likeCount[0].emojiValue==1){
-                //               widget.likeCount.add(LikeCount(emojiValue: 2,count: 0));
-                //             }else{
-                //               LikeCount likeCountTemp = widget.likeCount[0];
-                //               widget.likeCount.clear();
-                //               widget.likeCount.add(LikeCount(emojiValue: 1,count: 0));
-                //               widget.likeCount.add(likeCountTemp);
-                //             }
-                //           }
-                //           if(widget.isLiked!=null){
-                //             if(widget.isLiked.emojiValue==1){
-                //               Provider.of<FeedProvider>(context, listen: false).likeAFeed(feedId, widget.indexVal, 1);
-                //               widget.likeCount[0].count = widget.likeCount[0].count -1;
-                //             }else{
-                //               await Provider.of<FeedProvider>(context, listen: false).likeAFeed(feedId, widget.indexVal, 2);
-                //               Provider.of<FeedProvider>(context, listen: false).likeAFeed(feedId, widget.indexVal, 1);
-                //               widget.likeCount[0].count = widget.likeCount[0].count +1;
-                //               widget.likeCount[1].count = widget.likeCount[1].count -1;
-                //             }
-                //           }else{
-                //             Provider.of<FeedProvider>(context, listen: false).likeAFeed(feedId, widget.indexVal, 1);
-                //             widget.likeCount[0].count = widget.likeCount[0].count +1;
-                //           }
-                //         },
-                //         child: Container(
-                //           margin: EdgeInsets.only(top: 25, left: 16),
-                //           height: 32,
-                //           width: 64,
-                //           decoration: BoxDecoration(
-                //             borderRadius: BorderRadius.circular(16),
-                //             border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1),
-                //           ),
-                //           padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.4),
-                //           child: Row(
-                //             mainAxisAlignment: MainAxisAlignment.center,
-                //             children: [
-                //               Image.asset(
-                //                 "lib/asset/Reactions/clapping1.png",
-                //                 width: 18,
-                //                 height: 14,
-                //                 fit: BoxFit.fitHeight,
-                //               ),
-                //               SizedBox(
-                //                 width: 2,
-                //               ),
-                //               Text(
-                //                 widget.likeCount.length==1? widget.likeCount[0].count.toString() :"0",
-                //                 style: TextStyle(
-                //                   fontSize: 13,
-                //                   fontWeight: FontWeight.w500,
-                //                   letterSpacing: 0.1,
-                //                   color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                //                 ),
-                //               ),
-                //             ],
-                //           ),
-                //         ),
-                //       );
-                //     }
-                // ),
                 InkWell(
                   onTap: (){
                     if(widget.pageType == "TimeLineMyCampus"){
@@ -785,7 +663,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                     width: 64,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1),
+                      color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
                     ),
                     padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.4),
                     child: Row(
@@ -798,7 +676,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                           fit: BoxFit.fitHeight,
                         ),
                         SizedBox(
-                          width: 2,
+                          width: 5,
                         ),
                         Text(
                           widget.pageType == "TimeLineMyCampus"?
@@ -813,10 +691,9 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                           feedProvider.feedItem[widget.indexVal].likeCount[0].count.toString():
                           widget.likeCount[0].count.toString(),
                           style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.1,
-                            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            fontFamily: "Poppins",
+                            fontSize: 15,
+                            color: themeController.isDarkMode?Colors.white:Colors.black,
                           ),
                         ),
                       ],
@@ -928,7 +805,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                     width: 64,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1),
+                      color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
                     ),
                     padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.4),
                     child: Row(
@@ -941,7 +818,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                           fit: BoxFit.fitHeight,
                         ),
                         SizedBox(
-                          width: 2,
+                          width: 5,
                         ),
                         Text(
                           widget.pageType == "TimeLineMyCampus"?
@@ -956,143 +833,15 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                           feedProvider.feedItem[widget.indexVal].likeCount[1].count.toString():
                           widget.likeCount[0].count.toString(),
                           style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.1,
-                            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            fontFamily: "Poppins",
+                            fontSize: 15,
+                            color: themeController.isDarkMode?Colors.white:Colors.black,
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-                // Consumer<FeedProvider>(
-                //   builder: (context, feedProvider, child){
-                //     return InkWell(
-                //       onDoubleTap: ()async{
-                //         if(widget.likeCount.length==0){
-                //           widget.likeCount.add(LikeCount(emojiValue: 1,count: 0));
-                //           widget.likeCount.add(LikeCount(emojiValue: 2,count: 0));
-                //         }else if(widget.likeCount.length==1){
-                //           if(widget.likeCount[0].emojiValue==1){
-                //             widget.likeCount.add(LikeCount(emojiValue: 2,count: 0));
-                //           }else{
-                //             LikeCount likeCountTemp = widget.likeCount[0];
-                //             widget.likeCount.clear();
-                //             widget.likeCount.add(LikeCount(emojiValue: 1,count: 0));
-                //             widget.likeCount.add(likeCountTemp);
-                //           }
-                //         }
-                //         if(widget.isLiked!=null){
-                //           if(widget.isLiked.emojiValue==2){
-                //             Provider.of<FeedProvider>(context, listen: false).likeAFeed(feedId, widget.indexVal, 2);
-                //             widget.likeCount[1].count = widget.likeCount[1].count -1;
-                //           }else{
-                //             await Provider.of<FeedProvider>(context, listen: false).likeAFeed(feedId, widget.indexVal, 1);
-                //             Provider.of<FeedProvider>(context, listen: false).likeAFeed(feedId, widget.indexVal, 2);
-                //             widget.likeCount[1].count = widget.likeCount[1].count +1;
-                //             widget.likeCount[0].count = widget.likeCount[0].count -1;
-                //           }
-                //         }else{
-                //           Provider.of<FeedProvider>(context, listen: false).likeAFeed(feedId, widget.indexVal, 2);
-                //           widget.likeCount[1].count = widget.likeCount[1].count +1;
-                //         }
-                //       },
-                //       child: Container(
-                //         margin: EdgeInsets.only(top: 25, left: 16),
-                //         height: 32,
-                //         width: 64,
-                //         decoration: BoxDecoration(
-                //           borderRadius: BorderRadius.circular(16),
-                //           border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1),
-                //         ),
-                //         padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.4),
-                //         child: Row(
-                //           mainAxisAlignment: MainAxisAlignment.center,
-                //           children: [
-                //             Image.asset(
-                //               "lib/asset/icons/heart.png",
-                //               width: 18,
-                //               height: 14,
-                //               fit: BoxFit.fitHeight,
-                //             ),
-                //             SizedBox(
-                //               width: 2,
-                //             ),
-                //             Text(
-                //               widget.likeCount.length==2?
-                //               widget.likeCount[1].count.toString():"0",
-                //               style: TextStyle(
-                //                 fontSize: 13,
-                //                 fontWeight: FontWeight.w500,
-                //                 letterSpacing: 0.1,
-                //                 color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                //               ),
-                //             ),
-                //           ],
-                //         ),
-                //       ),
-                //     );
-                //   },
-                // ),
-
-
-                // Expanded(
-                //   child: Container(
-                //     height: 32,
-                //     margin: EdgeInsets.only(left: 8,top: 25),
-                //     child: ListView.builder(
-                //       shrinkWrap: true,
-                //       scrollDirection: Axis.horizontal,
-                //       itemCount: widget.likeCount.length,
-                //       itemBuilder: (context, index) {
-                //         return InkWell(
-                //           onTap: () => Get.to(() => FeedLikesDetails(
-                //             feedId: widget.feedId,
-                //           )),
-                //           splashColor: Colors.transparent,
-                //           highlightColor: Colors.transparent,
-                //           child: Container(
-                //             margin: EdgeInsets.only(bottom: 0, left: 10),
-                //             height: 32,
-                //             width: 64,
-                //             decoration: BoxDecoration(
-                //                 borderRadius: BorderRadius.circular(16),
-                //                 border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1)
-                //             ),
-                //             padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.4),
-                //             child: Row(
-                //               mainAxisAlignment: MainAxisAlignment.center,
-                //               children: [
-                //                 Image.asset(
-                //                   reactionImages[widget.likeCount[index].emojiValue],
-                //                   width: 18,
-                //                   height: 14,
-                //                   fit: BoxFit.fitHeight,
-                //                 ),
-                //                 SizedBox(
-                //                   width: 2,
-                //                 ),
-                //                 Text(widget.likeCount[index].count.toString(),
-                //                   style: TextStyle(
-                //                     fontSize: 13,
-                //                     fontWeight: FontWeight.w500,
-                //                     letterSpacing: 0.1,
-                //                     color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                //                   ),
-                //                 ),
-                //               ],
-                //             ),
-                //           ),
-                //         );
-                //       },
-                //     ),
-                //   ),
-                // ),
-
-
-
-
                 Expanded(
                   child: SizedBox(
                     width: 5,
@@ -1100,31 +849,42 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 25),
-                  child: IconButton(
-                    onPressed: (){
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => FeedComments(
-                                feedIndex: widget.indexVal,
-                                feedId: feedId,
-                              )));
+                  child: InkWell(
+                    onTap: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context) =>
+                          FeedComments(feedIndex: widget.indexVal, feedId: feedId,)));
                     },
-                    icon:  Image.asset("lib/asset/icons/message@3x.png",height: 20,color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,),
-                    color: Colors.grey[50],
+                    child: Container(
+                      height: 39,
+                      width: 83,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Image.asset("lib/asset/iconsNewDesign/msg.png",
+                              color: themeController.isDarkMode?Colors.white:Colors.black,
+                            ),
+                          ),
+                          Text(
+                            widget.commentCount.toString(),
+                            style: TextStyle(
+                              fontFamily: "Poppins",
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: themeController.isDarkMode?Colors.white:Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-                // Container(
-                //   margin: EdgeInsets.only(bottom: 3, left: 7),
-                //   child:
-                //   Consumer<FeedProvider>(
-                //     builder: (context, feedProvider, child) {
-                //       return Text(
-                //           widget.isBookmarkedPage ? feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].commentCount.toString() : feedProvider.feedList[widget.indexVal].commentCount.toString(), style: TextStyle(color: Colors.white, fontWeight: FontWeight.w400, fontSize: 14));
-                //     },
-                //   ),
-                //
-                // ),
                 Consumer<FeedProvider>(
                   builder: (context, value, child) {
                     if (value.feedItemsBookmarkData != null) {
@@ -1136,15 +896,34 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                     return Padding(
                       padding: const EdgeInsets.only(right: 16,left: 10,top: 25),
                       child: InkWell(
-                          child: bookMarked ?
-                          Image.asset("lib/asset/icons/bookmarkColor.png",height: 20,) :
-                          Image.asset("lib/asset/homePageIcons/drawerBookmark@3x.png",height: 20,color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,),
-                          onTap: () {
-                            Provider.of<FeedProvider>(context, listen: false).bookmarkAFeed(feedId, widget.indexVal);
-                            setState(() {
-                              bookMarked=!bookMarked;
-                            });
-                          }),
+                        onTap: (){
+                          Provider.of<FeedProvider>(context, listen: false).bookmarkAFeed(feedId, widget.indexVal);
+                          setState(() {
+                            bookMarked=!bookMarked;
+                          });
+                        },
+                        child: Container(
+                          height: 39,
+                          width: 40,
+                          decoration: BoxDecoration(
+                            color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                            shape: BoxShape.circle,
+                          ),
+                          child: bookMarked?
+                          Padding(
+                            padding: const EdgeInsets.all(11.0),
+                            child: Image.asset("lib/asset/icons/bookmarkColor.png",
+                              color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+                            ),
+                          ):
+                          Padding(
+                            padding: const EdgeInsets.all(11.0),
+                            child: Image.asset("lib/asset/homePageIcons/drawerBookmark@3x.png",
+                              color: themeController.isDarkMode?Colors.white:Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
                     );
                   },
                 ),
@@ -1159,51 +938,33 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget reactionButtons({double degree, double distance, FeedProvider value, int emojiValue}) {
-    return Transform.translate(
-      offset: Offset.fromDirection(getRadiansFromDegree(degree), distance),
-      child: Transform(
-        transform: Matrix4.rotationZ(getRadiansFromDegree(rotationAnimation.value))..scale(degOneTranslationAnimation.value),
-        alignment: Alignment.center,
-        child: CircularButton(
-          color: reactionIconBGColors[emojiValue],
-          width: 38,
-          height: 38,
-          icon: Image.asset(
-            reactionImages[emojiValue],
-            width: 24,
+  List _buildMedia(BuildContext context, List media) {
+    List mda = [];
+    for (int i = 0; i < media.length; i++) {
+      mda.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 0.0, left: 14, right: 10, top: 10),
+          child: ConstrainedBox(
+            constraints: new BoxConstraints(
+              minHeight: 50.0,
+              maxHeight: 300.0,
+            ),
+            child: InkWell(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>MediaViewer(url: media[i].url,))),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12.0),
+                clipBehavior: Clip.hardEdge,
+                child: Image.network(
+                  media[i].url,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
           ),
-          onClick: () async {
-            reactionClick(emojiValue: emojiValue, likeCount: widget.isBookmarkedPage ? value.bookmarkByUserData.data.feeds[widget.indexVal].likeCount : value.feedList[widget.indexVal].likeCount);
-          },
         ),
-      ),
-    );
-  }
-
-  reactionClick({List<LikeCount> likeCount, int emojiValue}) async {
-    if (animationController.isCompleted) {
-      animationController.reverse();
+      );
     }
-    bool likedDone = await Provider.of<FeedProvider>(context, listen: false).likeAFeed(feedId, widget.indexVal, emojiValue);
-
-    if (likedDone && !liked) {
-      bool isReactionAvailable = false;
-      for (int i = 0; i < likeCount.length; i++) {
-        if (likeCount[i].emojiValue == emojiValue) {
-          ++likeCount[i].count;
-          isReactionAvailable = true;
-        }
-      }
-      if (!isReactionAvailable) {
-        likeCount.add(LikeCount(emojiValue: emojiValue, count: 1));
-      }
-    }
-  }
-
-  double getRadiansFromDegree(double degree) {
-    double unitRadian = 57.295779513;
-    return degree / unitRadian;
+    return mda;
   }
 
   Widget _sharedWidget(IsShared isShared) {
@@ -1310,10 +1071,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
     );
   }
 
-  _showDeleteAlertDialog({
-    @required int feedId,
-    @required int indexVal,
-  }) async {
+  _showDeleteAlertDialog({@required int feedId, @required int indexVal,}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -1359,11 +1117,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
     );
   }
 
-
-  _showFollowAlertDialog({
-    @required int feedId,
-    @required int indexVal,
-  }) async {
+  _showFollowAlertDialog({@required int feedId, @required int indexVal,}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -1421,189 +1175,6 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
     );
   }
 
-  // _showFollowAlertDialog({
-  //   @required int feedId,
-  //   @required int indexVal,
-  // }) async {
-  //   return showDialog<void>(
-  //     context: context,
-  //     barrierDismissible: false, // user must tap button!
-  //     builder: (BuildContext context) {
-  //       return Consumer<FeedProvider>(
-  //         builder: (context, value, child) {
-  //           return CupertinoAlertDialog(
-  //             title: new Text("Are you sure?"),
-  //             content: new Text(widget.isFollowed?"You want to Unfollow this post":"You want to follow this post"),
-  //             actions: <Widget>[
-  //               CupertinoDialogAction(
-  //                 isDefaultAction: true,
-  //                 child: value.feedFollowLoader?
-  //             Center(
-  //               child: CircularProgressIndicator(
-  //                 color: Colors.white,
-  //               ),
-  //             )
-  //           :Text("Yes"),
-  //                 onPressed: () async {
-  //                   if(widget.isFollowed){
-  //                     Map<String, dynamic> body = {"post_id": widget.feedId, "post_type": "Feed"};
-  //                     bool unFollowDone = await Provider.of<FeedProvider>(context, listen: false).unFollowAFeed(body, widget.feedId);
-  //                   if (unFollowDone) {
-  //                     if (widget.isBookmarkedPage) {
-  //                       value.bookmarkByUserData.data.feeds[widget.indexVal].isFollowed=false;
-  //                     }else{
-  //                       value.feedList[widget.indexVal].isFollowed=false;
-  //                     }
-  //                     widget.isFollowed=false;
-  //                     Navigator.pop(context);
-  //                   }
-  //
-  //                   }else{
-  //                     Map<String, dynamic> body = {"post_id": widget.feedId, "post_type": "Feed"};
-  //                   bool followDone = await Provider.of<FeedProvider>(context, listen: false).followAFeed(body, widget.feedId);
-  //                   if (followDone) {
-  //                     if (widget.isBookmarkedPage) {
-  //                       value.bookmarkByUserData.data.feeds[widget.indexVal].isFollowed=true;
-  //                     }else{
-  //                       value.feedList[widget.indexVal].isFollowed=true;
-  //                     }
-  //                     widget.isFollowed=true;
-  //                     Navigator.pop(context);
-  //                   }
-  //                   }
-  //                 },
-  //               ),
-  //               CupertinoDialogAction(
-  //                   child: Text("No"),
-  //                   onPressed: () {
-  //                     Navigator.of(context).pop();
-  //                   })
-  //             ],
-  //           );
-  //         },
-  //       );
-  //
-  //     },
-  //   );
-  // }
-
-
-
-  modalSheetToShare() {
-    TextEditingController _description = new TextEditingController();
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: myHexColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(15.0),
-        ),
-      ),
-      builder: (BuildContext context) {
-        return Padding(
-          padding: const EdgeInsets.all(18.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Share this post",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: MateColors.activeIcons),
-                ),
-              ),
-              SizedBox(
-                height: 15.0,
-              ),
-              TextFormField(
-                minLines: 2,
-                maxLines: 8,
-                maxLength: 512,
-                decoration: InputDecoration(
-                  counterStyle: TextStyle(color: Colors.grey),
-                  labelStyle: TextStyle(fontSize: 16.0, color: MateColors.activeIcons),
-                  labelText: "Description",
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.grey, width: 0.3),
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.white, width: 0.3),
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                ),
-                style: TextStyle(color: Colors.white, fontSize: 18.0),
-                cursorColor: Colors.cyanAccent,
-                textInputAction: TextInputAction.done,
-                controller: _description,
-                validator: (value) {
-                  return value.isEmpty ? "*description" : null; //returning null means no error occurred. if there are any error then simply return a string
-                },
-              ),
-              SizedBox(
-                height: 16.0,
-              ),
-              ButtonTheme(
-                minWidth: MediaQuery.of(context).size.width - 40,
-                height: 50,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: MateColors.activeIcons,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                  ),
-                  // shape: RoundedRectangleBorder(
-                  //   borderRadius: BorderRadius.circular(15.0),
-                  // ),
-                  // color: MateColors.activeIcons,
-                  child: Consumer<FeedProvider>(
-                    builder: (ctx, feedProvider, _) {
-                      if (feedProvider.feedShareLoader) {
-                        return Center(
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                          ),
-                        );
-                      }
-
-                      return Text(
-                        'Share',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      );
-                    },
-                  ),
-                  onPressed: () async {
-                    // Navigator.pop(context);
-
-                    Map<String, dynamic> body = {"share_desc": _description.text.trim()};
-                    bool shareDone = await Provider.of<FeedProvider>(context, listen: false).shareAFeed(body, widget.feedId);
-                    if (shareDone) {
-                      // Navigator.pop(context);
-                      // Navigator.of(context).pushReplacement(MaterialPageRoute(
-                      //     builder: (context) => HomeScreen(
-                      //           index: 2,
-                      //         )));
-                      Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(
-                              builder: (context) => HomeScreen(
-                                    index: 0,
-                                  )),
-                          (Route<dynamic> route) => false);
-                    }
-                  },
-                ),
-              ),
-              SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   insertEvent(event) {
     try {
       const _scopes = const [gCal.CalendarApi.calendarScope];
@@ -1633,7 +1204,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
   }
 }
 
-class HomeRow1 extends StatefulWidget {
+class HomeRowForFeedDetails extends StatefulWidget {
   String previousPageUserId;
   String previousPageFeedId;
   String id;
@@ -1665,7 +1236,7 @@ class HomeRow1 extends StatefulWidget {
   bool navigateToDetailsPage;
   String pageType;
 
-  HomeRow1(
+  HomeRowForFeedDetails(
       {this.previousPageUserId,
         this.previousPageFeedId,
         this.id,
@@ -1698,11 +1269,11 @@ class HomeRow1 extends StatefulWidget {
         this.isShared});
 
   @override
-  _HomeRowState1 createState() =>
-      _HomeRowState1(this.id, this.feedId, this.title, this.feedType, this.start, this.end, this.calenderDate, this.description, this.created, this.user, this.location, this.media, this.liked, this.bookMarked);
+  _HomeRowForFeedDetailsState createState() =>
+      _HomeRowForFeedDetailsState(this.id, this.feedId, this.title, this.feedType, this.start, this.end, this.calenderDate, this.description, this.created, this.user, this.location, this.media, this.liked, this.bookMarked);
 }
 
-class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin {
+class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with SingleTickerProviderStateMixin {
   final String id;
   final int feedId;
   final String title;
@@ -1714,25 +1285,17 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
   var user;
   final String location;
   final List media;
-
-  // final List<Media> media;
   final List feedType;
-
-  // final List<FeedTypes> feedType;
   bool bookMarked;
   bool liked;
-
   auth.User _currentUser = auth.FirebaseAuth.instance.currentUser;
-
-  _HomeRowState1(this.id, this.feedId, this.title, this.feedType, this.startTime, this.endTime, this.calenderDate, this.description, this.created, this.user, this.location, this.media, this.liked, this.bookMarked);
+  _HomeRowForFeedDetailsState(this.id, this.feedId, this.title, this.feedType, this.startTime, this.endTime, this.calenderDate, this.description, this.created, this.user, this.location, this.media, this.liked, this.bookMarked);
 
   ClientId _credentials;
-
-  /// animations
-  AnimationController animationController;
-  Animation degOneTranslationAnimation, degTwoTranslationAnimation, degThreeTranslationAnimation;
-  Animation rotationAnimation;
   IsLiked isLiked;
+  ThemeController themeController = Get.find<ThemeController>();
+  String token;
+  FeedProvider feedProvider;
 
   @override
   void initState() {
@@ -1740,86 +1303,25 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
     feedProvider = Provider.of<FeedProvider>(context, listen: false);
     super.initState();
     getStoredValue();
-    ///animations for likes
-    animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 250));
-    degOneTranslationAnimation = Tween(begin: 0.0, end: 1.0).animate(animationController);
-    rotationAnimation = Tween<double>(begin: 180.0, end: 0.0).animate(CurvedAnimation(parent: animationController, curve: Curves.easeOut));
     super.initState();
-    animationController.addListener(() {
-      setState(() {});
-    });
-
     if (Platform.isAndroid) {
       _credentials = new ClientId("237545926078-9biln72s9c5h9vot53l84me39unhhnbf.apps.googleusercontent.com", "");
     } else if (Platform.isIOS) {
       _credentials = new ClientId("237545926078-99q5c35ugs0b49spmhf1ru0ghie7opnp.apps.googleusercontent.com", "");
     }
   }
-  ThemeController themeController = Get.find<ThemeController>();
 
-  String token;
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
     token = preferences.getString("token");
-    log(token);
   }
-
-  List _buildMedia(BuildContext context, List media) {
-    List mda = [];
-
-    for (int i = 0; i < media.length; i++) {
-      mda.add(
-        Padding(
-          padding: const EdgeInsets.only(bottom: 0.0, left: 14, right: 10, top: 10),
-          child: ConstrainedBox(
-            constraints: new BoxConstraints(
-              minHeight: 50.0,
-              maxHeight: 300.0,
-            ),
-            child: InkWell(
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>MediaViewer(url: media[i].url,))),
-                  // Navigator.of(context).push(MaterialPageRoute(
-                  // builder: (context) => FullImageWidget(
-                  //   imagePath: media[i].url,
-                  // ))),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12.0),
-                clipBehavior: Clip.hardEdge,
-                child: Image.network(
-                  media[i].url,
-                  fit: BoxFit.contain,
-                  // height: 300,
-                  // width: 400,
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    return mda;
-
-  }
-  FeedProvider feedProvider;
 
   @override
   Widget build(BuildContext context) {
-    //print('media is::${media.toString()}');
-
     return Container(
-      //margin: EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
-        color: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-        //borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            spreadRadius: 5,
-            blurRadius: 7,
-            offset: Offset(0, 3),
-          ),
-        ],
+        color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1845,15 +1347,15 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
                       Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": user.id, "name": user.name, "photoUrl": user.photoUrl, "firebaseUid": user.firebaseUid});
                     }
                   },
-                  child: user.photoUrl.length == 0
-                      ? CircleAvatar(
-                    radius: 16,
+                  child: user.photoUrl.length == 0 ?
+                  CircleAvatar(
+                    radius: 20,
                     child: Text(
                       user.name[0],
                     ),
-                  )
-                      : CircleAvatar(
-                    radius: 16,
+                  ):
+                  CircleAvatar(
+                    radius: 20,
                     backgroundImage: NetworkImage(
                       user.photoUrl,
                     ),
@@ -1872,33 +1374,28 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
               child: Text(
                 user.name,
                 style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0.1,
-                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                  fontSize: 15,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w600,
+                  color: themeController.isDarkMode?Colors.white:Colors.black,
                 ),
               ),
             ),
             subtitle: Text(
               "$created",
               style: TextStyle(
-                fontSize: 12,
-                color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                fontSize: 14,
+                color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
               ),
             ),
             trailing: PopupMenuButton<int>(
-                padding: EdgeInsets.only(bottom: 0, top: 0, left: 0, right: 0),
-                color: themeController.isDarkMode?backgroundColor:Colors.white,
-                icon: Image.asset(
-                  "lib/asset/icons/menu@3x.png",
-                  height: 18,
-                  color: MateColors.activeIcons,
+                padding: EdgeInsets.zero,
+                elevation: 0,
+                color: themeController.isDarkMode?MateColors.popupDark:MateColors.popupLight,
+                icon: Icon(
+                  Icons.more_vert,
+                  color: themeController.isDarkMode?Colors.white:MateColors.blackText,
                 ),
-                // Icon(
-                //   Icons.more_vert,
-                //   color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,
-                // ),
-                //color: Colors.grey[850],
                 onSelected: (index) async {
                   if (index == 0) {
                     gCal.Event event = gCal.Event(); // Create object of event
@@ -1906,14 +1403,12 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
                     event.description = description; //Setting summary of object
 
                     gCal.EventDateTime start = new gCal.EventDateTime(); //Setting start time
-// start.dateTime = DateTime.parse("2021-09-20 00:00:00.000").toLocal();
                     start.dateTime = DateTime.parse(calenderDate).toLocal();
                     start.timeZone = "GMT+05:00";
                     event.start = start;
 
                     gCal.EventDateTime end = new gCal.EventDateTime(); //setting end time
                     end.timeZone = "GMT+05:00";
-// end.dateTime = DateTime.parse("2021-09-21 00:00:00.000").toLocal();
                     end.dateTime = DateTime.parse(calenderDate).toLocal();
                     event.end = end;
 
@@ -1925,9 +1420,6 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
                             builder: (context) => Chat(peerUuid: user.id, currentUserId: _currentUser.uid, peerId: user.firebaseUid, peerAvatar: user.photoUrl, peerName: user.name)));
                   } else if (index == 2) {
                     _showFollowAlertDialog(feedId: widget.feedId, indexVal: widget.indexVal);
-
-                  } else if (index == 3) {
-                    modalSheetToShare();
                   } else if (index == 4) {
                     _showDeleteAlertDialog(feedId: widget.feedId, indexVal: widget.indexVal);
                   } else if (index == 5) {
@@ -1942,22 +1434,32 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
                   }
                 },
                 itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: 0,
-                    height: 40,
-                    child: Text(
-                      "Calendar",
-                      textAlign: TextAlign.start,
-                      style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
-                    ),
-                  ),
+                  // PopupMenuItem(
+                  //   value: 0,
+                  //   height: 40,
+                  //   child: Text(
+                  //     "Calendar",
+                  //     textAlign: TextAlign.start,
+                  //     style: TextStyle(
+                  //       color: themeController.isDarkMode?Colors.white:Colors.black,
+                  //       fontWeight: FontWeight.w500,
+                  //       fontFamily: 'Poppins',
+                  //       fontSize: 14,
+                  //     ),
+                  //   ),
+                  // ),
                   PopupMenuItem(
                     value: 1,
                     height: 40,
                     child: Text(
                       "Message",
                       textAlign: TextAlign.start,
-                      style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                      style: TextStyle(
+                        color: themeController.isDarkMode?Colors.white:Colors.black,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Poppins',
+                        fontSize: 14,
+                      ),
                     ),
                   ),
                   PopupMenuItem(
@@ -1966,13 +1468,26 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
                     child: Text(
                       widget.isFollowed?"Unfollow Post":"Follow Post",
                       textAlign: TextAlign.start,
-                      style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                      style: TextStyle(
+                        color: themeController.isDarkMode?Colors.white:Colors.black,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Poppins',
+                        fontSize: 14,
+                      ),
                     ),
                   ),
                 ]
-            ),),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Divider(
+              thickness: 1,
+              color: themeController.isDarkMode?MateColors.dividerDark:MateColors.dividerLight,
+            ),
+          ),
           Container(
-            height: 28.0,
+            height: 39,
             margin: EdgeInsets.only(left: 16,top: 6),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
@@ -1983,24 +1498,23 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
                   onTap: () {
                     final page = FeedSearch(text: feedType[index].type.name,);
                     Navigator.push(context,MaterialPageRoute(builder: (context) => page ));
-                    // if(feedType[index].type.status==1){
-                    //   // Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    //   //     builder: (context) => HomeScreen(
-                    //   //       index: 1,
-                    //   //       feedTypeName: feedType[index].type.name,
-                    //   //     )));
-                    // }
                   },
                   child: Container(
-                    height: 28.0,
-                    //width: 92.0,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
+                      borderRadius: BorderRadius.circular(25),
+                      color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
                     ),
                     child: Padding(
                       padding: const EdgeInsets.only(left: 15,right: 15),
-                      child: Center(child: Text("${feedType[index].type.name}",style: TextStyle(fontFamily: "Poppins",fontSize: 12,color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),)),
+                      child: Center(
+                        child: Text("${feedType[index].type.name}",
+                          style: TextStyle(
+                            fontFamily: "Poppins",
+                            fontSize: 15,
+                            color: themeController.isDarkMode?Colors.white:Colors.black,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -2014,9 +1528,10 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
                 child: Text(
                   title,
                   style: TextStyle(
-                    fontSize: 17,
+                    fontSize: 16,
+                    fontFamily: 'Poppins',
                     fontWeight: FontWeight.w700,
-                    color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                    color: themeController.isDarkMode?Colors.white:Colors.black,
                   ),
                 ),
               ),
@@ -2035,12 +1550,17 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
               text: description,
               style: TextStyle(
                 fontSize: 14,
+                fontFamily: 'Poppins',
                 fontWeight: FontWeight.w400,
                 letterSpacing: 0.1,
-                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                color: themeController.isDarkMode?Colors.white:Colors.black,
               ),
               textAlign: TextAlign.left,
-              linkStyle: TextStyle(color: MateColors.activeIcons, fontSize: 11.4.sp),
+              linkStyle: TextStyle(
+                fontSize: 14,
+                fontFamily: 'Poppins',
+                color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+              ),
             ),
           ),
           widget.hyperlinkText!=null && widget.hyperlink!=null ?
@@ -2060,49 +1580,43 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
                 widget.hyperlinkText,
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0.1,
-                  color: MateColors.activeIcons,
+                  fontFamily: 'Poppins',
+                  color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
                 ),
               ),
             ),
           ):SizedBox(),
-
           ..._buildMedia(context, media),
           widget.isShared != null ? _sharedWidget(widget.isShared) : SizedBox(),
-
           location!=null?
           Padding(
             padding: const EdgeInsets.only(top: 16.0, left: 16, bottom: 5),
             child: Row(
               children: [
                 Icon(
-                  Icons.location_on,
-                  size: 18,
-                  color:themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,
+                  Icons.location_on_sharp,
+                  size: 25,
+                  color: themeController.isDarkMode?Colors.white:Colors.black,
                 ),
                 Expanded(
                   child: Text(
                     ' $location',
                     style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w300,
-                      letterSpacing: 0.1,
-                      color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                      fontSize: 14,
+                      fontFamily: 'Poppins',
+                      color: themeController.isDarkMode?Colors.white.withOpacity(0.7):Colors.black.withOpacity(0.7),
                     ),
-                    overflow: TextOverflow.fade,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
             ),
           ):SizedBox(),
-
           SizedBox(
             width: MediaQuery.of(context).size.width,
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-
                 InkWell(
                   onTap: (){
                     if(widget.pageType == "TimeLineMyCampus"){
@@ -2208,7 +1722,7 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
                     width: 64,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1),
+                      color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
                     ),
                     padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.4),
                     child: Row(
@@ -2221,7 +1735,7 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
                           fit: BoxFit.fitHeight,
                         ),
                         SizedBox(
-                          width: 2,
+                          width: 5,
                         ),
                         Text(
                           widget.pageType == "TimeLineMyCampus"?
@@ -2236,10 +1750,9 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
                           feedProvider.feedItem[widget.indexVal].likeCount[0].count.toString():
                           widget.likeCount[0].count.toString(),
                           style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.1,
-                            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            fontFamily: "Poppins",
+                            fontSize: 15,
+                            color: themeController.isDarkMode?Colors.white:Colors.black,
                           ),
                         ),
                       ],
@@ -2351,7 +1864,7 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
                     width: 64,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1),
+                      color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
                     ),
                     padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.4),
                     child: Row(
@@ -2364,7 +1877,7 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
                           fit: BoxFit.fitHeight,
                         ),
                         SizedBox(
-                          width: 2,
+                          width: 5,
                         ),
                         Text(
                           widget.pageType == "TimeLineMyCampus"?
@@ -2379,100 +1892,20 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
                           feedProvider.feedItem[widget.indexVal].likeCount[1].count.toString():
                           widget.likeCount[0].count.toString(),
                           style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.1,
-                            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            fontFamily: "Poppins",
+                            fontSize: 15,
+                            color: themeController.isDarkMode?Colors.white:Colors.black,
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-                // Expanded(
-                //   child: Container(
-                //     height: 32,
-                //     margin: EdgeInsets.only(left: 8,top: 25),
-                //     child: ListView.builder(
-                //       shrinkWrap: true,
-                //       scrollDirection: Axis.horizontal,
-                //       itemCount: widget.likeCount.length,
-                //       itemBuilder: (context, index) {
-                //         return InkWell(
-                //           onTap: () => Get.to(() => FeedLikesDetails(
-                //             feedId: widget.feedId,
-                //           )),
-                //           splashColor: Colors.transparent,
-                //           highlightColor: Colors.transparent,
-                //           child: Container(
-                //             margin: EdgeInsets.only(bottom: 0, left: 10),
-                //             height: 32,
-                //             width: 64,
-                //             decoration: BoxDecoration(
-                //                 borderRadius: BorderRadius.circular(16),
-                //                 border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1)
-                //             ),
-                //             padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.4),
-                //             child: Row(
-                //               mainAxisAlignment: MainAxisAlignment.center,
-                //               children: [
-                //                 Image.asset(
-                //                   reactionImages[widget.likeCount[index].emojiValue],
-                //                   width: 18,
-                //                   height: 14,
-                //                   fit: BoxFit.fitHeight,
-                //                 ),
-                //                 SizedBox(
-                //                   width: 2,
-                //                 ),
-                //                 Text(widget.likeCount[index].count.toString(),
-                //                   style: TextStyle(
-                //                     fontSize: 13,
-                //                     fontWeight: FontWeight.w500,
-                //                     letterSpacing: 0.1,
-                //                     color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                //                   ),
-                //                 ),
-                //               ],
-                //             ),
-                //           ),
-                //         );
-                //       },
-                //     ),
-                //   ),
-                // ),
                 Expanded(
                   child: SizedBox(
                     width: 5,
                   ),
                 ),
-                // Padding(
-                //   padding: const EdgeInsets.only(top: 25),
-                //   child: IconButton(
-                //     onPressed: (){
-                //       Navigator.push(
-                //           context,
-                //           MaterialPageRoute(
-                //               builder: (context) => FeedComments(
-                //                 feedIndex: widget.indexVal,
-                //                 feedId: feedId,
-                //               )));
-                //     },
-                //     icon:  Image.asset("lib/asset/icons/message@3x.png",height: 20,color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,),
-                //     color: Colors.grey[50],
-                //   ),
-                // ),
-                // Container(
-                //   margin: EdgeInsets.only(bottom: 3, left: 7),
-                //   child:
-                //   Consumer<FeedProvider>(
-                //     builder: (context, feedProvider, child) {
-                //       return Text(
-                //           widget.isBookmarkedPage ? feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].commentCount.toString() : feedProvider.feedList[widget.indexVal].commentCount.toString(), style: TextStyle(color: Colors.white, fontWeight: FontWeight.w400, fontSize: 14));
-                //     },
-                //   ),
-                //
-                // ),
                 Consumer<FeedProvider>(
                   builder: (context, value, child) {
                     if (value.feedItemsBookmarkData != null) {
@@ -2484,15 +1917,34 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
                     return Padding(
                       padding: const EdgeInsets.only(right: 16,left: 10,top: 25),
                       child: InkWell(
-                          child: bookMarked ?
-                          Image.asset("lib/asset/icons/bookmarkColor.png",height: 20,) :
-                          Image.asset("lib/asset/homePageIcons/drawerBookmark@3x.png",height: 20,color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,),
-                          onTap: () {
-                            Provider.of<FeedProvider>(context, listen: false).bookmarkAFeed(feedId, widget.indexVal);
-                            setState(() {
-                              bookMarked=!bookMarked;
-                            });
-                          }),
+                        onTap: (){
+                          Provider.of<FeedProvider>(context, listen: false).bookmarkAFeed(feedId, widget.indexVal);
+                          setState(() {
+                            bookMarked=!bookMarked;
+                          });
+                        },
+                        child: Container(
+                          height: 39,
+                          width: 40,
+                          decoration: BoxDecoration(
+                            color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                            shape: BoxShape.circle,
+                          ),
+                          child: bookMarked?
+                          Padding(
+                            padding: const EdgeInsets.all(11.0),
+                            child: Image.asset("lib/asset/icons/bookmarkColor.png",
+                              color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+                            ),
+                          ):
+                          Padding(
+                            padding: const EdgeInsets.all(11.0),
+                            child: Image.asset("lib/asset/homePageIcons/drawerBookmark@3x.png",
+                              color: themeController.isDarkMode?Colors.white:Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
                     );
                   },
                 ),
@@ -2507,51 +1959,33 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget reactionButtons({double degree, double distance, FeedProvider value, int emojiValue}) {
-    return Transform.translate(
-      offset: Offset.fromDirection(getRadiansFromDegree(degree), distance),
-      child: Transform(
-        transform: Matrix4.rotationZ(getRadiansFromDegree(rotationAnimation.value))..scale(degOneTranslationAnimation.value),
-        alignment: Alignment.center,
-        child: CircularButton(
-          color: reactionIconBGColors[emojiValue],
-          width: 38,
-          height: 38,
-          icon: Image.asset(
-            reactionImages[emojiValue],
-            width: 24,
+  List _buildMedia(BuildContext context, List media) {
+    List mda = [];
+    for (int i = 0; i < media.length; i++) {
+      mda.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 0.0, left: 14, right: 10, top: 10),
+          child: ConstrainedBox(
+            constraints: new BoxConstraints(
+              minHeight: 50.0,
+              maxHeight: 300.0,
+            ),
+            child: InkWell(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>MediaViewer(url: media[i].url,))),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12.0),
+                clipBehavior: Clip.hardEdge,
+                child: Image.network(
+                  media[i].url,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
           ),
-          onClick: () async {
-            reactionClick(emojiValue: emojiValue, likeCount: widget.isBookmarkedPage ? value.bookmarkByUserData.data.feeds[widget.indexVal].likeCount : value.feedList[widget.indexVal].likeCount);
-          },
         ),
-      ),
-    );
-  }
-
-  reactionClick({List<LikeCount> likeCount, int emojiValue}) async {
-    if (animationController.isCompleted) {
-      animationController.reverse();
+      );
     }
-    bool likedDone = await Provider.of<FeedProvider>(context, listen: false).likeAFeed(feedId, widget.indexVal, emojiValue);
-
-    if (likedDone && !liked) {
-      bool isReactionAvailable = false;
-      for (int i = 0; i < likeCount.length; i++) {
-        if (likeCount[i].emojiValue == emojiValue) {
-          ++likeCount[i].count;
-          isReactionAvailable = true;
-        }
-      }
-      if (!isReactionAvailable) {
-        likeCount.add(LikeCount(emojiValue: emojiValue, count: 1));
-      }
-    }
-  }
-
-  double getRadiansFromDegree(double degree) {
-    double unitRadian = 57.295779513;
-    return degree / unitRadian;
+    return mda;
   }
 
   Widget _sharedWidget(IsShared isShared) {
@@ -2658,10 +2092,7 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
     );
   }
 
-  _showDeleteAlertDialog({
-    @required int feedId,
-    @required int indexVal,
-  }) async {
+  _showDeleteAlertDialog({@required int feedId, @required int indexVal,}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -2677,8 +2108,6 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
                 bool isDeleted = await Provider.of<FeedProvider>(context, listen: false).deleteAFeed(feedId);
                 if (isDeleted) {
                   Future.delayed(Duration(seconds: 0), () {
-                    // Provider.of<FeedProvider>(context, listen: false).fetchCampusLivePostList();
-                    // Navigator.pop(context);
                     if (widget.isBookmarkedPage) {
                       Navigator.pop(context);
                       Provider.of<FeedProvider>(context, listen: false).allBookmarkedFeed();
@@ -2705,17 +2134,13 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
     );
   }
 
-  _showFollowAlertDialog({
-    @required int feedId,
-    @required int indexVal,
-  }) async {
+  _showFollowAlertDialog({@required int feedId, @required int indexVal,}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context) {
         return Consumer<FeedProvider>(
           builder: (context, value, child) {
-
             return CupertinoAlertDialog(
               title: new Text("Are you sure?"),
               content: new Text(widget.isFollowed?"You want to Unfollow this post":"You want to follow this post"),
@@ -2727,8 +2152,7 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
                     child: CircularProgressIndicator(
                       color: Colors.white,
                     ),
-                  )
-                      :Text("Yes"),
+                  ) :Text("Yes"),
                   onPressed: () async {
                     if(widget.isFollowed){
                       Map<String, dynamic> body = {"post_id": widget.feedId, "post_type": "Feed"};
@@ -2767,126 +2191,6 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
             );
           },
         );
-
-
-
-      },
-    );
-  }
-
-
-
-  modalSheetToShare() {
-    TextEditingController _description = new TextEditingController();
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: myHexColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(15.0),
-        ),
-      ),
-      builder: (BuildContext context) {
-        return Padding(
-          padding: const EdgeInsets.all(18.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Share this post",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: MateColors.activeIcons),
-                ),
-              ),
-              SizedBox(
-                height: 15.0,
-              ),
-              TextFormField(
-                minLines: 2,
-                maxLines: 8,
-                maxLength: 512,
-                decoration: InputDecoration(
-                  counterStyle: TextStyle(color: Colors.grey),
-                  labelStyle: TextStyle(fontSize: 16.0, color: MateColors.activeIcons),
-                  labelText: "Description",
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.grey, width: 0.3),
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.white, width: 0.3),
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                ),
-                style: TextStyle(color: Colors.white, fontSize: 18.0),
-                cursorColor: Colors.cyanAccent,
-                textInputAction: TextInputAction.done,
-                controller: _description,
-                validator: (value) {
-                  return value.isEmpty ? "*description" : null; //returning null means no error occurred. if there are any error then simply return a string
-                },
-              ),
-              SizedBox(
-                height: 16.0,
-              ),
-              ButtonTheme(
-                minWidth: MediaQuery.of(context).size.width - 40,
-                height: 50,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: MateColors.activeIcons,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                  ),
-                  // shape: RoundedRectangleBorder(
-                  //   borderRadius: BorderRadius.circular(15.0),
-                  // ),
-                  // color: MateColors.activeIcons,
-                  child: Consumer<FeedProvider>(
-                    builder: (ctx, feedProvider, _) {
-                      if (feedProvider.feedShareLoader) {
-                        return Center(
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                          ),
-                        );
-                      }
-
-                      return Text(
-                        'Share',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      );
-                    },
-                  ),
-                  onPressed: () async {
-                    // Navigator.pop(context);
-
-                    Map<String, dynamic> body = {"share_desc": _description.text.trim()};
-                    bool shareDone = await Provider.of<FeedProvider>(context, listen: false).shareAFeed(body, widget.feedId);
-                    if (shareDone) {
-                      // Navigator.pop(context);
-                      // Navigator.of(context).pushReplacement(MaterialPageRoute(
-                      //     builder: (context) => HomeScreen(
-                      //           index: 2,
-                      //         )));
-                      Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(
-                              builder: (context) => HomeScreen(
-                                index: 0,
-                              )),
-                              (Route<dynamic> route) => false);
-                    }
-                  },
-                ),
-              ),
-              SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
-            ],
-          ),
-        );
       },
     );
   }
@@ -2917,61 +2221,5 @@ class _HomeRowState1 extends State<HomeRow1> with SingleTickerProviderStateMixin
     } else {
       throw 'Could not launch $url';
     }
-  }
-}
-
-class FullImageWidget extends StatelessWidget {
-  final String imagePath;
-
-  const FullImageWidget({Key key, this.imagePath}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: InkWell(
-        onTap: () => Navigator.pop(context),
-        child: SizedBox(
-          width: double.infinity,
-          height: double.infinity,
-          child: InteractiveViewer(
-            panEnabled: true, // Set it to false to prevent panning.
-            boundaryMargin: EdgeInsets.all(50),
-            minScale: 0.2,
-            maxScale: 4,
-            child: Image.network(
-              imagePath,
-              fit: BoxFit.contain,
-              // height: 300,
-              // width: 400,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class CircularButton extends StatelessWidget {
-  final double width;
-  final double height;
-  final Color color;
-  final Widget icon;
-  final Function onClick;
-
-  CircularButton({this.color, this.width, this.height, this.icon, this.onClick});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-      width: width,
-      height: height,
-      alignment: Alignment.center,
-      child: InkWell(
-        child: icon,
-        enableFeedback: true,
-        onTap: onClick,
-      ),
-    );
   }
 }

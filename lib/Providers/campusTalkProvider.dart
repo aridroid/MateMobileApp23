@@ -21,7 +21,9 @@ class CampusTalkProvider extends ChangeNotifier{
   String _apiError = "";
   Map<String, dynamic> _validationErrors = Map();
   ctpm.CampusTalkPostsModel _campusTalkPostsModelData;
+  ctpm.CampusTalkPostsModel _campusTalkPostsModelDataCard;
   List<ctpm.Result> _campusTalkPostsResultsList = [];
+  List<ctpm.Result> _campusTalkPostsResultsListCard = [];
   List<ctpm.Result> _campusTalkByUserPostsResultsList = [];
   ctpm.CampusTalkPostsModel campusTalkPostsBookmarkData;
   // CampusTalkPostsModel campusTalkByAuthUserData;
@@ -62,6 +64,7 @@ class CampusTalkProvider extends ChangeNotifier{
   bool get postShareLoader => _postShareLoader;
   bool get postReportLoader => _postReportLoader;
   List<ctpm.Result> get campusTalkPostsResultsList => _campusTalkPostsResultsList;
+  List<ctpm.Result> get campusTalkPostsResultsListCard => _campusTalkPostsResultsListCard;
   List<ctpm.Result> get campusTalkByUserPostsResultsList => _campusTalkByUserPostsResultsList;
   ctpm.CampusTalkPostsModel get campusTalkPostsModelData => _campusTalkPostsModelData;
   CampusTalkPostsUpVoteModel get upVotePostData => _upVotePostData;
@@ -147,6 +150,30 @@ class CampusTalkProvider extends ChangeNotifier{
 
     }
   }
+
+  bool cardLoader = false;
+  Future<void> fetchCampusTalkPostListCard() async {
+    print('Fetching card list');
+    cardLoader = true;
+    try {
+      Map<String, dynamic> queryParams = {"page": "1"};
+      var data = await _campusTalkService.fetchCampusTalkPostList(queryParams);
+      _campusTalkPostsModelDataCard = data;
+      List<ctpm.Result> rawFeedList = [];
+      for (int i = 0; i < _campusTalkPostsModelDataCard.data.result.length; i++) {
+        rawFeedList.add(_campusTalkPostsModelDataCard.data.result[i]);
+      }
+      _campusTalkPostsResultsListCard.addAll(rawFeedList);
+      print(_campusTalkPostsResultsListCard);
+      notifyListeners();
+    }catch (err) {
+      print(err);
+    }finally {
+      cardLoader = false;
+      notifyListeners();
+    }
+  }
+
 
   Future<void> fetchCampusTalkPostDetails(int talkId) async {
     error = '';

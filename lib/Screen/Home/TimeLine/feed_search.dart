@@ -14,6 +14,7 @@ import '../../../Model/FeedItem.dart';
 import '../../../Providers/FeedProvider.dart';
 import '../../../Widget/Loaders/Shimmer.dart';
 import '../../../Widget/searchShimmer.dart';
+import '../../../constant.dart';
 import '../../../controller/theme_controller.dart';
 
 
@@ -31,7 +32,6 @@ class _FeedSearchState extends State<FeedSearch> {
   ScrollController _scrollController;
   int page = 1;
   bool enterFutureBuilder = false;
-  //List<FeedItem> feedItem = [];
   String userId;
   FeedService _feedService = FeedService();
   TextEditingController _textEditingController;
@@ -50,7 +50,7 @@ class _FeedSearchState extends State<FeedSearch> {
     userId = Provider.of<AuthUserProvider>(context, listen: false).authUser.id;
     Future.delayed(Duration.zero, (){
       Provider.of<FeedProvider>(context, listen: false).fetchFeedTypes().whenComplete(() {
-        for(int i=0;i<Provider.of<FeedProvider>(context, listen: false).feedList.length;i++){
+        for(int i=0;i<Provider.of<FeedProvider>(context, listen: false).feedTypeList.length;i++){
           selected.add(false);
         }
       });
@@ -67,11 +67,9 @@ class _FeedSearchState extends State<FeedSearch> {
     super.dispose();
   }
 
-
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
     token = preferences.getString("token");
-    log(token);
     if(widget.text!=""){
       fetchData();
     }
@@ -132,197 +130,221 @@ class _FeedSearchState extends State<FeedSearch> {
 
   @override
   Widget build(BuildContext context) {
+    final scH = MediaQuery.of(context).size.height;
+    final scW = MediaQuery.of(context).size.width;
     return GestureDetector(
-       behavior: HitTestBehavior.translucent,
-          onTap: null,
-          onPanUpdate: (details) {
-            if (details.delta.dy > 0){
-              FocusScope.of(context).requestFocus(FocusNode());
-              print("Dragging in +Y direction");
-            }
-          },
+      behavior: HitTestBehavior.translucent,
+      onTap: null,
+      onPanUpdate: (details) {
+        if (details.delta.dy > 0){
+          FocusScope.of(context).requestFocus(FocusNode());
+          print("Dragging in +Y direction");
+        }
+      },
       child: Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          titleSpacing: 0,
-          automaticallyImplyLeading: false,
-          title: TextField(
-            controller: _textEditingController,
-            onChanged: (value){
-              if(value.length>2 && _textEditingController.text != valueController){
-                _onSearchChanged();
-              }
-            },
-            style: TextStyle(color: themeController.isDarkMode?Colors.white:Colors.black),
-            decoration: InputDecoration(
-              hintStyle: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                letterSpacing: 0.1,
-                color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-              ),
-              hintText: "Search",
-              prefixIcon: Padding(
-                padding: const EdgeInsets.only(left: 15,top: 15,bottom: 15),
-                child: Image.asset(
-                  "lib/asset/homePageIcons/searchPurple@3x.png",
-                  height: 10,
-                  width: 10,
-                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                ),
-              ),
-              suffixIcon: InkWell(
-                onTap: (){
-                  Get.back();
-                },
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 16,right: 15),
-                  child: Text(
-                    "Close",
-                    style: TextStyle(
-                      fontSize: 15,
-                      letterSpacing: 0.1,
-                      fontWeight: FontWeight.w700,
-                      color: MateColors.activeIcons,
-                    ),
-                  ),
-                ),
-              ),
-              enabledBorder: UnderlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(4)),
-                borderSide: BorderSide(width: 3,color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
-              ),
-              focusedBorder: UnderlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(4)),
-              borderSide: BorderSide(width: 3,color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
-            ),
+        body: Container(
+          height: scH,
+          width: scW,
+          decoration: BoxDecoration(
+            color: themeController.isDarkMode?Color(0xFF000000):Colors.white,
+            image: DecorationImage(
+              image: AssetImage(themeController.isDarkMode?'lib/asset/Background.png':'lib/asset/BackgroundLight.png'),
+              fit: BoxFit.cover,
             ),
           ),
-        ),
-        body: Column(
-          children: [
-            Container(
-              height: 51,
-              child: Consumer<FeedProvider>(
-                builder: (context,feedProvider,_){
-                  return !feedProvider.feedTypeLoader?
-                  ListView.builder(
-                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                    scrollDirection: Axis.horizontal,
-                    shrinkWrap: true,
-                    physics: BouncingScrollPhysics(),
-                    itemCount: feedProvider.feedTypeList.length,
-                    itemBuilder: (context,index){
-                      return Padding(
-                        padding: EdgeInsets.only(left: 15,top: 15),
-                        child: InkWell(
-                          onTap: (){
-                            for(int i=0;i<selected.length;i++){
-                              if(i==index){
-                                selected[i] = true;
-                              }else{
-                                selected[i] = false;
-                              }
-                            }
-                            isLoading = true;
-                            normalSearch = false;
-                            setState(() {});
-                            _textEditingController.text = feedProvider.feedTypeList[index].name;
-                            fetchData();
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(25),
-                              color: themeController.isDarkMode?selected[index]?Colors.white:MateColors.darkDivider:selected[index]?MateColors.blackTextColor:MateColors.lightDivider,
-                            ),
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 25),
-                                child: Text(feedProvider.feedTypeList[index].name,style: TextStyle(fontSize: 14,fontFamily: "Poppins",color: themeController.isDarkMode?selected[index]?MateColors.blackTextColor:Colors.white:selected[index]?Colors.white:MateColors.blackTextColor,),),
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ):
-                  Shimmer.fromColors(
-                    baseColor: themeController.isDarkMode?Colors.white12:Colors.black12,
-                    highlightColor: themeController.isDarkMode?Colors.white54:Colors.black54,
-                    enabled: true,
-                    child: SearchShimmer(),
-                  );
-                },
+          child: Column(
+            children: [
+              SizedBox(
+                height: scH*0.07,
               ),
-            ),
-            Expanded(
-              child: ListView(
-                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                controller: _scrollController,
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-                physics: const ScrollPhysics(),
-                padding: EdgeInsets.only(left: 15,right: 15,top: 15),
-                children: [
-                  feedProvider.feedItem.length!=0?
-                  ListView.builder(
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                    physics: ScrollPhysics(),
-                    itemCount: feedProvider.feedItem.length,
-                    itemBuilder: (context,index){
-                      return HomeRow(
-                        previousPageUserId: userId,
-                        id: feedProvider.feedItem[index].id,
-                        feedId: feedProvider.feedItem[index].feedId,
-                        title: feedProvider.feedItem[index].title,
-                        feedType: feedProvider.feedItem[index].feedTypes,
-                        start: feedProvider.feedItem[index].start,
-                        end: feedProvider.feedItem[index].end,
-                        calenderDate: feedProvider.feedItem[index].feedCreatedAt,
-                        description: feedProvider.feedItem[index].description,
-                        created: feedProvider.feedItem[index].created,
-                        user: feedProvider.feedItem[index].user,
-                        location: feedProvider.feedItem[index].location,
-                        hyperlinkText: feedProvider.feedItem[index].hyperlinkText,
-                        hyperlink: feedProvider.feedItem[index].hyperlink,
-                        media: feedProvider.feedItem[index].media,
-                        isLiked: feedProvider.feedItem[index].isLiked,
-                        liked: feedProvider.feedItem[index].isLiked!=null?true:false,
-                        bookMarked: feedProvider.feedItem[index].isBookmarked,
-                        isFollowed: feedProvider.feedItem[index].isFollowed??false,
-                        likeCount: feedProvider.feedItem[index].likeCount,
-                        bookmarkCount: feedProvider.feedItem[index].bookmarkCount,
-                        shareCount: feedProvider.feedItem[index].shareCount,
-                        commentCount: feedProvider.feedItem[index].commentCount,
-                        isShared: feedProvider.feedItem[index].isShared,
-                        indexVal: index,
-                        pageType: "Search",
-                        showUniversityTag: true,
-                      );
-                    },
-                  ):
-                  isLoading?timelineLoader():
-                  Container(
-                    height: MediaQuery.of(context).size.height/1.2,
-                    child: Center(
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: TextField(
+                  controller: _textEditingController,
+                  onChanged: (value){
+                    if(value.length>2 && _textEditingController.text != valueController){
+                      _onSearchChanged();
+                    }
+                  },
+                  cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                  style:  TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.1,
+                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                  ),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: themeController.isDarkMode ? MateColors.containerDark : MateColors.containerLight,
+                    hintStyle: TextStyle(
+                      fontSize: 16,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w400,
+                      color: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                    ),
+                    hintText: "Search",
+                    prefixIcon: Padding(
+                      padding: const EdgeInsets.only(left: 15,top: 15,bottom: 15),
+                      child: Image.asset(
+                        "lib/asset/homePageIcons/searchPurple@3x.png",
+                        height: 10,
+                        width: 10,
+                        color: themeController.isDarkMode?Colors.white:Colors.black,
+                      ),
+                    ),
+                    suffixIcon: InkWell(
+                      onTap: (){
+                        Get.back();
+                      },
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 50),
+                        padding: const EdgeInsets.only(top: 16,right: 15),
                         child: Text(
-                          "Try searching by post title, description, or author.",
-                          textAlign: TextAlign.center,
+                          "Close",
                           style: TextStyle(
-                            color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                            fontSize: 12,
+                            fontSize: 15,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w700,
+                            color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
                           ),
                         ),
                       ),
                     ),
+                    enabledBorder: commonBorder,
+                    focusedBorder: commonBorder,
                   ),
-                ],
+                ),
               ),
-            ),
-          ],
+              Container(
+                height: 55,
+                child: Consumer<FeedProvider>(
+                  builder: (context,feedProvider,_){
+                    return !feedProvider.feedTypeLoader?
+                    ListView.builder(
+                      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                      scrollDirection: Axis.horizontal,
+                      shrinkWrap: true,
+                      physics: BouncingScrollPhysics(),
+                      itemCount: feedProvider.feedTypeList.length,
+                      itemBuilder: (context,index){
+                        return Padding(
+                          padding: EdgeInsets.only(left: 15,top: 15),
+                          child: InkWell(
+                            onTap: (){
+                              for(int i=0;i<selected.length;i++){
+                                if(i==index){
+                                  selected[i] = true;
+                                }else{
+                                  selected[i] = false;
+                                }
+                              }
+                              isLoading = true;
+                              normalSearch = false;
+                              setState(() {});
+                              _textEditingController.text = feedProvider.feedTypeList[index].name;
+                              fetchData();
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(25),
+                                color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                              ),
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 25),
+                                  child: Text(feedProvider.feedTypeList[index].name,
+                                    style: TextStyle(
+                                      fontFamily: "Poppins",
+                                      fontSize: 15,
+                                      color: themeController.isDarkMode?Colors.white:Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ):
+                    Shimmer.fromColors(
+                      baseColor: themeController.isDarkMode?Colors.white12:Colors.black12,
+                      highlightColor: themeController.isDarkMode?Colors.white54:Colors.black54,
+                      enabled: true,
+                      child: SearchShimmer(),
+                    );
+                  },
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  controller: _scrollController,
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  physics: const ScrollPhysics(),
+                  padding: EdgeInsets.only(left: 15,right: 15,top: 15),
+                  children: [
+                    feedProvider.feedItem.length!=0?
+                    ListView.builder(
+                      padding: EdgeInsets.zero,
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      physics: ScrollPhysics(),
+                      itemCount: feedProvider.feedItem.length,
+                      itemBuilder: (context,index){
+                        return HomeRow(
+                          previousPageUserId: userId,
+                          id: feedProvider.feedItem[index].id,
+                          feedId: feedProvider.feedItem[index].feedId,
+                          title: feedProvider.feedItem[index].title,
+                          feedType: feedProvider.feedItem[index].feedTypes,
+                          start: feedProvider.feedItem[index].start,
+                          end: feedProvider.feedItem[index].end,
+                          calenderDate: feedProvider.feedItem[index].feedCreatedAt,
+                          description: feedProvider.feedItem[index].description,
+                          created: feedProvider.feedItem[index].created,
+                          user: feedProvider.feedItem[index].user,
+                          location: feedProvider.feedItem[index].location,
+                          hyperlinkText: feedProvider.feedItem[index].hyperlinkText,
+                          hyperlink: feedProvider.feedItem[index].hyperlink,
+                          media: feedProvider.feedItem[index].media,
+                          isLiked: feedProvider.feedItem[index].isLiked,
+                          liked: feedProvider.feedItem[index].isLiked!=null?true:false,
+                          bookMarked: feedProvider.feedItem[index].isBookmarked,
+                          isFollowed: feedProvider.feedItem[index].isFollowed??false,
+                          likeCount: feedProvider.feedItem[index].likeCount,
+                          bookmarkCount: feedProvider.feedItem[index].bookmarkCount,
+                          shareCount: feedProvider.feedItem[index].shareCount,
+                          commentCount: feedProvider.feedItem[index].commentCount,
+                          isShared: feedProvider.feedItem[index].isShared,
+                          indexVal: index,
+                          pageType: "Search",
+                          showUniversityTag: true,
+                        );
+                      },
+                    ):
+                    isLoading?timelineLoader():
+                    Container(
+                      height: MediaQuery.of(context).size.height/1.2,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 50),
+                          child: Text(
+                            "Try searching by post title, description, or author.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontFamily: 'Poppins',
+                              color: themeController.isDarkMode?Colors.white.withOpacity(0.7):Colors.black.withOpacity(0.5),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

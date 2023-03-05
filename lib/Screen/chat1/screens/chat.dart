@@ -18,13 +18,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:record/record.dart';
-import 'package:vibration/vibration.dart';
-import '../../../Utility/Utility.dart';
 import '../../../Widget/social_media_recorder/audio_encoder_type.dart';
 import '../../../Widget/social_media_recorder/provider/sound_record_notifier.dart';
 import '../../../Widget/social_media_recorder/screen/social_media_recorder.dart';
 import '../../../audioAndVideoCalling/calling.dart';
 import '../../../audioAndVideoCalling/connectingScreen.dart';
+import '../../../constant.dart';
 import '../../../controller/theme_controller.dart';
 import '../../../groupChat/services/database_service.dart';
 import '../constForChat.dart';
@@ -39,180 +38,203 @@ class Chat extends StatelessWidget {
   final String peerName;
   final String currentUserId;
   final String roomId;
-
   Chat({Key key, @required this.peerUuid, @required this.currentUserId, @required this.peerId, @required this.peerAvatar, @required this.peerName, this.roomId}) : super(key: key);
 
   ThemeController themeController = Get.find<ThemeController>();
+
   @override
   Widget build(BuildContext context) {
+    final scH = MediaQuery.of(context).size.height;
+    final scW = MediaQuery.of(context).size.width;
     return new Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: Icon(
-              Icons.arrow_back,
-              size: 24,
-            )),
-        elevation: 0,
-        iconTheme: IconThemeData(
-          color: MateColors.activeIcons,
+      body: Container(
+        height: scH,
+        width: scW,
+        decoration: BoxDecoration(
+          color: themeController.isDarkMode?Color(0xFF000000):Colors.white,
+          image: DecorationImage(
+            image: AssetImage(themeController.isDarkMode?'lib/asset/Background.png':'lib/asset/BackgroundLight.png'),
+            fit: BoxFit.cover,
+          ),
         ),
-        centerTitle: true,
-        //backgroundColor: config.myHexColor,
-        title: Padding(
-          padding: const EdgeInsets.only(right: 0),
-          child: InkWell(
-            onTap: () {
-              if (peerUuid != null) {
-                Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": peerUuid, "name": peerName, "photoUrl": peerAvatar, "firebaseUid": peerId});
-              }
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 10.0),
-                  child: CircleAvatar(
-                    radius: 12,
-                    backgroundImage: NetworkImage(
-                      peerAvatar,
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).size.height*0.07,
+                left: 16,
+                right: 16,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: (){
+                      Get.back();
+                    },
+                    child: Icon(Icons.arrow_back_ios,
+                      size: 20,
+                      color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
                     ),
                   ),
-                ),
-                Text(
-                  " $peerName",
-                  style: TextStyle(
-                    fontFamily: "Poppins",
-                    fontSize: 15.0,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 0.1,
-                    color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                  Padding(
+                    padding: const EdgeInsets.only(right: 0),
+                    child: InkWell(
+                      onTap: () {
+                        if (peerUuid != null) {
+                          Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": peerUuid, "name": peerName, "photoUrl": peerAvatar, "firebaseUid": peerId});
+                        }
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10.0),
+                            child: CircleAvatar(
+                              radius: 22,
+                              backgroundImage: NetworkImage(
+                                peerAvatar,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            " $peerName",
+                            style: TextStyle(
+                              fontFamily: "Poppins",
+                              fontSize: 15.0,
+                              fontWeight: FontWeight.w600,
+                              color: themeController.isDarkMode?Colors.white:MateColors.blackText,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        bottom: PreferredSize(
-            child: Container(
-              color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
-              height: 1.0,
-            ),
-            preferredSize: Size.fromHeight(0.0),
-        ),
-        actions: [
-          IconButton(
-              onPressed: ()async{
-                String id = currentUserId ?? '';
-                String personChatId;
-                if (id.hashCode <= peerId.hashCode) {
-                  personChatId = '$id-$peerId';
-                } else {
-                  personChatId = '$peerId-$id';
-                }
-                String callerName = FirebaseAuth.instance.currentUser.displayName;
+                  SizedBox(),
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: ()async{
+                          String id = currentUserId ?? '';
+                          String personChatId;
+                          if (id.hashCode <= peerId.hashCode) {
+                            personChatId = '$id-$peerId';
+                          } else {
+                            personChatId = '$peerId-$id';
+                          }
+                          String callerName = FirebaseAuth.instance.currentUser.displayName;
 
-                QuerySnapshot res = await DatabaseService().checkCallIsOngoing(personChatId);
-                if(res.docs.length>0){
-                  DateTime dateTimeLocal = DateTime.now();
-                  DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(res.docs[0]['createdAt'].toString()));
-                  Duration diff = dateTimeLocal.difference(dateFormatServer);
-                  print(diff.inMinutes);
-                  if(diff.inMinutes<120){
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Calling(
-                      channelName: res.docs[0]['channelName'],
-                      token: res.docs[0]['token'],
-                      callType: res.docs[0]['callType'],
-                      image: peerAvatar,
-                      name: peerName,
-                      isGroupCall: false,
-                    )));
-                  }else{
-                    Get.to(()=>ConnectingScreen(
-                      callType: "Audio Calling",
-                      receiverImage: peerAvatar,
-                      receiverName: peerName,
-                      uid: [peerId],
-                      isGroupCalling: false,
-                      groupOrPeerId: personChatId,
-                      groupOrCallerName: callerName,
-                    ));
-                  }
-                }else{
-                  Get.to(()=>ConnectingScreen(
-                    callType: "Audio Calling",
-                    receiverImage: peerAvatar,
-                    receiverName: peerName,
-                    uid: [peerId],
-                    isGroupCalling: false,
-                    groupOrPeerId: personChatId,
-                    groupOrCallerName: callerName,
-                  ));
-                }
-              },
-              icon: Icon(Icons.call,color: MateColors.activeIcons,),
-          ),
-          IconButton(
-            onPressed: ()async{
-              String id = currentUserId ?? '';
-              String personChatId;
-              if (id.hashCode <= peerId.hashCode) {
-                personChatId = '$id-$peerId';
-              } else {
-                personChatId = '$peerId-$id';
-              }
-              String callerName = FirebaseAuth.instance.currentUser.displayName;
+                          QuerySnapshot res = await DatabaseService().checkCallIsOngoing(personChatId);
+                          if(res.docs.length>0){
+                            DateTime dateTimeLocal = DateTime.now();
+                            DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(res.docs[0]['createdAt'].toString()));
+                            Duration diff = dateTimeLocal.difference(dateFormatServer);
+                            print(diff.inMinutes);
+                            if(diff.inMinutes<120){
+                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Calling(
+                                channelName: res.docs[0]['channelName'],
+                                token: res.docs[0]['token'],
+                                callType: res.docs[0]['callType'],
+                                image: peerAvatar,
+                                name: peerName,
+                                isGroupCall: false,
+                              )));
+                            }else{
+                              Get.to(()=>ConnectingScreen(
+                                callType: "Audio Calling",
+                                receiverImage: peerAvatar,
+                                receiverName: peerName,
+                                uid: [peerId],
+                                isGroupCalling: false,
+                                groupOrPeerId: personChatId,
+                                groupOrCallerName: callerName,
+                              ));
+                            }
+                          }else{
+                            Get.to(()=>ConnectingScreen(
+                              callType: "Audio Calling",
+                              receiverImage: peerAvatar,
+                              receiverName: peerName,
+                              uid: [peerId],
+                              isGroupCalling: false,
+                              groupOrPeerId: personChatId,
+                              groupOrCallerName: callerName,
+                            ));
+                          }
+                        },
+                        icon: Icon(Icons.call,
+                          color: themeController.isDarkMode?Colors.white:Colors.black,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: ()async{
+                          String id = currentUserId ?? '';
+                          String personChatId;
+                          if (id.hashCode <= peerId.hashCode) {
+                            personChatId = '$id-$peerId';
+                          } else {
+                            personChatId = '$peerId-$id';
+                          }
+                          String callerName = FirebaseAuth.instance.currentUser.displayName;
 
-              QuerySnapshot res = await DatabaseService().checkCallIsOngoing(personChatId);
-              if(res.docs.length>0){
-                DateTime dateTimeLocal = DateTime.now();
-                DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(res.docs[0]['createdAt'].toString()));
-                Duration diff = dateTimeLocal.difference(dateFormatServer);
-                print(diff.inMinutes);
-                if(diff.inMinutes<120){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => Calling(
-                    channelName: res.docs[0]['channelName'],
-                    token: res.docs[0]['token'],
-                    callType: res.docs[0]['callType'],
-                    image: peerAvatar,
-                    name: peerName,
-                    isGroupCall: false,
-                  )));
-                }else{
-                  Get.to(()=>ConnectingScreen(
-                    callType: "Video Calling",
-                    receiverImage: peerAvatar,
-                    receiverName: peerName,
-                    uid: [peerId],
-                    isGroupCalling: false,
-                    groupOrPeerId: personChatId,
-                    groupOrCallerName: callerName,
-                  ));
-                }
-              }else{
-                Get.to(()=>ConnectingScreen(
-                  callType: "Video Calling",
-                  receiverImage: peerAvatar,
-                  receiverName: peerName,
-                  uid: [peerId],
-                  isGroupCalling: false,
-                  groupOrPeerId: personChatId,
-                  groupOrCallerName: callerName,
-                ));
-              }
-            },
-            icon: Icon(Icons.video_call_rounded,color: MateColors.activeIcons,),
-          ),
-        ],
-      ),
-      body: new _ChatScreen(
-        currentUserId: currentUserId,
-        peerId: peerId,
-        peerAvatar: peerAvatar,
-        peerName: peerName,
-        roomId: roomId,
+                          QuerySnapshot res = await DatabaseService().checkCallIsOngoing(personChatId);
+                          if(res.docs.length>0){
+                            DateTime dateTimeLocal = DateTime.now();
+                            DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(res.docs[0]['createdAt'].toString()));
+                            Duration diff = dateTimeLocal.difference(dateFormatServer);
+                            print(diff.inMinutes);
+                            if(diff.inMinutes<120){
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => Calling(
+                                channelName: res.docs[0]['channelName'],
+                                token: res.docs[0]['token'],
+                                callType: res.docs[0]['callType'],
+                                image: peerAvatar,
+                                name: peerName,
+                                isGroupCall: false,
+                              )));
+                            }else{
+                              Get.to(()=>ConnectingScreen(
+                                callType: "Video Calling",
+                                receiverImage: peerAvatar,
+                                receiverName: peerName,
+                                uid: [peerId],
+                                isGroupCalling: false,
+                                groupOrPeerId: personChatId,
+                                groupOrCallerName: callerName,
+                              ));
+                            }
+                          }else{
+                            Get.to(()=>ConnectingScreen(
+                              callType: "Video Calling",
+                              receiverImage: peerAvatar,
+                              receiverName: peerName,
+                              uid: [peerId],
+                              isGroupCalling: false,
+                              groupOrPeerId: personChatId,
+                              groupOrCallerName: callerName,
+                            ));
+                          }
+                        },
+                        icon: Icon(Icons.video_call_rounded,
+                          color: themeController.isDarkMode?Colors.white:Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: _ChatScreen(
+                currentUserId: currentUserId,
+                peerId: peerId,
+                peerAvatar: peerAvatar,
+                peerName: peerName,
+                roomId: roomId,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -224,7 +246,6 @@ class _ChatScreen extends StatefulWidget {
   final String currentUserId;
   final String peerName;
   final String roomId;
-
   _ChatScreen({Key key, @required this.peerId, @required this.peerAvatar, @required this.currentUserId, this.peerName, this.roomId}) : super(key: key);
 
   @override
@@ -233,13 +254,11 @@ class _ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<_ChatScreen> {
   _ChatScreenState({Key key, @required this.peerId, @required this.peerAvatar});
-
   String peerId;
   String peerAvatar;
   String id;
   bool firstHit = true;
   bool readMessageUpdate=true;
-
 
   var listMessage;
   String personChatId;
@@ -255,12 +274,10 @@ class _ChatScreenState extends State<_ChatScreen> {
   int fileSize = 0;
   String fileUrl;
 
-
   final TextEditingController textEditingController = new TextEditingController();
   final ScrollController listScrollController = new ScrollController();
   final FocusNode focusNode = new FocusNode();
   ThemeController themeController = Get.find<ThemeController>();
-
   User _user;
 
   @override
@@ -312,58 +329,6 @@ class _ChatScreenState extends State<_ChatScreen> {
     } catch (e) {
       print(e.toString());
     }
-  }
-
-  Future<void> _stopRecording() async {
-    _timer?.cancel();
-    _recordDuration = 0;
-    minute = 0;
-    second = 0;
-    final result = await _audioRecorder.stop();
-    print("-------Result------");
-    print(result);
-    if (result != null) {
-      file = File(result);
-      fileExtension = "m4a";//result.files.single.extension;
-      fileName = result.split("/").last;//result.files.single.name;
-      fileSize = result.length;//result.files.single.size;
-
-      if (fileSize > 10480000) {
-        Fluttertoast.showToast(msg: 'This file size must be within 10MB');
-      } else {
-        setState(() {
-          isLoading = true;
-        });
-        _uploadAudio();
-      }
-    }
-  }
-
-  _cancelRecording()async{
-    _timer?.cancel();
-    _recordDuration = 0;
-    minute = 0;
-    second = 0;
-    await _audioRecorder.stop();
-    setState(() {
-      showLockedView = false;
-    });
-  }
-
-  _pauseRecording()async{
-    _timer?.cancel();
-    await _audioRecorder.pause();
-    setState(() {
-      isPausedRecording = true;
-    });
-  }
-
-  _resumeRecording()async{
-    _startTimer();
-    await _audioRecorder.resume();
-    setState(() {
-      isPausedRecording = false;
-    });
   }
 
   int minute = 0,second=0;
@@ -515,7 +480,6 @@ class _ChatScreenState extends State<_ChatScreen> {
 
   void onFocusChange() {
     if (focusNode.hasFocus) {
-      // Hide sticker when keyboard appear
       setState(() {
         isShowSticker = false;
       });
@@ -529,7 +493,6 @@ class _ChatScreenState extends State<_ChatScreen> {
     } else {
       personChatId = '$peerId-$id';
     }
-
     setState(() {});
   }
 
@@ -551,7 +514,7 @@ class _ChatScreenState extends State<_ChatScreen> {
         _uploadFile();
       }
     } else {
-      // User canceled the picker
+
     }
   }
 
@@ -631,7 +594,6 @@ class _ChatScreenState extends State<_ChatScreen> {
 
   void onSendMessage(String content, int type) {
     print(type);
-    // type: 0 = text, 1 = image, 2 = sticker ,3 = file ,4 = audio
     if (content.trim() != '') {
       textEditingController.clear();
 
@@ -691,18 +653,10 @@ class _ChatScreenState extends State<_ChatScreen> {
         Provider.of<ChatProvider>(context,listen: false).personalChatMessageReadUpdate(body1);
         Provider.of<ChatProvider>(context,listen: false).personalChatDataUpdate(body2);
       });
-
-
-
     } else {
       Fluttertoast.showToast(msg: 'Nothing to send');
     }
   }
-
-  // Future<bool> onBackPress() {
-  //   Navigator.pop(context);
-  //   return Future.value(false);
-  // }
 
   String selectedMessage = "";
   String sender = "";
@@ -915,81 +869,6 @@ class _ChatScreenState extends State<_ChatScreen> {
       padding: EdgeInsets.only(top: 20),
       child: Column(
         children: [
-          // Visibility(
-          //   visible: showLockedView,
-          //   child: Container(
-          //     height: 110,
-          //     width: MediaQuery.of(context).size.width,
-          //     padding: EdgeInsets.all(16),
-          //     decoration: BoxDecoration(
-          //       color: themeController.isDarkMode ? Colors.white: backgroundColor,
-          //     ),
-          //     child: Column(
-          //       crossAxisAlignment: CrossAxisAlignment.start,
-          //       children: [
-          //         Row(
-          //           children: [
-          //             Text("${minute.toString().padLeft(2,'0')} : ${second.toString().padLeft(2,'0')}",
-          //               style: TextStyle(
-          //                 color: themeController.isDarkMode ? Colors.black:Colors.white,
-          //               ),
-          //             ),
-          //             SizedBox(width: 16,),
-          //             Row(
-          //               children: [
-          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //               ],
-          //             ),
-          //           ],
-          //         ),
-          //         SizedBox(height: 16,),
-          //         Row(
-          //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //           children: [
-          //             InkWell(
-          //               onTap: (){
-          //                 _cancelRecording();
-          //               },
-          //               child: Icon(Icons.delete,size: 30,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //             ),
-          //             InkWell(
-          //               onTap: (){
-          //                 if(isPausedRecording){
-          //                   _resumeRecording();
-          //                 }else{
-          //                   _pauseRecording();
-          //                 }
-          //               },
-          //               child: Icon(isPausedRecording? Icons.mic:Icons.pause_circle_outline,size: 30,color: Colors.red,),
-          //             ),
-          //             Padding(
-          //               padding: const EdgeInsets.only(right: 5),
-          //               child: InkWell(
-          //                 onTap: (){
-          //                   setState(() {
-          //                     showLockedView = false;
-          //                     isPausedRecording = false;
-          //                   });
-          //                   _stopRecording();
-          //                 },
-          //                 child: Icon(Icons.send,size: 26,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //               ),
-          //             ),
-          //           ],
-          //         ),
-          //       ],
-          //     ),
-          //   ),
-          // ),
           Visibility(
             visible: showSelected,
             child: Container(
@@ -1008,7 +887,7 @@ class _ChatScreenState extends State<_ChatScreen> {
                   // bottomLeft: Radius.circular(10),
                   // bottomRight: Radius.circular(10),
                 ),
-                color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
+                color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1053,340 +932,154 @@ class _ChatScreenState extends State<_ChatScreen> {
               ),
             ),
           ),
-          //if(showLockedView==false)
-           Container(
-             //alignment: Alignment.bottomCenter,
-             // width: MediaQuery.of(context).size.width * 0.5,
-             //margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
-             //padding: EdgeInsets.only(left: 15),
-             decoration: BoxDecoration(
-                 //borderRadius: BorderRadius.all(Radius.circular(12.0)),
-               border: Border(
-                 top: BorderSide(
-                   color: !isPressed?themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider:Colors.transparent,
-                   width: 0.3,
-                 ),
-               ),
-             ),
-             child: Consumer<SoundRecordNotifier>(
-               builder: (cnt,state,child){
-                 return Row(
-                   mainAxisSize: MainAxisSize.min,
-                   children: [
-                     Visibility(
-                       visible: !state.buttonPressed,//!isPressed,
-                       child: Expanded(
-                         child: TextField(
-                           controller: textEditingController,
-                           cursorColor: Colors.cyanAccent,
-                           style: TextStyle(fontSize: 12.5.sp, height: 2.0, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
-                           textInputAction: TextInputAction.done,
-                           minLines: 1,
-                           maxLines: 4,
-                           decoration: InputDecoration(
-                             hintStyle: TextStyle(
-                               fontSize: 14,
-                               fontWeight: FontWeight.w400,
-                               letterSpacing: 0.1,
-                               color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                             ),
-                             prefixIcon:  Padding(
-                               padding: const EdgeInsets.only(left: 10,right: 10),
-                               child: SpeedDial(
-                                 child: Padding(
-                                   padding: const EdgeInsets.all(15.0),
-                                   child: Image.asset("lib/asset/icons/attachment.png"),
+           Consumer<SoundRecordNotifier>(
+             builder: (cnt,state,child){
+               return Row(
+                 mainAxisSize: MainAxisSize.min,
+                 children: [
+                   Visibility(
+                     visible: !state.buttonPressed,//!isPressed,
+                     child: Expanded(
+                       child: TextField(
+                         controller: textEditingController,
+                         cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                         style: TextStyle(
+                           fontSize: 14,
+                           fontWeight: FontWeight.w500,
+                           letterSpacing: 0.1,
+                           color: themeController.isDarkMode?Colors.white:Colors.black,
+                         ),
+                         textInputAction: TextInputAction.done,
+                         minLines: 1,
+                         maxLines: 4,
+                         decoration: InputDecoration(
+                           hintStyle: TextStyle(
+                             fontSize: 14,
+                             fontFamily: 'Poppins',
+                             fontWeight: FontWeight.w400,
+                             color: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                           ),
+                           prefixIcon:  Padding(
+                             padding: const EdgeInsets.only(left: 10,right: 10),
+                             child: SpeedDial(
+                               child: Container(
+                                 height: 50,
+                                 width: 50,
+                                 padding: const EdgeInsets.all(15.0),
+                                 decoration: BoxDecoration(
+                                   shape: BoxShape.circle,
+                                   color: themeController.isDarkMode?MateColors.textFieldSearchDark:MateColors.containerLight
                                  ),
-                                 activeIcon: Icons.close,
-                                 spaceBetweenChildren: 6,
-                                 backgroundColor: themeController.isDarkMode?Colors.transparent:Colors.white,
-                                 elevation: 0,
-                                 foregroundColor: Colors.transparent,
-                                 activeForegroundColor: MateColors.activeIcons,
-                                 overlayColor: Colors.transparent,
-                                 overlayOpacity: 0.5,
-                                 switchLabelPosition: true,
-                                 tooltip: "Send File",
-                                 children: [
-                                   SpeedDialChild(
-                                     child:Icon(Icons.image),
-                                     label: "Image",
-                                     elevation: 2.0,
-                                     onTap: () => getImage(0),
-                                   ),
-                                   SpeedDialChild(
-                                     child:Icon(Icons.camera_alt),
-                                     label: "Camera",
-                                     elevation: 2.0,
-                                     onTap: () => getImage(1),
-                                   ),
-                                   SpeedDialChild(
-                                     child:Icon(Icons.file_present),
-                                     label: "Document",
-                                     elevation: 2.0,
-                                     onTap: () => _getFile(),
-                                   ),
-                                 ],
+                                 child: Image.asset("lib/asset/icons/attachment.png",color: themeController.isDarkMode?Colors.white:Colors.black,),
                                ),
-                             ),
-                             suffixIcon: Padding(
-                               padding: const EdgeInsets.only(right: 10),
-                               child: IconButton(
-                                 icon: Icon(
-                                   Icons.send,
-                                   size: 20,
-                                   color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                               activeIcon: Icons.close,
+                               spaceBetweenChildren: 6,
+                               backgroundColor: themeController.isDarkMode?Colors.transparent:Colors.white,
+                               elevation: 0,
+                               foregroundColor: Colors.transparent,
+                               activeForegroundColor: MateColors.activeIcons,
+                               overlayColor: Colors.transparent,
+                               overlayOpacity: 0.5,
+                               switchLabelPosition: true,
+                               tooltip: "Send File",
+                               children: [
+                                 SpeedDialChild(
+                                   child:Icon(Icons.image),
+                                   label: "Image",
+                                   elevation: 2.0,
+                                   onTap: () => getImage(0),
                                  ),
-                                 onPressed: ()async{
-                                   if(isEditing){
-                                     if(textEditingController.text.isNotEmpty)
-                                       await DatabaseService().editMessageOneToOne(editPersonChatId, editMessageId, textEditingController.text.trim());
-                                     setState(() {
-                                       isEditing = false;
-                                       textEditingController.text = "";
-                                     });
-                                   }else{
-                                     onSendMessage(textEditingController.text, 0);
-                                   }
-                                 },
-                               ),
-                             ),
-                             hintText: "Write a message...",
-                             focusedBorder: OutlineInputBorder(
-                               borderSide:  BorderSide(
-                                 color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                               ),
-                               borderRadius: BorderRadius.circular(26.0),
-                             ),
-                             enabledBorder: OutlineInputBorder(
-                               borderSide:  BorderSide(
-                                 color:  themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                               ),
-                               borderRadius: BorderRadius.circular(26.0),
-                             ),
-                             disabledBorder: OutlineInputBorder(
-                               borderSide:  BorderSide(
-                                 color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                               ),
-                               borderRadius: BorderRadius.circular(26.0),
-                             ),
-                             errorBorder: OutlineInputBorder(
-                               borderSide:  BorderSide(
-                                 color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                               ),
-                               borderRadius: BorderRadius.circular(26.0),
-                             ),
-                             focusedErrorBorder: OutlineInputBorder(
-                               borderSide:  BorderSide(
-                                 color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                               ),
-                               borderRadius: BorderRadius.circular(26.0),
+                                 SpeedDialChild(
+                                   child:Icon(Icons.camera_alt),
+                                   label: "Camera",
+                                   elevation: 2.0,
+                                   onTap: () => getImage(1),
+                                 ),
+                                 SpeedDialChild(
+                                   child:Icon(Icons.file_present),
+                                   label: "Document",
+                                   elevation: 2.0,
+                                   onTap: () => _getFile(),
+                                 ),
+                               ],
                              ),
                            ),
+                           suffixIcon: Padding(
+                             padding: const EdgeInsets.only(right: 10),
+                             child: Row(
+                               mainAxisSize: MainAxisSize.min,
+                               children: [
+                                 IconButton(
+                                   icon: Icon(
+                                     Icons.send,
+                                     size: 20,
+                                     color: Color(0xFF65656B),
+                                   ),
+                                   onPressed: ()async{
+                                     if(isEditing){
+                                       if(textEditingController.text.isNotEmpty)
+                                         await DatabaseService().editMessageOneToOne(editPersonChatId, editMessageId, textEditingController.text.trim());
+                                       setState(() {
+                                         isEditing = false;
+                                         textEditingController.text = "";
+                                       });
+                                     }else{
+                                       onSendMessage(textEditingController.text, 0);
+                                     }
+                                   },
+                                 ),
+                                 isEditing?
+                                 IconButton(
+                                     onPressed: (){
+                                       setState(() {
+                                         isEditing = false;
+                                         textEditingController.text = "";
+                                       });
+                                     },
+                                     icon: Icon(
+                                       Icons.clear,
+                                       color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                                     )
+                                 ):SizedBox(),
+                               ],
+                             ),
+                           ),
+                           hintText: "Write a message...",
+                           fillColor: themeController.isDarkMode ? MateColors.containerDark : MateColors.containerLight,
+                           filled: true,
+                           focusedBorder: commonBorderCircular,
+                           enabledBorder: commonBorderCircular,
+                           disabledBorder: commonBorderCircular,
+                           errorBorder: commonBorderCircular,
+                           focusedErrorBorder: commonBorderCircular,
                          ),
                        ),
                      ),
-                     isEditing?
-                     IconButton(
-                         onPressed: (){
+                   ),
+                   Container(
+                     margin: EdgeInsets.only(top: state.buttonPressed?120:0,right: 5),
+                     child: SocialMediaRecorder(
+                       backGroundColor: MateColors.activeIcons,
+                       recordIconBackGroundColor: MateColors.activeIcons,
+                       sendRequestFunction: (soundFile) {
+                         print("the current path is ${soundFile.path}");
+                         file = File(soundFile.path);
+                         fileSize = soundFile.lengthSync();
+                         if (fileSize > 10480000) {
+                           Fluttertoast.showToast(msg: 'This file size must be within 10MB');
+                         } else {
                            setState(() {
-                             isEditing = false;
-                             textEditingController.text = "";
+                             isLoading = true;
                            });
-                         },
-                         icon: Icon(
-                           Icons.clear,
-                           color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                         )
-                     ):
-                     Container(
-                       margin: EdgeInsets.only(top: state.buttonPressed?120:0,right: 5),
-                       child: SocialMediaRecorder(
-                         backGroundColor: MateColors.activeIcons,
-                         recordIconBackGroundColor: MateColors.activeIcons,
-                         sendRequestFunction: (soundFile) {
-                           print("the current path is ${soundFile.path}");
-                           file = File(soundFile.path);
-                           fileSize = soundFile.lengthSync();
-                           if (fileSize > 10480000) {
-                             Fluttertoast.showToast(msg: 'This file size must be within 10MB');
-                           } else {
-                             setState(() {
-                               isLoading = true;
-                             });
-                             _uploadAudio();
-                           }
-                         },
-                         encode: AudioEncoderType.AAC,
-                       ),
+                           _uploadAudio();
+                         }
+                       },
+                       encode: AudioEncoderType.AAC,
                      ),
-                     // Column(
-                     //   crossAxisAlignment: CrossAxisAlignment.end,
-                     //   mainAxisSize: MainAxisSize.max,
-                     //   children: [
-                     //     if(showCancelLock)
-                     //       DragTarget(
-                     //         builder: (context,a,r){
-                     //           return Container(
-                     //             height: 160,
-                     //             width: 50,
-                     //             decoration: BoxDecoration(
-                     //               borderRadius: BorderRadius.circular(25),
-                     //               gradient: themeController.isDarkMode?LinearGradient(colors: [Colors.white.withOpacity(0.7),Colors.white]):LinearGradient(colors: [Colors.black.withOpacity(0.7),Colors.black]),
-                     //             ),
-                     //             child: Column(
-                     //               children: [
-                     //                 SizedBox(height: 25,),
-                     //                 Icon(Icons.lock,size: 16,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                     //                 SizedBox(height: 15,),
-                     //                 Icon(Icons.keyboard_arrow_up,size: 16,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                     //               ],
-                     //             ),
-                     //           );
-                     //         },
-                     //         onAccept: (val){
-                     //           setState(() {
-                     //             sendAudio = false;
-                     //             showLockedView = true;
-                     //           });
-                     //           print("Recording locked");
-                     //         },
-                     //       ),
-                     //     if(showCancelLock)
-                     //       SizedBox(height: 0,width: MediaQuery.of(context).size.width*0.92,),
-                     //     Row(
-                     //       children: [
-                     //         if(showCancelLock)
-                     //           DragTarget(
-                     //             builder: (context,a,r){
-                     //               return Container(
-                     //                 margin: EdgeInsets.only(bottom: 15),
-                     //                 height: 50,
-                     //                 width: MediaQuery.of(context).size.width*0.85,
-                     //                 decoration: BoxDecoration(
-                     //                   borderRadius: BorderRadius.circular(25),
-                     //                   gradient: themeController.isDarkMode?LinearGradient(colors: [Colors.white.withOpacity(0.7),Colors.white]):LinearGradient(colors: [Colors.black.withOpacity(0.7),Colors.black]),
-                     //                 ),
-                     //                 child: Row(
-                     //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                     //                   children: [
-                     //                     Padding(
-                     //                       padding: const EdgeInsets.only(left: 16),
-                     //                       child: Text("${minute.toString().padLeft(2,'0')} : ${second.toString().padLeft(2,'0')}",
-                     //                         style: TextStyle(
-                     //                           color: themeController.isDarkMode ? Colors.black:Colors.white,
-                     //                         ),
-                     //                       ),
-                     //                     ),
-                     //                     Row(
-                     //                       children: [
-                     //                         Icon(Icons.arrow_back_ios,size: 16,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                     //                         Text("Slide to cancel",
-                     //                           style: TextStyle(
-                     //                             color: themeController.isDarkMode ? Colors.black:Colors.white,
-                     //                           ),
-                     //                         ),
-                     //                         SizedBox(width: 16,),
-                     //                       ],
-                     //                     ),
-                     //                   ],
-                     //                 ),
-                     //               );
-                     //             },
-                     //             onAccept: (val){
-                     //               setState(() {
-                     //                 sendAudio = false;
-                     //               });
-                     //               _cancelRecording();
-                     //               print("Recording cancel");
-                     //             },
-                     //           ),
-                     //         if(showCancelLock)
-                     //           SizedBox(
-                     //             //height: 50,
-                     //             width: 40,
-                     //           ),
-                     //         LongPressDraggable<int>(
-                     //           dragAnchorStrategy: (Draggable<Object> _, BuildContext __, Offset ___) => const Offset(50, 50),
-                     //           onDragStarted: (){
-                     //             Vibration.vibrate(
-                     //                 pattern: [1, 150, 1, 150], intensities: [100, 100]
-                     //             );
-                     //             setState(() {
-                     //               isPressed = true;
-                     //               sendAudio = true;
-                     //               showCancelLock = true;
-                     //             });
-                     //             startRecording();
-                     //           },
-                     //           onDragEnd: (v){
-                     //             Vibration.vibrate(
-                     //                 pattern: [1, 150, 1, 150], intensities: [100, 100]
-                     //             );
-                     //             setState(() {
-                     //               isPressed = false;
-                     //               showCancelLock = false;
-                     //             });
-                     //             if(sendAudio){
-                     //               _stopRecording();
-                     //             }
-                     //           },
-                     //           data: 10,
-                     //           feedback: Container(
-                     //             margin: EdgeInsets.only(bottom: 0,right: 400),
-                     //             height: MediaQuery.of(context).size.width*0.22,
-                     //             width: MediaQuery.of(context).size.width*0.22,
-                     //             decoration: BoxDecoration(
-                     //               shape: BoxShape.circle,
-                     //               color: MateColors.activeIcons,
-                     //             ),
-                     //             child: Center(
-                     //               child: Icon(Icons.mic,size: 28,),
-                     //             ),
-                     //           ),
-                     //           childWhenDragging: Container(),
-                     //           child: Container(
-                     //             margin: EdgeInsets.only(bottom: isPressed?0:MediaQuery.of(context).size.height*0.005,),
-                     //             height: isPressed?MediaQuery.of(context).size.width*0.15:MediaQuery.of(context).size.width*0.09,
-                     //             width: isPressed?MediaQuery.of(context).size.width*0.15:MediaQuery.of(context).size.width*0.09,
-                     //             decoration: BoxDecoration(
-                     //               shape: BoxShape.circle,
-                     //               color: MateColors.activeIcons,
-                     //             ),
-                     //             child: Center(
-                     //               child: Icon(Icons.mic,size: 18,),
-                     //             ),
-                     //           ),
-                     //         ),
-                     //       ],
-                     //     ),
-                     //   ],
-                     // ),
-                     //SizedBox(width: 16,),
-                   ],
-                 );
-               },
-             ),
-
-
-             // TextField(
-             //   controller: textEditingController,
-             //   cursorColor: Colors.cyanAccent,
-             //   style: TextStyle(
-             //     color: Colors.white,
-             //     fontSize: 12.5.sp,
-             //   ),
-             //   textInputAction: TextInputAction.done,
-             //   minLines: 1,
-             //   maxLines: 4,
-             //   decoration: InputDecoration(
-             //       hintText: "Type message ...",
-             //       hintStyle: TextStyle(
-             //         color: Colors.white38,
-             //         fontSize: 13.0.sp,
-             //       ),
-             //       border: InputBorder.none),
-             // ),
+                   ),
+                 ],
+               );
+             },
            ),
         ],
       ),

@@ -1,10 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:mate_app/Model/conncetionListingModel.dart';
 import 'package:mate_app/Services/chatService.dart';
 import 'package:mate_app/Services/connection_service.dart';
 import 'package:mate_app/groupChat/services/database_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'Widget/Loaders/Shimmer.dart';
+import 'asset/Colors/MateColors.dart';
 
 
 
@@ -80,3 +84,20 @@ void getMateSupportGroupDetails()async{
   });
 }
 
+
+final commonBorder = OutlineInputBorder(
+  borderSide:  BorderSide(
+    width: 0,
+    color: themeController.isDarkMode ? MateColors.containerDark : MateColors.containerLight,
+  ),
+  borderRadius: BorderRadius.circular(14.0),
+);
+
+final commonBorderCircular = OutlineInputBorder(
+  borderSide:  BorderSide(
+    width: 0,
+    strokeAlign: StrokeAlign.inside,
+    color: themeController.isDarkMode ? MateColors.containerDark : MateColors.containerLight,
+  ),
+  borderRadius: BorderRadius.circular(30.0),
+);

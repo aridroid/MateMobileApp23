@@ -14,14 +14,10 @@ import 'package:mate_app/Services/eventService.dart';
 import 'package:mate_app/Widget/video_thumbnail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sizer/sizer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../Providers/AuthUserProvider.dart';
 import '../../../Providers/FeedProvider.dart';
-import '../../../Utility/Utility.dart';
-import '../../../Widget/Drawer/DrawerWidget.dart';
-import '../../../Widget/Home/HomeRow.dart';
 import '../../../Widget/Loaders/Shimmer.dart';
 import '../../../Widget/mediaViewer.dart';
 import '../../../asset/Colors/MateColors.dart';
@@ -33,7 +29,6 @@ import '../../Report/reportPage.dart';
 import '../../chat1/screens/chat.dart';
 import 'createEvent.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
-
 import 'editEvent.dart';
 
 class EventDashBoard extends StatefulWidget {
@@ -43,10 +38,9 @@ class EventDashBoard extends StatefulWidget {
   _EventDashBoardState createState() => _EventDashBoardState();
 }
 
-class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStateMixin{
+class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStateMixin {
   ThemeController themeController = Get.find<ThemeController>();
   final GlobalKey<ScaffoldState> _key = GlobalKey();
-  TabController _tabController;
   String token = "";
   EventService _eventService = EventService();
   ScrollController _scrollController;
@@ -79,7 +73,6 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
       refreshPageOnBottomClick = true;
     });
     getStoredValue();
-    _tabController = new TabController(length: 2, vsync: this);
     _scrollController = new ScrollController()..addListener(_scrollListener);
     if (Platform.isAndroid) {
       _credentials = new ClientId("237545926078-9biln72s9c5h9vot53l84me39unhhnbf.apps.googleusercontent.com", "");
@@ -94,7 +87,6 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
     super.initState();
     feedProvider = Provider.of<FeedProvider>(context, listen: false);
     getStoredValue();
-    _tabController = new TabController(length: 2, vsync: this);
     _scrollController = new ScrollController()..addListener(_scrollListener);
     if (Platform.isAndroid) {
       _credentials = new ClientId("237545926078-9biln72s9c5h9vot53l84me39unhhnbf.apps.googleusercontent.com", "");
@@ -106,72 +98,44 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
   @override
   void dispose() {
     super.dispose();
-    _tabController.dispose();
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
   }
 
-  void _scrollListener(){
+  void _scrollListener() {
     if (_scrollController.position.atEdge) {
       if (_scrollController.position.pixels != 0) {
-        if(_tabController.index==0){
-          print("//////////////////////////////");
-          Future.delayed(Duration.zero,(){
-            page += 1;
+        print("//////////////Event Fetching////////////////");
+        Future.delayed(Duration.zero, () {
+          page += 1;
+          setState(() {
+            doingPagination = true;
+          });
+          print('scrolled to bottom page is now $page');
+          future = _eventService.getEventListing(page: page, token: token);
+          future.then((value) {
             setState(() {
-              doingPagination = true;
-            });
-            print('scrolled to bottom page is now $page');
-            future = _eventService.getEventListing(page: page,token: token);
-            future.then((value){
-              setState(() {
-                enableFutureBuilder = true;
-              });
+              enableFutureBuilder = true;
             });
           });
-        }else{
-          print("//////////////////////////////");
-          Future.delayed(Duration.zero,(){
-            pageLocal += 1;
-            setState(() {
-              doingPaginationLocal = true;
-            });
-            print('scrolled to bottom page is now $pageLocal');
-            futureLocal = _eventService.getEventListingLocal(page: pageLocal,token: token);
-            futureLocal.then((value){
-              setState(() {
-                enableFutureBuilderLocal = true;
-              });
-            });
-          });
-        }
+        });
       }
     }
   }
-
-  getStoredValue()async{
+  getStoredValue() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     token = preferences.getString("token");
     log(token);
 
     setState(() {
       doingPagination = false;
-      doingPaginationLocal = false;
       page = 1;
-      pageLocal = 1;
     });
 
-    future = _eventService.getEventListing(page: page,token: token);
-    future.then((value){
+    future = _eventService.getEventListing(page: page, token: token);
+    future.then((value) {
       setState(() {
         enableFutureBuilder = true;
-      });
-    });
-
-    futureLocal = _eventService.getEventListingLocal(page: pageLocal,token: token);
-    futureLocal.then((value){
-      setState(() {
-        enableFutureBuilderLocal = true;
       });
     });
 
@@ -180,560 +144,570 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
     });
   }
 
-  void changeBookmark(int index){
-    if(_tabController.index==0){
-      isBookMark[index] = !isBookMark[index];
-      setState(() {});
-    }else{
-      isBookMarkLocal[index] = !isBookMarkLocal[index];
-      setState(() {});
-    }
+  void changeBookmark(int index) {
+    isBookMark[index] = !isBookMark[index];
+    setState(() {});
   }
 
-  void changeReaction(int index,String value){
-    if(_tabController.index==0){
-      reaction[index] = value;
-      setState(() {});
-    }else{
-      reactionLocal[index] = value;
-      setState(() {});
-    }
+  void changeReaction(int index, String value) {
+    reaction[index] = value;
+    setState(() {});
   }
 
-  void changeCommentCount(int index,bool increment){
-    if(_tabController.index==0){
-      increment ?
-      list[index].commentsCount = list[index].commentsCount + 1 :
-      list[index].commentsCount = list[index].commentsCount - 1 ;
-      setState(() {});
-    }else{
-      increment ?
-      listLocal[index].commentsCount = listLocal[index].commentsCount + 1 :
-      listLocal[index].commentsCount = listLocal[index].commentsCount - 1 ;
-      setState(() {});
-    }
+  void changeCommentCount(int index, bool increment) {
+    increment ?
+    list[index].commentsCount = list[index].commentsCount + 1 :
+    list[index].commentsCount = list[index].commentsCount - 1;
+    setState(() {});
   }
 
-  void changeFollowUnfollow(int index,bool value){
-    if(_tabController.index==0){
-      list[index].isFollowed = value;
-      setState(() {});
-    }else{
-      listLocal[index].isFollowed = value;
-      setState(() {});
-    }
+  void changeFollowUnfollow(int index, bool value) {
+    list[index].isFollowed = value;
+    setState(() {});
   }
 
-  refreshPage()async{
-    if(_tabController.index==0){
+  refreshPage() async {
+    setState(() {
+      page = 1;
+    });
+    future = _eventService.getEventListing(page: page, token: token);
+    future.then((value) {
       setState(() {
-        page = 1;
-      });
-      future = _eventService.getEventListing(page: page,token: token);
-      future.then((value){
-        setState(() {
-          doingPagination = false;
-          Future.delayed(Duration.zero,(){
-            enableFutureBuilder = true;
-          });
+        doingPagination = false;
+        Future.delayed(Duration.zero, () {
+          enableFutureBuilder = true;
         });
       });
-    }else{
-      setState(() {
-        pageLocal = 1;
-      });
-      futureLocal = _eventService.getEventListingLocal(page: pageLocal,token: token);
-      futureLocal.then((value){
-        setState(() {
-          doingPaginationLocal = false;
-          Future.delayed(Duration.zero,(){
-            enableFutureBuilderLocal = true;
-          });
-        });
-      });
-    }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final scH = MediaQuery.of(context).size.height;
+    final scW = MediaQuery.of(context).size.width;
     return Scaffold(
       key: _key,
-      drawer: DrawerWidget(),
-      floatingActionButton: InkWell(
-        onTap: ()async{
-           await Navigator.of(context).pushNamed(CreateEvent.routeName);
-           getStoredValue();
-        },
-        child: Container(
-          height: 56,
-          width: 56,
-          margin: EdgeInsets.only(bottom: 10),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: MateColors.activeIcons,
+      body: Container(
+        height: scH,
+        width: scW,
+        decoration: BoxDecoration(
+          color: themeController.isDarkMode?Color(0xFF000000):Colors.white,
+          image: DecorationImage(
+            image: AssetImage(themeController.isDarkMode?'lib/asset/Background.png':'lib/asset/BackgroundLight.png'),
+            fit: BoxFit.cover,
           ),
-          child: Icon(Icons.add,color: themeController.isDarkMode?Colors.black:Colors.white,size: 28),
         ),
-      ),
-      appBar: AppBar(
-        elevation: 0,
-        leading: _appBarLeading(context),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 20),
-            child: InkWell(
-              onTap: ()async{
-                Navigator.of(context).push(MaterialPageRoute(builder: (context){
-                    return EventSearch(isLocal: _tabController.index==0?false:true,);
-                  },),);
-                //Navigator.of(context).pushNamed(EventSearch.routes);
-              },
-              child: Image.asset(
-                "lib/asset/homePageIcons/searchPurple@3x.png",
-                height: 23.7,
-                width: 23.7,
-                color: MateColors.activeIcons,
+        child: Column(
+          children: [
+            SizedBox(
+              height: scH*0.07,
+            ),
+            Center(
+              child: Text(
+                "Events",
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  color: themeController.isDarkMode ? MateColors.whiteText : MateColors.blackText,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
+                ),
               ),
             ),
-          ),
-        ],
-        title: Text(
-          "Events",
-          style: TextStyle(
-            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-            fontWeight: FontWeight.w700,
-            fontSize: 17.0,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.0),
-              border: Border(bottom: BorderSide(color: Color(0xFF65656B).withOpacity(0.2), width: 0.8)),
+            Padding(
+              padding: EdgeInsets.only(top: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                          return EventSearch(isLocal: false,);
+                        },),);
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(left: 16),
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: EdgeInsets.only(left: 16, right: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Search here...",
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
+                              ),
+                            ),
+                            Container(
+                              height: 40,
+                              width: 40,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                color: themeController.isDarkMode?MateColors.textFieldSearchDark:MateColors.textFieldSearchLight,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Image.asset(
+                                  "lib/asset/iconsNewDesign/search.png",
+                                  color: themeController.isDarkMode?Colors.white:MateColors.blackText,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 16,),
+                  InkWell(
+                    onTap: () async {
+                      await Navigator.of(context).pushNamed(CreateEvent.routeName);
+                      getStoredValue();
+                    },
+                    child: Container(
+                      height: 60,
+                      width: 60,
+                      margin: EdgeInsets.only(right: 16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+                      ),
+                      child: Icon(Icons.add, color: MateColors.blackTextColor, size: 28),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            child: TabBar(
-              onTap: (value){
-                print(value);
-              },
-              controller: _tabController,
-              unselectedLabelColor: Color(0xFF656568),
-              indicatorColor: MateColors.activeIcons,
-              indicatorPadding: EdgeInsets.symmetric(horizontal: 20),
-              labelColor: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-              labelStyle: TextStyle(fontSize: 15.0,fontFamily: "Poppins",fontWeight: FontWeight.w500),
-              tabs: [
-                Tab(
-                  text: "All events",
-                ),
-                Tab(
-                  text: "My events",
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                refreshPageOnBottomClick?
-                timelineLoader():
-                RefreshIndicator(
-                  onRefresh: (){
-                    return refreshPage();
-                  },
-                  child: FutureBuilder<EventListingModel>(
-                    future: future,
-                    builder: (context,snapshot){
-                      if(snapshot.hasData){
-                        if(snapshot.data.success==true || doingPagination==true){
-                          if(enableFutureBuilder){
-                            if(doingPagination){
-                              for(int i=0;i<snapshot.data.data.result.length;i++){
-                                list.add(snapshot.data.data.result[i]);
-                                isBookMark.add(snapshot.data.data.result[i].isBookmarked!=null?true:false);
-                                if(snapshot.data.data.result[i].isReacted!=null){
-                                  reaction.add(
-                                      snapshot.data.data.result[i].isReacted.status=="Going"?
-                                     "Going": snapshot.data.data.result[i].isReacted.status=="Interested"?
-                                      "Interested":"none"
-                                  );
-                                }else{
-                                  reaction.add("none");
-                                }
+            Expanded(
+              child: refreshPageOnBottomClick ?
+              timelineLoader() :
+              RefreshIndicator(
+                onRefresh: () {
+                  return refreshPage();
+                },
+                child: FutureBuilder<EventListingModel>(
+                  future: future,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      if (snapshot.data.success == true || doingPagination == true) {
+                        if (enableFutureBuilder) {
+                          if (doingPagination) {
+                            for (int i = 0; i < snapshot.data.data.result.length; i++) {
+                              list.add(snapshot.data.data.result[i]);
+                              isBookMark.add(snapshot.data.data.result[i].isBookmarked != null ? true : false);
+                              if (snapshot.data.data.result[i].isReacted != null) {
+                                reaction.add(
+                                    snapshot.data.data.result[i].isReacted.status == "Going" ?
+                                    "Going" : snapshot.data.data.result[i].isReacted.status == "Interested" ?
+                                    "Interested" : "none"
+                                );
+                              } else {
+                                reaction.add("none");
                               }
-                              print("List length ${list.length}");
-                              print("Bookmark list length ${isBookMark.length}");
-                              print("Reaction list length ${reaction.length}");
-                            }else{
-                              list.clear();
-                              isBookMark.clear();
-                              reaction.clear();
-                              for(int i=0;i<snapshot.data.data.result.length;i++){
-                                list.add(snapshot.data.data.result[i]);
-                                isBookMark.add(snapshot.data.data.result[i].isBookmarked!=null?true:false);
-                                if(snapshot.data.data.result[i].isReacted!=null){
-                                  reaction.add(
-                                      snapshot.data.data.result[i].isReacted.status=="Going"?
-                                      "Going": snapshot.data.data.result[i].isReacted.status=="Interested"?
-                                      "Interested":"none"
-                                  );
-                                }else{
-                                  reaction.add("none");
-                                }
-                              }
-                              print("List length ${list.length}");
-                              print("Bookmark list length ${isBookMark.length}");
-                              print("Reaction list length ${reaction.length}");
                             }
-                            Future.delayed(Duration.zero,(){
-                              enableFutureBuilder = false;
-                              setState(() {});
-                            });
+                            print("List length ${list.length}");
+                            print("Bookmark list length ${isBookMark.length}");
+                            print("Reaction list length ${reaction.length}");
+                          } else {
+                            list.clear();
+                            isBookMark.clear();
+                            reaction.clear();
+                            for (int i = 0; i < snapshot.data.data.result.length; i++) {
+                              list.add(snapshot.data.data.result[i]);
+                              isBookMark.add(snapshot.data.data.result[i].isBookmarked != null ? true : false);
+                              if (snapshot.data.data.result[i].isReacted != null) {
+                                reaction.add(
+                                    snapshot.data.data.result[i].isReacted.status == "Going" ?
+                                    "Going" : snapshot.data.data.result[i].isReacted.status == "Interested" ?
+                                    "Interested" : "none"
+                                );
+                              } else {
+                                reaction.add("none");
+                              }
+                            }
+                            print("List length ${list.length}");
+                            print("Bookmark list length ${isBookMark.length}");
+                            print("Reaction list length ${reaction.length}");
                           }
-                          return ListView(
-                            scrollDirection: Axis.vertical,
-                            shrinkWrap: true,
-                            physics: ScrollPhysics(),
-                            controller: _scrollController,
-                            children: [
-                              SizedBox(height: 20,),
-                              ListView.builder(
-                                scrollDirection: Axis.vertical,
-                                shrinkWrap: true,
-                                physics: ScrollPhysics(),
-                                itemCount: list.length,
-                                itemBuilder: (context,index){
-                                  return Container(
-                                    margin: EdgeInsets.symmetric(horizontal: 16,vertical: 10),
-                                    decoration: BoxDecoration(
-                                      color: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-                                      borderRadius: BorderRadius.circular(16),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.05),
-                                          spreadRadius: 5,
-                                          blurRadius: 7,
-                                          offset: Offset(0, 3),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        ListTile(
-                                          onTap: (){
-                                            if(list[index].user.uuid!=null){
-                                              if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == list[index].user.uuid) {
-                                                Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
-                                              }else{
-                                                Navigator.of(context).pushNamed(UserProfileScreen.routeName,
-                                                    arguments: {
-                                                      "id": list[index].user.uuid,
-                                                      "name": list[index].user.displayName,
-                                                      "photoUrl": list[index].user.profilePhoto,
-                                                      "firebaseUid": list[index].user.firebaseUid,
-                                                    });
-                                              }
+                          Future.delayed(Duration.zero, () {
+                            enableFutureBuilder = false;
+                            setState(() {});
+                          });
+                        }
+                        return ListView(
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          physics: ScrollPhysics(),
+                          controller: _scrollController,
+                          padding: EdgeInsets.only(top: 10),
+                          children: [
+                            ListView.builder(
+                              scrollDirection: Axis.vertical,
+                              padding: EdgeInsets.zero,
+                              shrinkWrap: true,
+                              physics: ScrollPhysics(),
+                              itemCount: list.length,
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                  decoration: BoxDecoration(
+                                    color: themeController.isDarkMode ? MateColors.containerDark : MateColors.containerLight,
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      ListTile(
+                                        onTap: () {
+                                          if (list[index].user.uuid != null) {
+                                            if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == list[index].user.uuid) {
+                                              Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
+                                            } else {
+                                              Navigator.of(context).pushNamed(UserProfileScreen.routeName,
+                                                  arguments: {
+                                                    "id": list[index].user.uuid,
+                                                    "name": list[index].user.displayName,
+                                                    "photoUrl": list[index].user.profilePhoto,
+                                                    "firebaseUid": list[index].user.firebaseUid,
+                                                  });
                                             }
-                                          },
-                                          leading: CircleAvatar(
-                                            radius: 16,
-                                            backgroundColor: MateColors.activeIcons,
-                                            backgroundImage: NetworkImage(list[index].user.profilePhoto),
+                                          }
+                                        },
+                                        leading: CircleAvatar(
+                                          radius: 20,
+                                          backgroundImage: NetworkImage(list[index].user.profilePhoto),
+                                        ),
+                                        title: Text(
+                                          list[index].user.displayName,
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            fontFamily: 'Poppins',
+                                            fontWeight: FontWeight.w600,
+                                            color: themeController.isDarkMode?Colors.white:Colors.black,
                                           ),
-                                          title: Text(
-                                            list[index].user.displayName,
+                                        ),
+                                        subtitle: Text(
+                                          DateFormat('dd MMMM yyyy').format(DateTime.parse(list[index].createdAt.toString()).toLocal()).toString(),
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
+                                          ),
+                                        ),
+                                        trailing: PopupMenuButton<int>(
+                                            padding: EdgeInsets.zero,
+                                            elevation: 0,
+                                            color: themeController.isDarkMode?MateColors.popupDark:MateColors.popupLight,
+                                            icon: Icon(
+                                              Icons.more_vert,
+                                              color: themeController.isDarkMode?Colors.white:MateColors.blackText,
+                                            ),
+                                            onSelected: (index1) async {
+                                              if (index1 == 0) {
+                                                gCal.Event event = gCal.Event(); // Create object of event
+                                                event.summary = list[index].title; //Setting summary of object
+                                                event.description = list[index].description; //Setting summary of object
+
+                                                gCal.EventDateTime start = new gCal.EventDateTime(); //Setting start time
+                                                start.dateTime = DateTime.parse(list[index].createdAt.toString()).toLocal();
+                                                start.timeZone = "GMT+05:00";
+                                                event.start = start;
+
+                                                gCal.EventDateTime end = new gCal.EventDateTime(); //setting end time
+                                                end.timeZone = "GMT+05:00";
+                                                end.dateTime = DateTime.parse(list[index].createdAt.toString()).toLocal();
+                                                event.end = end;
+
+                                                insertEvent(event);
+                                              } else if (index1 == 1) {
+                                                Navigator.push(context, MaterialPageRoute(builder: (context) =>
+                                                    Chat(peerUuid: list[index].user.uuid,
+                                                        currentUserId: _currentUser.uid,
+                                                        peerId: list[index].user.firebaseUid,
+                                                        peerAvatar: list[index].user.profilePhoto,
+                                                        peerName: list[index].user.displayName)));
+                                              } else if (index1 == 2) {
+                                                _showFollowAlertDialog(eventId: list[index].id, indexVal: index, tabIndex: 0, isFollowed: list[index].isFollowed);
+                                              } else if (index1 == 3) {
+                                                Navigator.push(context, MaterialPageRoute(builder: (context) => ReportPage(moduleId: list[index].id, moduleType: "Event",),));
+                                              } else if (index1 == 4) {
+                                                _showDeleteAlertDialog(eventId: list[index].id, indexVal: index, tabIndex: 0);
+                                              } else if (index1 == 5) {
+                                                await Navigator.push(context, MaterialPageRoute(builder: (context) => EditEvent(data: list[index]),));
+                                                getStoredValue();
+                                              }
+                                            },
+                                            itemBuilder: (context) => [
+                                              PopupMenuItem(
+                                                value: 1,
+                                                height: 40,
+                                                child: Text(
+                                                  "Message",
+                                                  textAlign: TextAlign.start,
+                                                  style: TextStyle(
+                                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                                    fontWeight: FontWeight.w500,
+                                                    fontFamily: 'Poppins',
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ),
+                                              PopupMenuItem(
+                                                value: 2,
+                                                height: 40,
+                                                child: Text(
+                                                  list[index].isFollowed ? "Unfollow Event" : "Follow Event",
+                                                  textAlign: TextAlign.start,
+                                                  style: TextStyle(
+                                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                                    fontWeight: FontWeight.w500,
+                                                    fontFamily: 'Poppins',
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ),
+                                              PopupMenuItem(
+                                                value: 3,
+                                                height: 40,
+                                                child: Text(
+                                                  "Report",
+                                                  textAlign: TextAlign.start,
+                                                  style: TextStyle(
+                                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                                    fontWeight: FontWeight.w500,
+                                                    fontFamily: 'Poppins',
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ),
+                                              ((Provider
+                                                  .of<AuthUserProvider>(context, listen: false)
+                                                  .authUser
+                                                  .id == list[index].user.uuid)) ?
+                                              PopupMenuItem(
+                                                value: 4,
+                                                height: 40,
+                                                child: Text(
+                                                  "Delete Event",
+                                                  textAlign: TextAlign.start,
+                                                  style: TextStyle(
+                                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                                    fontWeight: FontWeight.w500,
+                                                    fontFamily: 'Poppins',
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ) : PopupMenuItem(
+                                                value: 4,
+                                                enabled: false,
+                                                height: 0,
+                                                child: SizedBox(
+                                                  height: 0,
+                                                  width: 0,
+                                                ),
+                                              ),
+                                              ((Provider
+                                                  .of<AuthUserProvider>(context, listen: false)
+                                                  .authUser
+                                                  .id == list[index].user.uuid)) ?
+                                              PopupMenuItem(
+                                                value: 5,
+                                                height: 40,
+                                                child: Text(
+                                                  "Edit Event",
+                                                  textAlign: TextAlign.start,
+                                                  style: TextStyle(
+                                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                                    fontWeight: FontWeight.w500,
+                                                    fontFamily: 'Poppins',
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ) : PopupMenuItem(
+                                                value: 5,
+                                                enabled: false,
+                                                height: 0,
+                                                child: SizedBox(
+                                                  height: 0,
+                                                  width: 0,
+                                                ),
+                                              ),
+                                            ]
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                                        child: Divider(
+                                          thickness: 1,
+                                          color: themeController.isDarkMode?MateColors.dividerDark:MateColors.dividerLight,
+                                        ),
+                                      ),
+                                      InkWell(
+                                        onTap: () {
+                                          Navigator.of(context).push(MaterialPageRoute(builder: (context) =>
+                                              EventDetails(
+                                                list: list[index],
+                                                isBookmark: isBookMark[index],
+                                                index: index,
+                                                changeBookmark: changeBookmark,
+                                                reaction: reaction[index],
+                                                changeReaction: changeReaction,
+                                                changeCommentCount: changeCommentCount,
+                                                changeFollowUnfollow: changeFollowUnfollow,
+                                              )
+                                          ));
+                                        },
+                                        child: Padding(
+                                          padding: EdgeInsets.only(left: 16, top: 5),
+                                          child: Text(
+                                            list[index].title,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontFamily: 'Poppins',
+                                              fontWeight: FontWeight.w700,
+                                              color: themeController.isDarkMode?Colors.white:Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      InkWell(
+                                        onTap: () {
+                                          Navigator.of(context).push(MaterialPageRoute(builder: (context) =>
+                                              EventDetails(
+                                                list: list[index],
+                                                isBookmark: isBookMark[index],
+                                                index: index,
+                                                changeBookmark: changeBookmark,
+                                                reaction: reaction[index],
+                                                changeReaction: changeReaction,
+                                                changeCommentCount: changeCommentCount,
+                                                changeFollowUnfollow: changeFollowUnfollow,
+                                              )
+                                          ));
+                                        },
+                                        child: Padding(
+                                          padding: EdgeInsets.only(left: 16, top: 10, right: 10),
+                                          child: Text(
+                                            list[index].description,
                                             style: TextStyle(
                                               fontSize: 14,
-                                              fontWeight: FontWeight.w500,
+                                              fontFamily: 'Poppins',
+                                              fontWeight: FontWeight.w400,
                                               letterSpacing: 0.1,
-                                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                                              color: themeController.isDarkMode?Colors.white:Colors.black,
                                             ),
                                           ),
-                                          subtitle: Text(
-                                            DateFormat('dd MMMM yyyy').format(DateTime.parse(list[index].createdAt.toString()).toLocal()).toString(),
+                                        ),
+                                      ),
+                                      list[index].hyperLinkText != null && list[index].hyperLink != null ?
+                                      InkWell(
+                                        splashColor: Colors.transparent,
+                                        highlightColor: Colors.transparent,
+                                        onTap: () async {
+                                          if (await canLaunch(list[index].hyperLink))
+                                            await launch(list[index].hyperLink);
+                                          else
+                                            Fluttertoast.showToast(msg: " Could not launch given URL '${list[index].hyperLink}'",
+                                                fontSize: 16,
+                                                backgroundColor: Colors.black54,
+                                                textColor: Colors.white,
+                                                toastLength: Toast.LENGTH_LONG);
+                                          throw "Could not launch ${list[index].hyperLink}";
+                                        },
+                                        child: Padding(
+                                          padding: EdgeInsets.only(left: 16, top: 10, right: 10),
+                                          child: Text(
+                                            list[index].hyperLinkText,
                                             style: TextStyle(
-                                              fontSize: 12,
-                                              color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                                            ),
-                                          ),
-                                          trailing: PopupMenuButton<int>(
-                                              padding: EdgeInsets.only(bottom: 0, top: 0, left: 25, right: 0),
-                                              color: themeController.isDarkMode?backgroundColor:Colors.white,
-                                              icon: Image.asset(
-                                                "lib/asset/icons/menu@3x.png",
-                                                height: 18,
-                                              ),
-                                              onSelected: (index1) async {
-                                                if (index1 == 0) {
-                                                  gCal.Event event = gCal.Event(); // Create object of event
-                                                  event.summary = list[index].title; //Setting summary of object
-                                                  event.description = list[index].description; //Setting summary of object
-
-                                                  gCal.EventDateTime start = new gCal.EventDateTime(); //Setting start time
-                                                  start.dateTime = DateTime.parse(list[index].createdAt.toString()).toLocal();
-                                                  start.timeZone = "GMT+05:00";
-                                                  event.start = start;
-
-                                                  gCal.EventDateTime end = new gCal.EventDateTime(); //setting end time
-                                                  end.timeZone = "GMT+05:00";
-                                                  end.dateTime = DateTime.parse(list[index].createdAt.toString()).toLocal();
-                                                  event.end = end;
-
-                                                  insertEvent(event);
-                                                }else if (index1 == 1) {
-                                                  Navigator.push(context, MaterialPageRoute(builder: (context) => Chat(peerUuid: list[index].user.uuid, currentUserId: _currentUser.uid, peerId: list[index].user.firebaseUid, peerAvatar: list[index].user.profilePhoto, peerName: list[index].user.displayName)));
-                                                }else if(index1 == 2){
-                                                  _showFollowAlertDialog(eventId: list[index].id, indexVal: index,tabIndex: 0,isFollowed: list[index].isFollowed);
-                                                }else if(index1 == 3){
-                                                  Navigator.push(context, MaterialPageRoute(builder: (context) => ReportPage(moduleId: list[index].id, moduleType: "Event",),));
-                                                }else if(index1 == 4){
-                                                  _showDeleteAlertDialog(eventId: list[index].id, indexVal: index,tabIndex: 0);
-                                                }else if(index1 == 5){
-                                                  await Navigator.push(context, MaterialPageRoute(builder: (context) => EditEvent(data: list[index]),));
-                                                  getStoredValue();
-                                                }
-                                              },
-                                              itemBuilder: (context) => [
-                                                // PopupMenuItem(
-                                                //   value: 0,
-                                                //   height: 40,
-                                                //   child: Text(
-                                                //     "Calendar",
-                                                //     textAlign: TextAlign.start,
-                                                //     style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
-                                                //   ),
-                                                // ),
-                                                PopupMenuItem(
-                                                  value: 1,
-                                                  height: 40,
-                                                  child: Text(
-                                                    "Message",
-                                                    textAlign: TextAlign.start,
-                                                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
-                                                  ),
-                                                ),
-                                                PopupMenuItem(
-                                                  value: 2,
-                                                  height: 40,
-                                                  child: Text(
-                                                    list[index].isFollowed?"Unfollow Event":"Follow Event",
-                                                    textAlign: TextAlign.start,
-                                                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
-                                                  ),
-                                                ),
-                                                PopupMenuItem(
-                                                  value: 3,
-                                                  height: 40,
-                                                  child: Text(
-                                                    "Report",
-                                                    textAlign: TextAlign.start,
-                                                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
-                                                  ),
-                                                ),
-                                                ((Provider.of<AuthUserProvider>(context, listen: false).authUser.id == list[index].user.uuid))?
-                                                PopupMenuItem(
-                                                  value: 4,
-                                                  height: 40,
-                                                  child: Text(
-                                                    "Delete Event",
-                                                    textAlign: TextAlign.start,
-                                                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
-                                                  ),
-                                                ):PopupMenuItem(
-                                                  value: 4,
-                                                  enabled: false,
-                                                  height: 0,
-                                                  child: SizedBox(
-                                                    height: 0,
-                                                    width: 0,
-                                                  ),
-                                                ),
-                                                ((Provider.of<AuthUserProvider>(context, listen: false).authUser.id == list[index].user.uuid))?
-                                                PopupMenuItem(
-                                                  value: 5,
-                                                  height: 40,
-                                                  child: Text(
-                                                    "Edit Event",
-                                                    textAlign: TextAlign.start,
-                                                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
-                                                  ),
-                                                ):PopupMenuItem(
-                                                  value: 5,
-                                                  enabled: false,
-                                                  height: 0,
-                                                  child: SizedBox(
-                                                    height: 0,
-                                                    width: 0,
-                                                  ),
-                                                ),
-                                              ]
-                                          ),
-                                        ),
-                                        InkWell(
-                                          onTap: (){
-                                            Navigator.of(context).push(MaterialPageRoute(builder: (context)=>
-                                                EventDetails(
-                                                  list: list[index],
-                                                  isBookmark: isBookMark[index],
-                                                  index: index,
-                                                  changeBookmark: changeBookmark,
-                                                  reaction: reaction[index],
-                                                  changeReaction: changeReaction,
-                                                  changeCommentCount: changeCommentCount,
-                                                  changeFollowUnfollow: changeFollowUnfollow,
-                                                )
-                                            ));
-                                          },
-                                          child: Padding(
-                                            padding: EdgeInsets.only(left: 16,top: 0),
-                                            child: Text(
-                                              list[index].title,
-                                              style: TextStyle(
-                                                fontSize: 17,
-                                                fontWeight: FontWeight.w700,
-                                                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                                              ),
+                                              fontSize: 14,
+                                              fontFamily: 'Poppins',
+                                              color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
                                             ),
                                           ),
                                         ),
-                                        InkWell(
-                                          onTap: (){
-                                            Navigator.of(context).push(MaterialPageRoute(builder: (context)=>
-                                                EventDetails(
-                                                  list: list[index],
-                                                  isBookmark: isBookMark[index],
-                                                  index: index,
-                                                  changeBookmark: changeBookmark,
-                                                  reaction: reaction[index],
-                                                  changeReaction: changeReaction,
-                                                  changeCommentCount: changeCommentCount,
-                                                  changeFollowUnfollow: changeFollowUnfollow,
-                                                )
-                                            ));
-                                          },
-                                          child: Padding(
-                                            padding: EdgeInsets.only(left: 16,top: 10,right: 10),
-                                            child: Text(
-                                              list[index].description,
+                                      ) : SizedBox(),
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 16, top: 10, right: 10),
+                                        child: Row(
+                                          children: [
+                                            Image.asset("lib/asset/icons/pinEvent.png",
+                                              height: 20,
+                                              width: 14,
+                                              fit: BoxFit.fitHeight,
+                                            ),
+                                            SizedBox(width: 8,),
+                                            Expanded(
+                                              child: Text(
+                                                list[index].location,
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w400,
+                                                  color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 16, top: 10, right: 10),
+                                        child: Row(
+                                          children: [
+                                            Image.asset("lib/asset/icons/calendarEvent.png",
+                                              height: 14,
+                                            ),
+                                            SizedBox(width: 8,),
+                                            Text(
+                                              DateFormat('dd MMMM yyyy').format(DateTime.parse(list[index].date.toString()).toLocal()).toString(),
                                               style: TextStyle(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w400,
-                                                letterSpacing: 0.1,
-                                                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                                                color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
                                               ),
                                             ),
-                                          ),
+                                          ],
                                         ),
-
-                                        list[index].hyperLinkText!=null && list[index].hyperLink!=null ?
-                                        InkWell(
-                                          splashColor: Colors.transparent,
-                                          highlightColor: Colors.transparent,
-                                          onTap: () async{
-                                            if (await canLaunch(list[index].hyperLink))
-                                              await launch(list[index].hyperLink);
-                                            else
-                                              Fluttertoast.showToast(msg: " Could not launch given URL '${list[index].hyperLink}'", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
-                                            throw "Could not launch ${list[index].hyperLink}";
-                                          },
-                                          child: Padding(
-                                            padding: EdgeInsets.only(left: 16,top: 10,right: 10),
-                                            child: Text(
-                                              list[index].hyperLinkText,
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 16, top: 10, right: 10),
+                                        child: Row(
+                                          children: [
+                                            Image.asset("lib/asset/icons/clockEvent.png",
+                                              height: 14,
+                                            ),
+                                            SizedBox(width: 8,),
+                                            Text(
+                                              DateFormat('hh:mm a').format(DateTime.parse(list[index].time.toString())).toString(),
                                               style: TextStyle(
                                                 fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                                letterSpacing: 0.1,
-                                                color: MateColors.activeIcons,
+                                                fontWeight: FontWeight.w400,
+                                                color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
                                               ),
                                             ),
-                                          ),
-                                        ):SizedBox(),
-
-
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 16,top: 10,right: 10),
-                                          child: Row(
-                                            children: [
-                                              Image.asset("lib/asset/icons/pinEvent.png",
-                                                height: 20,
-                                                width: 14,
-                                                fit: BoxFit.fitHeight,
-                                              ),
-                                              SizedBox(width: 8,),
-                                              Expanded(
-                                                child: Text(
-                                                  list[index].location,
-                                                  style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w400,
-                                                    letterSpacing: 0.1,
-                                                    color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 16,top: 10,right: 10),
-                                          child: Row(
-                                            children: [
-                                              Image.asset("lib/asset/icons/calendarEvent.png",
-                                                height: 14,
-                                              ),
-                                              SizedBox(width: 8,),
+                                            if(list[index].endTime != null)
                                               Text(
-                                                DateFormat('dd MMMM yyyy').format(DateTime.parse(list[index].date.toString()).toLocal()).toString(),
+                                                " - " + DateFormat('hh:mm a').format(DateTime.parse(list[index].endTime.toString())).toString(),
                                                 style: TextStyle(
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.w400,
-                                                  letterSpacing: 0.1,
-                                                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                                                  color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
                                                 ),
                                               ),
-                                            ],
-                                          ),
+                                          ],
                                         ),
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 16,top: 10,right: 10),
-                                          child: Row(
-                                            children: [
-                                              Image.asset("lib/asset/icons/clockEvent.png",
-                                                height: 14,
-                                              ),
-                                              SizedBox(width: 8,),
-                                              Text(
-                                                DateFormat('hh:mm a').format(DateTime.parse(list[index].time.toString())).toString(),
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w400,
-                                                  letterSpacing: 0.1,
-                                                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                                                ),
-                                              ),
-                                              if(list[index].endTime!=null)
-                                              Text(
-                                                " - "+DateFormat('hh:mm a').format(DateTime.parse(list[index].endTime.toString())).toString(),
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w400,
-                                                  letterSpacing: 0.1,
-                                                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        if(list[index].goingList.length>0)
+                                      ),
+                                      if(list[index].goingList.length > 0)
                                         Container(
                                           height: 40,
-                                          margin: EdgeInsets.only(left: 16,top: 10),
-                                          width: MediaQuery.of(context).size.width,
+                                          margin: EdgeInsets.only(left: 16, top: 10),
+                                          width: MediaQuery
+                                              .of(context)
+                                              .size
+                                              .width,
                                           child: Row(
                                             crossAxisAlignment: CrossAxisAlignment.center,
                                             children: [
@@ -741,10 +715,10 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                                                   scrollDirection: Axis.horizontal,
                                                   shrinkWrap: true,
                                                   physics: ScrollPhysics(),
-                                                  itemCount: list[index].goingList.length>6?6:list[index].goingList.length,
-                                                  itemBuilder: (context,ind){
+                                                  itemCount: list[index].goingList.length > 6 ? 6 : list[index].goingList.length,
+                                                  itemBuilder: (context, ind) {
                                                     return InkWell(
-                                                      onTap: (){
+                                                      onTap: () {
                                                         Get.to(MemberList(list: list[index].goingList,));
                                                       },
                                                       child: CircleAvatar(
@@ -755,899 +729,268 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                                                     );
                                                   }
                                               ),
-                                              list[index].goingList.length>6?
+                                              list[index].goingList.length > 6 ?
                                               InkWell(
-                                                onTap: (){
+                                                onTap: () {
                                                   Get.to(MemberList(list: list[index].goingList,));
                                                 },
                                                 child: Padding(
                                                   padding: const EdgeInsets.only(left: 5),
-                                                  child: Text("+${list[index].goingList.length -6}",
+                                                  child: Text("+${list[index].goingList.length - 6}",
                                                     style: TextStyle(
                                                       fontSize: 14,
-                                                      color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                                                      fontWeight: FontWeight.w400,
+                                                      color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
                                                     ),
                                                   ),
                                                 ),
-                                              ):
+                                              ) :
                                               Offstage(),
                                             ],
                                           ),
                                         ),
-                                        if(list[index].photoUrl!=null || list[index].videoUrl!=null)
+                                      if(list[index].photoUrl != null || list[index].videoUrl != null)
                                         Container(
                                           height: 150,
                                           margin: EdgeInsets.only(bottom: 0.0, left: 16, right: 16, top: 10),
                                           child: ListView.builder(
-                                            scrollDirection: Axis.horizontal,
-                                            shrinkWrap: true,
-                                            physics: BouncingScrollPhysics(),
-                                            itemCount: list[index].photoUrl!=null && list[index].videoUrl!=null? 2 : list[index].photoUrl!=null?1:list[index].videoUrl!=null?1:0,
-                                            itemBuilder: (context,indexSwipe){
-                                              if(indexSwipe==0){
-                                                return
-                                                list[index].photoUrl!=null?
-                                                  Padding(
-                                                    padding: const EdgeInsets.only(bottom: 0.0, left: 0, right: 0, top: 10),
-                                                    child: Container(
-                                                      height: 150,
-                                                      width: MediaQuery.of(context).size.width/1.2,
-                                                      child: InkWell(
-                                                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>MediaViewer(url: list[index].photoUrl,))),
-                                                            // Navigator.of(context).push(MaterialPageRoute(
-                                                            // builder: (context) => FullImageWidget(
-                                                            //   imagePath: list[index].photoUrl,
-                                                            // ))),
-                                                        child: ClipRRect(
-                                                          borderRadius: BorderRadius.circular(12.0),
-                                                          clipBehavior: Clip.hardEdge,
-                                                          child: Image.network(
-                                                            list[index].photoUrl,
-                                                            fit: BoxFit.cover,
-                                                            // height: 300,
-                                                            // width: 400,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ):list[index].videoUrl!=null?
-                                                VideoThumbnail(videoUrl: list[index].videoUrl,isLeftPadding: false,):Container();
-                                              }else{
-                                                return list[index].videoUrl!=null?
-                                                  VideoThumbnail(videoUrl: list[index].videoUrl):Container();
-                                              }
-                                            }
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(left: 16,right: 16,top: 25),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  InkWell(
-                                                    onTap: (){
-                                                      if(reaction[index]=="Going"){
-                                                        reaction[index] = "none";
-                                                        setState(() {});
-                                                        _eventService.reaction(id: list[index].id,reaction: "none",token: token);
-                                                      }else{
-                                                        reaction[index] = "Going";
-                                                        setState(() {});
-                                                        _eventService.reaction(id: list[index].id,reaction: "Going",token: token);
-                                                      }
-                                                    },
-                                                    child: Container(
-                                                      height: 32,
-                                                      width: 72,
-                                                      decoration: BoxDecoration(
-                                                        color: reaction[index]=="Going"?MateColors.activeIcons:Colors.transparent,
-                                                        borderRadius: BorderRadius.circular(16),
-                                                        border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1),
-                                                      ),
-                                                      child: Center(
-                                                        child: Text(
-                                                          "Going",
-                                                          style: TextStyle(
-                                                            fontSize: 13,
-                                                            fontWeight: FontWeight.w500,
-                                                            letterSpacing: 0.1,
-                                                            color: themeController.isDarkMode? reaction[index]=="Going"? MateColors.blackTextColor:Colors.white:
-                                                                reaction[index]=="Going"?Colors.white:MateColors.blackTextColor,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  SizedBox(width: 10,),
-                                                  InkWell(
-                                                    onTap: (){
-                                                      if(reaction[index]=="Interested"){
-                                                        reaction[index] = "none";
-                                                        setState(() {});
-                                                        _eventService.reaction(id: list[index].id,reaction: "none",token: token);
-                                                      }else{
-                                                        reaction[index] = "Interested";
-                                                        setState(() {});
-                                                        _eventService.reaction(id: list[index].id,reaction: "Interested",token: token);
-                                                      }
-                                                    },
-                                                    child: Container(
-                                                      height: 32,
-                                                      width: 99,
-                                                      decoration: BoxDecoration(
-                                                        color: reaction[index]=="Interested"?MateColors.activeIcons:Colors.transparent,
-                                                        borderRadius: BorderRadius.circular(16),
-                                                        border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1),
-                                                      ),
-                                                      child: Center(
-                                                        child: Text(
-                                                          "Interested",
-                                                          style: TextStyle(
-                                                            fontSize: 13,
-                                                            fontWeight: FontWeight.w500,
-                                                            letterSpacing: 0.1,
-                                                            color: themeController.isDarkMode? reaction[index]=="Interested"? MateColors.blackTextColor:Colors.white:
-                                                            reaction[index]=="Interested"?Colors.white:MateColors.blackTextColor,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              Row(
-                                                children: [
-                                                  Text(
-                                                    list[index].commentsCount.toString(),
-                                                    style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                                                    ),
-                                                  ),
-                                                  SizedBox(width: 10,),
-                                                  InkWell(
-                                                    onTap: (){
-                                                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=>
-                                                          EventDetails(
-                                                            list: list[index],
-                                                            isBookmark: isBookMark[index],
-                                                            index: index,
-                                                            changeBookmark: changeBookmark,
-                                                            reaction: reaction[index],
-                                                            changeReaction: changeReaction,
-                                                            changeCommentCount: changeCommentCount,
-                                                            changeFollowUnfollow: changeFollowUnfollow,
-                                                            showDetails:false,
-                                                          )
-                                                      ));
-                                                    },
-                                                    child: Image.asset("lib/asset/icons/message@3x.png",height: 20,color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,),
-                                                  ),
-                                                  SizedBox(width: 20,),
-                                                  InkWell(
-                                                    onTap: (){
-                                                      setState(() {
-                                                        isBookMark[index] = !isBookMark[index];
-                                                      });
-                                                      _eventService.bookMark(id: list[index].id,token: token);
-                                                    },
-                                                    child: isBookMark[index]?
-                                                    Image.asset("lib/asset/icons/bookmarkColor.png",height: 20) :
-                                                    Image.asset("lib/asset/homePageIcons/drawerBookmark@3x.png",height: 20,color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        SizedBox(height: 20,),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          );
-                        }else{
-                          return Center(
-                            child: Text("No data found",
-                              style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w700,
-                                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                              ),
-                            ),
-                          );
-                        }
-                      }else if(snapshot.hasError){
-                        return Center(
-                          child: Text("Something went wrong",
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w700,
-                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                            ),
-                          ),
-                        );
-                      }else{
-                        return timelineLoader();
-                      }
-                    },
-                  ),
-                ),
-                refreshPageOnBottomClick?
-                timelineLoader():
-                RefreshIndicator(
-                  onRefresh: (){
-                    return refreshPage();
-                  },
-                  child: FutureBuilder<EventListingModel>(
-                    future: futureLocal,
-                    builder: (context,snapshot){
-                      if(snapshot.hasData){
-                        if(snapshot.data.success==true || doingPaginationLocal==true){
-                          if(enableFutureBuilderLocal){
-                            if(doingPaginationLocal){
-                              for(int i=0;i<snapshot.data.data.result.length;i++){
-                                listLocal.add(snapshot.data.data.result[i]);
-                                isBookMarkLocal.add(snapshot.data.data.result[i].isBookmarked!=null?true:false);
-                                if(snapshot.data.data.result[i].isReacted!=null){
-                                  reactionLocal.add(
-                                      snapshot.data.data.result[i].isReacted.status=="Going"?
-                                      "Going": snapshot.data.data.result[i].isReacted.status=="Interested"?
-                                      "Interested":"none"
-                                  );
-                                }else{
-                                  reactionLocal.add("none");
-                                }
-                              }
-                              print("Local List length ${listLocal.length}");
-                              print("Bookmark Local list length ${isBookMarkLocal.length}");
-                              print("reaction local list length ${reactionLocal.length}");
-                            }else{
-                              listLocal.clear();
-                              isBookMarkLocal.clear();
-                              reactionLocal.clear();
-                              for(int i=0;i<snapshot.data.data.result.length;i++){
-                                listLocal.add(snapshot.data.data.result[i]);
-                                isBookMarkLocal.add(snapshot.data.data.result[i].isBookmarked!=null?true:false);
-                                if(snapshot.data.data.result[i].isReacted!=null){
-                                  reactionLocal.add(
-                                      snapshot.data.data.result[i].isReacted.status=="Going"?
-                                      "Going": snapshot.data.data.result[i].isReacted.status=="Interested"?
-                                      "Interested":"none"
-                                  );
-                                }else{
-                                  reactionLocal.add("none");
-                                }
-                              }
-                              print("Local List length ${listLocal.length}");
-                              print("Bookmark Local list length ${isBookMarkLocal.length}");
-                              print("reaction local list length ${reactionLocal.length}");
-                            }
-                            Future.delayed(Duration.zero,(){
-                              enableFutureBuilderLocal = false;
-                              setState(() {});
-                            });
-                          }
-                          return ListView(
-                            controller: _scrollController,
-                            scrollDirection: Axis.vertical,
-                            shrinkWrap: true,
-                            physics: ScrollPhysics(),
-                            children: [
-                              SizedBox(height: 20,),
-                              ListView.builder(
-                                scrollDirection: Axis.vertical,
-                                shrinkWrap: true,
-                                physics: ScrollPhysics(),
-                                itemCount: listLocal.length,
-                                itemBuilder: (context,index){
-                                  return Container(
-                                    margin: EdgeInsets.symmetric(horizontal: 16,vertical: 10),
-                                    decoration: BoxDecoration(
-                                      color: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-                                      borderRadius: BorderRadius.circular(16),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.05),
-                                          spreadRadius: 5,
-                                          blurRadius: 7,
-                                          offset: Offset(0, 3),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        ListTile(
-                                          onTap: (){
-                                            if(listLocal[index].user.uuid!=null){
-                                              if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == listLocal[index].user.uuid) {
-                                                Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
-                                              }else{
-                                                Navigator.of(context).pushNamed(UserProfileScreen.routeName,
-                                                    arguments: {
-                                                      "id": listLocal[index].user.uuid,
-                                                      "name": listLocal[index].user.displayName,
-                                                      "photoUrl": listLocal[index].user.profilePhoto,
-                                                      "firebaseUid": listLocal[index].user.firebaseUid,
-                                                    });
-                                              }
-                                            }
-                                          },
-                                          leading: CircleAvatar(
-                                            radius: 16,
-                                            backgroundColor: MateColors.activeIcons,
-                                            backgroundImage: NetworkImage(listLocal[index].user.profilePhoto),
-                                          ),
-                                          title: Text(
-                                            listLocal[index].user.displayName,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              letterSpacing: 0.1,
-                                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                                            ),
-                                          ),
-                                          subtitle: Text(
-                                            DateFormat('dd MMMM yyyy').format(DateTime.parse(listLocal[index].createdAt.toString()).toLocal()).toString(),
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                                            ),
-                                          ),
-                                          trailing: PopupMenuButton<int>(
-                                              padding: EdgeInsets.only(bottom: 0, top: 0, left: 25, right: 0),
-                                              color: themeController.isDarkMode?backgroundColor:Colors.white,
-                                              icon: Image.asset(
-                                                "lib/asset/icons/menu@3x.png",
-                                                height: 18,
-                                              ),
-                                              onSelected: (index1) async {
-                                                if (index1 == 0) {
-                                                  gCal.Event event = gCal.Event(); // Create object of event
-                                                  event.summary = listLocal[index].title; //Setting summary of object
-                                                  event.description = listLocal[index].description; //Setting summary of object
-
-                                                  gCal.EventDateTime start = new gCal.EventDateTime(); //Setting start time
-                                                  start.dateTime = DateTime.parse(listLocal[index].createdAt.toString()).toLocal();
-                                                  start.timeZone = "GMT+05:00";
-                                                  event.start = start;
-
-                                                  gCal.EventDateTime end = new gCal.EventDateTime(); //setting end time
-                                                  end.timeZone = "GMT+05:00";
-                                                  end.dateTime = DateTime.parse(listLocal[index].createdAt.toString()).toLocal();
-                                                  event.end = end;
-
-                                                  insertEvent(event);
-                                                }else if(index1 == 1){
-                                                  Navigator.push(context, MaterialPageRoute(builder: (context) => Chat(peerUuid: listLocal[index].user.uuid, currentUserId: _currentUser.uid, peerId: listLocal[index].user.firebaseUid, peerAvatar: listLocal[index].user.profilePhoto, peerName: listLocal[index].user.displayName)));
-                                                }else if(index1 == 2){
-                                                  _showFollowAlertDialog(eventId: listLocal[index].id, indexVal: index,tabIndex: 1,isFollowed: listLocal[index].isFollowed);
-                                                }else if(index1 == 3){
-                                                  Navigator.push(context, MaterialPageRoute(builder: (context) => ReportPage(moduleId: listLocal[index].id, moduleType: "Event",),));
-                                                }else if(index1 == 4){
-                                                  _showDeleteAlertDialog(eventId: listLocal[index].id, indexVal: index,tabIndex: 1);
-                                                }else if(index1 == 5){
-                                                  await Navigator.push(context, MaterialPageRoute(builder: (context) => EditEvent(data: listLocal[index]),));
-                                                  getStoredValue();
-                                                }
-                                              },
-                                              itemBuilder: (context) => [
-                                                // PopupMenuItem(
-                                                //   value: 0,
-                                                //   height: 40,
-                                                //   child: Text(
-                                                //     "Calendar",
-                                                //     textAlign: TextAlign.start,
-                                                //     style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
-                                                //   ),
-                                                // ),
-                                                PopupMenuItem(
-                                                  value: 1,
-                                                  height: 40,
-                                                  child: Text(
-                                                    "Message",
-                                                    textAlign: TextAlign.start,
-                                                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
-                                                  ),
-                                                ),
-                                                PopupMenuItem(
-                                                  value: 2,
-                                                  height: 40,
-                                                  child: Text(
-                                                    listLocal[index].isFollowed?"Unfollow Event":"Follow Event",
-                                                    textAlign: TextAlign.start,
-                                                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
-                                                  ),
-                                                ),
-                                                PopupMenuItem(
-                                                  value: 3,
-                                                  height: 40,
-                                                  child: Text(
-                                                    "Report",
-                                                    textAlign: TextAlign.start,
-                                                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
-                                                  ),
-                                                ),
-                                                ((Provider.of<AuthUserProvider>(context, listen: false).authUser.id == list[index].user.uuid))?
-                                                PopupMenuItem(
-                                                  value: 4,
-                                                  height: 40,
-                                                  child: Text(
-                                                    "Delete Event",
-                                                    textAlign: TextAlign.start,
-                                                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
-                                                  ),
-                                                ):PopupMenuItem(
-                                                  value: 4,
-                                                  enabled: false,
-                                                  height: 0,
-                                                  child: SizedBox(
-                                                    height: 0,
-                                                    width: 0,
-                                                  ),
-                                                ),
-                                                ((Provider.of<AuthUserProvider>(context, listen: false).authUser.id == list[index].user.uuid))?
-                                                PopupMenuItem(
-                                                  value: 5,
-                                                  height: 40,
-                                                  child: Text(
-                                                    "Edit Event",
-                                                    textAlign: TextAlign.start,
-                                                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
-                                                  ),
-                                                ):PopupMenuItem(
-                                                  value: 5,
-                                                  enabled: false,
-                                                  height: 0,
-                                                  child: SizedBox(
-                                                    height: 0,
-                                                    width: 0,
-                                                  ),
-                                                ),
-                                              ]
-                                          ),
-                                        ),
-                                        InkWell(
-                                          onTap: (){
-                                            Navigator.of(context).push(MaterialPageRoute(builder: (context)=>
-                                                EventDetails(
-                                                  list: listLocal[index],
-                                                  isBookmark: isBookMarkLocal[index],
-                                                  index: index,
-                                                  changeBookmark: changeBookmark,
-                                                  reaction: reactionLocal[index],
-                                                  changeReaction: changeReaction,
-                                                  changeCommentCount: changeCommentCount,
-                                                  changeFollowUnfollow: changeFollowUnfollow,
-                                                )
-                                            ));
-                                          },
-                                          child: Padding(
-                                            padding: EdgeInsets.only(left: 16,top: 0),
-                                            child: Text(
-                                              listLocal[index].title,
-                                              style: TextStyle(
-                                                fontSize: 17,
-                                                fontWeight: FontWeight.w700,
-                                                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        InkWell(
-                                          onTap: (){
-                                            Navigator.of(context).push(MaterialPageRoute(builder: (context)=>
-                                                EventDetails(
-                                                  list: listLocal[index],
-                                                  isBookmark: isBookMarkLocal[index],
-                                                  index: index,
-                                                  changeBookmark: changeBookmark,
-                                                  reaction: reactionLocal[index],
-                                                  changeReaction: changeReaction,
-                                                  changeCommentCount: changeCommentCount,
-                                                  changeFollowUnfollow: changeFollowUnfollow,
-                                                )
-                                            ));
-                                          },
-                                          child: Padding(
-                                            padding: EdgeInsets.only(left: 16,top: 10,right: 10),
-                                            child: Text(
-                                              listLocal[index].description,
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w400,
-                                                letterSpacing: 0.1,
-                                                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-
-                                        listLocal[index].hyperLinkText!=null && listLocal[index].hyperLink!=null ?
-                                        InkWell(
-                                          splashColor: Colors.transparent,
-                                          highlightColor: Colors.transparent,
-                                          onTap: () async{
-                                            if (await canLaunch(listLocal[index].hyperLink))
-                                              await launch(listLocal[index].hyperLink);
-                                            else
-                                              Fluttertoast.showToast(msg: " Could not launch given URL '${listLocal[index].hyperLink}'", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
-                                            throw "Could not launch ${listLocal[index].hyperLink}";
-                                          },
-                                          child: Padding(
-                                            padding: EdgeInsets.only(left: 16,top: 10,right: 10),
-                                            child: Text(
-                                              listLocal[index].hyperLinkText,
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                                letterSpacing: 0.1,
-                                                color: MateColors.activeIcons,
-                                              ),
-                                            ),
-                                          ),
-                                        ):SizedBox(),
-
-
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 16,top: 10,right: 10),
-                                          child: Row(
-                                            children: [
-                                              Image.asset("lib/asset/icons/pinEvent.png",
-                                                height: 20,
-                                                width: 14,
-                                                fit: BoxFit.fitHeight,
-                                              ),
-                                              SizedBox(width: 8,),
-                                              Expanded(
-                                                child: Text(
-                                                  listLocal[index].location,
-                                                  style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w400,
-                                                    letterSpacing: 0.1,
-                                                    color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 16,top: 10,right: 10),
-                                          child: Row(
-                                            children: [
-                                              Image.asset("lib/asset/icons/calendarEvent.png",
-                                                height: 14,
-                                              ),
-                                              SizedBox(width: 8,),
-                                              Text(
-                                                DateFormat('dd MMMM yyyy').format(DateTime.parse(listLocal[index].date.toString()).toLocal()).toString(),
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w400,
-                                                  letterSpacing: 0.1,
-                                                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 16,top: 10,right: 10),
-                                          child: Row(
-                                            children: [
-                                              Image.asset("lib/asset/icons/clockEvent.png",
-                                                height: 14,
-                                              ),
-                                              SizedBox(width: 8,),
-                                              Text(
-                                                DateFormat('hh:mm a').format(DateTime.parse(listLocal[index].time.toString())).toString(),
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w400,
-                                                  letterSpacing: 0.1,
-                                                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                                                ),
-                                              ),
-                                              if(listLocal[index].endTime!=null)
-                                                Text(
-                                                  " - "+DateFormat('hh:mm a').format(DateTime.parse(listLocal[index].endTime).toLocal()).toString(),
-                                                  style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w400,
-                                                    letterSpacing: 0.1,
-                                                    color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                        ),
-                                        if(listLocal[index].goingList.length>0)
-                                        Container(
-                                          height: 40,
-                                          margin: EdgeInsets.only(left: 16,top: 10),
-                                          width: MediaQuery.of(context).size.width,
-                                          child: Row(
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            children: [
-                                              ListView.builder(
-                                                  scrollDirection: Axis.horizontal,
-                                                  shrinkWrap: true,
-                                                  physics: ScrollPhysics(),
-                                                  itemCount: listLocal[index].goingList.length>6?6:listLocal[index].goingList.length,
-                                                  itemBuilder: (context,ind){
-                                                    return InkWell(
-                                                      onTap: (){
-                                                        Get.to(MemberList(list: listLocal[index].goingList,));
-                                                      },
-                                                      child: CircleAvatar(
-                                                        radius: 12,
-                                                        backgroundColor: MateColors.activeIcons,
-                                                        backgroundImage: NetworkImage(listLocal[index].goingList[ind].profilePhoto),
-                                                      ),
-                                                    );
-                                                  }
-                                              ),
-                                              listLocal[index].goingList.length>6?
-                                              InkWell(
-                                                onTap: (){
-                                                  Get.to(MemberList(list: listLocal[index].goingList,));
-                                                },
-                                                child: Padding(
-                                                  padding: const EdgeInsets.only(left: 5),
-                                                  child: Text("+${listLocal[index].goingList.length -6}",
-                                                    style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ):
-                                              Offstage(),
-                                            ],
-                                          ),
-                                        ),
-                                        if(listLocal[index].photoUrl!=null || listLocal[index].videoUrl!=null)
-                                          Container(
-                                            height: 150,
-                                            margin: EdgeInsets.only(bottom: 0.0, left: 16, right: 16, top: 10),
-                                            child: ListView.builder(
-                                                scrollDirection: Axis.horizontal,
-                                                shrinkWrap: true,
-                                                physics: BouncingScrollPhysics(),
-                                                itemCount: listLocal[index].photoUrl!=null && listLocal[index].videoUrl!=null? 2 : listLocal[index].photoUrl!=null?1:listLocal[index].videoUrl!=null?1:0,
-                                                itemBuilder: (context,indexSwipe){
-                                                  if(indexSwipe==0){
-                                                    return
-                                                      listLocal[index].photoUrl!=null?
-                                                      Padding(
-                                                        padding: const EdgeInsets.only(bottom: 0.0, left: 0, right: 0, top: 10),
-                                                        child: Container(
-                                                          height: 150,
-                                                          width: MediaQuery.of(context).size.width/1.2,
-                                                          child: InkWell(
-                                                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>MediaViewer(url: listLocal[index].photoUrl,))),
-                                                                // Navigator.of(context).push(MaterialPageRoute(
-                                                                // builder: (context) => FullImageWidget(
-                                                                //   imagePath: listLocal[index].photoUrl,
-                                                                // ))),
-                                                            child: ClipRRect(
-                                                              borderRadius: BorderRadius.circular(12.0),
-                                                              clipBehavior: Clip.hardEdge,
-                                                              child: Image.network(
-                                                                listLocal[index].photoUrl,
-                                                                fit: BoxFit.cover,
-                                                                // height: 300,
-                                                                // width: 400,
-                                                              ),
+                                              scrollDirection: Axis.horizontal,
+                                              shrinkWrap: true,
+                                              physics: BouncingScrollPhysics(),
+                                              itemCount: list[index].photoUrl != null && list[index].videoUrl != null ? 2 : list[index].photoUrl != null ? 1 : list[index].videoUrl != null ? 1 : 0,
+                                              itemBuilder: (context, indexSwipe) {
+                                                if (indexSwipe == 0) {
+                                                  return
+                                                    list[index].photoUrl != null ?
+                                                    Padding(
+                                                      padding: const EdgeInsets.only(bottom: 0.0, left: 0, right: 0, top: 10),
+                                                      child: Container(
+                                                        height: 150,
+                                                        width: MediaQuery
+                                                            .of(context)
+                                                            .size
+                                                            .width / 1.2,
+                                                        child: InkWell(
+                                                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => MediaViewer(url: list[index].photoUrl,))),
+                                                          child: ClipRRect(
+                                                            borderRadius: BorderRadius.circular(12.0),
+                                                            clipBehavior: Clip.hardEdge,
+                                                            child: Image.network(
+                                                              list[index].photoUrl,
+                                                              fit: BoxFit.cover,
                                                             ),
                                                           ),
                                                         ),
-                                                      ):listLocal[index].videoUrl!=null?
-                                                      VideoThumbnail(videoUrl: listLocal[index].videoUrl,isLeftPadding: false,):Container();;
-                                                  }else{
-                                                    return listLocal[index].videoUrl!=null?
-                                                    VideoThumbnail(videoUrl: listLocal[index].videoUrl):Container();
-                                                  }
+                                                      ),
+                                                    ) : list[index].videoUrl != null ?
+                                                    VideoThumbnail(videoUrl: list[index].videoUrl, isLeftPadding: false,) : Container();
+                                                } else {
+                                                  return list[index].videoUrl != null ?
+                                                  VideoThumbnail(videoUrl: list[index].videoUrl) : Container();
                                                 }
-                                            ),
-                                          ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(left: 16,right: 16,top: 25),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  InkWell(
-                                                    onTap: (){
-                                                      if(reactionLocal[index]=="Going"){
-                                                        reactionLocal[index] = "none";
-                                                        setState(() {});
-                                                        _eventService.reaction(id: listLocal[index].id,reaction: "none",token: token);
-                                                      }else{
-                                                        reactionLocal[index] = "Going";
-                                                        setState(() {});
-                                                        _eventService.reaction(id: listLocal[index].id,reaction: "Going",token: token);
-                                                      }
-                                                    },
-                                                    child: Container(
-                                                      height: 32,
-                                                      width: 72,
-                                                      decoration: BoxDecoration(
-                                                        color: reactionLocal[index]=="Going"?MateColors.activeIcons:Colors.transparent,
-                                                        borderRadius: BorderRadius.circular(16),
-                                                        border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1),
-                                                      ),
-                                                      child: Center(
-                                                        child: Text(
-                                                          "Going",
-                                                          style: TextStyle(
-                                                            fontSize: 13,
-                                                            fontWeight: FontWeight.w500,
-                                                            letterSpacing: 0.1,
-                                                            color: themeController.isDarkMode? reactionLocal[index]=="Going"? MateColors.blackTextColor:Colors.white:
-                                                            reactionLocal[index]=="Going"?Colors.white:MateColors.blackTextColor,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  SizedBox(width: 10,),
-                                                  InkWell(
-                                                    onTap: (){
-                                                      if(reaction[index]=="Interested"){
-                                                        reactionLocal[index] = "none";
-                                                        setState(() {});
-                                                        _eventService.reaction(id: listLocal[index].id,reaction: "none",token: token);
-                                                      }else{
-                                                        reactionLocal[index] = "Interested";
-                                                        setState(() {});
-                                                        _eventService.reaction(id: listLocal[index].id,reaction: "Interested",token: token);
-                                                      }
-                                                    },
-                                                    child: Container(
-                                                      height: 32,
-                                                      width: 99,
-                                                      decoration: BoxDecoration(
-                                                        color: reactionLocal[index]=="Interested"?MateColors.activeIcons:Colors.transparent,
-                                                        borderRadius: BorderRadius.circular(16),
-                                                        border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1),
-                                                      ),
-                                                      child: Center(
-                                                        child: Text(
-                                                          "Interested",
-                                                          style: TextStyle(
-                                                            fontSize: 13,
-                                                            fontWeight: FontWeight.w500,
-                                                            letterSpacing: 0.1,
-                                                            color: themeController.isDarkMode? reactionLocal[index]=="Interested"? MateColors.blackTextColor:Colors.white:
-                                                            reactionLocal[index]=="Interested"?Colors.white:MateColors.blackTextColor,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              Row(
-                                                children: [
-                                                  Text(
-                                                   listLocal[index].commentsCount.toString(),
-                                                    style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                                                    ),
-                                                  ),
-                                                  SizedBox(width: 10,),
-                                                  InkWell(
-                                                    onTap: (){
-                                                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=>
-                                                          EventDetails(
-                                                            list: listLocal[index],
-                                                            isBookmark: isBookMarkLocal[index],
-                                                            index: index,
-                                                            changeBookmark: changeBookmark,
-                                                            reaction: reactionLocal[index],
-                                                            changeReaction: changeReaction,
-                                                            changeCommentCount: changeCommentCount,
-                                                            changeFollowUnfollow: changeFollowUnfollow,
-                                                            showDetails:false,
-                                                          )
-                                                      ));
-                                                    },
-                                                    child: Image.asset("lib/asset/icons/message@3x.png",height: 20,color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,),
-                                                  ),
-                                                  SizedBox(width: 20,),
-                                                  InkWell(
-                                                    onTap: (){
-                                                      setState(() {
-                                                        isBookMarkLocal[index] = !isBookMarkLocal[index];
-                                                      });
-                                                      _eventService.bookMark(id: listLocal[index].id,token: token);
-                                                    },
-                                                    child: isBookMarkLocal[index]?
-                                                    Image.asset("lib/asset/icons/bookmarkColor.png",height: 20) :
-                                                    Image.asset("lib/asset/homePageIcons/drawerBookmark@3x.png",height: 20,color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
+                                              }
                                           ),
                                         ),
-                                        SizedBox(height: 20,),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          );
-                        }else{
-                          return Center(
-                            child: Text("No data found",
-                              style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w700,
-                                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                              ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 16, right: 16, top: 25),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                InkWell(
+                                                  onTap: () {
+                                                    if (reaction[index] == "Going") {
+                                                      reaction[index] = "none";
+                                                      setState(() {});
+                                                      _eventService.reaction(id: list[index].id, reaction: "none", token: token);
+                                                    } else {
+                                                      reaction[index] = "Going";
+                                                      setState(() {});
+                                                      _eventService.reaction(id: list[index].id, reaction: "Going", token: token);
+                                                    }
+                                                  },
+                                                  child: Container(
+                                                    height: 32,
+                                                    width: 72,
+                                                    decoration: BoxDecoration(
+                                                      color: reaction[index] == "Going" ? MateColors.activeIcons : Colors.transparent,
+                                                      borderRadius: BorderRadius.circular(16),
+                                                      border: Border.all(color: themeController.isDarkMode ? Colors.white : Colors.black, width: 1),
+                                                    ),
+                                                    child: Center(
+                                                      child: Text(
+                                                        "Going",
+                                                        style: TextStyle(
+                                                          fontSize: 13,
+                                                          fontWeight: FontWeight.w500,
+                                                          letterSpacing: 0.1,
+                                                          color: themeController.isDarkMode ? reaction[index] == "Going" ? MateColors.blackTextColor : Colors.white :
+                                                          reaction[index] == "Going" ? Colors.white : MateColors.blackTextColor,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(width: 10,),
+                                                InkWell(
+                                                  onTap: () {
+                                                    if (reaction[index] == "Interested") {
+                                                      reaction[index] = "none";
+                                                      setState(() {});
+                                                      _eventService.reaction(id: list[index].id, reaction: "none", token: token);
+                                                    } else {
+                                                      reaction[index] = "Interested";
+                                                      setState(() {});
+                                                      _eventService.reaction(id: list[index].id, reaction: "Interested", token: token);
+                                                    }
+                                                  },
+                                                  child: Container(
+                                                    height: 32,
+                                                    width: 99,
+                                                    decoration: BoxDecoration(
+                                                      color: reaction[index] == "Interested" ? MateColors.activeIcons : Colors.transparent,
+                                                      borderRadius: BorderRadius.circular(16),
+                                                      border: Border.all(color: themeController.isDarkMode ? Colors.white : Colors.black, width: 1),
+                                                    ),
+                                                    child: Center(
+                                                      child: Text(
+                                                        "Interested",
+                                                        style: TextStyle(
+                                                          fontSize: 13,
+                                                          fontWeight: FontWeight.w500,
+                                                          letterSpacing: 0.1,
+                                                          color: themeController.isDarkMode ? reaction[index] == "Interested" ? MateColors.blackTextColor : Colors.white :
+                                                          reaction[index] == "Interested" ? Colors.white : MateColors.blackTextColor,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                InkWell(
+                                                  onTap: (){
+                                                    Navigator.of(context).push(MaterialPageRoute(builder: (context) =>
+                                                        EventDetails(
+                                                          list: list[index],
+                                                          isBookmark: isBookMark[index],
+                                                          index: index,
+                                                          changeBookmark: changeBookmark,
+                                                          reaction: reaction[index],
+                                                          changeReaction: changeReaction,
+                                                          changeCommentCount: changeCommentCount,
+                                                          changeFollowUnfollow: changeFollowUnfollow,
+                                                          showDetails: false,
+                                                        )
+                                                    ));
+                                                  },
+                                                  child: Container(
+                                                    height: 39,
+                                                    width: 83,
+                                                    alignment: Alignment.center,
+                                                    decoration: BoxDecoration(
+                                                      color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                                                      borderRadius: BorderRadius.circular(25),
+                                                    ),
+                                                    child: Row(
+                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                      children: [
+                                                        Padding(
+                                                          padding: const EdgeInsets.all(10.0),
+                                                          child: Image.asset("lib/asset/iconsNewDesign/msg.png",
+                                                            color: themeController.isDarkMode?Colors.white:Colors.black,
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          list[index].commentsCount.toString(),
+                                                          style: TextStyle(
+                                                            fontFamily: "Poppins",
+                                                            fontSize: 15,
+                                                            fontWeight: FontWeight.w500,
+                                                            color: themeController.isDarkMode?Colors.white:Colors.black,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(width: 10,),
+                                                InkWell(
+                                                  onTap: (){
+                                                    setState(() {
+                                                      isBookMark[index] = !isBookMark[index];
+                                                    });
+                                                    _eventService.bookMark(id: list[index].id, token: token);
+                                                  },
+                                                  child: Container(
+                                                    height: 39,
+                                                    width: 40,
+                                                    decoration: BoxDecoration(
+                                                      color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                    child: isBookMark[index]?
+                                                    Padding(
+                                                      padding: const EdgeInsets.all(11.0),
+                                                      child: Image.asset("lib/asset/icons/bookmarkColor.png",
+                                                        color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+                                                      ),
+                                                    ):
+                                                    Padding(
+                                                      padding: const EdgeInsets.all(11.0),
+                                                      child: Image.asset("lib/asset/homePageIcons/drawerBookmark@3x.png",
+                                                        color: themeController.isDarkMode?Colors.white:Colors.black,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(height: 20,),
+                                    ],
+                                  ),
+                                );
+                              },
                             ),
-                          );
-                        }
-                      }else if(snapshot.hasError){
+                          ],
+                        );
+                      } else {
                         return Center(
-                          child: Text("Something went wrong",
+                          child: Text("No data found",
                             style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w700,
-                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                              color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
                             ),
                           ),
                         );
-                      }else{
-                        return timelineLoader();
                       }
-                    },
-                  ),
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text("Something went wrong",
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                            color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
+                          ),
+                        ),
+                      );
+                    } else {
+                      return timelineLoader();
+                    }
+                  },
                 ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _appBarLeading(BuildContext context) {
-    return Selector<AuthUserProvider, String>(
-      selector: (ctx, authUserProvider) => authUserProvider.authUserPhoto,
-      builder: (ctx, data, _) {
-        return InkWell(
-            onTap: () {
-              _key.currentState.openDrawer();
-            },
-            child: CircleAvatar(
-              backgroundColor: Colors.transparent,
-              radius: 16,
-              child: CircleAvatar(
-                backgroundColor: Colors.transparent,
-                radius: 16,
-                backgroundImage: NetworkImage(data),
-                // child: ClipOval(
-                //     child: Image.network(
-                //       data,
-                //     ),
-                // ),
               ),
             ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 
@@ -1680,27 +1023,27 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
     }
   }
 
-  _showFollowAlertDialog({@required int eventId, @required int indexVal,@required int tabIndex,@required isFollowed}) async {
+  _showFollowAlertDialog({@required int eventId, @required int indexVal, @required int tabIndex, @required isFollowed}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
           title: new Text("Are you sure?"),
-          content: new Text(isFollowed?"You want to Unfollow this event":"You want to follow this event"),
+          content: new Text(isFollowed ? "You want to Unfollow this event" : "You want to follow this event"),
           actions: <Widget>[
             CupertinoDialogAction(
               isDefaultAction: true,
-              child: feedProvider.feedFollowLoader?
+              child: feedProvider.feedFollowLoader ?
               Center(
                 child: CircularProgressIndicator(
                   color: Colors.white,
                 ),
-              ):
+              ) :
               Text("Yes"),
               onPressed: () async {
-                if(tabIndex==0){
-                  if(isFollowed){
+                if (tabIndex == 0) {
+                  if (isFollowed) {
                     Map<String, dynamic> body = {"post_id": eventId, "post_type": "Event"};
                     bool unFollowDone = await feedProvider.unFollowAFeed(body, eventId);
                     if (unFollowDone) {
@@ -1708,7 +1051,7 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                       setState(() {});
                       Navigator.pop(context);
                     }
-                  }else{
+                  } else {
                     Map<String, dynamic> body = {"post_id": eventId, "post_type": "Event"};
                     bool followDone = await feedProvider.followAFeed(body, eventId);
                     if (followDone) {
@@ -1717,8 +1060,8 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                       Navigator.pop(context);
                     }
                   }
-                }else{
-                  if(isFollowed){
+                } else {
+                  if (isFollowed) {
                     Map<String, dynamic> body = {"post_id": eventId, "post_type": "Event"};
                     bool unFollowDone = await feedProvider.unFollowAFeed(body, eventId);
                     if (unFollowDone) {
@@ -1726,7 +1069,7 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                       setState(() {});
                       Navigator.pop(context);
                     }
-                  }else{
+                  } else {
                     Map<String, dynamic> body = {"post_id": eventId, "post_type": "Event"};
                     bool followDone = await feedProvider.followAFeed(body, eventId);
                     if (followDone) {
@@ -1749,7 +1092,7 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
     );
   }
 
-  _showDeleteAlertDialog({@required int eventId, @required int indexVal,@required tabIndex})async{
+  _showDeleteAlertDialog({@required int eventId, @required int indexVal, @required tabIndex}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -1761,13 +1104,17 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
             CupertinoDialogAction(
               isDefaultAction: true,
               child: Text("Yes"),
-              onPressed: ()async{
-                bool res = await _eventService.deleteEvent(id: eventId,token: token);
+              onPressed: () async {
+                bool res = await _eventService.deleteEvent(id: eventId, token: token);
                 Navigator.of(context).pop();
-                if(res){
+                if (res) {
                   getStoredValue();
-                }else{
-                  Fluttertoast.showToast(msg: "Something went wrong", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+                } else {
+                  Fluttertoast.showToast(msg: "Something went wrong",
+                      fontSize: 16,
+                      backgroundColor: Colors.black54,
+                      textColor: Colors.white,
+                      toastLength: Toast.LENGTH_LONG);
                 }
               },
             ),
@@ -1782,5 +1129,7 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
       },
     );
   }
-
 }
+
+
+

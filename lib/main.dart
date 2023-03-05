@@ -5,12 +5,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:mate_app/Screen/Home/TimeLine/createFeedSelectType.dart';
-import 'package:mate_app/Screen/Home/TimeLine/feed_search.dart';
 import 'package:mate_app/Screen/Home/events/createEvent.dart';
 import 'package:mate_app/Screen/Home/events/event_search.dart';
 import 'package:mate_app/Screen/JobBoard/jobBoard.dart';
-import 'package:mate_app/Screen/Login/create_profile.dart';
-import 'package:mate_app/Screen/Login/login.dart';
 import 'package:mate_app/Screen/Login/login_with_email.dart';
 import 'package:mate_app/Screen/Login/signup_with_email.dart';
 import 'package:mate_app/Screen/Login/signup_with_email_2.dart';
@@ -257,14 +254,14 @@ class MyApp extends StatelessWidget {
                         SearchClassScreen.routeName: (context) => SearchClassScreen(),
                         MyClassDetailScreen.routeName: (context) => MyClassDetailScreen(),
                         AddAssignmentScreen.routeName: (context) => AddAssignmentScreen(),
-                        JobBoard.routeName: (context) => JobBoard(),
+                        //JobBoard.routeName: (context) => JobBoard(),
                         ConnectionScreen.routeName: (context) => ConnectionScreen(),
                         AddConnection.routeName: (context) => AddConnection(),
                         NotificationScreen.routeName: (context) => NotificationScreen(),
                         InviteMates.routeName: (context) => InviteMates(),
                         SignupWithEmail.routeName: (context) => SignupWithEmail(),
                         SignupWithEmail2.routeName: (context) => SignupWithEmail2(),
-                        LoginMain.route: (context) => LoginMain(),
+                        //LoginMain.route: (context) => LoginMain(),
                         LoginWithEmail.routeName: (context) => LoginWithEmail(),
                         //CreateProfile.routeName: (context) => CreateProfile(),
                         CreateFeedSelectType.routeName: (context) => CreateFeedSelectType(),

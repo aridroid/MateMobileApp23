@@ -4,12 +4,10 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:focused_menu/focused_menu.dart';
 import 'package:focused_menu/modals.dart';
 import 'package:get/get.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:mate_app/Screen/chatDashboard/forwardMessagePage.dart';
 import 'package:mate_app/Services/community_tab_services.dart';
 import 'package:mate_app/Utility/Utility.dart';
 import 'package:mate_app/Widget/mediaViewer.dart';
-import 'package:mate_app/groupChat/pages/customAlertDialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mate_app/groupChat/services/database_service.dart';
@@ -200,7 +198,9 @@ class _MessageTileState extends State<MessageTile> {
               Expanded(
                 child: Container(
                   height: 1,
-                  color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
+                  color: themeController.isDarkMode?
+                  Colors.white.withOpacity(0.5):
+                  Colors.black.withOpacity(0.5),
                 ),
               ),
               Padding(
@@ -211,16 +211,21 @@ class _MessageTileState extends State<MessageTile> {
                   style: TextStyle(
                     fontSize: 12,
                     fontFamily: "Poppins",
-                    color: widget.sentByMe?
-                    themeController.isDarkMode? MateColors.subTitleTextDark: MateColors.subTitleTextLight:
-                    themeController.isDarkMode? MateColors.subTitleTextDark: MateColors.subTitleTextLight,
+                    color: themeController.isDarkMode?
+                    Colors.white.withOpacity(0.5):
+                    Colors.black.withOpacity(0.5),
+                    // color: widget.sentByMe?
+                    // themeController.isDarkMode? MateColors.subTitleTextDark: MateColors.subTitleTextLight:
+                    // themeController.isDarkMode? MateColors.subTitleTextDark: MateColors.subTitleTextLight,
                   ),
                 ),
               ),
               Expanded(
                 child: Container(
                   height: 1,
-                  color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
+                  color: themeController.isDarkMode?
+                  Colors.white.withOpacity(0.5):
+                  Colors.black.withOpacity(0.5),
                 ),
               ),
             ],
@@ -234,7 +239,9 @@ class _MessageTileState extends State<MessageTile> {
               Expanded(
                 child: Container(
                   height: 1,
-                  color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
+                  color: themeController.isDarkMode?
+                  Colors.white.withOpacity(0.5):
+                  Colors.black.withOpacity(0.5),
                 ),
               ),
               Padding(
@@ -245,16 +252,21 @@ class _MessageTileState extends State<MessageTile> {
                   style: TextStyle(
                     fontSize: 12,
                     fontFamily: "Poppins",
-                    color: widget.sentByMe?
-                    themeController.isDarkMode? MateColors.subTitleTextDark: MateColors.subTitleTextLight:
-                    themeController.isDarkMode? MateColors.subTitleTextDark: MateColors.subTitleTextLight,
+                    color: themeController.isDarkMode?
+                    Colors.white.withOpacity(0.5):
+                    Colors.black.withOpacity(0.5),
+                    // color: widget.sentByMe?
+                    // themeController.isDarkMode? MateColors.subTitleTextDark: MateColors.subTitleTextLight:
+                    // themeController.isDarkMode? MateColors.subTitleTextDark: MateColors.subTitleTextLight,
                   ),
                 ),
               ),
               Expanded(
                 child: Container(
                   height: 1,
-                  color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
+                  color: themeController.isDarkMode?
+                  Colors.white.withOpacity(0.5):
+                  Colors.black.withOpacity(0.5),
                 ),
               ),
             ],
@@ -265,7 +277,7 @@ class _MessageTileState extends State<MessageTile> {
         Container(
           margin: EdgeInsets.only(left: MediaQuery.of(context).size.width*0.22,right: MediaQuery.of(context).size.width*0.22,top: 20),
           decoration: BoxDecoration(
-            color: themeController.isDarkMode?Colors.grey.shade900:Colors.grey.shade200,
+            color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
             borderRadius: BorderRadius.circular(5),
           ),
           child: Row(
@@ -308,13 +320,12 @@ class _MessageTileState extends State<MessageTile> {
               blurSize: 5.0,
               menuItemExtent: 45,
               menuBoxDecoration: BoxDecoration(
-                gradient: LinearGradient(colors: themeController.isDarkMode?[MateColors.drawerTileColor,MateColors.drawerTileColor]:[Colors.white,Colors.white]),
-                borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                color: Colors.transparent,
+                borderRadius: BorderRadius.all(Radius.circular(20)),
               ),
               duration: Duration(milliseconds: 100),
               animateMenuItems: true,
               isUserMember: widget.isUserMember,
-              blurBackgroundColor: Colors.black54,
               openWithTap: false, // Open Focused-Menu on Tap rather than Long Press
               menuOffset: 16.0, // Offset value to show menuItem from the selected item
               bottomOffsetHeight: 80.0, // Offset height to consider, for showing the menu item ( for example bottom navigation bar), so that the popup menu will be shown on top of selected item.
@@ -540,7 +551,7 @@ class _MessageTileState extends State<MessageTile> {
                       ),
                     ],
                   ),
-                  backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+                  backgroundColor: Colors.white.withOpacity(0.15),
                   onPressed: (){},
                 ),
                 if(widget.sentByMe)
@@ -548,8 +559,8 @@ class _MessageTileState extends State<MessageTile> {
                   title: Row(
                     children: [
                       Image.asset(
-                        "lib/asset/icons/delete.png",
-                        color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                        "lib/asset/iconsNewDesign/delete.png",
+                        color: themeController.isDarkMode?MateColors.iconLight:Colors.white,
                         height: 20,
                         width: 20,
                       ),
@@ -560,14 +571,14 @@ class _MessageTileState extends State<MessageTile> {
                           style: TextStyle(
                             fontSize: 15,
                             fontFamily: "Poppins",
-                            fontWeight: FontWeight.w500,
-                            color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                            fontWeight: FontWeight.w600,
+                            color: themeController.isDarkMode?Colors.white: MateColors.blackText,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+                  backgroundColor: Colors.white.withOpacity(0.15),
                   onPressed: ()async{
                     await DatabaseService().deleteMessage(widget.groupId,widget.messageId);
                   },
@@ -576,8 +587,8 @@ class _MessageTileState extends State<MessageTile> {
                   title: Row(
                     children: [
                       Image.asset(
-                        "lib/asset/icons/forward.png",
-                        color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                        "lib/asset/iconsNewDesign/forward.png",
+                        color: Colors.red,
                         height: 20,
                         width: 20,
                       ),
@@ -588,14 +599,14 @@ class _MessageTileState extends State<MessageTile> {
                           style: TextStyle(
                             fontSize: 15,
                             fontFamily: "Poppins",
-                            fontWeight: FontWeight.w500,
-                            color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                            fontWeight: FontWeight.w600,
+                            color: themeController.isDarkMode?Colors.white: MateColors.blackText,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+                  backgroundColor: Colors.white.withOpacity(0.15),
                   onPressed: (){
                     Map<String, dynamic> chatMessageMap = {
                       "message": widget.message,
@@ -627,8 +638,8 @@ class _MessageTileState extends State<MessageTile> {
                   title: Row(
                     children: [
                       Image.asset(
-                        "lib/asset/icons/reply.png",
-                        color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                        "lib/asset/iconsNewDesign/reply.png",
+                        color: themeController.isDarkMode?MateColors.iconLight:Colors.white,
                         height: 20,
                         width: 20,
                       ),
@@ -639,14 +650,14 @@ class _MessageTileState extends State<MessageTile> {
                           style: TextStyle(
                             fontSize: 15,
                             fontFamily: "Poppins",
-                            fontWeight: FontWeight.w500,
-                            color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                            fontWeight: FontWeight.w600,
+                            color: themeController.isDarkMode?Colors.white: MateColors.blackText,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+                  backgroundColor: Colors.white.withOpacity(0.15),
                   onPressed: (){
                     widget.selectMessage(widget.message.trim(),widget.sender,true);
                   },
@@ -655,8 +666,8 @@ class _MessageTileState extends State<MessageTile> {
                   title: Row(
                     children: [
                       Image.asset(
-                        "lib/asset/icons/copy.png",
-                        color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                        "lib/asset/iconsNewDesign/copy.png",
+                        color: themeController.isDarkMode?MateColors.iconLight:Colors.white,
                         height: 20,
                         width: 20,
                       ),
@@ -667,14 +678,14 @@ class _MessageTileState extends State<MessageTile> {
                           style: TextStyle(
                             fontSize: 15,
                             fontFamily: "Poppins",
-                            fontWeight: FontWeight.w500,
-                            color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                            fontWeight: FontWeight.w600,
+                            color: themeController.isDarkMode?Colors.white: MateColors.blackText,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+                  backgroundColor: Colors.white.withOpacity(0.15),
                   onPressed: (){
                     Clipboard.setData(ClipboardData(text: widget.message));
                   },
@@ -684,9 +695,10 @@ class _MessageTileState extends State<MessageTile> {
                   title: Row(
                     children: [
                       Image.asset(
-                        "lib/asset/icons/report.png",
+                        "lib/asset/iconsNewDesign/report.png",
                         height: 20,
                         width: 20,
+                        color: Colors.red,
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 16),
@@ -695,14 +707,14 @@ class _MessageTileState extends State<MessageTile> {
                           style: TextStyle(
                             fontSize: 15,
                             fontFamily: "Poppins",
-                            fontWeight: FontWeight.w500,
-                            color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                            fontWeight: FontWeight.w600,
+                            color: themeController.isDarkMode?Colors.white: MateColors.blackText,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+                  backgroundColor: Colors.white.withOpacity(0.15),
                   onPressed: ()async{
                     SharedPreferences preferences = await SharedPreferences.getInstance();
                     String token = preferences.getString("token");
@@ -720,7 +732,7 @@ class _MessageTileState extends State<MessageTile> {
                     children: [
                       Icon(Icons.mode_edit_outlined,
                         size: 20,
-                        color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                        color: themeController.isDarkMode?MateColors.iconLight:Colors.white,
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 16),
@@ -729,14 +741,14 @@ class _MessageTileState extends State<MessageTile> {
                           style: TextStyle(
                             fontSize: 15,
                             fontFamily: "Poppins",
-                            fontWeight: FontWeight.w500,
-                            color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                            fontWeight: FontWeight.w600,
+                            color: themeController.isDarkMode?Colors.white: MateColors.blackText,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  backgroundColor: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+                  backgroundColor: Colors.white.withOpacity(0.15),
                   onPressed: ()async{
                     widget.editMessage(widget.groupId,widget.messageId,widget.message);
                   },
@@ -783,7 +795,7 @@ class _MessageTileState extends State<MessageTile> {
                                   borderRadius: widget.sentByMe
                                       ? BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20), bottomLeft: Radius.circular(20))
                                       : BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20), bottomRight: Radius.circular(20)),
-                                  color: widget.sentByMe ? chatTealColor : themeController.isDarkMode? chatGreyColor: MateColors.lightDivider,
+                                  color: widget.sentByMe ? chatTealColor : themeController.isDarkMode? chatGreyColor: Colors.white.withOpacity(0.4),
                                 ),
                                 child: Padding(
                                   padding: EdgeInsets.only(top: widget.isImage ? 15 : 15, bottom: 15, left: 20, right:20),
@@ -829,7 +841,7 @@ class _MessageTileState extends State<MessageTile> {
                                             decoration: BoxDecoration(
                                               border: Border.all(
                                                 color:  widget.sentByMe?
-                                                themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                                                themeController.isDarkMode? MateColors.blackTextColor: Colors.black:
                                                 themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
                                               ),
                                               borderRadius: BorderRadius.circular(5),
@@ -847,7 +859,7 @@ class _MessageTileState extends State<MessageTile> {
                                                     fontWeight: FontWeight.bold,
                                                     letterSpacing: 0.1,
                                                     color: widget.sentByMe?
-                                                    themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                                                    themeController.isDarkMode? MateColors.blackTextColor: Colors.black:
                                                     themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
                                                   ),
                                                   textAlign: TextAlign.start,
@@ -863,7 +875,7 @@ class _MessageTileState extends State<MessageTile> {
                                                     fontWeight: FontWeight.w400,
                                                     letterSpacing: 0.1,
                                                     color: widget.sentByMe?
-                                                    themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                                                    themeController.isDarkMode? MateColors.blackTextColor: Colors.black:
                                                     themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
                                                   ),
                                                   textAlign: TextAlign.start,
@@ -879,23 +891,6 @@ class _MessageTileState extends State<MessageTile> {
 
                                       widget.sentByMe ?
                                       SizedBox() : SizedBox(),
-                                      // Padding(
-                                      //   padding: const EdgeInsets.only(bottom: 6),
-                                      //   child: Text(
-                                      //     widget.sender.toUpperCase(),
-                                      //     textAlign: TextAlign.start,
-                                      //     style: TextStyle(
-                                      //       fontFamily: "Poppins",
-                                      //       fontSize: 14.0,
-                                      //       fontWeight: FontWeight.w500,
-                                      //       letterSpacing: 0.1,
-                                      //       color: MateColors.activeIcons,
-                                      //       // sentByMe?
-                                      //       // themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
-                                      //       // themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
-                                      //     ),
-                                      //   ),
-                                      // ),
                                       widget.isImage ? _chatImage(widget.message, context) :
                                       widget.isGif? _chatGif(widget.message, context) :
                                       widget.isFile? _chatFile(widget.message, context) :
@@ -917,108 +912,15 @@ class _MessageTileState extends State<MessageTile> {
                                           fontWeight: FontWeight.w400,
                                           letterSpacing: 0.1,
                                           color: widget.sentByMe?
-                                          themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                                          themeController.isDarkMode? MateColors.blackTextColor: Colors.black:
                                           themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
                                         ),
                                         textAlign: TextAlign.start,
                                         linkStyle: TextStyle(color: Colors.blue,fontWeight: FontWeight.bold,fontSize: 14.0,letterSpacing: 0.1),
                                       ),
-
-                                      // Text(
-                                      //   widget.message.trim(),
-                                      //   textAlign: TextAlign.start,
-                                      //   style: TextStyle(
-                                      //     fontFamily: "Poppins",
-                                      //     fontSize: 14.0,
-                                      //     fontWeight: FontWeight.w400,
-                                      //     letterSpacing: 0.1,
-                                      //     color: widget.sentByMe?
-                                      //     themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
-                                      //     themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
-                                      //   ),
-                                      // ),
                                     ],
                                   ),
                                 ),
-                                // ReactionButton<String>(
-                                //   onReactionChanged: (value) async {
-                                //     String previousValue = "";
-                                //     bool add = true;
-                                //     print(value);
-                                //     print(widget.messageId);
-                                //     if(widget.messageId!=""){
-                                //       for(int i=0; i< widget.messageReaction.length ;i++){
-                                //         if(widget.messageReaction[i].contains(widget.userId)){
-                                //           add = false;
-                                //           previousValue = widget.messageReaction[i];
-                                //           await DatabaseService(uid: widget.userId).updateMessageReaction(widget.groupId, widget.messageId,previousValue);
-                                //           await DatabaseService(uid: widget.userId).setMessageReaction(widget.groupId, widget.messageId, value.toString(),widget.displayName,widget.photo);
-                                //           break;
-                                //         }
-                                //       }
-                                //       if(add){
-                                //         DatabaseService(uid: widget.userId).setMessageReaction(widget.groupId, widget.messageId, value.toString(),widget.displayName,widget.photo);
-                                //       }
-                                //     }
-                                //   },
-                                //   reactions: reactionClassList,
-                                //   shouldChangeReaction: false,
-                                //   //boxOffset: Offset(20,0),
-                                //   boxHorizontalPosition: HorizontalPosition.CENTER,
-                                //   boxPadding: EdgeInsets.fromLTRB(10, 5, 10, 5),
-                                //   //isChecked: false,
-                                //   initialReaction: Reaction<String>(
-                                //       value: null,
-                                //       icon:  Padding(
-                                //         padding: EdgeInsets.only(top: widget.isImage ? 15 : 15, bottom: 15, left: 20, right:20),
-                                //         child: Column(
-                                //           crossAxisAlignment: CrossAxisAlignment.start,
-                                //           children: <Widget>[
-                                //             widget.sentByMe ?
-                                //             SizedBox() : SizedBox(),
-                                //             // Padding(
-                                //             //   padding: const EdgeInsets.only(bottom: 6),
-                                //             //   child: Text(
-                                //             //     widget.sender.toUpperCase(),
-                                //             //     textAlign: TextAlign.start,
-                                //             //     style: TextStyle(
-                                //             //       fontFamily: "Poppins",
-                                //             //       fontSize: 14.0,
-                                //             //       fontWeight: FontWeight.w500,
-                                //             //       letterSpacing: 0.1,
-                                //             //       color: MateColors.activeIcons,
-                                //             //       // sentByMe?
-                                //             //       // themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
-                                //             //       // themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
-                                //             //     ),
-                                //             //   ),
-                                //             // ),
-                                //             widget.isImage ? _chatImage(widget.message, context) :
-                                //             widget.isGif? _chatGif(widget.message, context) :
-                                //             widget.isFile? _chatFile(widget.message, context) :
-                                //             Text(widget.message.trim(), textAlign: TextAlign.start,
-                                //               style: TextStyle(
-                                //                 fontFamily: "Poppins",
-                                //                 fontSize: 14.0,
-                                //                 fontWeight: FontWeight.w400,
-                                //                 letterSpacing: 0.1,
-                                //                 color: widget.sentByMe?
-                                //                 themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
-                                //                 themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
-                                //               ),
-                                //             ),
-                                //           ],
-                                //         ),
-                                //       ),
-                                //   ),
-                                //   boxElevation: 20,
-                                //   boxColor: myHexColor,
-                                //   // boxColor: MateColors.activeIcons.withOpacity(0.2),
-                                //   //boxRadius: 500,
-                                //   boxPosition: VerticalPosition.TOP,
-                                //   boxDuration: Duration(milliseconds: 400),
-                                //   itemScaleDuration: const Duration(milliseconds: 200),
-                                // ),
                               ),
                             ),
                           ),
@@ -1121,7 +1023,7 @@ class _MessageTileState extends State<MessageTile> {
                     topLeft: Radius.circular(25),
                   ),
                 ),
-                backgroundColor: themeController.isDarkMode?backgroundColor:Colors.white,
+                backgroundColor: themeController.isDarkMode?MateColors.bottomSheetBackgroundDark:MateColors.bottomSheetBackgroundLight,
                 builder: (context) {
                   return DefaultTabController(
                     initialIndex: 0,
@@ -3475,7 +3377,7 @@ class _MessageTileState extends State<MessageTile> {
       padding: EdgeInsets.only(top: 4,bottom: 4,left: 6,right: 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,),
+        border: Border.all(color: themeController.isDarkMode?MateColors.dividerDark:MateColors.dividerLight,),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -3517,7 +3419,7 @@ class _MessageTileState extends State<MessageTile> {
             child: CircularProgressIndicator(
               strokeWidth: 2,
               color: widget.sentByMe?
-              themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+              themeController.isDarkMode? MateColors.blackTextColor: Colors.black:
               themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
             ),
           ):
@@ -3525,7 +3427,7 @@ class _MessageTileState extends State<MessageTile> {
             widget.isPlaying ? Icons.pause: Icons.play_arrow,
             size: 30,
             color: widget.sentByMe?
-            themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+            themeController.isDarkMode? MateColors.blackTextColor: Colors.black:
             themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
           ),
         ),
@@ -3536,21 +3438,21 @@ class _MessageTileState extends State<MessageTile> {
             Row(
               children: [
                 Icon(Icons.multitrack_audio_sharp,color: widget.sentByMe?
-                themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                themeController.isDarkMode? MateColors.blackTextColor: Colors.black:
                 themeController.isDarkMode? Colors.white : MateColors.blackTextColor,),
                 Icon(Icons.multitrack_audio_sharp,color: widget.sentByMe?
-                themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                themeController.isDarkMode? MateColors.blackTextColor: Colors.black:
                 themeController.isDarkMode? Colors.white : MateColors.blackTextColor,),
                 Icon(Icons.multitrack_audio_sharp,color: widget.sentByMe?
-                themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
-                themeController.isDarkMode? Colors.white : MateColors.blackTextColor,),
-                widget.showDate?SizedBox():
-                Icon(Icons.multitrack_audio_sharp,color: widget.sentByMe?
-                themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                themeController.isDarkMode? MateColors.blackTextColor: Colors.black:
                 themeController.isDarkMode? Colors.white : MateColors.blackTextColor,),
                 widget.showDate?SizedBox():
                 Icon(Icons.multitrack_audio_sharp,color: widget.sentByMe?
-                themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                themeController.isDarkMode? MateColors.blackTextColor: Colors.black:
+                themeController.isDarkMode? Colors.white : MateColors.blackTextColor,),
+                widget.showDate?SizedBox():
+                Icon(Icons.multitrack_audio_sharp,color: widget.sentByMe?
+                themeController.isDarkMode? MateColors.blackTextColor: Colors.black:
                 themeController.isDarkMode? Colors.white : MateColors.blackTextColor,),
               ],
             ),
@@ -3563,7 +3465,7 @@ class _MessageTileState extends State<MessageTile> {
                   Text(widget.currentDuration.inMinutes.toString().padLeft(2,'0') +":"+ widget.currentDuration.inSeconds.toString().padLeft(2,"0"),
                     style: TextStyle(
                       color: widget.sentByMe?
-                      themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                      themeController.isDarkMode? MateColors.blackTextColor: Colors.black:
                       themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
                     ),
                   ):Offstage(),
@@ -3572,7 +3474,7 @@ class _MessageTileState extends State<MessageTile> {
                   Text(widget.duration.inMinutes.toString().padLeft(2,'0') +":"+ widget.duration.inSeconds.toString().padLeft(2,"0"),
                     style: TextStyle(
                       color: widget.sentByMe?
-                      themeController.isDarkMode? MateColors.blackTextColor: Colors.white:
+                      themeController.isDarkMode? MateColors.blackTextColor: Colors.black:
                       themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
                     ),
                   ):Offstage(),
@@ -3724,6 +3626,7 @@ class _MessageTileState extends State<MessageTile> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: themeController.isDarkMode?MateColors.bottomSheetBackgroundDark:MateColors.bottomSheetBackgroundLight,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(15.0),

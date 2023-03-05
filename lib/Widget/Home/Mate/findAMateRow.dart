@@ -4,7 +4,6 @@ import 'package:mate_app/Providers/findAMateProvider.dart';
 import 'package:mate_app/Screen/Profile/ProfileScreen.dart';
 import 'package:mate_app/Screen/Profile/UserProfileScreen.dart';
 import 'package:mate_app/Screen/Report/reportPage.dart';
-import 'package:mate_app/Utility/Utility.dart';
 import 'package:mate_app/asset/Colors/MateColors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +12,6 @@ import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:sizer/sizer.dart';
 
 import '../../Loaders/Shimmer.dart';
 
@@ -31,13 +29,10 @@ class FindAMateRow extends StatefulWidget {
   final String createdAt;
   final int rowIndex;
   final bool isActive;
-
-  const FindAMateRow({Key key, this.user, this.findAMateId, this.title, this.description, this.fromDate, this.toDate, this.fromTime, this.toTime, this.createdAt, this.rowIndex, this.isActive,this.hyperlinkText,this.hyperlink})
-      : super(key: key);
+  const FindAMateRow({Key key, this.user, this.findAMateId, this.title, this.description, this.fromDate, this.toDate, this.fromTime, this.toTime, this.createdAt, this.rowIndex, this.isActive,this.hyperlinkText,this.hyperlink}) : super(key: key);
 
   @override
-  _FindAMateRowState createState() =>
-      _FindAMateRowState(this.user, this.findAMateId, this.title, this.description, this.fromDate, this.toDate, this.fromTime, this.toTime, this.createdAt, this.rowIndex, this.isActive,this.hyperlinkText,this.hyperlink);
+  _FindAMateRowState createState() => _FindAMateRowState(this.user, this.findAMateId, this.title, this.description, this.fromDate, this.toDate, this.fromTime, this.toTime, this.createdAt, this.rowIndex, this.isActive,this.hyperlinkText,this.hyperlink);
 }
 
 class _FindAMateRowState extends State<FindAMateRow> {
@@ -54,13 +49,12 @@ class _FindAMateRowState extends State<FindAMateRow> {
   final String createdAt;
   final int rowIndex;
   bool isActive;
-
   _FindAMateRowState(this.user, this.findAMateId, this.title, this.description, this.fromDate, this.toDate, this.fromTime, this.toTime, this.createdAt, this.rowIndex, this.isActive,this.hyperlinkText,this.hyperlink);
 
   FindAMateProvider findAMateProvider;
-
   List<String> fromTimeLocal;
   List<String> toTimeLocal;
+
   @override
   void initState() {
     if(fromTime!=null){
@@ -79,16 +73,8 @@ class _FindAMateRowState extends State<FindAMateRow> {
       margin: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
       padding: EdgeInsets.only(top: 5,bottom: 16),
       decoration: BoxDecoration(
-        color: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+        color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            spreadRadius: 5,
-            blurRadius: 7,
-            offset: Offset(0, 3),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,20 +89,15 @@ class _FindAMateRowState extends State<FindAMateRow> {
                 }
               },
               child: user.profilePhoto != null ?
-              ClipOval(
-                child: Image.network(
+              CircleAvatar(
+                radius: 20,
+                backgroundImage: NetworkImage(
                   user.profilePhoto,
-                  height: 32,
-                  width: 32,
-                  fit: BoxFit.cover,
                 ),
-              ) :
-              ClipOval(
-                child: Image.asset(
+              ):
+              CircleAvatar(
+                backgroundImage: AssetImage(
                   "lib/asset/logo.png",
-                  height: 32,
-                  width: 32,
-                  fit: BoxFit.fitWidth,
                 ),
               ),
             ),
@@ -131,20 +112,20 @@ class _FindAMateRowState extends State<FindAMateRow> {
               child: Text(
                 user.displayName,
                 style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0.1,
-                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                  fontSize: 15,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w600,
+                  color: themeController.isDarkMode?Colors.white:Colors.black,
                 ),
               ),
             ),
             trailing: PopupMenuButton<int>(
-              padding: EdgeInsets.only(bottom: 0, top: 0, left: 0, right: 0),
-              color: themeController.isDarkMode?backgroundColor:Colors.white,
-              icon: Image.asset(
-                "lib/asset/icons/menu@3x.png",
-                height: 18,
-                color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,
+              padding: EdgeInsets.zero,
+              elevation: 0,
+              color: themeController.isDarkMode?MateColors.popupDark:MateColors.popupLight,
+              icon: Icon(
+                Icons.more_vert,
+                color: themeController.isDarkMode?Colors.white:MateColors.blackText,
               ),
               onSelected: (index) async{
                 if(index==0){
@@ -156,17 +137,22 @@ class _FindAMateRowState extends State<FindAMateRow> {
                 }
               },
               itemBuilder: (context) => [
-                (widget.user.uuid != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user.uuid))
-                    ? PopupMenuItem(
+                (widget.user.uuid != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user.uuid)) ?
+                PopupMenuItem(
                   value: 1,
                   height: 40,
                   child: Text(
                     "Delete Post",
                     textAlign: TextAlign.start,
-                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                    style: TextStyle(
+                      color: themeController.isDarkMode?Colors.white:Colors.black,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Poppins',
+                      fontSize: 14,
+                    ),
                   ),
-                )
-                    : PopupMenuItem(
+                ):
+                PopupMenuItem(
                   value: 1,
                   enabled: false,
                   height: 0,
@@ -181,40 +167,40 @@ class _FindAMateRowState extends State<FindAMateRow> {
                   child: Text(
                     "Report",
                     textAlign: TextAlign.start,
-                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                    style: TextStyle(
+                      color: themeController.isDarkMode?Colors.white:Colors.black,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Poppins',
+                      fontSize: 14,
+                    ),
                   ),
                 ),
               ],
             ),
             subtitle: Text(
-                createdAt,
-                style: TextStyle(
-                fontSize: 12,
-                color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+              createdAt,
+              style: TextStyle(
+                fontSize: 14,
+                color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
               ),
             ),
           ),
-          // Container(
-          //   height: 28.0,
-          //   width: 100,
-          //   margin: EdgeInsets.only(left: 16,top: 10,bottom: 16),
-          //   decoration: BoxDecoration(
-          //     borderRadius: BorderRadius.circular(16),
-          //     color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
-          //   ),
-          //   child: Padding(
-          //     padding: const EdgeInsets.only(left: 15,right: 15),
-          //     child: Center(child: Text("Find a Mate",style: TextStyle(fontFamily: "Poppins",fontSize: 12,color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),)),
-          //   ),
-          // ),
           Padding(
-            padding: EdgeInsets.only(left: 16,top: 0),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Divider(
+              thickness: 1,
+              color: themeController.isDarkMode?MateColors.dividerDark:MateColors.dividerLight,
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 16,top: 6),
             child: Text(
               title,
               style: TextStyle(
-                fontSize: 17,
+                fontSize: 16,
+                fontFamily: 'Poppins',
                 fontWeight: FontWeight.w700,
-                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                color: themeController.isDarkMode?Colors.white:Colors.black,
               ),
             ),
           ),
@@ -226,21 +212,24 @@ class _FindAMateRowState extends State<FindAMateRow> {
                 if (await canLaunch(link.url))
                   await launch(link.url);
                 else
-                  // can't launch url, there is some error
                   throw "Could not launch ${link.url}";
               },
               text: description,
               style: TextStyle(
                 fontSize: 14,
+                fontFamily: 'Poppins',
                 fontWeight: FontWeight.w400,
                 letterSpacing: 0.1,
-                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                color: themeController.isDarkMode?Colors.white:Colors.black,
               ),
               overflow: TextOverflow.visible,
-              linkStyle: TextStyle(color: MateColors.activeIcons, fontSize: 11.4.sp),
+              linkStyle: TextStyle(
+                fontSize: 14,
+                fontFamily: 'Poppins',
+                color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+              ),
             ),
           ),
-
           hyperlinkText!=null && hyperlink!=null ?
           InkWell(
             splashColor: Colors.transparent,
@@ -250,7 +239,7 @@ class _FindAMateRowState extends State<FindAMateRow> {
                 await launch(hyperlink);
               else
                 Fluttertoast.showToast(msg: " Could not launch given URL '${hyperlink}'", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
-              throw "Could not launch ${hyperlink}";
+              throw "Could not launch $hyperlink";
             },
             child: Padding(
               padding: EdgeInsets.only(left: 16,top: 10,right: 10),
@@ -258,43 +247,40 @@ class _FindAMateRowState extends State<FindAMateRow> {
                 hyperlinkText,
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0.1,
-                  color: MateColors.activeIcons,
+                  fontFamily: 'Poppins',
+                  color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
                 ),
               ),
             ),
           ):SizedBox(),
-
-
           Padding(
             padding: EdgeInsets.fromLTRB(15, 10, 14, 0),
             child: Row(
               children: [
-                fromDate != null
-                    ? Text(
-                        "Available Dates : $fromDate",
+                fromDate != null ?
+                Text("Available Dates : $fromDate",
                   style: TextStyle(
                     fontSize: 14,
+                    fontFamily: 'Poppins',
                     fontWeight: FontWeight.w400,
                     letterSpacing: 0.1,
-                    color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                    color: themeController.isDarkMode?Colors.white:Colors.black,
                   ),
-                        overflow: TextOverflow.visible,
-                      )
-                    : SizedBox(),
-                toDate != null
-                    ? Text(
-                        "  -  $toDate",
+                  overflow: TextOverflow.visible,
+                ):
+                SizedBox(),
+                toDate != null ?
+                Text("  -  $toDate",
                   style: TextStyle(
                     fontSize: 14,
+                    fontFamily: 'Poppins',
                     fontWeight: FontWeight.w400,
                     letterSpacing: 0.1,
-                    color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                    color: themeController.isDarkMode?Colors.white:Colors.black,
                   ),
-                        overflow: TextOverflow.visible,
-                      )
-                    : SizedBox(),
+                  overflow: TextOverflow.visible,
+                ):
+                SizedBox(),
               ],
             ),
           ),
@@ -307,25 +293,26 @@ class _FindAMateRowState extends State<FindAMateRow> {
                   "Available times : ${fromTimeLocal[0]}:${fromTimeLocal[1]}",
                   style: TextStyle(
                     fontSize: 14,
+                    fontFamily: 'Poppins',
                     fontWeight: FontWeight.w400,
                     letterSpacing: 0.1,
-                    color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                    color: themeController.isDarkMode?Colors.white:Colors.black,
                   ),
-                        overflow: TextOverflow.visible,
-                      )
-                    : SizedBox(),
-                toTime != null
-                    ? Text(
-                        "  -  ${toTimeLocal[0]}:${toTimeLocal[1]}",
+                  overflow: TextOverflow.visible,
+                ):
+                SizedBox(),
+                toTime != null ?
+                Text("  -  ${toTimeLocal[0]}:${toTimeLocal[1]}",
                   style: TextStyle(
                     fontSize: 14,
+                    fontFamily: 'Poppins',
                     fontWeight: FontWeight.w400,
                     letterSpacing: 0.1,
-                    color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                    color: themeController.isDarkMode?Colors.white:Colors.black,
                   ),
-                        overflow: TextOverflow.visible,
-                      )
-                    : SizedBox(),
+                  overflow: TextOverflow.visible,
+                ):
+                SizedBox(),
               ],
             ),
           ),
@@ -333,7 +320,6 @@ class _FindAMateRowState extends State<FindAMateRow> {
             padding: const EdgeInsets.only(left: 16,top: 16),
             child: Row(
               children: [
-                // Expanded(child: Text(title, textAlign: TextAlign.left, style: TextStyle(fontFamily: 'Quicksand', color: MateColors.activeIcons, fontSize: 12.0.sp, fontWeight: FontWeight.w600))),
                 Visibility(
                     visible: (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == user.uuid),
                     child: Padding(
@@ -341,26 +327,28 @@ class _FindAMateRowState extends State<FindAMateRow> {
                       child: Text(isActive ? "Active" : "Inactive", textAlign: TextAlign.left,
                         style: TextStyle(
                           fontSize: 14,
+                          fontFamily: 'Poppins',
                           fontWeight: FontWeight.w500,
-                          color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                          letterSpacing: 0.1,
+                          color: themeController.isDarkMode?Colors.white:Colors.black,
                         ),
                       ),
-                    )),
+                    ),
+                ),
                 Visibility(
                   visible: (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == user.uuid),
                   child: Consumer<FindAMateProvider>(
                     builder: (context, value, child) {
-                      return /*!(value.findAMatePostsDataList[widget.rowIndex].toggleLoader)?*/
-                        FlutterSwitch(
+                      return FlutterSwitch(
                           width: 48,
                           height: 24,
                           valueFontSize: 25.0,
                           toggleSize: 20.0,
                           activeText: "",
                           inactiveText: "",
-                          toggleColor: themeController.isDarkMode?Color(0xFF0B0B0D):Colors.white,
-                          inactiveColor: themeController.isDarkMode?Color(0xFF414147):Color(0xFFB4B4C2),
-                          activeColor: MateColors.activeIcons,
+                          toggleColor: isActive?Color(0xFF1E1E1E):Color(0xFF8A8A99),
+                          inactiveColor: themeController.isDarkMode?Colors.white.withOpacity(0.12):Colors.black.withOpacity(0.1),
+                          activeColor: themeController.isDarkMode?Color(0xFF67AE8C):Color(0xFF17F3DE),
                           value: isActive,
                           borderRadius: 14.0,
                           showOnOff: true,
@@ -368,7 +356,6 @@ class _FindAMateRowState extends State<FindAMateRow> {
                             bool updated = await Provider.of<FindAMateProvider>(context, listen: false).activeFindAMatePost(widget.findAMateId, widget.rowIndex, val);
                             if (updated) {
                               if (value.findAMateActiveData != null) {
-                                // IsBookmarked
                                 if (value.findAMateActiveData.message == "Post activated successfully" && value.findAMateActiveData.data.id == findAMateId) {
                                   value.findAMatePostsDataList[widget.rowIndex].isActive = true;
                                   isActive = true;
@@ -386,18 +373,6 @@ class _FindAMateRowState extends State<FindAMateRow> {
               ],
             ),
           ),
-          // Padding(
-          //   padding: EdgeInsets.fromLTRB(15, 10, 14, 0),
-          //   child: Text(
-          //     "Posted: $createdAt",
-          //     style: TextStyle(fontFamily: 'Quicksand', color: Colors.white70, fontSize: 9.2.sp),
-          //     overflow: TextOverflow.visible,
-          //   ),
-          // ),
-          // Divider(
-          //   thickness: 1.5,
-          //   color: MateColors.line,
-          // ),
         ],
       ),
     );
@@ -415,9 +390,8 @@ class _FindAMateRowState extends State<FindAMateRow> {
             CupertinoDialogAction(
               isDefaultAction: true,
               child: Text("Yes"),
-              onPressed: () async{
-                bool isDeleted=await findAMateProvider.deleteFindAMatePost(findAMateId, rowIndex);
-
+              onPressed: () async {
+                bool isDeleted = await findAMateProvider.deleteFindAMatePost(findAMateId, rowIndex);
                 if (isDeleted) {
                   Future.delayed(Duration(seconds: 0), () {
                     findAMateProvider.fetchFindAMatePostList(page: 1);
@@ -430,7 +404,8 @@ class _FindAMateRowState extends State<FindAMateRow> {
                 child: Text("No"),
                 onPressed: () {
                   Navigator.of(context).pop();
-                })
+                },
+            ),
           ],
         );
       },

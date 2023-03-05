@@ -1,24 +1,18 @@
-import 'dart:developer';
-
 import 'package:get/get.dart';
 import 'package:mate_app/asset/Colors/MateColors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mate_app/groupChat/pages/chat_page.dart';
 import 'package:mate_app/groupChat/services/database_service.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../Providers/chatProvider.dart';
-import '../../Utility/Utility.dart';
 import '../../controller/theme_controller.dart';
 
 class GroupTile extends StatelessWidget {
   final String userName;
   final String groupId;
-
-  // final String groupName;
   final String photoURL;
   final String currentUserUid;
   final int unreadMessages;
@@ -26,8 +20,8 @@ class GroupTile extends StatelessWidget {
   final bool isPinned;
   final Function loadData;
   final int index;
+  GroupTile({this.userName, this.groupId, this.photoURL, this.currentUserUid, this.unreadMessages, this.isMuted, this.loadData, this.isPinned, this.index});
 
-  GroupTile({this.userName, this.groupId, /*this.groupName,*/ this.photoURL, this.currentUserUid, this.unreadMessages, this.isMuted, this.loadData, this.isPinned, this.index});
   ThemeController themeController = Get.find<ThemeController>();
 
   @override
@@ -38,16 +32,10 @@ class GroupTile extends StatelessWidget {
           stream: DatabaseService().getLastChatMessage(groupId),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              // Future.delayed(Duration.zero,(){
-              //   Provider.of<ChatProvider>(context,listen: false).groupChatDataFetch(currentUserUid);
-              // });
               Provider.of<ChatProvider>(context,listen: false).messageList[index].name=snapshot.data['groupName'];
               return Container(
-                //alignment: Alignment.center,
                 margin: EdgeInsets.only(left: 5),
-                //height: 70.0.sp,
                 child: ListTile(
-                  dense: true,
                   onTap: ()async{
                     await Navigator.push(context, MaterialPageRoute(
                             builder: (context) => ChatPage(
@@ -60,19 +48,19 @@ class GroupTile extends StatelessWidget {
                             )));
                     loadData();
                   },
-                  leading: snapshot.data['groupIcon'] != ""
-                      ? CircleAvatar(
-                         radius: 24,
-                          backgroundColor: MateColors.activeIcons,
-                          backgroundImage: NetworkImage(snapshot.data['groupIcon']),
-                        )
-                      : CircleAvatar(
-                          radius: 24,
-                          backgroundColor: MateColors.activeIcons,
-                          child: Text(snapshot.data['groupName'].substring(0, 1).toUpperCase(),
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white, fontSize: 12.5.sp, fontWeight: FontWeight.bold)),
-                        ),
+                  leading: snapshot.data['groupIcon'] != "" ?
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+                    backgroundImage: NetworkImage(snapshot.data['groupIcon']),
+                  ):
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+                    child: Text(snapshot.data['groupName'].substring(0, 1).toUpperCase(),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.black, fontSize: 12.5.sp, fontWeight: FontWeight.bold)),
+                  ),
                   title: Padding(
                     padding: EdgeInsets.only(top: snapshot.data['recentMessageSender'] != "" ? 0:10),
                     child: Row(
@@ -80,10 +68,10 @@ class GroupTile extends StatelessWidget {
                         Flexible(
                           child: Text(snapshot.data['groupName'],
                             style: TextStyle(
+                              fontSize: 15,
                               fontFamily: "Poppins",
-                              fontSize: 15.0,
-                              fontWeight: FontWeight.w500,
-                              color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
+                              fontWeight: FontWeight.w600,
+                              color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
                             ),
                           ),
                         ),
@@ -91,7 +79,7 @@ class GroupTile extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(left: 10),
                           child: Image.asset("lib/asset/icons/pinToTop.png",
-                            color: Color(0xFFFF8740),
+                            color: themeController.isDarkMode?MateColors.helpingTextLight:MateColors.iconPopupLight,
                             height: 14,
                             width: 19,
                           ),
@@ -100,7 +88,7 @@ class GroupTile extends StatelessWidget {
                         Padding(
                           padding: EdgeInsets.only(left: isPinned?5:10),
                           child: Image.asset("lib/asset/icons/mute.png",
-                            color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                            color: themeController.isDarkMode?MateColors.helpingTextLight:MateColors.iconPopupLight,
                             height: 14,
                             width: 19,
                           ),
@@ -120,14 +108,12 @@ class GroupTile extends StatelessWidget {
                           style: TextStyle(
                             fontFamily: "Poppins",
                             fontSize: 14.0,
-                            letterSpacing: 0.1,
                             fontWeight: FontWeight.w400,
                             color: themeController.isDarkMode?
                             unreadMessages >0?
-                            Colors.white: MateColors.subTitleTextDark:
+                            Colors.white: Colors.white.withOpacity(0.5):
                             unreadMessages >0?
-                            MateColors.blackTextColor:
-                            MateColors.subTitleTextLight,
+                            Colors.black: Colors.black.withOpacity(0.5),
                           ),
                           overflow: TextOverflow.clip,
                         ),
@@ -150,24 +136,16 @@ class GroupTile extends StatelessWidget {
                           style: TextStyle(
                             fontFamily: "Poppins",
                             fontSize: 14.0,
-                            letterSpacing: 0.1,
                             fontWeight: FontWeight.w400,
                             color: themeController.isDarkMode?
                             unreadMessages >0?
-                            Colors.white: MateColors.subTitleTextDark:
+                            Colors.white: Colors.white.withOpacity(0.5):
                             unreadMessages >0?
-                            MateColors.blackTextColor:
-                            MateColors.subTitleTextLight,
+                            Colors.black:
+                            Colors.black.withOpacity(0.5),
                           ),
                           overflow: TextOverflow.clip,
                         ),
-                        // Text(
-                        //   snapshot.data.data()['recentMessageTime'].toString() != ""
-                        //       ? "    ${DateFormat.jm().format(DateTime.fromMillisecondsSinceEpoch(int.parse(snapshot.data.data()['recentMessageTime'].toString())))}"
-                        //       : "",
-                        //   style: TextStyle(fontSize: 8.4.sp, fontWeight: FontWeight.w100, color: Colors.grey[50]),
-                        //   overflow: TextOverflow.ellipsis,
-                        // ),
                       ],
                     ),
                   ),
@@ -178,7 +156,7 @@ class GroupTile extends StatelessWidget {
                     margin: EdgeInsets.only(right: 10,top: 15),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: MateColors.activeIcons,
+                      color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
                     ),
                     child: Center(
                       child: Text(
@@ -186,7 +164,7 @@ class GroupTile extends StatelessWidget {
                         style: TextStyle(fontFamily: "Poppins",
                           fontSize: 12.0,
                           fontWeight: FontWeight.w400,
-                          color: themeController.isDarkMode?MateColors.blackTextColor:Colors.white,
+                          color: Colors.black,
                         ),
                       ),
                     ),
@@ -195,8 +173,6 @@ class GroupTile extends StatelessWidget {
               );
             } else
               return Container();
-
-                //Text("Loading groups...", style: TextStyle(fontSize: 10.0.sp));
           }),
     );
   }

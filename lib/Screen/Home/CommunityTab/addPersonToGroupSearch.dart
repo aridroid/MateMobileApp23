@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../Services/community_tab_services.dart';
 import '../../../Widget/loader.dart';
 import '../../../asset/Colors/MateColors.dart';
+import '../../../constant.dart';
 import '../../../controller/theme_controller.dart';
 import '../../../groupChat/services/database_service.dart';
 
@@ -117,72 +118,20 @@ class _AddPersonToGroupSearchState extends State<AddPersonToGroupSearch> {
 
   @override
   Widget build(BuildContext context) {
+    final scH = MediaQuery.of(context).size.height;
+    final scW = MediaQuery.of(context).size.width;
     return GestureDetector(
-       behavior: HitTestBehavior.translucent,
-          onTap: null,
-          onPanUpdate: (details) {
-            if (details.delta.dy > 0){
-              FocusScope.of(context).requestFocus(FocusNode());
-              print("Dragging in +Y direction");
-            }
-          },
+      behavior: HitTestBehavior.translucent,
+      onTap: null,
+      onPanUpdate: (details) {
+        if (details.delta.dy > 0){
+          FocusScope.of(context).requestFocus(FocusNode());
+          print("Dragging in +Y direction");
+        }
+      },
       child: Stack(
         children: [
           Scaffold(
-            appBar: AppBar(
-              elevation: 0,
-              titleSpacing: 0,
-              automaticallyImplyLeading: false,
-              title: TextField(
-                onChanged: (val) => setState((){
-                  searchedName=val;
-                }),
-                style: TextStyle(color: themeController.isDarkMode?Colors.white:Colors.black),
-                decoration: InputDecoration(
-                  hintStyle: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: 0.1,
-                    color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                  ),
-                  hintText: "Search",
-                  prefixIcon: Padding(
-                    padding: const EdgeInsets.only(left: 15,top: 15,bottom: 15),
-                    child: Image.asset(
-                      "lib/asset/homePageIcons/searchPurple@3x.png",
-                      height: 10,
-                      width: 10,
-                      color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                    ),
-                  ),
-                  suffixIcon: InkWell(
-                    onTap: (){
-                      Get.back();
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 16,right: 15),
-                      child: Text(
-                        "Close",
-                        style: TextStyle(
-                          fontSize: 15,
-                          letterSpacing: 0.1,
-                          fontWeight: FontWeight.w700,
-                          color: MateColors.activeIcons,
-                        ),
-                      ),
-                    ),
-                  ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(4)),
-                    borderSide: BorderSide(width: 3,color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(4)),
-                    borderSide: BorderSide(width: 3,color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
-                  ),
-                ),
-              ),
-            ),
             floatingActionButton: addUserIndex.isNotEmpty?InkWell(
               onTap: ()async{
                 addUser();
@@ -202,15 +151,87 @@ class _AddPersonToGroupSearchState extends State<AddPersonToGroupSearch> {
                 ),
               ),
             ):Offstage(),
-            body: isLoading ?
-            Container(
-              child: Center(
-                child: CircularProgressIndicator(
-                  color: MateColors.activeIcons,
+            body: Container(
+              height: scH,
+              width: scW,
+              decoration: BoxDecoration(
+                color: themeController.isDarkMode?Color(0xFF000000):Colors.white,
+                image: DecorationImage(
+                  image: AssetImage(themeController.isDarkMode?'lib/asset/Background.png':'lib/asset/BackgroundLight.png'),
+                  fit: BoxFit.cover,
                 ),
               ),
-            ):
-            groupList(),
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: scH*0.07,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: TextField(
+                      onChanged: (val) => setState((){
+                        searchedName=val;
+                      }),
+                      cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                      style:  TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.1,
+                        color: themeController.isDarkMode?Colors.white:Colors.black,
+                      ),
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: themeController.isDarkMode ? MateColors.containerDark : MateColors.containerLight,
+                        hintStyle: TextStyle(
+                          fontSize: 16,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w400,
+                          color: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                        ),
+                        hintText: "Search",
+                        prefixIcon: Padding(
+                          padding: const EdgeInsets.only(left: 15,top: 15,bottom: 15),
+                          child: Image.asset(
+                            "lib/asset/homePageIcons/searchPurple@3x.png",
+                            height: 10,
+                            width: 10,
+                            color: themeController.isDarkMode?Colors.white:Colors.black,
+                          ),
+                        ),
+                        suffixIcon: InkWell(
+                          onTap: (){
+                            Get.back();
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 16,right: 15),
+                            child: Text(
+                              "Close",
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w700,
+                                color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+                              ),
+                            ),
+                          ),
+                        ),
+                        enabledBorder: commonBorder,
+                        focusedBorder: commonBorder,
+                      ),
+                    ),
+                  ),
+                  isLoading ?
+                  Container(
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: MateColors.activeIcons,
+                      ),
+                    ),
+                  ):
+                  Expanded(child: groupList()),
+                ],
+              ),
+            ),
           ),
           Visibility(
             visible: addingUser,
@@ -226,6 +247,7 @@ class _AddPersonToGroupSearchState extends State<AddPersonToGroupSearch> {
     ListView.builder(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         shrinkWrap: true,
+        padding: EdgeInsets.only(top: 10),
         itemCount: userList.length,
         itemBuilder: (context, index) {
           return Visibility(
@@ -278,24 +300,28 @@ class _AddPersonToGroupSearchState extends State<AddPersonToGroupSearch> {
           child: ListTile(
             contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
             leading: CircleAvatar(
-              radius: 24,
-              backgroundColor: MateColors.activeIcons,
+              radius: 30,
+              backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
               backgroundImage: NetworkImage(peerAvatar??""),
             ),
             title: Text(
               peerName,
               style: TextStyle(
+                fontSize: 15,
                 fontFamily: "Poppins",
-                fontSize: 15.0,
-                fontWeight: FontWeight.w500,
-                letterSpacing: 0.1,
-                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                fontWeight: FontWeight.w600,
+                color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
               ),
             ),
             subtitle: Padding(
               padding: const EdgeInsets.only(top: 3),
               child: Text("Tap to add in the group",
-                style: TextStyle(letterSpacing: 0.1,fontFamily: "Poppins",fontSize: 14.0, fontWeight: FontWeight.w400, color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: "Poppins",
+                  fontWeight: FontWeight.w600,
+                  color: themeController.isDarkMode?Colors.white.withOpacity(0.5): Colors.black.withOpacity(0.5),
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),

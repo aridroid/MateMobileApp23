@@ -1,11 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:mate_app/Providers/AuthUserProvider.dart';
-import 'package:mate_app/Screen/Home/Community/campusTalk.dart';
-import 'package:mate_app/Screen/Home/CommunityTab/communityTab.dart';
-import 'package:mate_app/Screen/Home/TimeLine/CreateFeedPost.dart';
 import 'package:mate_app/Screen/Home/TimeLine/TimeLine.dart';
 import 'package:mate_app/Screen/Home/events/eventDashboard.dart';
+import 'package:mate_app/Screen/Home/explore/explore.dart';
 import 'package:mate_app/Widget/Drawer/DrawerWidget.dart';
 import 'package:mate_app/asset/Colors/MateColors.dart';
 import 'package:mate_app/constant.dart';
@@ -25,6 +22,7 @@ import '../../Providers/reportProvider.dart';
 import '../../Utility/Utility.dart';
 import '../../audioAndVideoCalling/acceptRejectScreen.dart';
 import '../chatDashboard/chatDashboard.dart';
+import 'Community/campusDashboard.dart';
 
 class HomeScreen extends StatefulWidget {
   static final String homeScreenRoute = "/home";
@@ -87,10 +85,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
           Get.snackbar('Missed call from ${documentSnapshot["callerName"]}', "",
             backgroundColor: MateColors.activeIcons,
           );
-          // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          //   content: Text('Missed call from ${documentSnapshot["callerName"]}'),
-          //   duration: Duration(seconds: 5),
-          // ));
           FirebaseFirestore.instance.collection("calling").doc(_user.uid).delete();
         }
       }
@@ -104,7 +98,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
     getConnection();
     getMateSupportGroupDetails();
     checkHasCall();
-    // TODO: implement initState
     super.initState();
     _vCode();
   }
@@ -142,9 +135,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
 
   void _vCode() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
-
     String projectVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       projectVersion = packageInfo.version;
     } on PlatformException {
@@ -159,163 +150,84 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
       setState(() {});
       print("check");
     }
-
-  }
-
-  Widget _appBarLeading(BuildContext context) {
-    return Selector<AuthUserProvider, String>(
-        selector: (ctx, authUserProvider) => authUserProvider.authUserPhoto,
-        builder: (ctx, data, _) {
-          return Padding(
-            padding:  EdgeInsets.only(left: 12.0.sp),
-            child: InkWell(
-              onTap: () {
-                Scaffold.of(ctx).openDrawer();
-              },
-              child: CircleAvatar(
-                backgroundColor: MateColors.activeIcons,
-                child: CircleAvatar(
-                  backgroundColor: Colors.transparent,
-                  child: ClipOval(
-                      child: Image.network(
-                        data,
-                      )
-                  ),
-                ),
-              )
-            ),
-          );
-        });
   }
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> _children = [
       TimeLine(),
-      //SearchScreen(feedTypeName: widget.feedTypeName,),
+      Explore(),
       EventDashBoard(),
-      //CommunityScreen(),
-      CampusTalkScreen(),
-      CommunityTab(),
-      //GroupHomePage(groupId: widget.groupId,),
-      // MateScreen(),
+      CampusDashboard(),
       ChatDashboard(),
     ];
+
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-        statusBarColor: config.myHexColor,statusBarBrightness: Brightness.light,
+      statusBarColor: config.myHexColor,statusBarBrightness: Brightness.light,
     ));
-    // FlutterStatusbarcolor.setStatusBarColor(Colors.white);
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light/*(
-        statusBarColor: Colors.white,
-      )*/,
-      child:
-      Scaffold(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
         drawer: DrawerWidget(),
-        body: SafeArea(
-          child: Container(
-            padding: EdgeInsets.only(top: 0.0.sp),
-            color: myHexColor,
-            child: Column(
-              children: [
-                // Container(
-                // child: Row(
-                //   mainAxisAlignment: MainAxisAlignment.start,
-                //   children: [
-                //     Expanded(child: Align(
-                //         alignment: Alignment.centerLeft,
-                //         child: _appBarLeading(context)),),
-                //     Padding(
-                //       padding: const EdgeInsets.only(right: 25.0),
-                //       child: InkWell(onTap: (){
-                //         Navigator.of(context).pushNamed(CreateFeedPost.routeName);
-                //       },
-                //           child: Image.asset("lib/asset/homePageIcons/create_post@3x.png",width: 30,fit: BoxFit.fitWidth,)),
-                //     ),
-                //     Padding(
-                //       padding: const EdgeInsets.only(right: 16.0),
-                //       child: InkWell(onTap: ()=>Get.to(() => PersonalChatScreen()),
-                //           child: Image.asset("lib/asset/homePageIcons/messenger@3x.png",width: 30,fit: BoxFit.fitWidth,)),
-                //     ),
-                //   ],
-                // ),
-                // ),
-                Consumer<ReportProvider>(
-                  builder: (ctx, reportProvider, _) {
-                    if (!reportProvider.appUpdateLoader && reportProvider.appUpdateModelData !=null) {
-                      if(appCheckFirstTime){
-                        bool willUpdate=false;
-                        int storeVersion=0;
-                        var platform = Theme.of(context).platform;
-                        int appVersion=getExtendedVersionNumber(_projectVersion);
-                        if(platform == TargetPlatform.android){
-                          //storeVersion=getExtendedVersionNumber(reportProvider.appUpdateModelData.data.iosVersion);
-                          storeVersion=getExtendedVersionNumber(reportProvider.appUpdateModelData.data.androidVersion);
-                        }else if(platform == TargetPlatform.iOS){
-                          storeVersion=getExtendedVersionNumber(reportProvider.appUpdateModelData.data.iosVersion);
-                          //storeVersion=getExtendedVersionNumber(reportProvider.appUpdateModelData.data.androidVersion);
-                          // storeVersion=getExtendedVersionNumber('1.0.10');
-                        }
-                        if(storeVersion>appVersion){
-                          Future.delayed(Duration.zero, (){
-                            showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (context) {
-                                  return WillPopScope(
-                                      onWillPop: () async => false,
-                                      child: CupertinoAlertDialog(
-                                        title: new Text("Update your app"),
-                                        content: new Text("You are using an old version of this app.\n"
-                                            "Please update our app for better performance"),
-                                        actions: <Widget>[
-                                          CupertinoDialogAction(
-                                            isDefaultAction: true,
-                                            child: _reportProvider.postReportLoader?
-                                            Center(
-                                              child: CircularProgressIndicator(
-                                                color: Colors.white,
-                                              ),
-                                            ):Text("Update"),
-                                            // Consumer<ReportProvider>(
-                                            //   builder: (ctx, reportProvider, _) {
-                                            //     if (reportProvider.postReportLoader) {
-                                            //       return Center(
-                                            //         child: CircularProgressIndicator(
-                                            //           color: Colors.white,
-                                            //         ),
-                                            //       );
-                                            //     }
-                                            //     return Text("Update");
-                                            //   },
-                                            // ),
-
-                                            onPressed: () async {
-                                              StoreRedirect.redirect(iOSAppId: "1547466147");
-                                            },
-                                          ),
-                                          // CupertinoDialogAction(
-                                          //     child: Text("No"),
-                                          //     onPressed: () {
-                                          //       Navigator.of(context).pop();
-                                          //     })
-                                        ],
-                                      ));
-                                });
-                          });
-                        }
-                        appCheckFirstTime=false;
+        body: Container(
+          padding: EdgeInsets.only(top: 0.0.sp),
+          color: myHexColor,
+          child: Column(
+            children: [
+              Consumer<ReportProvider>(
+                builder: (ctx, reportProvider, _) {
+                  if (!reportProvider.appUpdateLoader && reportProvider.appUpdateModelData !=null) {
+                    if(appCheckFirstTime){
+                      bool willUpdate=false;
+                      int storeVersion=0;
+                      var platform = Theme.of(context).platform;
+                      int appVersion=getExtendedVersionNumber(_projectVersion);
+                      if(platform == TargetPlatform.android){
+                        storeVersion=getExtendedVersionNumber(reportProvider.appUpdateModelData.data.androidVersion);
+                      }else if(platform == TargetPlatform.iOS){
+                        storeVersion=getExtendedVersionNumber(reportProvider.appUpdateModelData.data.iosVersion);
                       }
-
-                      return SizedBox();
-                    }else{
-                      return SizedBox();
+                      if(storeVersion>appVersion){
+                        Future.delayed(Duration.zero, (){
+                          showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) {
+                                return WillPopScope(
+                                    onWillPop: () async => false,
+                                    child: CupertinoAlertDialog(
+                                      title: new Text("Update your app"),
+                                      content: new Text("You are using an old version of this app.\n"
+                                          "Please update our app for better performance"),
+                                      actions: <Widget>[
+                                        CupertinoDialogAction(
+                                          isDefaultAction: true,
+                                          child: _reportProvider.postReportLoader?
+                                          Center(
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                            ),
+                                          ):Text("Update"),
+                                          onPressed: () async {
+                                            StoreRedirect.redirect(iOSAppId: "1547466147");
+                                          },
+                                        ),
+                                      ],
+                                    ));
+                              });
+                        });
+                      }
+                      appCheckFirstTime=false;
                     }
-                  },
-                ),
-                Expanded(child: Container(child: _children[_currentIndex])),
-              ],
-            ),
+                    return SizedBox();
+                  }else{
+                    return SizedBox();
+                  }
+                },
+              ),
+              Expanded(child: Container(child: _children[_currentIndex])),
+            ],
           ),
         ),
         bottomNavigationBar: Container(
@@ -326,10 +238,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
         child: BottomNavigationBar(
             onTap: onTabTapped,
             showSelectedLabels: false,
-            // iconSize: 0,
             showUnselectedLabels: false,
             type: BottomNavigationBarType.fixed,
-            //backgroundColor: config.myHexColor,
             currentIndex: _currentIndex,
             unselectedItemColor: MateColors.inActiveIcons,
             selectedItemColor: MateColors.activeIcons,
@@ -338,6 +248,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
                 icon: Image.asset("lib/asset/homePageIcons/homeBlack.png",width: 18.0.sp,color: Color(0xFF414147),),
                 activeIcon: Image.asset("lib/asset/homePageIcons/home.png",width: 18.0.sp,color: MateColors.activeIcons,),
                 label: "Home",
+              ),
+              BottomNavigationBarItem(
+                icon: Image.asset("lib/asset/iconsNewDesign/explore.png",width: 18.0.sp,color: Color(0xFF414147),),
+                activeIcon: Image.asset("lib/asset/iconsNewDesign/eploreColor.png",width: 18.0.sp,color: MateColors.activeIcons,),
+                label: "Explore",
               ),
               BottomNavigationBarItem(
                 icon: Image.asset("lib/asset/homePageIcons/event.png",width: 18.0.sp,color: Color(0xFF414147),),
@@ -350,18 +265,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
                 label: "Campus",
               ),
               BottomNavigationBarItem(
-                icon: Image.asset("lib/asset/homePageIcons/groupPerson.png",width: 18.0.sp,color: Color(0xFF414147),),
-                activeIcon: Image.asset("lib/asset/homePageIcons/groupPersonColor.png",width: 18.0.sp,color: MateColors.activeIcons,),
-                label: "Communities",
-              ),
-              BottomNavigationBarItem(
                 icon: Image.asset("lib/asset/homePageIcons/chat.png",width: 18.0.sp,color: Color(0xFF414147),),
                 activeIcon: Image.asset("lib/asset/homePageIcons/chatColor.png",width: 18.0.sp,color: MateColors.activeIcons,),
                 label: "Message",
               ),
             ])
         ),
-        // floatingActionButton: _buildFloatingActionButton(context)
       ));
   }
 
@@ -378,60 +287,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
       padding: const EdgeInsets.only(top: 4.0, right: 8.0),
       child: Stack(
         children: [
-
           IconButton(
             icon: Icon(Icons.notifications, color: MateColors.activeIcons),
             onPressed: () {},
           ),
-          // Positioned(
-          //   right: 10,
-          //   top: 5,
-          //   child: Container(
-          //     decoration: BoxDecoration(
-          //         color: MateColors.activeIcons, borderRadius: BorderRadius.circular(15)),
-          //     child: Padding(
-          //       padding: const EdgeInsets.all(4.0),
-          //       child: Text(
-          //         " 1 ",
-          //         style: TextStyle(
-          //           fontSize: 7,
-          //           color: config.myHexColor,
-          //         ),
-          //       ),
-          //     ),
-          //   ),
-          // ),
         ],
       ),
     );
-  }
-
-  Widget _buildFloatingActionButton(BuildContext context) {
-    if (_currentIndex == 0) {
-      return FloatingActionButton(
-        backgroundColor: MateColors.activeIcons,
-        child: Icon(Icons.add,size: 28,),
-        elevation: 6,
-        onPressed: () {
-          Navigator.of(context).pushNamed(CreateFeedPost.routeName);
-        },
-      );
-    }
-
-    /*if (_currentIndex == 2) {
-      return FloatingActionButton(
-        backgroundColor: Colors.teal,
-        tooltip: "Search Classes",
-        child: Icon(Icons.search),
-        elevation: 6,
-        onPressed: () {
-          Navigator.of(context).pushNamed(SearchClassScreen.routeName);
-        },
-      );
-    }*/
-
-
-    return Container();
   }
 
   void onTabTapped(int index) {

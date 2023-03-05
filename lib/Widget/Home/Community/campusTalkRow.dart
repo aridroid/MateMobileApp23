@@ -1,4 +1,3 @@
-import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:get/get.dart';
 import 'package:mate_app/Model/campusTalkPostsModel.dart';
 import 'package:mate_app/Providers/AuthUserProvider.dart';
@@ -17,11 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_share_me/flutter_share_me.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:mate_app/groupChat/services/dynamicLinkService.dart';
 import 'package:provider/provider.dart';
-import 'package:share/share.dart';
-import 'package:sizer/sizer.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../controller/theme_controller.dart';
 
@@ -76,7 +71,6 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
   final int isAnonymous;
   final String createdAt;
   final int rowIndex;
-
   _CampusTalkRowState(this.user, this.talkId, this.url, this.title, this.description, this.isAnonymous, this.createdAt, this.rowIndex);
 
   bool bookMarked;
@@ -85,7 +79,6 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
 
   @override
   void initState() {
-    // TODO: implement initState
     campusTalkProvider = Provider.of<CampusTalkProvider>(context, listen: false);
     bookMarked = (widget.isBookmarked == null) ? false : true;
     liked = (widget.isLiked == null) ? false : true;
@@ -96,27 +89,17 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      //height: 336,
       margin: EdgeInsets.symmetric(horizontal: 16,vertical: 10),
       decoration: BoxDecoration(
-        color: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
+        color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            spreadRadius: 5,
-            blurRadius: 7,
-            offset: Offset(0, 3),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListTile(
-
-            leading: isAnonymous == 0
-                ? InkWell(
+            leading: isAnonymous == 0 ?
+            InkWell(
               onTap: () {
                 if (isAnonymous == 0) {
                   if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == user.uuid) {
@@ -126,19 +109,14 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                   }
                 }
               },
-                  child: ClipOval(
-              child: Image.network(
+              child: CircleAvatar(
+                radius: 20,
+                backgroundImage: NetworkImage(
                   user.profilePhoto,
-                  height: 30,
-                  width: 30,
-                  fit: BoxFit.cover,
+                ),
               ),
-            ),
-                )
-                : Container(
-              height: 0,
-              width: 0,
-            ),
+            ):
+            SizedBox(),
             horizontalTitleGap: isAnonymous == 0?10:-40,
             title: InkWell(
                 onTap: () {
@@ -155,12 +133,12 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                   child: Row(
                     children: [
                       Text(
-                        isAnonymous == 0 ? user.displayName : "Anonymous",// widget.anonymousUser ??
+                        isAnonymous == 0 ? user.displayName : "Anonymous",
                         style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0.1,
-                          color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                          fontSize: 15,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w600,
+                          color: themeController.isDarkMode?Colors.white:Colors.black,
                         ),
                         overflow: TextOverflow.clip,
                       ),
@@ -173,7 +151,13 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                               "@ ${user.university}":
                               "@ Others",
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(fontFamily: "Poppins",fontSize: 14,color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,fontWeight: FontWeight.w500),),
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w500,
+                                color: themeController.isDarkMode?Colors.white:Colors.black,
+                              ),
+                            ),
                           ),
                         ),
                     ],
@@ -182,16 +166,17 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
             subtitle: Text(
               "$createdAt",
               style: TextStyle(
-                fontSize: 12,
-                color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                fontSize: 14,
+                color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
               ),
             ),
             trailing: PopupMenuButton<int>(
-              padding: EdgeInsets.only(bottom: 0, top: 0, left: 25, right: 0),
-              color: themeController.isDarkMode?backgroundColor:Colors.white,
-              icon: Image.asset(
-                "lib/asset/icons/menu@3x.png",
-                height: 18,
+              padding: EdgeInsets.only(left: 25),
+              elevation: 0,
+              color: themeController.isDarkMode?MateColors.popupDark:MateColors.popupLight,
+              icon: Icon(
+                Icons.more_vert,
+                color: themeController.isDarkMode?Colors.white:MateColors.blackText,
               ),
               onSelected: (index) async {
                 if (index == 0) {
@@ -233,17 +218,22 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                 //       style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
                 //     ),
                 //   ),
-                (widget.user.uuid != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user.uuid))
-                    ? PopupMenuItem(
+                (widget.user.uuid != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user.uuid)) ?
+                PopupMenuItem(
                   value: 1,
                   height: 40,
                   child: Text(
                     "Delete Post",
                     textAlign: TextAlign.start,
-                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                    style: TextStyle(
+                      color: themeController.isDarkMode?Colors.white:Colors.black,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Poppins',
+                      fontSize: 14,
+                    ),
                   ),
-                )
-                    : PopupMenuItem(
+                ):
+                PopupMenuItem(
                   value: 1,
                   enabled: false,
                   height: 0,
@@ -258,7 +248,12 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                   child: Text(
                     "Report",
                     textAlign: TextAlign.start,
-                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                    style: TextStyle(
+                      color: themeController.isDarkMode?Colors.white:Colors.black,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Poppins',
+                      fontSize: 14,
+                    ),
                   ),
                 ),
                 (widget.user.uuid != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user.uuid))?
@@ -268,7 +263,12 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                   child: Text(
                     "Edit",
                     textAlign: TextAlign.start,
-                    style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
+                    style: TextStyle(
+                      color: themeController.isDarkMode?Colors.white:Colors.black,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Poppins',
+                      fontSize: 14,
+                    ),
                   ),
                 ):PopupMenuItem(
                   value: 3,
@@ -282,36 +282,16 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
               ],
             ),
           ),
-          // Container(
-          //   margin: EdgeInsets.only(left: 16,top: 6),
-          //   height: 28.0,
-          //   width: 92.0,
-          //   decoration: BoxDecoration(
-          //     borderRadius: BorderRadius.circular(16),
-          //     color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
-          //   ),
-          //   child: Center(
-          //     child: Text("Be a Mate",style: TextStyle(fontFamily: "Poppins",fontSize: 12,color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),),
-          //   ),
-          // ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Divider(
+              thickness: 1,
+              color: themeController.isDarkMode?MateColors.dividerDark:MateColors.dividerLight,
+            ),
+          ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // if(isAnonymous == 1)
-              //   Container(
-              //     height: 28.0,
-              //     margin: EdgeInsets.only(bottom: 5,left: 14,right: 14),
-              //     decoration: BoxDecoration(
-              //       borderRadius: BorderRadius.circular(16),
-              //       color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
-              //     ),
-              //     child: Padding(
-              //       padding: const EdgeInsets.only(left: 15,right: 15),
-              //       child: Center(child: Text(
-              //         user.university??"Others",
-              //         style: TextStyle(fontFamily: "Poppins",fontSize: 12,color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),)),
-              //     ),
-              //   ),
               Padding(
                 padding: EdgeInsets.only(left: 16,top: 10),
                 child: InkWell(
@@ -320,9 +300,10 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                     onTap: () => _navigateToDetailsPage(),
                     child: Text(title, textAlign: TextAlign.left,
                       style: TextStyle(
-                        fontSize: 17,
+                        fontSize: 16,
+                        fontFamily: 'Poppins',
                         fontWeight: FontWeight.w700,
-                        color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                        color: themeController.isDarkMode?Colors.white:Colors.black,
                       ),
                     )),
               ),
@@ -336,46 +317,23 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
               onTap: () => _navigateToDetailsPage(),
               child: SizedBox(
                 width: double.infinity,
-                child: description != null
-                    ? Padding(
+                child: description != null ?
+                Padding(
                   padding: EdgeInsets.fromLTRB(0, 0, 14, 0),
                   child: Text(
                     description,
                     style: TextStyle(
                       fontSize: 14,
+                      fontFamily: 'Poppins',
                       fontWeight: FontWeight.w400,
                       letterSpacing: 0.1,
-                      color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                      color: themeController.isDarkMode?Colors.white:Colors.black,
                     ),
-                    //textAlign: TextAlign.left,
-                    // linkStyle: TextStyle(color: MateColors.activeIcons, fontSize: 11.4.sp),
                   ),
                 ) : SizedBox(),
               ),
             ),
           ),
-          // Padding(
-          //   padding: EdgeInsets.only(left: 16,top: 10,right: 10),
-          //   child:  Linkify(
-          //     onOpen: (link) async {
-          //       print("Clicked ${link.url}!");
-          //       if (await canLaunch(link.url))
-          //         await launch(link.url);
-          //       else
-          //         // can't launch url, there is some error
-          //         throw "Could not launch ${link.url}";
-          //     },
-          //     text: "Web Link",
-          //     style: TextStyle(
-          //       fontSize: 14,
-          //       fontWeight: FontWeight.w500,
-          //       letterSpacing: 0.1,
-          //       color: MateColors.activeIcons,
-          //     ),
-          //     textAlign: TextAlign.left,
-          //     linkStyle: TextStyle(color: MateColors.activeIcons, fontSize: 11.4.sp),
-          //   ),
-          // ),
           Padding(
             padding: const EdgeInsets.only(left: 16,right: 16,top: 25),
             child: Row(
@@ -390,41 +348,37 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                               height: 32,
                               width: 64,
                               decoration: BoxDecoration(
-                                color: liked ?MateColors.activeIcons:null,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1)
+                                color: liked ?themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight:
+                                themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                                borderRadius: BorderRadius.circular(16),
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Image.asset("lib/asset/icons/upArrow.png",
-                                    height: 20,width: 13,
+                                    height: 20,
+                                    width: 13,
                                     color:  themeController.isDarkMode?
-                                    liked?MateColors.blackTextColor:Colors.white:
-                                    liked?
-                                    Colors.white:MateColors.blackTextColor,
+                                    liked? Colors.black:Colors.white:
+                                    liked? Colors.white: Colors.black,
                                   ),
                                   SizedBox(width: 5,),
                                   Text("${widget.likesCount}",
                                     style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 13,
-                                      color:
-                                      themeController.isDarkMode?
-                                      liked?MateColors.blackTextColor:Colors.white:
-                                      liked?
-                                      Colors.white:MateColors.blackTextColor,
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 14,
+                                      fontFamily: 'Poppins',
+                                      color: themeController.isDarkMode?
+                                      liked? Colors.black:Colors.white:
+                                      liked? Colors.white: Colors.black,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
                             onTap: () async {
-                              // setState(() {
                               liked=!liked;
-                              // });
-                              bool likedDone = await Provider.of<CampusTalkProvider>(context, listen: false)
-                                  .upVoteAPost(widget.talkId, widget.rowIndex, isBookmarkedPage: widget.isBookmarkedPage, isUserProfile: widget.isUserProfile);
+                              bool likedDone = await Provider.of<CampusTalkProvider>(context, listen: false).upVoteAPost(widget.talkId, widget.rowIndex, isBookmarkedPage: widget.isBookmarkedPage, isUserProfile: widget.isUserProfile);
                               if (likedDone && liked) {
                                 widget.isUserProfile
                                     ? ++value.campusTalkByUserPostsResultsList[widget.rowIndex].likesCount
@@ -439,124 +393,109 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                               //       ? --value.campusTalkPostsBookmarkData.data.result[widget.rowIndex].likesCount
                               //       : --value.campusTalkPostsResultsList[widget.rowIndex].likesCount;
                               // }
-
                             }
                         );
                       },
                     ),
-
-                    // SizedBox(width: 10,),
-                    // Consumer<CampusTalkProvider>(
-                    //   builder: (context, value, child) {
-                    //     return InkWell(
-                    //         child:  Container(
-                    //           height: 32,
-                    //           width: 64,
-                    //           decoration: BoxDecoration(
-                    //               color: liked ?MateColors.activeIcons:null,
-                    //               borderRadius: BorderRadius.circular(16),
-                    //               border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1)
-                    //           ),
-                    //           child: Row(
-                    //             mainAxisAlignment: MainAxisAlignment.center,
-                    //             children: [
-                    //               Image.asset("lib/asset/icons/downArrow.png",height: 20,width: 13,
-                    //                 color:  themeController.isDarkMode?
-                    //                 liked?MateColors.blackTextColor:Colors.white:
-                    //                 liked?
-                    //                 Colors.white:MateColors.blackTextColor,
-                    //               ),
-                    //               SizedBox(width: 5,),
-                    //               Text("${widget.likesCount}",
-                    //                 style: TextStyle(
-                    //                   fontWeight: FontWeight.w500,
-                    //                   fontSize: 13,
-                    //                   color:  themeController.isDarkMode?
-                    //                   liked?MateColors.blackTextColor:Colors.white:
-                    //                   liked?
-                    //                   Colors.white:MateColors.blackTextColor,
-                    //                 ),
-                    //               ),
-                    //             ],
-                    //           ),
-                    //         ),
-                    //         onTap: () async {
-                    //           // setState(() {
-                    //           liked=!liked;
-                    //           // });
-                    //           bool likedDone = await Provider.of<CampusTalkProvider>(context, listen: false)
-                    //               .upVoteAPost(widget.talkId, widget.rowIndex, isBookmarkedPage: widget.isBookmarkedPage, isUserProfile: widget.isUserProfile);
-                    //           // if (likedDone && liked) {
-                    //           //   widget.isUserProfile
-                    //           //       ? ++value.campusTalkByUserPostsResultsList[widget.rowIndex].likesCount
-                    //           //       : widget.isBookmarkedPage
-                    //           //       ? ++value.campusTalkPostsBookmarkData.data.result[widget.rowIndex].likesCount
-                    //           //       : ++value.campusTalkPostsResultsList[widget.rowIndex].likesCount;
-                    //           // }
-                    //           if (likedDone && !liked) {
-                    //             widget.isUserProfile
-                    //                 ? --value.campusTalkByUserPostsResultsList[widget.rowIndex].likesCount
-                    //                 : widget.isBookmarkedPage
-                    //                 ? --value.campusTalkPostsBookmarkData.data.result[widget.rowIndex].likesCount
-                    //                 : --value.campusTalkPostsResultsList[widget.rowIndex].likesCount;
-                    //           }
-                    //
-                    //         }
-                    //     );
-                    //   },
-                    // ),
-
                   ],
                 ),
                 Row(
                   children: [
                     InkWell(
-                      onTap: ()async{
-                        String response = await DynamicLinkService.buildDynamicLinkCampusTalk(id: widget.talkId.toString());
-                        if(response!=null){
-                          Share.share(response);
-                        }
+                      onTap: (){
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => CampusTalkComments(
+                            postId: talkId,
+                            postIndex: widget.rowIndex,
+                            isUserProfile: widget.isUserProfile,
+                            isBookmarkedPage: widget.isBookmarkedPage,
+                          ),
+                        ));
                       },
-                      child: Image.asset("lib/asset/icons/share.png",height: 20,color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,),
-                    ),
-                    SizedBox(width: 20,),
-                    InkWell(
-                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => CampusTalkComments(
-                          postId: talkId,
-                          postIndex: widget.rowIndex,
-                          isUserProfile: widget.isUserProfile,
-                          isBookmarkedPage: widget.isBookmarkedPage,
+                      child: Container(
+                        height: 39,
+                        width: 83,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                          borderRadius: BorderRadius.circular(25),
                         ),
-                      )),
-                      child: Image.asset("lib/asset/icons/message@3x.png",height: 20,color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Image.asset("lib/asset/iconsNewDesign/msg.png",
+                                color: themeController.isDarkMode?Colors.white:Colors.black,
+                              ),
+                            ),
+                            Text(
+                              widget.commentsCount.toString(),
+                              style: TextStyle(
+                                fontFamily: "Poppins",
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                                color: themeController.isDarkMode?Colors.white:Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                    SizedBox(width: 20,),
+                    SizedBox(width: 10,),
                     Consumer<CampusTalkProvider>(
-                      builder: (context, value, child) {
+                      builder: (context, value, child){
                         return InkWell(
-                            child: bookMarked?
-                            Image.asset("lib/asset/icons/bookmarkColor.png",height: 20):
-                            Image.asset("lib/asset/homePageIcons/drawerBookmark@3x.png",height: 20,color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,),
-                            onTap: () async {
-                              // setState(() {
-                              bookMarked=!bookMarked;
-                              // });
-                              bool isBookmarked = await Provider.of<CampusTalkProvider>(context, listen: false)
-                                  .bookmarkAPost(widget.talkId, widget.rowIndex, isBookmarkedPage: widget.isBookmarkedPage, isUserProfile: widget.isUserProfile);
-                              if (widget.isBookmarkedPage) {
-                                if (isBookmarked) {
-                                  Future.delayed(Duration(seconds: 0), () {
-                                    Provider.of<CampusTalkProvider>(context, listen: false).fetchCampusTalkPostBookmarkedList();
-                                  });
-                                }
+                          onTap: ()async{
+                            bookMarked=!bookMarked;
+                            bool isBookmarked = await Provider.of<CampusTalkProvider>(context, listen: false).bookmarkAPost(widget.talkId, widget.rowIndex, isBookmarkedPage: widget.isBookmarkedPage, isUserProfile: widget.isUserProfile);
+                            if (widget.isBookmarkedPage) {
+                              if (isBookmarked) {
+                                Future.delayed(Duration(seconds: 0), () {
+                                  Provider.of<CampusTalkProvider>(context, listen: false).fetchCampusTalkPostBookmarkedList();
+                                });
                               }
-
-                            });
+                            }
+                          },
+                          child: Container(
+                            height: 39,
+                            width: 40,
+                            decoration: BoxDecoration(
+                              color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                              shape: BoxShape.circle,
+                            ),
+                            child: bookMarked?
+                            Padding(
+                              padding: const EdgeInsets.all(11.0),
+                              child: Image.asset("lib/asset/icons/bookmarkColor.png",
+                                color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+                              ),
+                            ):
+                            Padding(
+                              padding: const EdgeInsets.all(11.0),
+                              child: Image.asset("lib/asset/homePageIcons/drawerBookmark@3x.png",
+                                color: themeController.isDarkMode?Colors.white:Colors.black,
+                              ),
+                            ),
+                          ),
+                        );
                       },
                     ),
                   ],
                 ),
+                // Row(
+                //   children: [
+                //     InkWell(
+                //       onTap: ()async{
+                //         String response = await DynamicLinkService.buildDynamicLinkCampusTalk(id: widget.talkId.toString());
+                //         if(response!=null){
+                //           Share.share(response);
+                //         }
+                //       },
+                //       child: Image.asset("lib/asset/icons/share.png",height: 20,color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,),
+                //     ),
+                //   ],
+                // ),
               ],
             ),
           ),
@@ -798,34 +737,4 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
     );
   }
 
-  InputDecoration _customInputDecoration({@required String labelText, IconData icon}) {
-    return InputDecoration(
-        contentPadding: EdgeInsets.fromLTRB(12, 13, 12, 13),
-        isDense: true,
-        counterStyle: TextStyle(color: Colors.grey),
-        hintStyle: TextStyle(fontSize: 15.0, color: Colors.white70),
-        hintText: labelText,
-        errorStyle: TextStyle(fontSize: 12.5, color: Colors.red),
-        // prefixIcon: Icon(
-        //   icon,
-        //   color: MateColors.activeIcons,
-        // ),
-        enabledBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.grey, width: 0.3),
-          borderRadius: BorderRadius.circular(15.0),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.white, width: 0.3),
-          borderRadius: BorderRadius.circular(15.0),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.red[300], width: 0.3),
-          borderRadius: BorderRadius.circular(15.0),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.white, width: 0.3),
-          borderRadius: BorderRadius.circular(15.0),
-        ),
-        border: InputBorder.none);
-  }
 }

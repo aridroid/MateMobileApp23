@@ -1,10 +1,4 @@
-import 'package:flutter/painting.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:mate_app/controller/theme_controller.dart';
-
-
-ThemeController themeController1 = Get.find<ThemeController>();
 
 class MateColors extends ColorSwatch<int> {
 
@@ -40,6 +34,30 @@ class MateColors extends ColorSwatch<int> {
   static const Color iconLight = Color(0xFFB4B4C2);
   static const Color lightButtonBackground = Color(0xFFF5F5F7);
 
+  ///New Design Color
+  static const Color whiteText = Colors.white;
+  static const Color blackText = Color(0xFF101012);
+  static Color containerDark = Colors.white.withOpacity(0.12);
+  static Color containerLight = Colors.white.withOpacity(0.50);
+  static Color textFieldSearchDark = Colors.white.withOpacity(0.07);
+  static Color textFieldSearchLight = Colors.white.withOpacity(0.20);
+  static Color helpingTextDark = Colors.white.withOpacity(0.5);
+  static const Color helpingTextLight = Color(0xFFB4B4C2);
+  static const Color appThemeDark = Color(0xFF75F3E7);
+  static const Color appThemeLight = Color(0xFF32C981);
+  static const Color greyButtonText = Color(0xFFB0B0B0);
+  static const Color disableButtonColor = Color(0xFF3D3F45);
+  static Color bottomSheetBackgroundDark = Color(0xFF424345);
+  static Color bottomSheetItemBackgroundDark = Colors.white.withOpacity(0.15);
+  static Color bottomSheetBackgroundLight = Color(0xFFA1A7A7);
+  static Color bottomSheetItemBackgroundLight = Colors.white.withOpacity(0.23);
+  static Color dividerDark = Color(0xFFDDE8E8).withOpacity(0.1);
+  static Color dividerLight = Colors.black.withOpacity(0.1);
+  static Color smallContainerDark = Color(0xFF595E6E).withOpacity(0.35);
+  static Color smallContainerLight = Colors.white.withOpacity(0.50);
+  static Color popupDark = Colors.white.withOpacity(0.12);
+  static Color popupLight = Colors.white.withOpacity(0.7);
+  static Color iconPopupLight = Color(0xFF8A8A99);
 
 
 

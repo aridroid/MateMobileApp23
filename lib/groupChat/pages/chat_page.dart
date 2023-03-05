@@ -23,7 +23,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:record/record.dart';
 import 'package:sizer/sizer.dart';
-import 'package:vibration/vibration.dart';
 
 import '../../Providers/AuthUserProvider.dart';
 import '../../Providers/chatProvider.dart';
@@ -35,6 +34,8 @@ import '../../Widget/social_media_recorder/screen/social_media_recorder.dart';
 import '../../audioAndVideoCalling/calling.dart';
 import '../../audioAndVideoCalling/connectingScreen.dart';
 import 'package:http/http.dart' as http;
+
+import '../../constant.dart';
 
 
 class ChatPage extends StatefulWidget {
@@ -638,81 +639,6 @@ class _ChatPageState extends State<ChatPage> {
       Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          // Visibility(
-          //   visible: showLockedView,
-          //   child: Container(
-          //     height: 110,
-          //     width: MediaQuery.of(context).size.width,
-          //     padding: EdgeInsets.all(16),
-          //     decoration: BoxDecoration(
-          //       color: themeController.isDarkMode ? Colors.white: backgroundColor,
-          //     ),
-          //     child: Column(
-          //       crossAxisAlignment: CrossAxisAlignment.start,
-          //       children: [
-          //         Row(
-          //           children: [
-          //             Text("${minute.toString().padLeft(2,'0')} : ${second.toString().padLeft(2,'0')}",
-          //               style: TextStyle(
-          //                 color: themeController.isDarkMode ? Colors.black:Colors.white,
-          //               ),
-          //             ),
-          //             SizedBox(width: 16,),
-          //             Row(
-          //               children: [
-          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //                 Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //               ],
-          //             ),
-          //           ],
-          //         ),
-          //         SizedBox(height: 16,),
-          //         Row(
-          //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //           children: [
-          //             InkWell(
-          //               onTap: (){
-          //                 _cancelRecording();
-          //               },
-          //               child: Icon(Icons.delete,size: 30,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //             ),
-          //             InkWell(
-          //               onTap: (){
-          //                if(isPausedRecording){
-          //                  _resumeRecording();
-          //                }else{
-          //                  _pauseRecording();
-          //                }
-          //               },
-          //               child: Icon(isPausedRecording? Icons.mic:Icons.pause_circle_outline,size: 30,color: Colors.red,),
-          //             ),
-          //             Padding(
-          //               padding: const EdgeInsets.only(right: 5),
-          //               child: InkWell(
-          //                 onTap: (){
-          //                   setState(() {
-          //                     showLockedView = false;
-          //                     isPausedRecording = false;
-          //                   });
-          //                   _stopRecording();
-          //                 },
-          //                 child: Icon(Icons.send,size: 26,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-          //               ),
-          //             ),
-          //           ],
-          //         ),
-          //       ],
-          //     ),
-          //   ),
-          // ),
           Visibility(
             visible: showSelected,
             child: Container(
@@ -776,446 +702,162 @@ class _ChatPageState extends State<ChatPage> {
               ),
             ),
           ),
-          //if(showLockedView==false)
-          Container(
-            padding: EdgeInsets.only(right: 5),
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(
-                  color: !isPressed?themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider:Colors.transparent,
-                  width: 0.3,
-                ),
-              ),
-            ),
-            child: Consumer<SoundRecordNotifier>(
-              builder: (cnt,state,child){
-                return Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Visibility(
-                      visible: !state.buttonPressed,//!isPressed,
-                      child: Expanded(
-                        child: TextField(
-                          controller: messageEditingController,
-                          cursorColor: Colors.cyanAccent,
-                          style: TextStyle(fontSize: 12.5.sp, height: 2.0, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
-                          textInputAction: TextInputAction.done,
-                          minLines: 1,
-                          maxLines: 4,
-                          decoration: InputDecoration(
-                            hintStyle: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              letterSpacing: 0.1,
-                              color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                            ),
-                            prefixIcon:  Padding(
-                              padding: const EdgeInsets.only(left: 10,right: 10),
-                              child: SpeedDial(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(15.0),
-                                  child: Image.asset("lib/asset/icons/attachment.png"),
+          Consumer<SoundRecordNotifier>(
+            builder: (cnt,state,child){
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Visibility(
+                    visible: !state.buttonPressed,//!isPressed,
+                    child: Expanded(
+                      child: TextField(
+                        controller: messageEditingController,
+                        cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                        style:  TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.1,
+                          color: themeController.isDarkMode?Colors.white:Colors.black,
+                        ),
+                        textInputAction: TextInputAction.done,
+                        minLines: 1,
+                        maxLines: 4,
+                        decoration: InputDecoration(
+                          hintStyle: TextStyle(
+                            fontSize: 14,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w400,
+                            color: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                          ),
+                          prefixIcon:  Padding(
+                            padding: const EdgeInsets.only(left: 10,right: 10),
+                            child: SpeedDial(
+                              child: Container(
+                                height: 50,
+                                width: 50,
+                                padding: const EdgeInsets.all(15.0),
+                                decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: themeController.isDarkMode?MateColors.textFieldSearchDark:MateColors.containerLight
                                 ),
-                                activeIcon: Icons.close,
-                                spaceBetweenChildren: 6,
-                                backgroundColor: themeController.isDarkMode?Colors.transparent:Colors.white,
-                                elevation: 0,
-                                foregroundColor: Colors.transparent,
-                                activeForegroundColor: MateColors.activeIcons,
-                                overlayColor: Colors.transparent,
-                                overlayOpacity: 0.5,
-                                switchLabelPosition: true,
-                                tooltip: "Send File",
-                                children: [
-                                  SpeedDialChild(
-                                    child:  Image.asset(
-                                      "lib/asset/chatPageAssets/gif@3x.png",
-                                      width: 15.5.sp,
-                                      color: Colors.black,
-                                    ),
-                                    label: "Gif",
-                                    elevation: 2.0,
-                                    onTap: () => _getGif(),
+                                child: Image.asset("lib/asset/icons/attachment.png",color: themeController.isDarkMode?Colors.white:Colors.black,),
+                              ),
+                              activeIcon: Icons.close,
+                              spaceBetweenChildren: 6,
+                              backgroundColor: themeController.isDarkMode?Colors.transparent:Colors.white,
+                              elevation: 0,
+                              foregroundColor: Colors.transparent,
+                              activeForegroundColor: MateColors.activeIcons,
+                              overlayColor: Colors.transparent,
+                              overlayOpacity: 0.5,
+                              switchLabelPosition: true,
+                              tooltip: "Send File",
+                              children: [
+                                SpeedDialChild(
+                                  child:  Image.asset(
+                                    "lib/asset/chatPageAssets/gif@3x.png",
+                                    width: 15.5.sp,
+                                    color: Colors.black,
                                   ),
-                                  SpeedDialChild(
-                                    child: Icon(Icons.image),
-                                    label: "Image",
-                                    elevation: 2.0,
-                                    onTap: () => _getImage(0),
-                                  ),
-                                  SpeedDialChild(
-                                    child:Icon(Icons.camera_alt),
-                                    label: "Camera",
-                                    elevation: 2.0,
-                                    onTap: () => _getImage(1),
-                                  ),
-                                  SpeedDialChild(
-                                    child:Icon(Icons.file_present),
-                                    label: "Document",
-                                    elevation: 2.0,
-                                    onTap: () => _getFile(),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                Icons.send,
-                                size: 20,
-                                color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                              ),
-                              onPressed: ()async{
-                                if(isEditing){
-                                  if(messageEditingController.text.isNotEmpty)
-                                    await DatabaseService().editMessage(editGroupId, editMessageId, messageEditingController.text.trim());
-                                  setState(() {
-                                    isEditing = false;
-                                    messageEditingController.text = "";
-                                  });
-                                }else{
-                                  _sendMessage(messageEditingController.text.trim());
-                                }
-                              },
-                            ),
-                            hintText: "Write a message...",
-                            focusedBorder: OutlineInputBorder(
-                              borderSide:  BorderSide(
-                                color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                              ),
-                              borderRadius: BorderRadius.circular(26.0),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide:  BorderSide(
-                                color:  themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                              ),
-                              borderRadius: BorderRadius.circular(26.0),
-                            ),
-                            disabledBorder: OutlineInputBorder(
-                              borderSide:  BorderSide(
-                                color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                              ),
-                              borderRadius: BorderRadius.circular(26.0),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderSide:  BorderSide(
-                                color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                              ),
-                              borderRadius: BorderRadius.circular(26.0),
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderSide:  BorderSide(
-                                color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                              ),
-                              borderRadius: BorderRadius.circular(26.0),
+                                  label: "Gif",
+                                  elevation: 2.0,
+                                  onTap: () => _getGif(),
+                                ),
+                                SpeedDialChild(
+                                  child: Icon(Icons.image),
+                                  label: "Image",
+                                  elevation: 2.0,
+                                  onTap: () => _getImage(0),
+                                ),
+                                SpeedDialChild(
+                                  child:Icon(Icons.camera_alt),
+                                  label: "Camera",
+                                  elevation: 2.0,
+                                  onTap: () => _getImage(1),
+                                ),
+                                SpeedDialChild(
+                                  child:Icon(Icons.file_present),
+                                  label: "Document",
+                                  elevation: 2.0,
+                                  onTap: () => _getFile(),
+                                ),
+                              ],
                             ),
                           ),
+                          suffixIcon: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(
+                                  Icons.send,
+                                  size: 20,
+                                  color: Color(0xFF65656B),
+                                ),
+                                onPressed: ()async{
+                                  if(isEditing){
+                                    if(messageEditingController.text.isNotEmpty)
+                                      await DatabaseService().editMessage(editGroupId, editMessageId, messageEditingController.text.trim());
+                                    setState(() {
+                                      isEditing = false;
+                                      messageEditingController.text = "";
+                                    });
+                                  }else{
+                                    _sendMessage(messageEditingController.text.trim());
+                                  }
+                                },
+                              ),
+                              isEditing?
+                              IconButton(
+                                  onPressed: (){
+                                    setState(() {
+                                      isEditing = false;
+                                      messageEditingController.text = "";
+                                    });
+                                  },
+                                  icon: Icon(
+                                    Icons.clear,
+                                    color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                                  )
+                              ):SizedBox(),
+                            ],
+                          ),
+                          hintText: "Write a message...",
+                          fillColor: themeController.isDarkMode ? MateColors.containerDark : MateColors.containerLight,
+                          filled: true,
+                          focusedBorder: commonBorderCircular,
+                          enabledBorder: commonBorderCircular,
+                          disabledBorder: commonBorderCircular,
+                          errorBorder: commonBorderCircular,
+                          focusedErrorBorder: commonBorderCircular,
                         ),
                       ),
                     ),
-                    isEditing?
-                    IconButton(
-                        onPressed: (){
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(top: state.buttonPressed?120:0),
+                    child: SocialMediaRecorder(
+                      backGroundColor: MateColors.activeIcons,
+                      recordIconBackGroundColor: MateColors.activeIcons,
+                      sendRequestFunction: (soundFile) {
+                        print("the current path is ${soundFile.path}");
+                        file = File(soundFile.path);
+                        fileSize = soundFile.lengthSync();
+                        if (fileSize > 10480000) {
+                          Fluttertoast.showToast(msg: 'This file size must be within 10MB');
+                        } else {
                           setState(() {
-                            isEditing = false;
-                            messageEditingController.text = "";
+                            isLoading = true;
                           });
-                        },
-                        icon: Icon(
-                          Icons.clear,
-                          color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                        )
-                    ):
-                    Container(
-                      margin: EdgeInsets.only(top: state.buttonPressed?120:0),
-                      child: SocialMediaRecorder(
-                        backGroundColor: MateColors.activeIcons,
-                        recordIconBackGroundColor: MateColors.activeIcons,
-                        sendRequestFunction: (soundFile) {
-                          print("the current path is ${soundFile.path}");
-                          file = File(soundFile.path);
-                          fileSize = soundFile.lengthSync();
-                          if (fileSize > 10480000) {
-                            Fluttertoast.showToast(msg: 'This file size must be within 10MB');
-                          } else {
-                            setState(() {
-                              isLoading = true;
-                            });
-                            _uploadAudio();
-                          }
-                        },
-                        encode: AudioEncoderType.AAC,
-                      ),
+                          _uploadAudio();
+                        }
+                      },
+                      encode: AudioEncoderType.AAC,
                     ),
-
-                    // Column(
-                    //   crossAxisAlignment: CrossAxisAlignment.end,
-                    //   mainAxisSize: MainAxisSize.max,
-                    //   children: [
-                    //     if(showCancelLock)
-                    //       DragTarget(
-                    //         builder: (context,a,r){
-                    //           return Container(
-                    //             height: 160,
-                    //             width: 50,
-                    //             decoration: BoxDecoration(
-                    //               borderRadius: BorderRadius.circular(25),
-                    //               gradient: themeController.isDarkMode?LinearGradient(colors: [Colors.white.withOpacity(0.7),Colors.white]):LinearGradient(colors: [Colors.black.withOpacity(0.7),Colors.black]),
-                    //             ),
-                    //             child: Column(
-                    //               children: [
-                    //                 SizedBox(height: 25,),
-                    //                 Icon(Icons.lock,size: 16,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                    //                 SizedBox(height: 15,),
-                    //                 Icon(Icons.keyboard_arrow_up,size: 16,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                    //               ],
-                    //             ),
-                    //           );
-                    //         },
-                    //         onAccept: (val){
-                    //           setState(() {
-                    //             sendAudio = false;
-                    //             showLockedView = true;
-                    //           });
-                    //           print("Recording locked");
-                    //         },
-                    //       ),
-                    //     if(showCancelLock)
-                    //      SizedBox(height: 0,width: MediaQuery.of(context).size.width*0.92,),
-                    //     Row(
-                    //       children: [
-                    //         if(showCancelLock)
-                    //           DragTarget(
-                    //             builder: (context,a,r){
-                    //               return Container(
-                    //                 margin: EdgeInsets.only(bottom: 15),
-                    //                 height: 50,
-                    //                 width: MediaQuery.of(context).size.width*0.85,
-                    //                 decoration: BoxDecoration(
-                    //                   borderRadius: BorderRadius.circular(25),
-                    //                   gradient: themeController.isDarkMode?LinearGradient(colors: [Colors.white.withOpacity(0.7),Colors.white]):LinearGradient(colors: [Colors.black.withOpacity(0.7),Colors.black]),
-                    //                 ),
-                    //                 child: Row(
-                    //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //                   children: [
-                    //                     Padding(
-                    //                       padding: const EdgeInsets.only(left: 16),
-                    //                       child: Text("${minute.toString().padLeft(2,'0')} : ${second.toString().padLeft(2,'0')}",
-                    //                         style: TextStyle(
-                    //                           color: themeController.isDarkMode ? Colors.black:Colors.white,
-                    //                         ),
-                    //                       ),
-                    //                     ),
-                    //                     Row(
-                    //                       children: [
-                    //                         Icon(Icons.arrow_back_ios,size: 16,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                    //                         Text("Slide to cancel",
-                    //                           style: TextStyle(
-                    //                             color: themeController.isDarkMode ? Colors.black:Colors.white,
-                    //                           ),
-                    //                         ),
-                    //                         SizedBox(width: 16,),
-                    //                       ],
-                    //                     ),
-                    //                   ],
-                    //                 ),
-                    //               );
-                    //             },
-                    //             onAccept: (val){
-                    //               setState(() {
-                    //                 sendAudio = false;
-                    //               });
-                    //               _cancelRecording();
-                    //               print("Recording cancel");
-                    //             },
-                    //           ),
-                    //         if(showCancelLock)
-                    //           SizedBox(
-                    //             width: 40,
-                    //           ),
-                    //         LongPressDraggable<int>(
-                    //           dragAnchorStrategy: (Draggable<Object> _, BuildContext __, Offset ___) => const Offset(50, 50),
-                    //           onDragStarted: (){
-                    //             Vibration.vibrate(
-                    //                 pattern: [1, 150, 1, 150], intensities: [100, 100]
-                    //             );
-                    //             setState(() {
-                    //               isPressed = true;
-                    //               sendAudio = true;
-                    //               showCancelLock = true;
-                    //             });
-                    //             startRecording();
-                    //           },
-                    //           onDragEnd: (v){
-                    //             Vibration.vibrate(
-                    //                 pattern: [1, 150, 1, 150], intensities: [100, 100]
-                    //             );
-                    //             setState(() {
-                    //               isPressed = false;
-                    //               showCancelLock = false;
-                    //             });
-                    //             if(sendAudio){
-                    //               _stopRecording();
-                    //             }
-                    //           },
-                    //           data: 10,
-                    //           feedback: Container(
-                    //             margin: EdgeInsets.only(bottom: 0,right: 400),
-                    //             height: MediaQuery.of(context).size.width*0.22,
-                    //             width: MediaQuery.of(context).size.width*0.22,
-                    //             decoration: BoxDecoration(
-                    //               shape: BoxShape.circle,
-                    //               color: MateColors.activeIcons,
-                    //             ),
-                    //             child: Center(
-                    //               child: Icon(Icons.mic,size: 28,),
-                    //             ),
-                    //           ),
-                    //           childWhenDragging: Container(),
-                    //           child: Container(
-                    //             margin: EdgeInsets.only(bottom: isPressed?0:MediaQuery.of(context).size.height*0.005,),
-                    //             height: isPressed?MediaQuery.of(context).size.width*0.15:MediaQuery.of(context).size.width*0.09,
-                    //             width: isPressed?MediaQuery.of(context).size.width*0.15:MediaQuery.of(context).size.width*0.09,
-                    //             decoration: BoxDecoration(
-                    //               shape: BoxShape.circle,
-                    //               color: MateColors.activeIcons,
-                    //             ),
-                    //             child: Center(
-                    //               child: Icon(Icons.mic,size: 18,),
-                    //             ),
-                    //           ),
-                    //         ),
-                    //       ],
-                    //     ),
-                    //   ],
-                    // ),
-                    //SizedBox(width: 16,),
-                  ],
-                );
-              },
-            ),
+                  ),
+                ],
+              );
+            },
           ),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.center,
-          //   mainAxisSize: MainAxisSize.min,
-          //   children: [
-          //     Flexible(
-          //       child: Container(
-          //         alignment: Alignment.bottomCenter,
-          //         // width: MediaQuery.of(context).size.width * 0.5,
-          //         margin: EdgeInsets.fromLTRB(5, 0, 10, 5),
-          //         padding: EdgeInsets.only(left: 15),
-          //         // decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(12.0)), color: Colors.transparent, border: Border.all(color: Colors.grey, width: 0.3)),
-          //         child: TextField(
-          //           controller: messageEditingController,
-          //           cursorColor: Colors.cyanAccent,
-          //           style: TextStyle(color: Colors.white, fontSize: 12.5.sp),
-          //           textInputAction: TextInputAction.done,
-          //           minLines: 1,
-          //           maxLines: 4,
-          //           decoration: InputDecoration(
-          //               hintText: "Send a message",
-          //               hintStyle: TextStyle(
-          //                 color: Colors.white38,
-          //                 fontSize: 12.5.sp,
-          //               ),
-          //               border: InputBorder.none),
-          //         ),
-          //       ),
-          //     ),
-          //     GestureDetector(
-          //       onTap: () {
-          //         _sendMessage(messageEditingController.text.trim());
-          //       },
-          //       child: Padding(
-          //         padding: const EdgeInsets.only(right: 15.0, bottom: 5),
-          //         child: Container(
-          //           height: 45.0,
-          //           width: 45.0,
-          //           child: Center(
-          //               child: Image.asset(
-          //             "lib/asset/chatPageAssets/send-active@3x.png",
-          //             width: 15.5.sp,
-          //           )),
-          //         ),
-          //       ),
-          //     )
-          //   ],
-          // ),
-
-
-
-
-
-          // SpeedDial(
-          //   icon: Icons.attach_file_outlined,
-          //   activeIcon: Icons.close,
-          //   spaceBetweenChildren: 6,
-          //   backgroundColor: myHexColor,
-          //   foregroundColor: Colors.grey,
-          //   activeForegroundColor: Colors.grey,
-          //   overlayColor: Colors.transparent,
-          //   overlayOpacity: 0.5,
-          //   switchLabelPosition: true,
-          //   tooltip: "Send File",
-          //   children: [
-          //     SpeedDialChild(
-          //       child: Icon(Icons.image),
-          //       label: "Image",
-          //       elevation: 2.0,
-          //       onTap: () => _getImage(0),
-          //     ),
-          //     SpeedDialChild(
-          //       child: Icon(Icons.camera_alt),
-          //       label: "Camera",
-          //       elevation: 2.0,
-          //       onTap: () => _getImage(1),
-          //     ),
-          //     SpeedDialChild(
-          //       child: Icon(Icons.file_present),
-          //       label: "Document",
-          //       elevation: 2.0,
-          //       onTap: () => _getFile(),
-          //     ),
-          //   ],
-          // ),
-
-
-
-          // Row(
-          //   children: [
-          //     SizedBox(
-          //       width: 8.0.sp,
-          //     ),
-          //     IconButton(
-          //       onPressed: () => _getFile(),
-          //       icon: Image.asset(
-          //         "lib/asset/chatPageAssets/add-folder@3x.png",
-          //         width: 15.5.sp,
-          //       ),
-          //     ),
-          //     IconButton(
-          //       onPressed: () => _getImage(1),
-          //       icon: Image.asset(
-          //         "lib/asset/chatPageAssets/camera@3x.png",
-          //         width: 15.5.sp,
-          //       ),
-          //     ),
-          //     IconButton(
-          //       onPressed: () => _getImage(0),
-          //       icon: Image.asset(
-          //         "lib/asset/chatPageAssets/picture@3x.png",
-          //         width: 15.5.sp,
-          //       ),
-          //     ),
-          //     IconButton(
-          //       onPressed: () => _getGif(),
-          //       icon: Image.asset(
-          //         "lib/asset/chatPageAssets/gif@3x.png",
-          //         width: 15.5.sp,
-          //       ),
-          //     ),
-          //   ],
-          // ),
         ],
       ):
       Container(
@@ -1309,57 +951,6 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  Future<void> _stopRecording() async {
-    _timer?.cancel();
-    _recordDuration = 0;
-    minute = 0;
-    second = 0;
-    final result = await _audioRecorder.stop();
-    print("-------Result------");
-    print(result);
-    if (result != null) {
-      file = File(result);
-      fileExtension = "m4a";//result.files.single.extension;
-      fileName = result.split("/").last;//result.files.single.name;
-      fileSize = result.length;//result.files.single.size;
-
-      if (fileSize > 10480000) {
-        Fluttertoast.showToast(msg: 'This file size must be within 10MB');
-      } else {
-        setState(() {
-          isLoading = true;
-        });
-        _uploadAudio();
-      }
-    }
-  }
-
-  _cancelRecording()async{
-    _timer?.cancel();
-    _recordDuration = 0;
-    minute = 0;
-    second = 0;
-    await _audioRecorder.stop();
-    setState(() {
-      showLockedView = false;
-    });
-  }
-
-  _pauseRecording()async{
-    _timer?.cancel();
-    await _audioRecorder.pause();
-    setState(() {
-      isPausedRecording = true;
-    });
-  }
-
-  _resumeRecording()async{
-    _startTimer();
-    await _audioRecorder.resume();
-    setState(() {
-      isPausedRecording = false;
-    });
-  }
 
   int minute = 0,second=0;
   void _startTimer() {
@@ -1382,323 +973,208 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
+    final scH = MediaQuery.of(context).size.height;
+    final scW = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(Icons.arrow_back, size: 24,),
+      body: Container(
+        height: scH,
+        width: scW,
+        decoration: BoxDecoration(
+          color: themeController.isDarkMode?Color(0xFF000000):Colors.white,
+          image: DecorationImage(
+            image: AssetImage(themeController.isDarkMode?'lib/asset/Background.png':'lib/asset/BackgroundLight.png'),
+            fit: BoxFit.cover,
+          ),
         ),
-        elevation: 0,
-        iconTheme: IconThemeData(
-          color: MateColors.activeIcons,
-        ),
-        centerTitle: true,
-        bottom: PreferredSize(
-            child: Container(
-              color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
-              height: 1.0,
-            ),
-            preferredSize: Size.fromHeight(1.0)),
-        title: Padding(
-          padding: const EdgeInsets.only(right: 0,left: 0),
-          child: InkWell(
-            onTap: ()async{
-              await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => GroupSettingsPage(
-                    groupId: widget.groupId,
-                  )));
-              getGroupDetails();
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                widget.photoURL != ""
-                    ? Padding(
-                        padding: const EdgeInsets.only(right: 10.0),
-                        child: CircleAvatar(
-                          radius: 16,
-                          backgroundImage: NetworkImage(widget.photoURL),
-                        ),
-                      )
-                    : Padding(
-                        padding: const EdgeInsets.only(right: 10.0),
-                        child: CircleAvatar(
-                          radius: 16,
-                          backgroundColor: MateColors.activeIcons,
-                          child: Text(widget.groupName.substring(0, 1).toUpperCase(),
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white, fontSize: 13.0.sp, fontWeight: FontWeight.w400)),
-                        ),
-                      ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
+          children: [
+            Column(
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: MediaQuery.of(context).size.height*0.07,
+                    left: 16,
+                    right: 16,
+                    bottom: 10,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(widget.groupName,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontFamily: "Poppins",
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0.1,
-                          color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                      GestureDetector(
+                        onTap: (){
+                          Get.back();
+                        },
+                        child: Icon(Icons.arrow_back_ios,
+                          size: 20,
+                          color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
                         ),
                       ),
-                      Text(widget.totalParticipant + " members",
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontFamily: "Poppins",
-                          fontSize: 12.0,
-                          fontWeight: FontWeight.w400,
-                          letterSpacing: 0.1,
-                          color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                      InkWell(
+                        onTap: ()async{
+                          await Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => GroupSettingsPage(
+                                groupId: widget.groupId,
+                              )));
+                          getGroupDetails();
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            widget.photoURL != "" ?
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10.0),
+                              child: CircleAvatar(
+                                radius: 22,
+                                backgroundImage: NetworkImage(widget.photoURL),
+                              ),
+                            ) :
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10.0),
+                              child: CircleAvatar(
+                                radius: 22,
+                                backgroundColor: MateColors.activeIcons,
+                                child: Text(widget.groupName.substring(0, 1).toUpperCase(),
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white, fontSize: 13.0.sp, fontWeight: FontWeight.w400)),
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(widget.groupName,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    fontSize: 15.0,
+                                    fontWeight: FontWeight.w600,
+                                    color: themeController.isDarkMode?Colors.white:MateColors.blackText,
+                                  ),
+                                ),
+                                Text(widget.totalParticipant + " members",
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    fontSize: 14.0,
+                                    fontWeight: FontWeight.w400,
+                                    color: themeController.isDarkMode?Colors.white.withOpacity(0.5):Colors.black.withOpacity(0.5),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
+                      ),
+                      SizedBox(),
+                      SizedBox(),
+                      SizedBox(),
+                      SizedBox(),
+                      Row(
+                        children: [
+                          IconButton(
+                            onPressed: ()async{
+                              if(isUserMember){
+                                QuerySnapshot res = await DatabaseService().checkCallIsOngoing(widget.groupId);
+                                if(res.docs.length>0){
+                                  DateTime dateTimeLocal = DateTime.now();
+                                  DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(res.docs[0]['createdAt'].toString()));
+                                  Duration diff = dateTimeLocal.difference(dateFormatServer);
+                                  print(diff.inMinutes);
+                                  if(diff.inMinutes<120){
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => Calling(
+                                      channelName: res.docs[0]['channelName'],
+                                      token: res.docs[0]['token'],
+                                      callType: res.docs[0]['callType'],
+                                      image: widget.photoURL,
+                                      name: widget.groupName,
+                                      isGroupCall: true,
+                                    )));
+                                  }else{
+                                    Get.to(()=>ConnectingScreen(
+                                      callType: "Audio Calling",
+                                      receiverImage: widget.photoURL,
+                                      receiverName: widget.groupName,
+                                      uid: widget.memberList,
+                                      isGroupCalling: true,
+                                      groupOrPeerId: widget.groupId,
+                                      groupOrCallerName: widget.groupName,
+                                    ));
+                                  }
+                                }else{
+                                  Get.to(()=>ConnectingScreen(
+                                    callType: "Audio Calling",
+                                    receiverImage: widget.photoURL,
+                                    receiverName: widget.groupName,
+                                    uid: widget.memberList,
+                                    isGroupCalling: true,
+                                    groupOrPeerId: widget.groupId,
+                                    groupOrCallerName: widget.groupName,
+                                  ));
+                                }
+                              }
+                            },
+                            icon: Icon(Icons.call,
+                              color: themeController.isDarkMode?Colors.white:Colors.black,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: ()async{
+                              if(isUserMember){
+                                QuerySnapshot res = await DatabaseService().checkCallIsOngoing(widget.groupId);
+                                if(res.docs.length>0){
+                                  DateTime dateTimeLocal = DateTime.now();
+                                  DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(res.docs[0]['createdAt'].toString()));
+                                  Duration diff = dateTimeLocal.difference(dateFormatServer);
+                                  print(diff.inMinutes);
+                                  if(diff.inMinutes<120){
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => Calling(
+                                      channelName: res.docs[0]['channelName'],
+                                      token: res.docs[0]['token'],
+                                      callType: res.docs[0]['callType'],
+                                      image: widget.photoURL,
+                                      name: widget.groupName,
+                                      isGroupCall: true,
+                                    )));
+                                  }else{
+                                    Get.to(()=>ConnectingScreen(
+                                      callType: "Video Calling",
+                                      receiverImage: widget.photoURL,
+                                      receiverName: widget.groupName,
+                                      uid: widget.memberList,
+                                      isGroupCalling: true,
+                                      groupOrPeerId: widget.groupId,
+                                      groupOrCallerName: widget.groupName,
+                                    ));
+                                  }
+                                }else{
+                                  Get.to(()=>ConnectingScreen(
+                                    callType: "Video Calling",
+                                    receiverImage: widget.photoURL,
+                                    receiverName: widget.groupName,
+                                    uid: widget.memberList,
+                                    isGroupCalling: true,
+                                    groupOrPeerId: widget.groupId,
+                                    groupOrCallerName: widget.groupName,
+                                  ));
+                                }
+                              }
+                            },
+                            icon: Icon(Icons.video_call_rounded,
+                              color: themeController.isDarkMode?Colors.white:Colors.black,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-                // Column(
-                //   crossAxisAlignment: CrossAxisAlignment.start,
-                //   children: [
-                //     Text(widget.groupName, style: TextStyle(color: Colors.white, fontSize: 10.5.sp)),
-                //     SizedBox(
-                //       height: 5,
-                //     ),
-                //     StreamBuilder<DocumentSnapshot>(
-                //         stream: DatabaseService().getGroupDetails(widget.groupId),
-                //         builder: (context, snapshot) {
-                //           if (snapshot.hasData) {
-                //             print(snapshot.data.data()['createdAt']);
-                //             return Row(
-                //               children: [
-                //                 Image.asset(
-                //                   "lib/asset/chatPageAssets/user@2x.png",
-                //                   width: 11.0.sp,
-                //                 ),
-                //                 Text("  ${snapshot.data.data()['members'].length}", style: TextStyle(fontSize: 9.5.sp, fontWeight: FontWeight.w500, color: Colors.white)),
-                //               ],
-                //             );
-                //           } else
-                //             return Center(child: Text("Oops! Something went wrong! \nplease trey again..", style: TextStyle(fontSize: 10.9.sp)));
-                //         })
-                //   ],
-                // ),
+                Expanded(child: _chatMessages()),
+                _messageSendWidget(),
               ],
             ),
-          ),
+            _buildLoading(),
+          ],
         ),
-        actions: [
-          IconButton(
-            onPressed: ()async{
-              if(isUserMember){
-                QuerySnapshot res = await DatabaseService().checkCallIsOngoing(widget.groupId);
-                if(res.docs.length>0){
-                  DateTime dateTimeLocal = DateTime.now();
-                  DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(res.docs[0]['createdAt'].toString()));
-                  Duration diff = dateTimeLocal.difference(dateFormatServer);
-                  print(diff.inMinutes);
-                  if(diff.inMinutes<120){
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => Calling(
-                      channelName: res.docs[0]['channelName'],
-                      token: res.docs[0]['token'],
-                      callType: res.docs[0]['callType'],
-                      image: widget.photoURL,
-                      name: widget.groupName,
-                      isGroupCall: true,
-                    )));
-                  }else{
-                    Get.to(()=>ConnectingScreen(
-                      callType: "Audio Calling",
-                      receiverImage: widget.photoURL,
-                      receiverName: widget.groupName,
-                      uid: widget.memberList,
-                      isGroupCalling: true,
-                      groupOrPeerId: widget.groupId,
-                      groupOrCallerName: widget.groupName,
-                    ));
-                  }
-                }else{
-                  Get.to(()=>ConnectingScreen(
-                    callType: "Audio Calling",
-                    receiverImage: widget.photoURL,
-                    receiverName: widget.groupName,
-                    uid: widget.memberList,
-                    isGroupCalling: true,
-                    groupOrPeerId: widget.groupId,
-                    groupOrCallerName: widget.groupName,
-                  ));
-                }
-              }
-            },
-            icon: Icon(Icons.call,color: MateColors.activeIcons,),
-          ),
-          IconButton(
-            onPressed: ()async{
-              if(isUserMember){
-                QuerySnapshot res = await DatabaseService().checkCallIsOngoing(widget.groupId);
-                if(res.docs.length>0){
-                  DateTime dateTimeLocal = DateTime.now();
-                  DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(res.docs[0]['createdAt'].toString()));
-                  Duration diff = dateTimeLocal.difference(dateFormatServer);
-                  print(diff.inMinutes);
-                  if(diff.inMinutes<120){
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => Calling(
-                      channelName: res.docs[0]['channelName'],
-                      token: res.docs[0]['token'],
-                      callType: res.docs[0]['callType'],
-                      image: widget.photoURL,
-                      name: widget.groupName,
-                      isGroupCall: true,
-                    )));
-                  }else{
-                    Get.to(()=>ConnectingScreen(
-                      callType: "Video Calling",
-                      receiverImage: widget.photoURL,
-                      receiverName: widget.groupName,
-                      uid: widget.memberList,
-                      isGroupCalling: true,
-                      groupOrPeerId: widget.groupId,
-                      groupOrCallerName: widget.groupName,
-                    ));
-                  }
-                }else{
-                  Get.to(()=>ConnectingScreen(
-                    callType: "Video Calling",
-                    receiverImage: widget.photoURL,
-                    receiverName: widget.groupName,
-                    uid: widget.memberList,
-                    isGroupCalling: true,
-                    groupOrPeerId: widget.groupId,
-                    groupOrCallerName: widget.groupName,
-                  ));
-                }
-              }
-            },
-            icon: Icon(Icons.video_call_rounded,color: MateColors.activeIcons,),
-          ),
-        ],
-        //backgroundColor: myHexColor,
-        // actions: [
-        //   PopupMenuButton<int>(
-        //     color: Colors.grey[850],
-        //     onSelected: (value) async {
-        //       if (value == 0) {
-        //         Future.delayed(
-        //           Duration.zero,
-        //           () => showDialog(
-        //             context: context,
-        //             barrierDismissible: true,
-        //             builder: (context) => AlertDialog(
-        //               backgroundColor: Colors.grey[800],
-        //               titlePadding: EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 0.0),
-        //               contentPadding: EdgeInsets.all(0),
-        //               title: Text(
-        //                 "Exit \"${widget.groupName}\" group?",
-        //                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 12.5.sp),
-        //               ),
-        //               actions: [
-        //                 TextButton(
-        //                   child: Text(
-        //                     "CANCEL",
-        //                     style: TextStyle(color: MateColors.activeIcons, fontWeight: FontWeight.w500, fontSize: 12.0.sp),
-        //                   ),
-        //                   onPressed: () => Navigator.pop(context),
-        //                 ),
-        //                 TextButton(
-        //                   child: Text("EXIT", style: TextStyle(color: MateColors.activeIcons, fontWeight: FontWeight.w500, fontSize: 12.0.sp)),
-        //                   onPressed: () async {
-        //                     await DatabaseService(uid: _user.uid).exitGroup(widget.groupId, widget.groupName, widget.userName).then((value) {
-        //                       Navigator.pop(context);
-        //                       Navigator.pop(context);
-        //                     });
-        //                   },
-        //                 ),
-        //               ],
-        //             ),
-        //           ),
-        //         );
-        //       } else if (value == 1) {
-        //         Navigator.of(context).push(MaterialPageRoute(
-        //             builder: (context) => GroupSettingsPage(
-        //                   groupId: widget.groupId,
-        //                 )));
-        //       } else if (value == 2) {
-        //         String shareableLink = await DynamicLinkService.buildDynamicLink(groupId: widget.groupId, groupName: widget.groupName, groupIcon: widget.photoURL, userName: widget.userName);
-        //         Share.share("Follow this link to join my MATE group $shareableLink");
-        //       }
-        //     },
-        //     itemBuilder: (context) => [
-        //       PopupMenuItem(
-        //         value: 0,
-        //         child: Text(
-        //           "Exit Group",
-        //           textAlign: TextAlign.start,
-        //           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 12.5.sp),
-        //         ),
-        //       ),
-        //       PopupMenuItem(
-        //         value: 1,
-        //         child: Text(
-        //           "Group Settings",
-        //           textAlign: TextAlign.start,
-        //           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 12.5.sp),
-        //         ),
-        //       ),
-        //       PopupMenuItem(
-        //         value: 2,
-        //         child: Text(
-        //           "Share Group",
-        //           textAlign: TextAlign.start,
-        //           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 12.5.sp),
-        //         ),
-        //       ),
-        //     ],
-        //   )
-        // ],
-        // bottom: TabBar(
-        //   indicatorColor: Colors.white,
-        //   tabs: [
-        //     Tab(
-        //       icon: Icon(
-        //         Icons.message_outlined,
-        //         color: Colors.white,
-        //       ),
-        //       text: "Messages",
-        //     ),
-        //     Tab(
-        //       icon: Image.asset(
-        //         "lib/asset/chatPageAssets/user@2x.png",
-        //         width: 15.0.sp,
-        //       ),
-        //       text: "Members",
-        //     ),
-        //     Tab(
-        //       icon: Image.asset(
-        //         "lib/asset/chatPageAssets/invite@3x.png",
-        //         width: 15.0.sp,
-        //       ),
-        //       text: "Invite",
-        //     ),
-        //   ],
-        // ),
-      ),
-      body: Stack(
-        children: [
-          Column(
-            children: <Widget>[
-              Expanded(child: _chatMessages()),
-              // Divider(
-              //   color: Colors.grey.shade200,
-              //   thickness: 0.1,
-              // ),
-              _messageSendWidget(),
-            ],
-          ),
-          _buildLoading(),
-        ],
       ),
     );
   }

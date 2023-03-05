@@ -49,94 +49,134 @@ class _GroupDescriptionShowPageState extends State<GroupDescriptionShowPage> {
       date = dateFormatted;
     }
 
-
+    final scH = MediaQuery.of(context).size.height;
+    final scW = MediaQuery.of(context).size.width;
     return Scaffold(
-      bottomNavigationBar: Container(
+      body: Container(
+        height: scH,
+        width: scW,
         decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(width: 1, color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
-          ),),
-        width: double.infinity,
-        height: 50,
-        child: TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => GroupDescriptionPage(
-              groupId: widget.groupId,
-              description: widget.description ?? "",
-            )));
-          },
-          child: Text("Update",
-            style: TextStyle(
-              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-              fontWeight: FontWeight.w500,
-              fontSize: 17.0,
-            ),
+          color: themeController.isDarkMode?Color(0xFF000000):Colors.white,
+          image: DecorationImage(
+            image: AssetImage(themeController.isDarkMode?'lib/asset/Background.png':'lib/asset/BackgroundLight.png'),
+            fit: BoxFit.cover,
           ),
         ),
-      ),
-      appBar: AppBar(
-        centerTitle: false,
-        elevation: 0,
-        iconTheme: IconThemeData(
-          color: MateColors.activeIcons,
-        ),
-        title: Text("Community Description",
-          style: TextStyle(
-            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-            fontWeight: FontWeight.w700,
-            fontSize: 17.0,
-          ),
-        ),
-      ),
-      body: ListView(
-        physics: ScrollPhysics(),
-        scrollDirection: Axis.vertical,
-        shrinkWrap: true,
-        padding: EdgeInsets.symmetric(horizontal: 0,vertical: 0),
-        children: [
-          if(widget.descriptionCreatorName!="")
-          ListTile(
-            dense: true,
-            horizontalTitleGap: 5,
-            leading: CircleAvatar(
-              radius: 16,
-              backgroundColor: MateColors.activeIcons,
-              backgroundImage: NetworkImage(widget.descriptionCreatorImage),
-            ),
-            title: Text(
-              widget.descriptionCreatorName,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                letterSpacing: 0.1,
-                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).size.height*0.07,
+                left: 16,
+                right: 16,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: (){
+                      Get.back();
+                    },
+                    child: Icon(Icons.arrow_back_ios,
+                      size: 20,
+                      color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
+                    ),
+                  ),
+                  Text(
+                    "Community Description",
+                    style: TextStyle(
+                      color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 17.0,
+                    ),
+                  ),
+                  SizedBox(),
+                ],
               ),
             ),
-            subtitle: Text(
-              date,
-              style: TextStyle(
-                fontSize: 12,
-                color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+            Expanded(
+              child: ListView(
+                physics: ScrollPhysics(),
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                padding: EdgeInsets.symmetric(horizontal: 0,vertical: 16),
+                children: [
+                  if(widget.descriptionCreatorName!="")
+                  ListTile(
+                    dense: true,
+                    horizontalTitleGap: 15,
+                    leading: CircleAvatar(
+                      radius: 22,
+                      backgroundColor: MateColors.activeIcons,
+                      backgroundImage: NetworkImage(widget.descriptionCreatorImage),
+                    ),
+                    title: Text(
+                      widget.descriptionCreatorName,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: "Poppins",
+                        color: themeController.isDarkMode?Colors.white:Colors.black,
+                      ),
+                    ),
+                    subtitle: Text(
+                      date,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: "Poppins",
+                        color: themeController.isDarkMode?Colors.white.withOpacity(0.5):Colors.black.withOpacity(0.5),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16,vertical: 16),
+                    child: Linkify(
+                      onOpen: (link) async {
+                        if (await canLaunch(link.url)) {
+                          await launch(link.url);
+                        } else {
+                          throw 'Could not launch $link';
+                        }
+                      },
+                      options: LinkifyOptions(humanize: false),
+                      text: widget.description,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: "Poppins",
+                        color: themeController.isDarkMode?Colors.white:Colors.black,
+                      ),
+                    ),
+                  )
+                ],
               ),
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16,vertical: 16),
-            child: Linkify(
-              onOpen: (link) async {
-                if (await canLaunch(link.url)) {
-                  await launch(link.url);
-                } else {
-                  throw 'Could not launch $link';
-                }
-              },
-              options: LinkifyOptions(humanize: false),
-              text: widget.description,
-              style: TextStyle(fontSize: 12.5.sp, fontWeight: FontWeight.w500, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
+            Container(
+              width: scW,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  width: 1,
+                  color: themeController.isDarkMode?MateColors.dividerDark:MateColors.dividerLight,
+                ),
+              ),
+              child: TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => GroupDescriptionPage(
+                    groupId: widget.groupId,
+                    description: widget.description ?? "",
+                  )));
+                },
+                child: Text("Update",
+                  style: TextStyle(
+                    color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 17.0,
+                  ),
+                ),
+              ),
             ),
-          )
-        ],
+          ],
+        ),
       ),
     );
   }

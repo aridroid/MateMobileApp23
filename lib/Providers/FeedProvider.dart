@@ -50,7 +50,7 @@ class FeedProvider with ChangeNotifier {
   bool _feedFollowLoader = false;
 
 
-  bool isFindAMate = true;
+  // bool isFindAMate = true;
 
   ///constructor
   FeedProvider() {

@@ -11,6 +11,7 @@ import 'package:mate_app/Widget/video_thumbnail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../asset/Colors/MateColors.dart';
+import '../../../constant.dart';
 import '../../../controller/theme_controller.dart';
 
 class CreateEvent extends StatefulWidget {
@@ -69,53 +70,61 @@ class _CreateEventState extends State<CreateEvent> {
 
   _submitButton(BuildContext context) {
     return Expanded(
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: Container(
-          height: 56,
-          width: 120,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              primary: MateColors.activeIcons,
-              onPrimary: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-            ),
-            onPressed: ()async{
-              if(_formKey.currentState.validate()){
-                setState(() {
-                  isLoading = true;
-                });
-                String response = await _eventService.createEvent(
-                  title: _title.text,
-                  desc: _description.text,
-                  location: _location.text,
-                  date: dateValue,
-                  time: timeValue,
-                  photo: _base64encodedImage,
-                  video: _base64encodedVideo,
-                  token: token,
-                  linkText: _linkText.text,
-                  link: _link.text,
-                  endTime: timeValueEnd,
-                );
-                setState(() {
-                  isLoading = false;
-                });
-                if(response=="Event created successfully"){
-                  Get.back();
-                  Fluttertoast.showToast(msg: "Event created successfully", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
-                }else{
-                  Fluttertoast.showToast(msg: "Something went wrong", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
-                }
+      child: Container(
+        height: 60,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            primary: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+            onPrimary: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          ),
+          onPressed: ()async{
+            if(_formKey.currentState.validate()){
+              setState(() {
+                isLoading = true;
+              });
+              String response = await _eventService.createEvent(
+                title: _title.text,
+                desc: _description.text,
+                location: _location.text,
+                date: dateValue,
+                time: timeValue,
+                photo: _base64encodedImage,
+                video: _base64encodedVideo,
+                token: token,
+                linkText: _linkText.text,
+                link: _link.text,
+                endTime: timeValueEnd,
+              );
+              setState(() {
+                isLoading = false;
+              });
+              if(response=="Event created successfully"){
+                Get.back();
+                Fluttertoast.showToast(msg: "Event created successfully", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+              }else{
+                Fluttertoast.showToast(msg: "Something went wrong", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
               }
-            },
-            child: Text("Create",
-              style: TextStyle(
-                color: themeController.isDarkMode?MateColors.blackTextColor:Colors.white,
-                fontWeight: FontWeight.w700,
-                fontSize: 17.0,
+            }
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("POST",
+                style: TextStyle(
+                  color: MateColors.blackTextColor,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: "Poppins",
+                  fontSize: 18.0,
+                ),
               ),
-            ),
+              SizedBox(
+                width: 10,
+              ),
+              Image.asset('lib/asset/iconsNewDesign/arrowRight.png',
+                width: 20,
+              ),
+            ],
           ),
         ),
       ),
@@ -144,17 +153,18 @@ class _CreateEventState extends State<CreateEvent> {
               }
             },
             child: Container(
-              height: 56,
-              width: 56,
+              height: 60,
+              width: 60,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
+                borderRadius: BorderRadius.circular(14),
+                color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
               ),
               child: Center(
                 child: Image.asset(
                   "lib/asset/icons/galleryPlus.png",
-                  height: 20,
-                  width: 20,
+                  height: 25,
+                  width: 25,
+                  color: themeController.isDarkMode?Colors.white:Colors.black,
                 ),
               ),
             ),
@@ -175,475 +185,508 @@ class _CreateEventState extends State<CreateEvent> {
               }
             },
             child: Container(
-              height: 56,
-              width: 56,
+              height: 60,
+              width: 60,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,
+                borderRadius: BorderRadius.circular(14),
+                color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
               ),
               child: Icon(
                 Icons.video_call,
-                color: MateColors.activeIcons,
                 size: 30,
+                color: themeController.isDarkMode?Colors.white:Colors.black,
               ),
             ),
           ),
+          SizedBox(
+            width: 16,
+          ),
           _submitButton(context),
+          SizedBox(
+            width: 5,
+          ),
         ],
       ),
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
+    final scH = MediaQuery.of(context).size.height;
+    final scW = MediaQuery.of(context).size.width;
     return GestureDetector(
-       behavior: HitTestBehavior.translucent,
-          onTap: null,
-          onPanUpdate: (details) {
-            if (details.delta.dy > 0){
-              FocusScope.of(context).requestFocus(FocusNode());
-              print("Dragging in +Y direction");
-            }
-          },
+      behavior: HitTestBehavior.translucent,
+      onTap: null,
+      onPanUpdate: (details) {
+        if (details.delta.dy > 0){
+          FocusScope.of(context).requestFocus(FocusNode());
+          print("Dragging in +Y direction");
+        }
+      },
       child: Stack(
         children: [
           Scaffold(
-            appBar: AppBar(
-              elevation: 0,
-              iconTheme: IconThemeData(
-                color: MateColors.activeIcons,
-              ),
-              title: Text(
-                "Create Event",
-                style: TextStyle(
-                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 17.0,
+            body: Container(
+              height: scH,
+              width: scW,
+              decoration: BoxDecoration(
+                color: themeController.isDarkMode?Color(0xFF000000):Colors.white,
+                image: DecorationImage(
+                  image: AssetImage(themeController.isDarkMode?'lib/asset/Background.png':'lib/asset/BackgroundLight.png'),
+                  fit: BoxFit.cover,
                 ),
               ),
-              centerTitle: true,
-            ),
-            body: GestureDetector(
-              onTap: () {
-                FocusScope.of(context).unfocus();
-              },
-              child: SingleChildScrollView(
-                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                controller: _scrollController,
-                child: Form(
-                  key: _formKey,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 2,right: 2),
-                          child:   Text(
-                            "Title",
+              child: GestureDetector(
+                onTap: () {
+                  FocusScope.of(context).unfocus();
+                },
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(
+                        top: MediaQuery.of(context).size.height*0.07,
+                        left: 16,
+                        right: 16,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                            onTap: (){
+                              Get.back();
+                            },
+                            child: Icon(Icons.arrow_back_ios,
+                              size: 20,
+                              color: themeController.isDarkMode ? Colors.white : Colors.black,
+                            ),
+                          ),
+                          Text(
+                            "Create Event",
                             style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 0.1,
-                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                              color: themeController.isDarkMode ? Colors.white : Colors.black,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'Poppins',
+                              fontSize: 18.0,
                             ),
                           ),
-                        ),
-                        SizedBox(height: 10,),
-                        TextFormField(
-                          controller: _title,
-                          scrollPadding: const EdgeInsets.all(0.0),
-                          decoration: _customInputDecoration(labelText: 'Title', icon: Icons.title),
-                          style:  TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.1,
-                            color: themeController.isDarkMode?Colors.white:Colors.black,
-                          ),
-                          cursorColor: MateColors.activeIcons,
-                          textInputAction: TextInputAction.next,
-                          validator: (value) {
-                            if(value.isEmpty){
-                              return "This field is required";
-                            }
-                            return null;
-                          },
-                        ),
-                        SizedBox(height: 40,),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 2,right: 2),
-                          child:  Text(
-                            "Description",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 0.1,
-                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 10,),
-                        TextFormField(
-                          controller: _description,
-                          decoration: _customInputDecoration(labelText: 'Describe your event', icon: Icons.perm_identity),
-                          style:  TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.1,
-                            color: themeController.isDarkMode?Colors.white:Colors.black,
-                          ),
-                          cursorColor: MateColors.activeIcons,
-                          textInputAction: TextInputAction.newline,
-                          minLines: 3,
-                          maxLines: 8,
-                          validator: (value) {
-                            if(value.isEmpty){
-                              return "This field is required";
-                            }
-                            return null;
-                          },
-                        ),
-                        SizedBox(height: 40,),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 2,right: 2),
-                          child:  Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Link Text – Optional",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 0.1,
-                                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                                ),
-                              ),
-                              // Text(
-                              //   "$linkTextLength/100",
-                              //   style: TextStyle(
-                              //     fontSize: 12,
-                              //     fontWeight: FontWeight.w400,
-                              //     letterSpacing: 0.1,
-                              //     color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                              //   ),
-                              // ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 10,),
-                        TextFormField(
-                          controller: _linkText,
-                          decoration: _customInputDecoration(labelText: 'Link Text', icon: Icons.location_on),
-                          style:  TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.1,
-                            color: themeController.isDarkMode?Colors.white:Colors.black,
-                          ),
-                          cursorColor: MateColors.activeIcons,
-                          textInputAction: TextInputAction.done,
-                          //maxLength: 100,
-                          onChanged: (value){
-                            linkTextLength = value.length;
-                            setState(() {});
-                          },
-                          validator: (value) {
-                            return null;
-                          },
-                        ),
-                        SizedBox(height: 40,),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 2,right: 2),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Link – Optional",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 0.1,
-                                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                                ),
-                              ),
-                              // Text(
-                              //   "$linkLength/100",
-                              //   style: TextStyle(
-                              //     fontSize: 12,
-                              //     fontWeight: FontWeight.w400,
-                              //     letterSpacing: 0.1,
-                              //     color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                              //   ),
-                              // ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 10,),
-                        TextFormField(
-                         controller: _link,
-                          decoration: _customInputDecoration(labelText: 'Link', icon: Icons.location_on),
-                          style:  TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.1,
-                            color: themeController.isDarkMode?Colors.white:Colors.black,
-                          ),
-                          cursorColor: MateColors.activeIcons,
-                          textInputAction: TextInputAction.done,
-                          //maxLength: 100,
-                          onChanged: (value){
-                            linkLength = value.length;
-                            setState(() {});
-                          },
-                          validator: (value) {
-                            return null;
-                          },
-                        ),
-                        SizedBox(height: 40,),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 2,right: 2),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Location",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 0.1,
-                                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                                ),
-                              ),
-                              // Text(
-                              //   "$locationLength/50",
-                              //   style: TextStyle(
-                              //     fontSize: 12,
-                              //     fontWeight: FontWeight.w400,
-                              //     letterSpacing: 0.1,
-                              //     color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-                              //   ),
-                              // ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 10,),
-                        TextFormField(
-                          controller: _location,
-                          decoration: _customInputDecoration(labelText: 'Location', icon: Icons.location_on),
-                          style:  TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.1,
-                            color: themeController.isDarkMode?Colors.white:Colors.black,
-                          ),
-                          cursorColor: MateColors.activeIcons,
-                          textInputAction: TextInputAction.done,
-                          //maxLength: 50,
-                          onChanged: (value){
-                            locationLength = value.length;
-                            setState(() {});
-                          },
-                          validator: (value) {
-                            if(value.isEmpty){
-                              return "This field is required";
-                            }
-                            return null;
-                          },
-                        ),
-                        SizedBox(height: 40,),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 2,right: 2),
-                          child: Text(
-                            "Date",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 0.1,
-                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 10,),
-                        TextFormField(
-                          controller: _date,
-                          onTap: (){
-                            getDate(context:context);
-                          },
-                          readOnly: true,
-                          decoration: _customInputDecoration(labelText: 'Date', icon: Icons.calendar_today_outlined,isSuffix: true),
-                          style:  TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.1,
-                            color: themeController.isDarkMode?Colors.white:Colors.black,
-                          ),
-                          cursorColor: MateColors.activeIcons,
-                          textInputAction: TextInputAction.done,
-                          maxLength: 50,
-                          validator: (value) {
-                            if(value.isEmpty){
-                              return "This field is required";
-                            }
-                            return null;
-                          },
-                        ),
-                        SizedBox(height: 40,),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 2,right: 2),
-                          child: Text(
-                            "Start Time",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 0.1,
-                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 10,),
-                        TextFormField(
-                          onTap: (){
-                            selectTime(context);
-                          },
-                          controller: _time,
-                          readOnly: true,
-                          decoration: _customInputDecoration(labelText: 'Start Time', icon: Icons.access_time,isSuffix: true),
-                          style:  TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.1,
-                            color: themeController.isDarkMode?Colors.white:Colors.black,
-                          ),
-                          cursorColor: MateColors.activeIcons,
-                          textInputAction: TextInputAction.done,
-                          maxLength: 50,
-                          validator: (value) {
-                            if(value.isEmpty){
-                              return "This field is required";
-                            }
-                            return null;
-                          },
-                        ),
-
-
-
-                        SizedBox(height: 40,),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 2,right: 2),
-                          child: Text(
-                            "End Time",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 0.1,
-                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 10,),
-                        TextFormField(
-                          onTap: (){
-                            selectTimeEnd(context);
-                          },
-                          controller: _timeEnd,
-                          readOnly: true,
-                          decoration: _customInputDecoration(labelText: 'End Time', icon: Icons.access_time,isSuffix: true),
-                          style:  TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.1,
-                            color: themeController.isDarkMode?Colors.white:Colors.black,
-                          ),
-                          cursorColor: MateColors.activeIcons,
-                          textInputAction: TextInputAction.done,
-                          maxLength: 50,
-                          // validator: (value) {
-                          //   if(value.isEmpty){
-                          //     return "This field is required";
-                          //   }
-                          //   return null;
-                          // },
-                        ),
-
-
-
-                        _image!=null?
-                        Stack(
-                          children: [
-                            Container(
-                              height: 150,
-                              width: MediaQuery.of(context).size.width,
-                              margin: EdgeInsets.only(top: 30),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8.0),
-                                clipBehavior: Clip.hardEdge,
-                                child: Image.file(_image,fit: BoxFit.fill),
-                              ),
-                            ),
-                            Positioned(
-                              top: 18,
-                              right: 0,
-                              child: InkWell(
-                                onTap: (){
-                                  _image = null;
-                                  _base64encodedImage = null;
-                                  setState(() {});
-                                },
-                                child: Container(
-                                  height: 30,
-                                  padding: EdgeInsets.all(5),
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: MateColors.activeIcons,
-                                  ),
-                                  child: Icon(Icons.clear,color: Colors.black,size: 16,),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ):Offstage(),
-                        _video!=null?
-                        Stack(
-                          children: [
-                            Container(
-                              height: 150,
-                              width: MediaQuery.of(context).size.width,
-                              margin: EdgeInsets.only(top: 30),
-                              child: VideoThumbnailFile(videoUrl: _video),
-                            ),
-                            Positioned(
-                              top: 18,
-                              right: 0,
-                              child: InkWell(
-                                onTap: (){
-                                  _video = null;
-                                  _base64encodedVideo = null;
-                                  setState(() {});
-                                },
-                                child: Container(
-                                  height: 30,
-                                  padding: EdgeInsets.all(5),
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: MateColors.activeIcons,
-                                  ),
-                                  child: Icon(Icons.clear,color: Colors.black,size: 16,),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ):Offstage(),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 16.0, top: 5),
-                          child: _imageSelectionButton(),
-                        ),
-                      ],
+                          SizedBox(),
+                        ],
+                      ),
                     ),
-                  ),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                        controller: _scrollController,
+                        child: Form(
+                          key: _formKey,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 2,right: 2,top: 10),
+                                  child:   Text(
+                                    "Title",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      fontFamily: 'Poppins',
+                                      color: themeController.isDarkMode?Colors.white: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 10,),
+                                TextFormField(
+                                  controller: _title,
+                                  scrollPadding: const EdgeInsets.all(0.0),
+                                  decoration: _customInputDecoration(labelText: 'Title', icon: Icons.title),
+                                  cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                                  style:  TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 0.1,
+                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                  ),
+                                  textInputAction: TextInputAction.next,
+                                  validator: (value) {
+                                    if(value.isEmpty){
+                                      return "This field is required";
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                SizedBox(height: 40,),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 2,right: 2),
+                                  child:  Text(
+                                    "Description",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      fontFamily: 'Poppins',
+                                      color: themeController.isDarkMode?Colors.white: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 10,),
+                                TextFormField(
+                                  controller: _description,
+                                  decoration: _customInputDecoration(labelText: 'Describe your event', icon: Icons.perm_identity),
+                                  cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                                  style:  TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 0.1,
+                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                  ),
+                                  textInputAction: TextInputAction.newline,
+                                  minLines: 3,
+                                  maxLines: 8,
+                                  validator: (value) {
+                                    if(value.isEmpty){
+                                      return "This field is required";
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                SizedBox(height: 40,),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 2,right: 2),
+                                  child:  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Link Text – Optional",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          fontFamily: 'Poppins',
+                                          color: themeController.isDarkMode?Colors.white: Colors.black,
+                                        ),
+                                      ),
+                                      // Text(
+                                      //   "$linkTextLength/100",
+                                      //   style: TextStyle(
+                                      //     fontSize: 12,
+                                      //     fontWeight: FontWeight.w400,
+                                      //     letterSpacing: 0.1,
+                                      //     color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                                      //   ),
+                                      // ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 10,),
+                                TextFormField(
+                                  controller: _linkText,
+                                  decoration: _customInputDecoration(labelText: 'Link Text', icon: Icons.location_on),
+                                  cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                                  style:  TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 0.1,
+                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                  ),
+                                  textInputAction: TextInputAction.done,
+                                  //maxLength: 100,
+                                  onChanged: (value){
+                                    linkTextLength = value.length;
+                                    setState(() {});
+                                  },
+                                  validator: (value) {
+                                    return null;
+                                  },
+                                ),
+                                SizedBox(height: 40,),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 2,right: 2),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Link – Optional",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          fontFamily: 'Poppins',
+                                          color: themeController.isDarkMode?Colors.white: Colors.black,
+                                        ),
+                                      ),
+                                      // Text(
+                                      //   "$linkLength/100",
+                                      //   style: TextStyle(
+                                      //     fontSize: 12,
+                                      //     fontWeight: FontWeight.w400,
+                                      //     letterSpacing: 0.1,
+                                      //     color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                                      //   ),
+                                      // ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 10,),
+                                TextFormField(
+                                  controller: _link,
+                                  decoration: _customInputDecoration(labelText: 'Link', icon: Icons.location_on),
+                                  cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                                  style:  TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 0.1,
+                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                  ),
+                                  textInputAction: TextInputAction.done,
+                                  //maxLength: 100,
+                                  onChanged: (value){
+                                    linkLength = value.length;
+                                    setState(() {});
+                                  },
+                                  validator: (value) {
+                                    return null;
+                                  },
+                                ),
+                                SizedBox(height: 40,),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 2,right: 2),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Location",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          fontFamily: 'Poppins',
+                                          color: themeController.isDarkMode?Colors.white: Colors.black,
+                                        ),
+                                      ),
+                                      // Text(
+                                      //   "$locationLength/50",
+                                      //   style: TextStyle(
+                                      //     fontSize: 12,
+                                      //     fontWeight: FontWeight.w400,
+                                      //     letterSpacing: 0.1,
+                                      //     color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                                      //   ),
+                                      // ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 10,),
+                                TextFormField(
+                                  controller: _location,
+                                  decoration: _customInputDecoration(labelText: 'Location', icon: Icons.location_on),
+                                  cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                                  style:  TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 0.1,
+                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                  ),
+                                  textInputAction: TextInputAction.done,
+                                  //maxLength: 50,
+                                  onChanged: (value){
+                                    locationLength = value.length;
+                                    setState(() {});
+                                  },
+                                  validator: (value) {
+                                    if(value.isEmpty){
+                                      return "This field is required";
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                SizedBox(height: 40,),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 2,right: 2),
+                                  child: Text(
+                                    "Date",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      fontFamily: 'Poppins',
+                                      color: themeController.isDarkMode?Colors.white: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 10,),
+                                TextFormField(
+                                  controller: _date,
+                                  onTap: (){
+                                    getDate(context:context);
+                                  },
+                                  readOnly: true,
+                                  decoration: _customInputDecoration(labelText: 'Date', icon: Icons.calendar_today_outlined,isSuffix: true),
+                                  cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                                  style:  TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 0.1,
+                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                  ),
+                                  textInputAction: TextInputAction.done,
+                                  maxLength: 50,
+                                  validator: (value) {
+                                    if(value.isEmpty){
+                                      return "This field is required";
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                SizedBox(height: 40,),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 2,right: 2),
+                                  child: Text(
+                                    "Start Time",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      fontFamily: 'Poppins',
+                                      color: themeController.isDarkMode?Colors.white: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 10,),
+                                TextFormField(
+                                  onTap: (){
+                                    selectTime(context);
+                                  },
+                                  controller: _time,
+                                  readOnly: true,
+                                  decoration: _customInputDecoration(labelText: 'Start Time', icon: Icons.access_time,isSuffix: true),
+                                  cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                                  style:  TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 0.1,
+                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                  ),
+                                  textInputAction: TextInputAction.done,
+                                  maxLength: 50,
+                                  validator: (value) {
+                                    if(value.isEmpty){
+                                      return "This field is required";
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                SizedBox(height: 40,),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 2,right: 2),
+                                  child: Text(
+                                    "End Time",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      fontFamily: 'Poppins',
+                                      color: themeController.isDarkMode?Colors.white: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 10,),
+                                TextFormField(
+                                  onTap: (){
+                                    selectTimeEnd(context);
+                                  },
+                                  controller: _timeEnd,
+                                  readOnly: true,
+                                  decoration: _customInputDecoration(labelText: 'End Time', icon: Icons.access_time,isSuffix: true),
+                                  cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                                  style:  TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 0.1,
+                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                  ),
+                                  textInputAction: TextInputAction.done,
+                                  maxLength: 50,
+                                  // validator: (value) {
+                                  //   if(value.isEmpty){
+                                  //     return "This field is required";
+                                  //   }
+                                  //   return null;
+                                  // },
+                                ),
+                                _image!=null?
+                                Stack(
+                                  children: [
+                                    Container(
+                                      height: 150,
+                                      width: MediaQuery.of(context).size.width,
+                                      margin: EdgeInsets.only(top: 30),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(8.0),
+                                        clipBehavior: Clip.hardEdge,
+                                        child: Image.file(_image,fit: BoxFit.fill),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 18,
+                                      right: 0,
+                                      child: InkWell(
+                                        onTap: (){
+                                          _image = null;
+                                          _base64encodedImage = null;
+                                          setState(() {});
+                                        },
+                                        child: Container(
+                                          height: 30,
+                                          padding: EdgeInsets.all(5),
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: MateColors.activeIcons,
+                                          ),
+                                          child: Icon(Icons.clear,color: Colors.black,size: 16,),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ):Offstage(),
+                                _video!=null?
+                                Stack(
+                                  children: [
+                                    Container(
+                                      height: 150,
+                                      width: MediaQuery.of(context).size.width,
+                                      margin: EdgeInsets.only(top: 30),
+                                      child: VideoThumbnailFile(videoUrl: _video),
+                                    ),
+                                    Positioned(
+                                      top: 18,
+                                      right: 0,
+                                      child: InkWell(
+                                        onTap: (){
+                                          _video = null;
+                                          _base64encodedVideo = null;
+                                          setState(() {});
+                                        },
+                                        child: Container(
+                                          height: 30,
+                                          padding: EdgeInsets.all(5),
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: MateColors.activeIcons,
+                                          ),
+                                          child: Icon(Icons.clear,color: Colors.black,size: 16,),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ):Offstage(),
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 16.0, top: 5),
+                                  child: _imageSelectionButton(),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -656,7 +699,6 @@ class _CreateEventState extends State<CreateEvent> {
       ),
     );
   }
-
 
   void getDate({BuildContext context}) async {
     DateTime dateLocal = await showDatePicker(
@@ -721,83 +763,33 @@ class _CreateEventState extends State<CreateEvent> {
       String timeFormatted = picked.hour.toString() + ":" + minute;
       List<String> dateTime = timeEnd.toString().split(" ");
       timeValueEnd = dateTime[0] + "T" + dateTime[1];
-      //timeValueEnd = timeEnd.toString();
       print(timeValueEnd);
       _timeEnd.text = timeFormatted;
     }
   }
 
-
-  //
-  // SizedBox _startDatePicker() {
-  //   if (_scrollController.hasClients){
-  //     _scrollController.animateTo(
-  //       _scrollController.position.maxScrollExtent,
-  //       duration: Duration(seconds: 1),
-  //       curve: Curves.fastOutSlowIn,
-  //     );
-  //   }
-  //   return SizedBox(
-  //     height: 200,
-  //     child: CupertinoDatePicker(
-  //       backgroundColor: Colors.white,
-  //       initialDateTime: DateTime.now(),
-  //       onDateTimeChanged: (val) {
-  //         print("${val.toString()} and type is ${val.runtimeType}");
-  //         _startDate = val;
-  //         print(_startDate);
-  //         print("${_startDate.hour} ${_startDate.minute} ${_startDate}");
-  //       },
-  //     ),
-  //   );
-  // }
-
   InputDecoration _customInputDecoration({@required String labelText, IconData icon,bool isSuffix=false}) {
     return InputDecoration(
       hintStyle: TextStyle(
-        fontSize: 14,
+        fontSize: 16,
+        fontFamily: 'Poppins',
         fontWeight: FontWeight.w400,
-        letterSpacing: 0.1,
-        color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+        color: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
       ),
       hintText: labelText,
       suffixIcon: isSuffix?Icon(
         icon,
-        color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,
+        size: 20,
+        color: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
       ):Offstage(),
       counterText: "",
-      fillColor: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+      fillColor: themeController.isDarkMode ? MateColors.containerDark : MateColors.containerLight,
       filled: true,
-      focusedBorder: OutlineInputBorder(
-        borderSide:  BorderSide(
-          color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-        ),
-        borderRadius: BorderRadius.circular(16.0),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderSide:  BorderSide(
-          color:  themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-        ),
-        borderRadius: BorderRadius.circular(16.0),
-      ),
-      disabledBorder: OutlineInputBorder(
-        borderSide:  BorderSide(
-          color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-        ),
-        borderRadius: BorderRadius.circular(16.0),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderSide:  BorderSide(
-          color:  themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-        ),
-        borderRadius: BorderRadius.circular(16.0),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderSide:  BorderSide(
-          color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-        ),
-        borderRadius: BorderRadius.circular(16.0),
-      ),
+      focusedBorder: commonBorder,
+      enabledBorder: commonBorder,
+      disabledBorder: commonBorder,
+      errorBorder: commonBorder,
+      focusedErrorBorder: commonBorder,
     );
   }
 

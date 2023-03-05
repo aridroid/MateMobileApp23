@@ -9,25 +9,25 @@ class EventService{
 
   Future<String> createEvent({String title,String desc,String location,String date,String time,String token,String photo,String video,String linkText,String link,String endTime})async{
     String result = "";
-    // Map data = {
-    //   "title": title,
-    //   "description": desc,
-    //   "location": location,
-    //   "date": date,
-    //   "time": time,
-    //   if(photo!=null)
-    //     "photo":photo,
-    //   if(video!=null)
-    //     "video":video,
-    //   if(linkText!=null)
-    //     "hyperlinkText":linkText,
-    //   if(link!=null)
-    //     "hyperlink":link,
-    //   if(endTime!=null)
-    //     "end_time" : endTime,
-    // };
+    Map data = {
+      "title": title,
+      "description": desc,
+      "location": location,
+      "date": date,
+      "time": time,
+      if(photo!=null)
+        "photo":photo,
+      if(video!=null)
+        "video":video,
+      if(linkText!=null)
+        "hyperlinkText":linkText,
+      if(link!=null)
+        "hyperlink":link,
+      if(endTime!=null)
+        "end_time" : endTime,
+    };
     debugPrint("https://api.mateapp.us/api/events");
-    // debugPrint(json.encode(data));
+    debugPrint(json.encode(data));
     log(token);
 
 
@@ -56,6 +56,9 @@ class EventService{
 
     try {
       var response = await request.send();
+      response.stream.transform(utf8.decoder).listen((value) {
+        log(value);
+      });
       if (response.statusCode == 200 || response.statusCode == 201) {
         result = "Event created successfully";
       }

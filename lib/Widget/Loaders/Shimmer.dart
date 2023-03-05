@@ -203,6 +203,7 @@ Widget timelineLoader() {
         child: ListView.builder(
             shrinkWrap: true,
             itemCount: 3,
+            padding: EdgeInsets.zero,
             itemBuilder: (context, index) {
               return Padding(
                 padding: const EdgeInsets.only(left: 12.0, right: 12),
@@ -428,6 +429,7 @@ class GroupLoader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
       child: ListView.builder(
+        padding: EdgeInsets.zero,
         itemCount: 15,
         itemBuilder: (_, __) => Padding(
           padding: const EdgeInsets.only(bottom: 20.0),

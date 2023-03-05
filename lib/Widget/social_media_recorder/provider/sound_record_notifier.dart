@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
+//import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:just_audio/just_audio.dart';
@@ -339,81 +339,81 @@ class SoundRecordNotifier extends ChangeNotifier {
   }
 }
 
-class FFmpeg {
-
-  static Future<File> concatenate(List<String> assetPaths)async{
-    User _user = FirebaseAuth.instance.currentUser;
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    String appDocPath = appDocDir.path + "/" + _user.uid + "/outputs" + DateTime.now().microsecondsSinceEpoch.toString() + ".m4a";
-    final file = File(appDocPath);
-
-    // if(File(appDocPath).existsSync()){
-    //   print("Deleted when concatenate");
-    //   await File(appDocPath).delete();
-    // }
-
-    print(assetPaths[0]);
-    print(assetPaths[1]);
-    var cmd = "ffmpeg -i 'concat:${assetPaths[0]}|${assetPaths[1]}' -acodec copy ${file.path}";
-    //var cmd ="-i ${assetPaths[0]} -i ${assetPaths[1]} -filter_complex 'concat=n=2:v=0:a=1[a]' -map '[a]' -codec:a libmp3lame -qscale:a 2 ${file.path}";
-
-    // final cmd = ["-y"];
-    // for(var path in assetPaths){
-    //   //final tmp = await copyToTemp(path);
-    //   cmd.add("-i");
-    //   print(path);
-    //   cmd.add(path);
-    // }
-
-    // cmd.addAll([
-    //   "-filter_complex",
-    //   "[0:a] [1:a] concat=n=${assetPaths.length}:v=0:a=1 [a]",
-    //   "-map", "[a]", "-c:a", "m4a", file.path
-    // ]);
-
-    // await FFmpegKit.executeWithArguments(cmd).then((value){
-    //   print('---------');
-    //   print(value.getOutput().then((value) => print(value)));
-    // });
-
-    FFmpegKit.executeAsync(cmd, (session) async {
-      final returnCode = await session.getReturnCode();
-      print("returnCode $returnCode");
-    });
-    print("---Path---");
-    print(file.path);
-    return file;
-  }
-
-  static Future<File>copyToTemp(String path)async{
-    User _user = FirebaseAuth.instance.currentUser;
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    String appDocPath = appDocDir.path + "/" + _user.uid  + "tempPath"  + ".m4a";
-
-    File tempFile;
-    tempFile = File(appDocPath);
-
-    if(File(appDocPath).existsSync()){
-      print("Deleted");
-      await File(appDocPath).delete();
-    }
-
-    // Directory tempDir = await getApplicationDocumentsDirectory();
-    // File tempFile;
-    // tempFile = File('${tempDir.path}/${_user.uid}/tempSave.m4a');
-    //
-    // if(tempFile.existsSync()){
-    //   print("Deleted");
-    //   await tempFile.delete();
-    //   tempFile = File('${tempDir.path}/${_user.uid}/tempSave.m4a');
-    // }
-
-    // if(await tempFile.exists()){
-    //   return tempFile;
-    // }
-    //final bd = await rootBundle.load(path);
-    await tempFile.writeAsBytes(path.codeUnits,);
-    return tempFile;
-  }
-
-}
+// class FFmpeg {
+//
+//   static Future<File> concatenate(List<String> assetPaths)async{
+//     User _user = FirebaseAuth.instance.currentUser;
+//     Directory appDocDir = await getApplicationDocumentsDirectory();
+//     String appDocPath = appDocDir.path + "/" + _user.uid + "/outputs" + DateTime.now().microsecondsSinceEpoch.toString() + ".m4a";
+//     final file = File(appDocPath);
+//
+//     // if(File(appDocPath).existsSync()){
+//     //   print("Deleted when concatenate");
+//     //   await File(appDocPath).delete();
+//     // }
+//
+//     print(assetPaths[0]);
+//     print(assetPaths[1]);
+//     var cmd = "ffmpeg -i 'concat:${assetPaths[0]}|${assetPaths[1]}' -acodec copy ${file.path}";
+//     //var cmd ="-i ${assetPaths[0]} -i ${assetPaths[1]} -filter_complex 'concat=n=2:v=0:a=1[a]' -map '[a]' -codec:a libmp3lame -qscale:a 2 ${file.path}";
+//
+//     // final cmd = ["-y"];
+//     // for(var path in assetPaths){
+//     //   //final tmp = await copyToTemp(path);
+//     //   cmd.add("-i");
+//     //   print(path);
+//     //   cmd.add(path);
+//     // }
+//
+//     // cmd.addAll([
+//     //   "-filter_complex",
+//     //   "[0:a] [1:a] concat=n=${assetPaths.length}:v=0:a=1 [a]",
+//     //   "-map", "[a]", "-c:a", "m4a", file.path
+//     // ]);
+//
+//     // await FFmpegKit.executeWithArguments(cmd).then((value){
+//     //   print('---------');
+//     //   print(value.getOutput().then((value) => print(value)));
+//     // });
+//
+//     FFmpegKit.executeAsync(cmd, (session) async {
+//       final returnCode = await session.getReturnCode();
+//       print("returnCode $returnCode");
+//     });
+//     print("---Path---");
+//     print(file.path);
+//     return file;
+//   }
+//
+//   static Future<File>copyToTemp(String path)async{
+//     User _user = FirebaseAuth.instance.currentUser;
+//     Directory appDocDir = await getApplicationDocumentsDirectory();
+//     String appDocPath = appDocDir.path + "/" + _user.uid  + "tempPath"  + ".m4a";
+//
+//     File tempFile;
+//     tempFile = File(appDocPath);
+//
+//     if(File(appDocPath).existsSync()){
+//       print("Deleted");
+//       await File(appDocPath).delete();
+//     }
+//
+//     // Directory tempDir = await getApplicationDocumentsDirectory();
+//     // File tempFile;
+//     // tempFile = File('${tempDir.path}/${_user.uid}/tempSave.m4a');
+//     //
+//     // if(tempFile.existsSync()){
+//     //   print("Deleted");
+//     //   await tempFile.delete();
+//     //   tempFile = File('${tempDir.path}/${_user.uid}/tempSave.m4a');
+//     // }
+//
+//     // if(await tempFile.exists()){
+//     //   return tempFile;
+//     // }
+//     //final bd = await rootBundle.load(path);
+//     await tempFile.writeAsBytes(path.codeUnits,);
+//     return tempFile;
+//   }
+//
+// }
