@@ -5,13 +5,37 @@ import 'package:mate_app/asset/Colors/MateColors.dart';
 import 'package:flutter/material.dart';
 import 'package:mate_app/controller/theme_controller.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../Model/campusTalkPostsModel.dart';
+import '../../../Services/campusTalkService.dart';
 import '../../../constant.dart';
+import 'package:mate_app/Model/campusTalkPostsModel.dart' as postModel;
+import 'package:mate_app/Model/campusTalkTypeModel.dart' as campusTalkTypeModel;
 
 class EditCampusTalk extends StatefulWidget {
   final String title,description,anonymousUser;
   final int id,isAnonymous;
-  const EditCampusTalk({Key key, this.title, this.description, this.anonymousUser, this.isAnonymous, this.id}) : super(key: key);
+  final bool isBookmarkedPage;
+  final bool isUserProfile;
+  final bool isTrending;
+  final bool isLatest;
+  final bool isForums;
+  final bool isYourCampus;
+  final bool isListCard;
+  final bool isSearch;
+  final postModel.User user;
+  final List<CampusTalkTypes> campusTalkTypes;
+  const EditCampusTalk({Key key, this.title, this.description, this.anonymousUser, this.isAnonymous, this.id,
+    this.isTrending = false,
+    this.isLatest = false,
+    this.isForums = false,
+    this.isYourCampus = false,
+    this.isListCard = false,
+    this.isBookmarkedPage = false,
+    this.isUserProfile = false, this.user,this.isSearch = false,this.campusTalkTypes,
+
+  }) : super(key: key);
 
   @override
   State<EditCampusTalk> createState() => _EditCampusTalkState();
@@ -30,6 +54,11 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
   int descriptionLength = 0;
   bool isLoading = false;
   int _id;
+  List<String> typeName = [];
+  String token = "";
+  List<campusTalkTypeModel.Data> type = [];
+  List<bool> typeSelected = [];
+  CampusTalkService _campusTalkService = CampusTalkService();
 
   @override
   void initState() {
@@ -40,6 +69,10 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
     isAnonymous = widget.isAnonymous==1?true:false;
     isToggleAvailable = !isAnonymous;
     anonymousUser = widget.anonymousUser??"";
+    for(int i=0;i<widget.campusTalkTypes.length;i++){
+      typeName.add(widget.campusTalkTypes[i].type.name);
+    }
+    getStoredValue();
     print(_title);
     print(_description);
     print(isAnonymous);
@@ -52,6 +85,21 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
   void dispose() {
     focusNode.dispose();
     super.dispose();
+  }
+
+  getStoredValue()async{
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    token = preferences.getString("token");
+    type = await _campusTalkService.getType(token: token);
+    for(int i=0;i<type.length;i++){
+      typeSelected.add(false);
+    }
+    for(int i=0;i<type.length;i++){
+      if(typeName.contains(type[i].name)){
+        typeSelected[i] = true;
+      }
+    }
+    setState(() {});
   }
 
   @override
@@ -268,6 +316,48 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
                               ),
                             ),
                           ),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(0.0, 15.0, 3.0, 10.0),
+                            child: Text(
+                              "Tags",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'Poppins',
+                                color: themeController.isDarkMode?Colors.white: Colors.black,
+                              ),
+                            ),
+                          ),
+                          Wrap(
+                            spacing: 10,
+                            runSpacing: 10,
+                            children: List.generate(type.length, (index) =>
+                                InkWell(
+                                    onTap: (){
+                                      typeSelected[index]=!typeSelected[index];
+                                      setState(() {});
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 18,vertical: 6),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(25),
+                                        color: typeSelected[index]?
+                                        themeController.isDarkMode? MateColors.appThemeDark:MateColors.appThemeLight:
+                                        themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                                      ),
+                                      child: Text(type[index].name,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontFamily: "Poppins",
+                                          color: themeController.isDarkMode?
+                                          typeSelected[index]?Colors.black:Colors.white:
+                                          typeSelected[index]?
+                                          Colors.white:Colors.black,
+                                        ),
+                                      ),
+                                    ))
+                            ),
+                          ),
                           _submitButton(context),
                         ],
                       ),
@@ -336,12 +426,35 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
         isLoading = true;
       });
       _formKey.currentState.save();
-      bool posted= await Provider.of<CampusTalkProvider>(context, listen: false).updateACampusTalkPost(_id,_title, _description, isAnonymous,isToggleAvailable==false?anonymousUser:null);
+      List<String> uuid = [];
+      for(int i=0;i<typeSelected.length;i++){
+        if(typeSelected[i]){
+          uuid.add(type[i].uuid);
+        }
+      }
+      bool posted= await Provider.of<CampusTalkProvider>(context, listen: false).updateACampusTalkPost(_id,_title, _description, isAnonymous,isToggleAvailable==false?anonymousUser:null,uuid);
       setState(() {
         isLoading = false;
       });
       if(posted){
-        Provider.of<CampusTalkProvider>(context, listen: false).fetchCampusTalkPostList(page: 1);
+        final campusTalkProvider = Provider.of<CampusTalkProvider>(context, listen: false);
+        if (widget.isBookmarkedPage) {
+          campusTalkProvider.fetchCampusTalkPostBookmarkedList();
+        } else if (widget.isUserProfile) {
+          campusTalkProvider.fetchCampusTalkByAuthUser(widget.user.uuid, page: 1);
+        } else if(widget.isTrending){
+          campusTalkProvider.fetchCampusTalkPostTendingList(page: 1);
+        } else if(widget.isLatest){
+          campusTalkProvider.fetchCampusTalkPostTLatestList(page: 1);
+        }else if(widget.isForums){
+          campusTalkProvider.fetchCampusTalkPostForumsList(page: 1);
+        }else if(widget.isYourCampus){
+          campusTalkProvider.fetchCampusTalkPostYourCampusList(page: 1);
+        }else if(widget.isListCard){
+          campusTalkProvider.fetchCampusTalkPostListCard();
+        }else if(widget.isListCard){
+          Get.back();
+        }
         Navigator.pop(context);
       }
     }

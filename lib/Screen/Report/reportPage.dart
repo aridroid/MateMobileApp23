@@ -6,13 +6,12 @@ import 'package:mate_app/asset/Colors/MateColors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../constant.dart';
 import '../../controller/theme_controller.dart';
 
 class ReportPage extends StatefulWidget {
-
   final int moduleId;
   final String moduleType;
-
   const ReportPage({Key key, @required this.moduleId, @required this.moduleType}) : super(key: key);
 
   @override
@@ -20,7 +19,6 @@ class ReportPage extends StatefulWidget {
 }
 
 class _ReportPageState extends State<ReportPage> {
-
   TextEditingController _title = new TextEditingController();
   TextEditingController _description = new TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -38,139 +36,195 @@ class _ReportPageState extends State<ReportPage> {
 
   @override
   Widget build(BuildContext context) {
+    final scH = MediaQuery.of(context).size.height;
+    final scW = MediaQuery.of(context).size.width;
     return Stack(
       children: [
         Scaffold(
-          appBar: AppBar(
-            elevation: 0,
-            iconTheme: IconThemeData(
-              color: MateColors.activeIcons,
-            ),
-            title: Text(
-              "Report",
-              style: TextStyle(
-                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                fontWeight: FontWeight.w700,
-                fontSize: 17.0,
+          body: Container(
+            height: scH,
+            width: scW,
+            decoration: BoxDecoration(
+              color: themeController.isDarkMode?Color(0xFF000000):Colors.white,
+              image: DecorationImage(
+                image: AssetImage(themeController.isDarkMode?'lib/asset/Background.png':'lib/asset/BackgroundLight.png'),
+                fit: BoxFit.cover,
               ),
             ),
-            centerTitle: true,
-          ),
-          body: Form(
-            key: _formKey,
-            child: ListView(
-              padding: const EdgeInsets.all(15.0),
-              children: <Widget>[
+            child: Column(
+              children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 2,right: 2),
+                  padding: EdgeInsets.only(
+                    top: MediaQuery.of(context).size.height*0.07,
+                    left: 16,
+                    right: 16,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        "Title",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0.1,
-                          color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                      GestureDetector(
+                        onTap: (){
+                          Get.back();
+                        },
+                        child: Icon(Icons.arrow_back_ios,
+                          size: 20,
+                          color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
                         ),
                       ),
                       Text(
-                        "$titleLength/50",
+                        "Report",
                         style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w400,
-                          letterSpacing: 0.1,
-                          color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                          color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 17.0,
                         ),
                       ),
+                      SizedBox(),
                     ],
                   ),
                 ),
-                SizedBox(height: 10,),
-                TextFormField(
-                  maxLength: 50,
-                  decoration: _customInputDecoration(labelText: "Title"),
-                  style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontSize: 16.0),
-                  cursorColor: Colors.cyanAccent,
-                  textInputAction: TextInputAction.next,
-                  controller: _title,
-                  onChanged: (value){
-                    titleLength = value.length;
-                    setState(() {});
-                  },
-                  validator: (value) {
-                    return value.isEmpty ? "*title is required" : null; //returning null means no error occurred. if there are any error then simply return a string
-                  },
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 2,right: 2,top: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Report Details",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0.1,
-                          color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                Expanded(
+                  child: Form(
+                    key: _formKey,
+                    child: ListView(
+                      padding: const EdgeInsets.all(15.0),
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(left: 2,right: 2),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Title",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  fontFamily: 'Poppins',
+                                  color: themeController.isDarkMode?Colors.white: Colors.black,
+                                ),
+                              ),
+                              Text(
+                                "$titleLength/50",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  fontFamily: 'Poppins',
+                                  color: themeController.isDarkMode?Colors.white: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      Text(
-                        "$descriptionLength/256",
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w400,
-                          letterSpacing: 0.1,
-                          color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+                        SizedBox(height: 10,),
+                        TextFormField(
+                          maxLength: 50,
+                          decoration: _customInputDecoration(labelText: "Title"),
+                          cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                          style:  TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.1,
+                            color: themeController.isDarkMode?Colors.white:Colors.black,
+                          ),
+                          textInputAction: TextInputAction.next,
+                          controller: _title,
+                          onChanged: (value){
+                            titleLength = value.length;
+                            setState(() {});
+                          },
+                          validator: (value) {
+                            return value.isEmpty ? "*title is required" : null; //returning null means no error occurred. if there are any error then simply return a string
+                          },
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 10,),
-                TextFormField(
-                  minLines: 2,
-                  maxLines: 4,
-                  maxLength: 256,
-                  decoration: _customInputDecoration(labelText: "Details"),
-                  style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontSize: 15.0),
-                  cursorColor: Colors.cyanAccent,
-                  textInputAction: TextInputAction.done,
-                  controller: _description,
-                  validator: (value) {
-                    return value.isEmpty ? "*description is required" : null; //returning null means no error occurred. if there are any error then simply return a string
-                  },
-                ),
-                SizedBox(
-                  height: 26.0,
-                ),
-                Container(
-                  height: 50,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: MateColors.activeIcons,
-                      onPrimary: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                    onPressed: ()async{
-                      if(_formKey.currentState.validate()){
-                        Map<String, dynamic> body = {
-                          "module_id": widget.moduleId,
-                          "title": _title.text.trim(),
-                          "description": _description.text.trim(),
-                          "module_type": widget.moduleType
-                        };
-                        _showDeleteAlertDialog(body: body);
-                      }
-                    },
-                    child: Text("Report Inappropriate",
-                      style: TextStyle(
-                        color: themeController.isDarkMode?MateColors.blackTextColor:Colors.white,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 17.0,
-                      ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 2,right: 2,top: 20),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Report Details",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  fontFamily: 'Poppins',
+                                  color: themeController.isDarkMode?Colors.white: Colors.black,
+                                ),
+                              ),
+                              Text(
+                                "$descriptionLength/256",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  fontFamily: 'Poppins',
+                                  color: themeController.isDarkMode?Colors.white: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 10,),
+                        TextFormField(
+                          minLines: 2,
+                          maxLines: 4,
+                          maxLength: 256,
+                          decoration: _customInputDecoration(labelText: "Details"),
+                          cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                          style:  TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.1,
+                            color: themeController.isDarkMode?Colors.white:Colors.black,
+                          ),
+                          textInputAction: TextInputAction.done,
+                          controller: _description,
+                          validator: (value) {
+                            return value.isEmpty ? "*description is required" : null; //returning null means no error occurred. if there are any error then simply return a string
+                          },
+                        ),
+                        SizedBox(
+                          height: 26.0,
+                        ),
+                        Container(
+                          height: 50,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              primary: MateColors.activeIcons,
+                              onPrimary: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                            ),
+                            onPressed: ()async{
+                              if(_formKey.currentState.validate()){
+                                Map<String, dynamic> body = {
+                                  "module_id": widget.moduleId,
+                                  "title": _title.text.trim(),
+                                  "description": _description.text.trim(),
+                                  "module_type": widget.moduleType
+                                };
+                                _showDeleteAlertDialog(body: body);
+                              }
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text("Report Inappropriate",
+                                  style: TextStyle(
+                                    color: MateColors.blackTextColor,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: "Poppins",
+                                    fontSize: 18.0,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Image.asset('lib/asset/iconsNewDesign/arrowRight.png',
+                                  width: 20,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -200,19 +254,6 @@ class _ReportPageState extends State<ReportPage> {
             CupertinoDialogAction(
               isDefaultAction: true,
               child: Text("Yes"),
-
-              // Consumer<ReportProvider>(
-              //   builder: (ctx, reportProvider, _) {
-              //     if (reportProvider.postReportLoader) {
-              //       return Center(
-              //         child: CircularProgressIndicator(
-              //           color: Colors.white,
-              //         ),
-              //       );
-              //     }
-              //     return Text("Yes");
-              //   },
-              // ),
               onPressed: () async {
                 Navigator.pop(context);
                 setState(() {
@@ -241,45 +282,20 @@ class _ReportPageState extends State<ReportPage> {
   InputDecoration _customInputDecoration({@required String labelText, IconData icon}) {
     return InputDecoration(
       hintStyle: TextStyle(
-        fontSize: 14,
+        fontSize: 16,
+        fontFamily: 'Poppins',
         fontWeight: FontWeight.w400,
-        letterSpacing: 0.1,
-        color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
+        color: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
       ),
       hintText: labelText,
       counterText: "",
-      fillColor: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
+      fillColor: themeController.isDarkMode ? MateColors.containerDark : MateColors.containerLight,
       filled: true,
-      focusedBorder: OutlineInputBorder(
-        borderSide:  BorderSide(
-          color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-        ),
-        borderRadius: BorderRadius.circular(16.0),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderSide:  BorderSide(
-          color:  themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-        ),
-        borderRadius: BorderRadius.circular(16.0),
-      ),
-      disabledBorder: OutlineInputBorder(
-        borderSide:  BorderSide(
-          color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-        ),
-        borderRadius: BorderRadius.circular(16.0),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderSide:  BorderSide(
-          color:  themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-        ),
-        borderRadius: BorderRadius.circular(16.0),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderSide:  BorderSide(
-          color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-        ),
-        borderRadius: BorderRadius.circular(16.0),
-      ),
+      focusedBorder: commonBorder,
+      enabledBorder: commonBorder,
+      disabledBorder: commonBorder,
+      errorBorder: commonBorder,
+      focusedErrorBorder: commonBorder,
     );
   }
 

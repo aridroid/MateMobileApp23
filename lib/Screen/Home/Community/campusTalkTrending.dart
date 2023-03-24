@@ -10,15 +10,16 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controller/theme_controller.dart';
+import 'campusTalkSearch.dart';
 
-class CampusTalkScreen extends StatefulWidget {
-  const CampusTalkScreen({Key key}) : super(key: key);
+class CampusTalkScreenTrending extends StatefulWidget {
+  const CampusTalkScreenTrending({Key key}) : super(key: key);
 
   @override
-  _CampusTalkScreenState createState() => _CampusTalkScreenState();
+  _CampusTalkScreenTrendingState createState() => _CampusTalkScreenTrendingState();
 }
 
-class _CampusTalkScreenState extends State<CampusTalkScreen> with TickerProviderStateMixin {
+class _CampusTalkScreenTrendingState extends State<CampusTalkScreenTrending> with TickerProviderStateMixin {
   ThemeController themeController = Get.find<ThemeController>();
   final GlobalKey<ScaffoldState> _key = GlobalKey();
 
@@ -83,6 +84,7 @@ class _CampusTalkScreenState extends State<CampusTalkScreen> with TickerProvider
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
+                        Get.to(()=>CampusTalkSearch(searchType: 'trending',));
                       },
                       child: Container(
                         margin: EdgeInsets.only(left: 16),
@@ -169,7 +171,7 @@ class _CampusTalkState extends State<CampusTalk> {
         Future.delayed(Duration.zero, () {
           _page += 1;
           print('scrolled to bottom page is now $_page');
-          Provider.of<CampusTalkProvider>(context, listen: false).fetchCampusTalkPostList(page: _page,paginationCheck: true);
+          Provider.of<CampusTalkProvider>(context, listen: false).fetchCampusTalkPostTendingList(page: _page,paginationCheck: true);
         });
       }
     }
@@ -179,7 +181,7 @@ class _CampusTalkState extends State<CampusTalk> {
   void initState() {
     super.initState();
     Future.delayed(Duration(seconds: 0), () {
-      Provider.of<CampusTalkProvider>(context, listen: false).fetchCampusTalkPostList(page: 1);
+      Provider.of<CampusTalkProvider>(context, listen: false).fetchCampusTalkPostTendingList(page: 1);
     });
     _page = 1;
     _scrollController = new ScrollController()..addListener(_scrollListener);
@@ -196,7 +198,7 @@ class _CampusTalkState extends State<CampusTalk> {
   Widget build(BuildContext context) {
     return Consumer<CampusTalkProvider>(
       builder: (ctx, campusTalkProvider, _) {
-        if (campusTalkProvider.talkPostLoader && campusTalkProvider.campusTalkPostsResultsList.length == 0) {
+        if (campusTalkProvider.talkPostTrendingLoader && campusTalkProvider.campusTalkPostsResultsTrendingList.length == 0) {
           return timelineLoader();
         }
         if (campusTalkProvider.error != '') {
@@ -219,7 +221,7 @@ class _CampusTalkState extends State<CampusTalk> {
             ),
           );
         }
-        return campusTalkProvider.campusTalkPostsResultsList.length == 0 ?
+        return campusTalkProvider.campusTalkPostsResultsTrendingList.length == 0 ?
         Center(
           child: Text(
             'Nothing new',
@@ -235,7 +237,7 @@ class _CampusTalkState extends State<CampusTalk> {
         RefreshIndicator(
           onRefresh: () {
             _page = 1;
-            return campusTalkProvider.fetchCampusTalkPostList(page: 1);
+            return campusTalkProvider.fetchCampusTalkPostTendingList(page: 1);
           },
           child: ListView.builder(
             padding: EdgeInsets.zero,
@@ -243,9 +245,9 @@ class _CampusTalkState extends State<CampusTalk> {
             shrinkWrap: true,
             physics: ScrollPhysics(),
             scrollDirection: Axis.vertical,
-            itemCount: campusTalkProvider.campusTalkPostsResultsList.length,
+            itemCount: campusTalkProvider.campusTalkPostsResultsTrendingList.length,
             itemBuilder: (context, index) {
-              Result campusTalkData = campusTalkProvider.campusTalkPostsResultsList[index];
+              Result campusTalkData = campusTalkProvider.campusTalkPostsResultsTrendingList[index];
               return CampusTalkRow(
                 talkId: campusTalkData.id,
                 description: campusTalkData.description,
@@ -260,6 +262,8 @@ class _CampusTalkState extends State<CampusTalk> {
                 isLiked: campusTalkData.isLiked,
                 likesCount: campusTalkData.likesCount,
                 commentsCount: campusTalkData.commentsCount,
+                isTrending: true,
+                campusTalkType: campusTalkData.campusTalkTypes,
               );
             },
           ),

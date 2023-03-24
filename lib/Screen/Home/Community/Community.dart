@@ -1,5 +1,5 @@
 // import 'package:get/get.dart';
-// import 'package:mate_app/Screen/Home/Community/campusTalk.dart';
+// import 'package:mate_app/Screen/Home/Community/campusTalkTrending.dart';
 // import 'package:mate_app/Widget/Home/Community/CommunityRow.dart';
 // import 'package:flutter/material.dart';
 // import 'package:mate_app/asset/Colors/MateColors.dart';

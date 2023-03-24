@@ -1,8 +1,10 @@
 
 
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:mate_app/Exceptions/Custom_Exception.dart';
 import 'package:mate_app/Model/CampusTalkPostCommentUpVoteModel.dart';
 import 'package:mate_app/Model/campusTalkCommentFetchModel.dart';
@@ -12,7 +14,8 @@ import 'package:mate_app/Model/campusTalkPostsUpVoteModel.dart';
 import 'package:mate_app/Services/APIService.dart';
 import 'package:mate_app/Services/BackEndAPIRoutes.dart';
 import 'package:dio/dio.dart';
-
+import 'package:mate_app/Model/campusTalkTypeModel.dart' as campusTalkTypeModel;
+import 'package:http/http.dart'as http;
 class CampusTalkService {
   APIService _apiService;
   BackEndAPIRoutes _backEndAPIRoutes;
@@ -66,6 +69,8 @@ class CampusTalkService {
       final response = await _apiService.get(uri: uri);
 
       print(response.body);
+      print('-------');
+      log(response.body);
       //print('amr type: ${json.decode(response.body)['data']['feeds'].toString()} and url is: ${uri.toString()}');
 
       return CampusTalkPostsModel.fromJson(json.decode(response.body));
@@ -311,8 +316,28 @@ class CampusTalkService {
     }
   }
 
-
-
+  Future<List<campusTalkTypeModel.Data>> getType({String token})async{
+    List<campusTalkTypeModel.Data> list = [];
+    debugPrint("https://api.mateapp.us/api/discussion/posts/types");
+    debugPrint(token);
+    try {
+      final response = await http.get(
+        Uri.parse("https://api.mateapp.us/api/discussion/posts/types"),
+        headers: {"Authorization": "Bearer" +token},);
+      if (response.statusCode == 200) {
+        var parsed = json.decode(utf8.decode(response.bodyBytes));
+        debugPrint(parsed.toString());
+        campusTalkTypeModel.CampusTalkTypeModel data = campusTalkTypeModel.CampusTalkTypeModel.fromJson(parsed);
+        list = data.data;
+      }else {
+        var parsed = json.decode(utf8.decode(response.bodyBytes));
+        debugPrint(parsed.toString());
+      }
+    }catch (e) {
+      log(e.toString());
+    }
+    return list;
+  }
 
 
 

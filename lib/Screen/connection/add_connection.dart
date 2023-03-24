@@ -34,8 +34,6 @@ class _AddConnectionState extends State<AddConnection> {
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
     token = preferences.getString("token");
-    log(token);
-    print(requestSentUid);
   }
 
   @override
@@ -70,47 +68,106 @@ class _AddConnectionState extends State<AddConnection> {
 
   @override
   Widget build(BuildContext context) {
+    final scH = MediaQuery.of(context).size.height;
+    final scW = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        iconTheme: IconThemeData(
-          color: MateColors.activeIcons,
+      body: Container(
+        height: scH,
+        width: scW,
+        decoration: BoxDecoration(
+          color: themeController.isDarkMode?Color(0xFF000000):Colors.white,
+          image: DecorationImage(
+            image: AssetImage(themeController.isDarkMode?'lib/asset/Background.png':'lib/asset/BackgroundLight.png'),
+            fit: BoxFit.cover,
+          ),
         ),
-        actions: [
-          InkWell(
-            onTap: (){
-              Get.to(ConnectionPersonSearch());
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(right: 20,left: 20),
-              child: Image.asset(
-                "lib/asset/homePageIcons/searchPurple@3x.png",
-                height: 23.7,
-                width: 23.7,
-                color: MateColors.activeIcons,
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).size.height*0.07,
+                left: 16,
+                right: 16,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: (){
+                      Get.back();
+                    },
+                    child: Icon(Icons.arrow_back_ios,
+                      size: 20,
+                      color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
+                    ),
+                  ),
+                  Text(
+                    "Add Connections",
+                    style: TextStyle(
+                      color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 17.0,
+                    ),
+                  ),
+                  SizedBox(),
+                ],
               ),
             ),
-          ),
-        ],
-        title: Text(
-          "Add Connections",
-          style: TextStyle(
-            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-            fontWeight: FontWeight.w700,
-            fontSize: 17.0,
-          ),
+            GestureDetector(
+              onTap: (){
+                Get.to(ConnectionPersonSearch());
+              },
+              child: Container(
+                margin: EdgeInsets.only(left: 16,right: 16,top: 16),
+                height: 60,
+                decoration: BoxDecoration(
+                  color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                padding: EdgeInsets.only(left: 16, right: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Search here...",
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
+                      ),
+                    ),
+                    Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        color: themeController.isDarkMode?MateColors.textFieldSearchDark:MateColors.textFieldSearchLight,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Image.asset(
+                          "lib/asset/iconsNewDesign/search.png",
+                          color: themeController.isDarkMode?Colors.white:MateColors.blackText,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              child: isLoading ?
+              Container(
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: MateColors.activeIcons,
+                  ),
+                ),
+              ):
+              groupList(),
+            ),
+          ],
         ),
-        centerTitle: true,
       ),
-      body: isLoading ?
-      Container(
-        child: Center(
-          child: CircularProgressIndicator(
-            color: MateColors.activeIcons,
-          ),
-        ),
-      ):
-      groupList(),
     );
   }
 
@@ -158,18 +215,17 @@ class _AddConnectionState extends State<AddConnection> {
           ListTile(
             contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
             leading: CircleAvatar(
-              radius: 24,
-              backgroundColor: MateColors.activeIcons,
+              radius: 30,
+              backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
               backgroundImage: NetworkImage(peerAvatar??""),
             ),
             title: Text(
               peerName,
               style: TextStyle(
+                fontSize: 15,
                 fontFamily: "Poppins",
-                fontSize: 15.0,
-                fontWeight: FontWeight.w500,
-                letterSpacing: 0.1,
-                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                fontWeight: FontWeight.w600,
+                color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
               ),
             ),
             trailing: InkWell(
@@ -183,10 +239,30 @@ class _AddConnectionState extends State<AddConnection> {
               child: Padding(
                 padding: const EdgeInsets.only(right: 4,left: 4),
                 child: requestSentUid.contains(peerId)?
-                    Text("Sent",style: TextStyle(color: MateColors.activeIcons, fontWeight: FontWeight.w500,fontSize: 12),):
+                Text(
+                  "Sent",
+                  style: TextStyle(
+                    color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 12,
+                    fontFamily: 'Poppins',
+                  ),
+                ):
                 requestGetUid.contains(peerId)?
-                Text("Accept/Delete",style: TextStyle(color: MateColors.activeIcons, fontWeight: FontWeight.w500,fontSize: 12),):
-                Image.asset("lib/asset/icons/addPerson.png",height: 21,),
+                Text(
+                  "Accept/Delete",
+                  style: TextStyle(
+                    color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 12,
+                    fontFamily: 'Poppins',
+                  ),
+                ):
+                Image.asset(
+                  "lib/asset/iconsNewDesign/inviteMates.png",
+                  height: 21,
+                  color: themeController.isDarkMode?Colors.white:Colors.black,
+                ),
               ),
             ),
           ),

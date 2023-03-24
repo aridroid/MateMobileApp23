@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:mate_app/Providers/FeedProvider.dart';
 import 'package:mate_app/Utility/Utility.dart';
 import 'package:mate_app/Widget/loader.dart';
@@ -8,11 +10,14 @@ import 'package:mate_app/asset/Colors/MateColors.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import '../../../Model/FeedItem.dart';
+import '../../../Widget/video_thumbnail.dart';
 import '../../../constant.dart';
 import '../../../controller/theme_controller.dart';
 import '../HomeScreen.dart';
+import 'package:http/http.dart'as http;
 
 class EditFeedPost extends StatefulWidget {
   final int id;
@@ -21,9 +26,11 @@ class EditFeedPost extends StatefulWidget {
   final String link;
   final String linkText;
   final String imageUrl;
-  final List<FeedTypes> feedType;
+  final String videoUrl;
+  final String audioUrl;
+  final List feedType;
   static final String routeName = 'create-post';
-  const EditFeedPost({Key key, this.id, this.title, this.description, this.link, this.linkText, this.imageUrl, this.feedType}) : super(key: key);
+  const EditFeedPost({Key key, this.id, this.title, this.description, this.link, this.linkText, this.imageUrl, this.feedType, this.videoUrl, this.audioUrl}) : super(key: key);
 
   @override
   _EditFeedPostState createState() => _EditFeedPostState();
@@ -44,6 +51,10 @@ class _EditFeedPostState extends State<EditFeedPost> {
   TextEditingController _otherFeedType = new TextEditingController(text: "");
   File _image;
   String _base64encodedImage;
+  File _video;
+  String _base64encodedVideo;
+  File _audio;
+  String _base64encodedAudio;
   final picker = ImagePicker();
   List<bool> feedTypeChek = [];
   bool feedTypeOtherCheck = false;
@@ -59,7 +70,9 @@ class _EditFeedPostState extends State<EditFeedPost> {
   bool isLoading = false;
   List<String> feedTypeName =[];
   String _imageUrl = "";
-  bool imageDeleted = false;
+  String _videoUrl = "";
+  String _audioUrl = "";
+  bool mediaDeleted = false;
 
   @override
   void initState() {
@@ -87,6 +100,8 @@ class _EditFeedPostState extends State<EditFeedPost> {
     _hyperlink = widget.link;
     _hyperlinkText = widget.linkText;
     _imageUrl = widget.imageUrl??"";
+    _videoUrl = widget.videoUrl??"";
+    _audioUrl = widget.audioUrl??"";
     for(int i=0;i<widget.feedType.length;i++){
       feedTypeName.add(widget.feedType[i].type.name);
     }
@@ -118,8 +133,10 @@ class _EditFeedPostState extends State<EditFeedPost> {
           startDate: _startDate != null ? _startDate.toString() : null,
           endDate: _endDate != null ? _endDate.toString() : null,
           image: _base64encodedImage != null ? _base64encodedImage : null,
+          audio: _base64encodedAudio !=null ? _base64encodedAudio :null,
+          video: _base64encodedVideo !=null ? _base64encodedVideo : null,
           feedId: _id,
-          imageDeleted: imageDeleted && _image==null,
+          mediaDeleted: mediaDeleted && (_image==null && _video==null && _audio==null),
       );
       if (updated) {
         setState(() {
@@ -204,6 +221,100 @@ class _EditFeedPostState extends State<EditFeedPost> {
         );
       },
     );
+  }
+
+  bool isPausedRecording = false;
+  bool isPlaying = false;
+  Duration currentDuration;
+  AudioPlayer _audioPlayer = AudioPlayer();
+  bool showDeleteIcon = true;
+
+  pauseRecording()async{
+    _audioPlayer.pause();
+    setState(() {
+      isPlaying = false;
+      isPausedRecording = true;
+    });
+  }
+
+  startAudio()async{
+    if(isPausedRecording){
+      isPlaying = true;
+      isPausedRecording = false;
+      _audioPlayer.play();
+      setState(() {});
+      _audioPlayer.playerStateStream.listen((state) {
+        if (state.processingState == ProcessingState.completed) {
+          setState(() {
+            isPlaying = false;
+            isPausedRecording = false;
+          });
+        }
+      });
+      _audioPlayer.positionStream.listen((event) {
+        setState(() {
+          currentDuration = event;
+        });
+      });
+    }else{
+      _audioPlayer.playerStateStream.listen((state) {
+        if (state.processingState == ProcessingState.completed) {
+          setState(() {
+            isPlaying = false;
+            isPausedRecording = false;
+          });
+        }
+      });
+      _audioPlayer.positionStream.listen((event) {
+        setState(() {
+          currentDuration = event;
+        });
+      });
+      _audioPlayer.stop();
+      setState(() {
+        isPlaying = false;
+      });
+      if(_audio!=null){
+        _audioPlayer.setFilePath(_audio.path);
+      }else{
+        var dir = await getApplicationDocumentsDirectory();
+        var filePathAndName = dir.path + "/audios/" +_audioUrl.split("/").last + ".mp3";
+        if(File(filePathAndName).existsSync()){
+          print("------File Already Exist-------");
+          print(filePathAndName);
+          await _audioPlayer.setFilePath(filePathAndName);
+        }else{
+          String path = await downloadAudio(_audioUrl);
+          if(path !=""){
+            await _audioPlayer.setFilePath(path);
+          }else{
+            Fluttertoast.showToast(msg: "Something went wrong while playing audio please try again!", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+          }
+        }
+      }
+      _audioPlayer.play();
+      isPlaying = true;
+      setState(() {});
+    }
+  }
+
+  Future<String> downloadAudio(String url)async{
+    var dir = await getApplicationDocumentsDirectory();
+    var firstPath = dir.path + "/audios";
+    var filePathAndName = dir.path + "/audios/" +url.split("/").last + ".mp3";
+    await Directory(firstPath).create(recursive: true);
+    File file = new File(filePathAndName);
+    try{
+      var request = await http.get(Uri.parse(url));
+      print(request.statusCode);
+      var res = await file.writeAsBytes(request.bodyBytes);
+      print("---File Path----");
+      print(res.path);
+      return res.path;
+    }catch(e){
+      print(e);
+      return "";
+    }
   }
 
   @override
@@ -362,6 +473,262 @@ class _EditFeedPostState extends State<EditFeedPost> {
                                     return SizedBox.shrink();
                                   },
                                 ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: ()async{
+                                        final pickedFile = await picker.getImage(source: ImageSource.gallery,imageQuality: 70);
+                                        if (pickedFile != null) {
+                                          _image = File(pickedFile.path);
+                                          var img = _image.readAsBytesSync();
+                                          _base64encodedImage = base64Encode(img);
+                                          _imageUrl = "";
+                                          _video = null;
+                                          _videoUrl = "";
+                                          _base64encodedVideo = null;
+                                          _audio = null;
+                                          _audioUrl = "";
+                                          _base64encodedAudio = null;
+                                          setState(() {});
+                                          print('image selected:: ${_base64encodedImage.toString()}');
+                                        } else {
+                                          print('No image selected.');
+                                        }
+                                      },
+                                      child: Container(
+                                        margin: EdgeInsets.only(top: 20),
+                                        height: 60,
+                                        width: scW*0.28,
+                                        padding: EdgeInsets.symmetric(horizontal: 16),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(14),
+                                          color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                                        ),
+                                        child: Center(
+                                          child: Image.asset(
+                                            "lib/asset/iconsNewDesign/gallery.png",
+                                            height: 26,
+                                            width: 26,
+                                            color: themeController.isDarkMode?Colors.white:Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: ()async{
+                                        final pickedFile = await picker.getVideo(source: ImageSource.gallery,);
+                                        if (pickedFile != null) {
+                                          _video = File(pickedFile.path);
+                                          var video = _video.readAsBytesSync();
+                                          _base64encodedVideo = base64Encode(video);
+                                          _videoUrl = "";
+                                          _image = null;
+                                          _imageUrl = "";
+                                          _base64encodedImage = null;
+                                          _audio = null;
+                                          _audioUrl = "";
+                                          _base64encodedAudio = null;
+                                          setState(() {});
+                                          print('video selected:: ${_base64encodedVideo.toString()}');
+                                        } else {
+                                          print('No video selected.');
+                                        }
+                                      },
+                                      child: Container(
+                                        margin: EdgeInsets.only(top: 20),
+                                        height: 60,
+                                        width: scW*0.28,
+                                        padding: EdgeInsets.symmetric(horizontal: 16),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(14),
+                                          color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                                        ),
+                                        child: Center(
+                                          child: Icon(
+                                            Icons.video_call,
+                                            size: 30,
+                                            color: themeController.isDarkMode?Colors.white:Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: ()async{
+                                        final pickedFile = await FilePicker.platform.pickFiles(type: FileType.audio);
+                                        if (pickedFile != null) {
+                                          _audio = File(pickedFile.paths.first);
+                                          var audio = _audio.readAsBytesSync();
+                                          _base64encodedAudio = base64Encode(audio);
+                                          _audioUrl = "";
+                                          _image = null;
+                                          _imageUrl = "";
+                                          _base64encodedImage = null;
+                                          _video = null;
+                                          _videoUrl = "";
+                                          _base64encodedVideo = null;
+                                          isPausedRecording = false;
+                                          isPlaying = false;
+                                          _audioPlayer.stop();
+                                          currentDuration = null;
+                                          setState(() {});
+                                          print('Audio selected:: ${_base64encodedAudio.toString()}');
+                                        } else {
+                                          print('No audio selected.');
+                                        }
+                                      },
+                                      child: Container(
+                                        margin: EdgeInsets.only(top: 20),
+                                        height: 60,
+                                        width: scW*0.28,
+                                        padding: EdgeInsets.symmetric(horizontal: 16),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(14),
+                                          color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                                        ),
+                                        child: Center(
+                                          child: Image.asset(
+                                            "lib/asset/iconsNewDesign/mic2.png",
+                                            height: 23,
+                                            width: 23,
+                                            color: themeController.isDarkMode?Colors.white:Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                _audio!=null || _audioUrl!=""?
+                                Container(
+                                  height: showDeleteIcon?118:60,
+                                  margin: EdgeInsets.only(top: 20),
+                                  padding: EdgeInsets.only(left: 16,right: 16),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      SizedBox(height: 16,),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              currentDuration!=null?
+                                              Text(currentDuration.inMinutes.toString().padLeft(2,'0') +":"+ currentDuration.inSeconds.toString().padLeft(2,"0"),
+                                                style: TextStyle(
+                                                  fontFamily: 'Poppins',
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 15,
+                                                  color: themeController.isDarkMode ? Colors.white:Colors.black,
+                                                ),
+                                              ):Text("00" +":"+ "00",
+                                                style: TextStyle(
+                                                  fontFamily: 'Poppins',
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 15,
+                                                  color: themeController.isDarkMode ? Colors.white:Colors.black,
+                                                ),
+                                              ),
+                                              SizedBox(width: 16,),
+                                              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                              if(showDeleteIcon)
+                                                Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                              if(!showDeleteIcon)
+                                                GestureDetector(
+                                                  onTap: (){
+                                                    setState(() {
+                                                      showDeleteIcon = !showDeleteIcon;
+                                                    });
+                                                  },
+                                                  child: Container(
+                                                    height: 34,
+                                                    width: 34,
+                                                    margin: EdgeInsets.only(left: 10),
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      color: themeController.isDarkMode?Color(0xFF67AE8C):MateColors.appThemeDark,
+                                                    ),
+                                                    alignment: Alignment.center,
+                                                    child: Icon(Icons.keyboard_arrow_down_outlined,
+                                                      size: 25,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      if(showDeleteIcon)
+                                        SizedBox(height: 25,),
+                                      if(showDeleteIcon)
+                                        Padding(
+                                          padding: const EdgeInsets.only(bottom: 10,right: 10),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              InkWell(
+                                                onTap: (){
+                                                  if(_audioUrl.isNotEmpty){
+                                                    _audioUrl = "";
+                                                    mediaDeleted = true;
+                                                  }else{
+                                                    _audio = null;
+                                                    _base64encodedAudio = null;
+                                                  }
+                                                  _audioPlayer.stop();
+                                                  setState(() {});
+                                                },
+                                                child: Image.asset("lib/asset/iconsNewDesign/delete.png",
+                                                  width: 20,
+                                                  height: 20,
+                                                  color: themeController.isDarkMode?Colors.white:Colors.black,
+                                                ),
+                                              ),
+                                              InkWell(
+                                                onTap: (){
+                                                  isPlaying ? pauseRecording(): startAudio();
+                                                },
+                                                child: Icon(isPlaying ? Icons.pause_circle_outline: Icons.play_circle,
+                                                  size: 30,
+                                                  color: themeController.isDarkMode?Colors.white:Colors.black,
+                                                ),
+                                              ),
+                                              GestureDetector(
+                                                onTap: (){
+                                                  setState(() {
+                                                    showDeleteIcon = !showDeleteIcon;
+                                                  });
+                                                },
+                                                child: Container(
+                                                  height: 34,
+                                                  width: 34,
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: themeController.isDarkMode?Color(0xFF67AE8C):MateColors.appThemeDark,
+                                                  ),
+                                                  alignment: Alignment.center,
+                                                  child: Icon(Icons.keyboard_arrow_up,
+                                                    size: 25,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ):SizedBox(),
                                 SizedBox(height: 40,),
                                 Padding(
                                   padding: const EdgeInsets.only(left: 2,right: 2),
@@ -706,7 +1073,7 @@ class _EditFeedPostState extends State<EditFeedPost> {
                                           setState(() {
                                             if(_imageUrl.isNotEmpty){
                                               _imageUrl = "";
-                                              imageDeleted = true;
+                                              mediaDeleted = true;
                                             }else{
                                               _image = null;
                                               _base64encodedImage = null;
@@ -724,6 +1091,62 @@ class _EditFeedPostState extends State<EditFeedPost> {
                                               child: _imageUrl!=""?
                                                   Icon(Icons.delete,size: 16,
                                                     color: Colors.white70,) :
+                                              ImageIcon(
+                                                AssetImage("lib/asset/icons/cross.png"),
+                                                size: 22,
+                                                color: Colors.white70,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ):SizedBox(),
+                                _video != null || _videoUrl!="" ?
+                                Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    InkWell(
+                                      child: Container(
+                                          clipBehavior: Clip.hardEdge,
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(10.0), border: Border.all(color: Colors.grey, width: 0.3)),
+                                          padding: EdgeInsets.all(5),
+                                          margin: EdgeInsets.only(left: 0, bottom: 10),
+                                          child: _video != null?
+                                          VideoThumbnailFile(videoUrl: _video):
+                                          VideoThumbnail(videoUrl: _videoUrl)
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: -5,
+                                      right: -5,
+                                      child: InkWell(
+                                        splashColor: Colors.transparent,
+                                        highlightColor: Colors.transparent,
+                                        onTap: () {
+                                          setState(() {
+                                            if(_videoUrl.isNotEmpty){
+                                              _videoUrl = "";
+                                              mediaDeleted = true;
+                                            }else{
+                                              _video = null;
+                                              _base64encodedVideo = null;
+                                            }
+                                          });
+                                        },
+                                        child: SizedBox(
+                                          width: 35,
+                                          height: 35,
+                                          child: Align(
+                                            alignment: Alignment.topRight,
+                                            child: CircleAvatar(
+                                              backgroundColor: myHexColor,
+                                              radius: 11,
+                                              child: _videoUrl!=""?
+                                              Icon(Icons.delete,size: 16,
+                                                color: Colors.white70,) :
                                               ImageIcon(
                                                 AssetImage("lib/asset/icons/cross.png"),
                                                 size: 22,
@@ -763,44 +1186,44 @@ class _EditFeedPostState extends State<EditFeedPost> {
         mainAxisAlignment: MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.max,
         children: [
-          GestureDetector(
-            onTap: ()async{
-              final pickedFile = await picker.getImage(source: ImageSource.gallery,imageQuality: 70);
-              if (pickedFile != null) {
-                _image = File(pickedFile.path);
-                _imageUrl = "";
-                var img = _image.readAsBytesSync();
-                _base64encodedImage = base64Encode(img);
-                setState(() {});
-                print('image selected:: ${_base64encodedImage.toString()}');
-              } else {
-                print('No image selected.');
-              }
-            },
-            child: Container(
-              height: 60,
-              width: 60,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
-                color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
-              ),
-              child: Center(
-                child: Image.asset(
-                  "lib/asset/icons/galleryPlus.png",
-                  height: 25,
-                  width: 25,
-                  color: themeController.isDarkMode?Colors.white:Colors.black,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(
-            width: 20,
-          ),
+          // GestureDetector(
+          //   onTap: ()async{
+          //     final pickedFile = await picker.getImage(source: ImageSource.gallery,imageQuality: 70);
+          //     if (pickedFile != null) {
+          //       _image = File(pickedFile.path);
+          //       _imageUrl = "";
+          //       var img = _image.readAsBytesSync();
+          //       _base64encodedImage = base64Encode(img);
+          //       setState(() {});
+          //       print('image selected:: ${_base64encodedImage.toString()}');
+          //     } else {
+          //       print('No image selected.');
+          //     }
+          //   },
+          //   child: Container(
+          //     height: 60,
+          //     width: 60,
+          //     decoration: BoxDecoration(
+          //       borderRadius: BorderRadius.circular(14),
+          //       color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+          //     ),
+          //     child: Center(
+          //       child: Image.asset(
+          //         "lib/asset/icons/galleryPlus.png",
+          //         height: 25,
+          //         width: 25,
+          //         color: themeController.isDarkMode?Colors.white:Colors.black,
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          // SizedBox(
+          //   width: 20,
+          // ),
           _submitButton(context),
-          SizedBox(
-            width: 5,
-          ),
+          // SizedBox(
+          //   width: 5,
+          // ),
         ],
       ),
     );

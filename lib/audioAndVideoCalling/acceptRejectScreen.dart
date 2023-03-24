@@ -20,26 +20,54 @@ class AcceptRejectScreen extends StatefulWidget {
   State<AcceptRejectScreen> createState() => _AcceptRejectScreenState();
 }
 
-class _AcceptRejectScreenState extends State<AcceptRejectScreen> {
+class _AcceptRejectScreenState extends State<AcceptRejectScreen> with SingleTickerProviderStateMixin{
   ThemeController themeController = Get.find<ThemeController>();
+  AnimationController _controller;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    _controller = AnimationController(
+      vsync: this,
+      lowerBound: 0.5,
+      duration: Duration(seconds: 3),
+    )..repeat();
+    super.initState();
+  }
 
 
   @override
   Widget build(BuildContext context) {
     final scH = MediaQuery.of(context).size.height;
+    final scW = MediaQuery.of(context).size.width;
     return WillPopScope(
       onWillPop: () async => false,
-      child: SafeArea(
-        child: Scaffold(
-          body: Column(
+      child: Scaffold(
+        body: Container(
+          height: scH,
+          width: scW,
+          decoration: BoxDecoration(
+            color: themeController.isDarkMode?Color(0xFF000000):Colors.white,
+            image: DecorationImage(
+              image: AssetImage(themeController.isDarkMode?'lib/asset/Background.png':'lib/asset/BackgroundLight.png'),
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: Column(
             children: [
               Padding(
-                padding: EdgeInsets.only(top: scH*0.05),
+                padding: EdgeInsets.only(top: scH*0.13),
                 child: Text(
                   widget.callType,
                   style: TextStyle(
-                    color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                    color: themeController.isDarkMode?Colors.white:MateColors.blackText,
                     fontWeight: FontWeight.w700,
+                    fontFamily: 'Poppins',
                     fontSize: 17.0,
                   ),
                 ),
@@ -47,34 +75,54 @@ class _AcceptRejectScreenState extends State<AcceptRejectScreen> {
               SizedBox(
                 height: scH*0.15,
               ),
-              CachedNetworkImage(
-                imageUrl: widget.callerImage,
-                progressIndicatorBuilder: (context, url, downloadProgress){
-                  return CircleAvatar(
-                    radius: 60,
-                    backgroundImage: AssetImage("lib/asset/profile.png"),
-                  );
-                },
-                errorWidget: (context, url, error){
-                  return CircleAvatar(
-                    radius: 60,
-                    backgroundImage: AssetImage("lib/asset/profile.png"),
-                  );
-                },
-                imageBuilder: (context,url){
-                  return CircleAvatar(
-                    radius: 60,
-                    backgroundImage: url,
-                  );
-                }
+              Expanded(
+                child: AnimatedBuilder(
+                  animation: CurvedAnimation(parent: _controller, curve: Curves.fastOutSlowIn),
+                  builder: (context, child) {
+                    return Stack(
+                      alignment: Alignment.center,
+                      children: <Widget>[
+                        _buildContainer(150 * _controller.value),
+                        _buildContainer(200 * _controller.value),
+                        _buildContainer(250 * _controller.value),
+                        _buildContainer(300 * _controller.value),
+                        Align(
+                          child: CachedNetworkImage(
+                              imageUrl: widget.callerImage,
+                              progressIndicatorBuilder: (context, url, downloadProgress){
+                                return CircleAvatar(
+                                  radius: 60,
+                                  backgroundImage: AssetImage("lib/asset/profile.png"),
+                                );
+                              },
+                              errorWidget: (context, url, error){
+                                return CircleAvatar(
+                                  radius: 60,
+                                  backgroundImage: AssetImage("lib/asset/profile.png"),
+                                );
+                              },
+                              imageBuilder: (context,url){
+                                return CircleAvatar(
+                                  radius: 60,
+                                  backgroundImage: url,
+                                );
+                              }
+                          ),
+                        ),
+                        //Align(child: Icon(Icons.phone_android, size: 44,)),
+                      ],
+                    );
+                  },
+                ),
               ),
               Padding(
                 padding: EdgeInsets.only(top: scH*0.03),
                 child: Text(
                   widget.callerName,
                   style: TextStyle(
-                    color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                    color: themeController.isDarkMode?Colors.white:MateColors.blackText,
                     fontWeight: FontWeight.w700,
+                    fontFamily: 'Poppins',
                     fontSize: 17.0,
                   ),
                 ),
@@ -143,6 +191,16 @@ class _AcceptRejectScreenState extends State<AcceptRejectScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+  Widget _buildContainer(double radius) {
+    return Container(
+      width: radius,
+      height: radius,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.blue.withOpacity(1 - _controller.value),
       ),
     );
   }

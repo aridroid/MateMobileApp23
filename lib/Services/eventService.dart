@@ -5,9 +5,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:mate_app/Model/eventCommentListingModel.dart';
 import 'package:mate_app/Model/eventListingModel.dart';
 
+import '../Model/eventCateoryModel.dart';
+
 class EventService{
 
-  Future<String> createEvent({String title,String desc,String location,String date,String time,String token,String photo,String video,String linkText,String link,String endTime})async{
+  Future<String> createEvent({String title,String desc,String location,String date,String time,String token,String photo,String video,String linkText,String link,String endTime,String locationOption,int typeId})async{
     String result = "";
     Map data = {
       "title": title,
@@ -15,6 +17,8 @@ class EventService{
       "location": location,
       "date": date,
       "time": time,
+      "location_opt": locationOption,
+      "type_id": typeId.toString(),
       if(photo!=null)
         "photo":photo,
       if(video!=null)
@@ -40,6 +44,8 @@ class EventService{
     request.fields['location'] = location;
     request.fields['date'] = date;
     request.fields['time'] = time;
+    request.fields['location_opt'] = locationOption;
+    request.fields['type_id'] = typeId.toString();
     if(linkText!=null)
       request.fields['hyperlinkText'] = linkText;
     if(link!=null)
@@ -68,7 +74,7 @@ class EventService{
     return result;
   }
 
-  Future<String> updateEvent({int id,String title,String desc,String location,String date,String time,String token,String photo,String video,String linkText,String link,String endTime,bool isImageDeleted,bool isVideoDeleted})async{
+  Future<String> updateEvent({int id,String title,String desc,String location,String date,String time,String token,String photo,String video,String linkText,String link,String endTime,bool isImageDeleted,bool isVideoDeleted,String locationOption,int typeId})async{
     String result = "";
     Map data = {
       "title": title,
@@ -76,6 +82,8 @@ class EventService{
       "location": location,
       "date": date,
       "time": time,
+      "location_opt": locationOption,
+      "type_id": typeId.toString(),
       if(photo!=null)
         "photo":photo,
       if(video!=null)
@@ -105,6 +113,8 @@ class EventService{
     request.fields['location'] = location;
     request.fields['date'] = date;
     request.fields['time'] = time;
+    request.fields['location_opt'] = locationOption;
+    request.fields['type_id'] = typeId.toString();
     if(linkText!=null)
       request.fields['hyperlinkText'] = linkText;
     if(link!=null)
@@ -158,6 +168,27 @@ class EventService{
     return eventListingModel;
   }
 
+  Future<EventListingModel> getEventListingBookmark({String token,int page})async{
+    EventListingModel eventListingModel;
+    debugPrint("https://api.mateapp.us/api/event/bookmarkbyuser?page=$page");
+    debugPrint(token);
+    try {
+      final response = await http.get(
+        Uri.parse("https://api.mateapp.us/api/event/bookmarkbyuser?page=$page"),
+        headers: {"Authorization": "Bearer" +token},);
+      if (response.statusCode == 200) {
+        var parsed = json.decode(utf8.decode(response.bodyBytes));
+        debugPrint(parsed.toString());
+        eventListingModel = EventListingModel.fromJson(parsed);
+      }else {
+        var parsed = json.decode(utf8.decode(response.bodyBytes));
+        debugPrint(parsed.toString());
+      }
+    }catch (e) {
+      log(e.toString());
+    }
+    return eventListingModel;
+  }
 
   Future<EventListingModel> getEventListingLocal({String token,int page})async{
     EventListingModel eventListingModel;
@@ -423,5 +454,29 @@ class EventService{
     }
     return result;
   }
+
+  Future<EventCategoryModel> getCategory({String token})async{
+    EventCategoryModel eventCategoryModel = EventCategoryModel(data: [],success: false,message: "");
+    debugPrint("https://api.mateapp.us/api/events/types");
+    debugPrint(token);
+    try {
+      final response = await http.get(
+        Uri.parse("https://api.mateapp.us/api/events/types"),
+        headers: {"Authorization": "Bearer" +token},
+      );
+      if (response.statusCode == 200) {
+        var parsed = json.decode(utf8.decode(response.bodyBytes));
+        debugPrint(parsed.toString());
+        eventCategoryModel = EventCategoryModel.fromJson(parsed);
+      }else {
+        var parsed = json.decode(utf8.decode(response.bodyBytes));
+        debugPrint(parsed.toString());
+      }
+    }catch (e) {
+      log(e.toString());
+    }
+    return eventCategoryModel;
+  }
+  
 
 }

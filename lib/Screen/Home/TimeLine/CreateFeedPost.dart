@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:mate_app/Providers/FeedProvider.dart';
 import 'package:mate_app/Utility/Utility.dart';
 import 'package:mate_app/Widget/loader.dart';
@@ -9,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import '../../../Widget/video_thumbnail.dart';
 import '../../../constant.dart';
 import '../../../controller/theme_controller.dart';
 import '../HomeScreen.dart';
@@ -31,6 +35,10 @@ class _CreateFeedPostState extends State<CreateFeedPost> {
   TextEditingController _otherFeedType = new TextEditingController(text: "");
   File _image;
   String _base64encodedImage;
+  File _video;
+  String _base64encodedVideo;
+  File _audio;
+  String _base64encodedAudio;
   final picker = ImagePicker();
   FocusNode _descriptionFocusNode = FocusNode();
   FocusNode _locationFocusNode = FocusNode();
@@ -63,6 +71,7 @@ class _CreateFeedPostState extends State<CreateFeedPost> {
     _descriptionFocusNode.dispose();
     _locationFocusNode.dispose();
     focusNode.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -91,6 +100,8 @@ class _CreateFeedPostState extends State<CreateFeedPost> {
           startDate: _startDate != null ? _startDate.toString() : null,
           endDate: _endDate != null ? _endDate.toString() : null,
           image: _base64encodedImage != null ? _base64encodedImage : null,
+          audio: _base64encodedAudio!=null ? _base64encodedAudio : null,
+          video: _base64encodedVideo!=null ? _base64encodedVideo : null,
       );
 
       if (updated) {
@@ -171,6 +182,64 @@ class _CreateFeedPostState extends State<CreateFeedPost> {
         );
       },
     );
+  }
+
+  bool isPausedRecording = false;
+  bool isPlaying = false;
+  Duration currentDuration;
+  AudioPlayer _audioPlayer = AudioPlayer();
+  bool showDeleteIcon = true;
+
+  pauseRecording()async{
+    _audioPlayer.pause();
+    setState(() {
+      isPlaying = false;
+      isPausedRecording = true;
+    });
+  }
+
+  startAudio()async{
+    if(isPausedRecording){
+      isPlaying = true;
+      isPausedRecording = false;
+      _audioPlayer.play();
+      setState(() {});
+      _audioPlayer.playerStateStream.listen((state) {
+        if (state.processingState == ProcessingState.completed) {
+          setState(() {
+            isPlaying = false;
+            isPausedRecording = false;
+          });
+        }
+      });
+      _audioPlayer.positionStream.listen((event) {
+        setState(() {
+          currentDuration = event;
+        });
+      });
+    }else{
+      _audioPlayer.playerStateStream.listen((state) {
+        if (state.processingState == ProcessingState.completed) {
+          setState(() {
+            isPlaying = false;
+            isPausedRecording = false;
+          });
+        }
+      });
+      _audioPlayer.positionStream.listen((event) {
+        setState(() {
+          currentDuration = event;
+        });
+      });
+      _audioPlayer.stop();
+      setState(() {
+        isPlaying = false;
+      });
+      _audioPlayer.setFilePath(_audio.path);
+      _audioPlayer.play();
+      isPlaying = true;
+      setState(() {});
+    }
   }
 
   @override
@@ -328,6 +397,248 @@ class _CreateFeedPostState extends State<CreateFeedPost> {
                                     return SizedBox.shrink();
                                   },
                                 ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: ()async{
+                                        final pickedFile = await picker.getImage(source: ImageSource.gallery,imageQuality: 70);
+                                        if (pickedFile != null) {
+                                          _image = File(pickedFile.path);
+                                          var img = _image.readAsBytesSync();
+                                          _base64encodedImage = base64Encode(img);
+                                          _video = null;
+                                          _base64encodedVideo = null;
+                                          _audio = null;
+                                          _base64encodedAudio = null;
+                                          setState(() {});
+                                          print('image selected:: ${_base64encodedImage.toString()}');
+                                        } else {
+                                          print('No image selected.');
+                                        }
+                                      },
+                                      child: Container(
+                                        margin: EdgeInsets.only(top: 20),
+                                        height: 60,
+                                        width: scW*0.28,
+                                        padding: EdgeInsets.symmetric(horizontal: 16),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(14),
+                                          color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                                        ),
+                                        child: Center(
+                                          child: Image.asset(
+                                            "lib/asset/iconsNewDesign/gallery.png",
+                                            height: 26,
+                                            width: 26,
+                                            color: themeController.isDarkMode?Colors.white:Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: ()async{
+                                        final pickedFile = await picker.getVideo(source: ImageSource.gallery,);
+                                        if (pickedFile != null) {
+                                          _video = File(pickedFile.path);
+                                          var video = _video.readAsBytesSync();
+                                          _base64encodedVideo = base64Encode(video);
+                                          _image = null;
+                                          _base64encodedImage = null;
+                                          _audio = null;
+                                          _base64encodedAudio = null;
+                                          setState(() {});
+                                          print('video selected:: ${_base64encodedVideo.toString()}');
+                                        } else {
+                                          print('No video selected.');
+                                        }
+                                      },
+                                      child: Container(
+                                        margin: EdgeInsets.only(top: 20),
+                                        height: 60,
+                                        width: scW*0.28,
+                                        padding: EdgeInsets.symmetric(horizontal: 16),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(14),
+                                          color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                                        ),
+                                        child: Center(
+                                          child: Icon(
+                                            Icons.video_call,
+                                            size: 30,
+                                            color: themeController.isDarkMode?Colors.white:Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: ()async{
+                                        final pickedFile = await FilePicker.platform.pickFiles(type: FileType.audio);
+                                        if (pickedFile != null) {
+                                          _audio = File(pickedFile.paths.first);
+                                          var audio = _audio.readAsBytesSync();
+                                          _base64encodedAudio = base64Encode(audio);
+                                          _image = null;
+                                          _base64encodedImage = null;
+                                          _video = null;
+                                          _base64encodedVideo = null;
+                                          isPausedRecording = false;
+                                          isPlaying = false;
+                                          _audioPlayer.stop();
+                                          currentDuration = null;
+                                          setState(() {});
+                                          print('Audio selected:: ${_base64encodedAudio.toString()}');
+                                        } else {
+                                          print('No audio selected.');
+                                        }
+                                      },
+                                      child: Container(
+                                        margin: EdgeInsets.only(top: 20),
+                                        height: 60,
+                                        width: scW*0.28,
+                                        padding: EdgeInsets.symmetric(horizontal: 16),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(14),
+                                          color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                                        ),
+                                        child: Center(
+                                          child: Image.asset(
+                                            "lib/asset/iconsNewDesign/mic2.png",
+                                            height: 23,
+                                            width: 23,
+                                            color: themeController.isDarkMode?Colors.white:Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                _audio!=null?
+                                Container(
+                                  height: showDeleteIcon?118:60,
+                                  margin: EdgeInsets.only(top: 20),
+                                  padding: EdgeInsets.only(left: 16,right: 16),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      SizedBox(height: 16,),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              currentDuration!=null?
+                                              Text(currentDuration.inMinutes.toString().padLeft(2,'0') +":"+ currentDuration.inSeconds.toString().padLeft(2,"0"),
+                                                style: TextStyle(
+                                                  fontFamily: 'Poppins',
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 15,
+                                                  color: themeController.isDarkMode ? Colors.white:Colors.black,
+                                                ),
+                                              ):Text("00" +":"+ "00",
+                                                style: TextStyle(
+                                                  fontFamily: 'Poppins',
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 15,
+                                                  color: themeController.isDarkMode ? Colors.white:Colors.black,
+                                                ),
+                                              ),
+                                              SizedBox(width: 16,),
+                                              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                              if(showDeleteIcon)
+                                              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                              if(!showDeleteIcon)
+                                              GestureDetector(
+                                                onTap: (){
+                                                  setState(() {
+                                                    showDeleteIcon = !showDeleteIcon;
+                                                  });
+                                                },
+                                                child: Container(
+                                                  height: 34,
+                                                  width: 34,
+                                                  margin: EdgeInsets.only(left: 10),
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: themeController.isDarkMode?Color(0xFF67AE8C):MateColors.appThemeDark,
+                                                  ),
+                                                  alignment: Alignment.center,
+                                                  child: Icon(Icons.keyboard_arrow_down_outlined,
+                                                    size: 25,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      if(showDeleteIcon)
+                                      SizedBox(height: 25,),
+                                      if(showDeleteIcon)
+                                      Padding(
+                                        padding: const EdgeInsets.only(bottom: 10,right: 10),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            InkWell(
+                                              onTap: (){
+                                                _audio = null;
+                                                _base64encodedAudio = null;
+                                                _audioPlayer.stop();
+                                                setState(() {});
+                                              },
+                                              child: Image.asset("lib/asset/iconsNewDesign/delete.png",
+                                                width: 20,
+                                                height: 20,
+                                                color: themeController.isDarkMode?Colors.white:Colors.black,
+                                              ),
+                                            ),
+                                            InkWell(
+                                              onTap: (){
+                                                isPlaying ? pauseRecording(): startAudio();
+                                              },
+                                              child: Icon(isPlaying ? Icons.pause_circle_outline: Icons.play_circle,
+                                                size: 30,
+                                                color: themeController.isDarkMode?Colors.white:Colors.black,
+                                              ),
+                                            ),
+                                            GestureDetector(
+                                              onTap: (){
+                                                setState(() {
+                                                  showDeleteIcon = !showDeleteIcon;
+                                                });
+                                              },
+                                              child: Container(
+                                                height: 34,
+                                                width: 34,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: themeController.isDarkMode?Color(0xFF67AE8C):MateColors.appThemeDark,
+                                                ),
+                                                alignment: Alignment.center,
+                                                child: Icon(Icons.keyboard_arrow_up,
+                                                  size: 25,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ):SizedBox(),
                                 SizedBox(height: 40,),
                                 Padding(
                                   padding: const EdgeInsets.only(left: 2,right: 2),
@@ -621,7 +932,7 @@ class _CreateFeedPostState extends State<CreateFeedPost> {
                                     return SizedBox.shrink();
                                   },
                                 ),
-                                _image != null ?
+                                _image != null || _video!=null?
                                 Stack(
                                   clipBehavior: Clip.none,
                                   children: [
@@ -632,10 +943,10 @@ class _CreateFeedPostState extends State<CreateFeedPost> {
                                           decoration: BoxDecoration(borderRadius: BorderRadius.circular(10.0), border: Border.all(color: Colors.grey, width: 0.3)),
                                           padding: EdgeInsets.all(5),
                                           margin: EdgeInsets.only(left: 0, bottom: 10),
-                                          child: Image.file(
-                                            _image,
-                                            fit: BoxFit.fill,
-                                          )),
+                                          child: _image!=null?
+                                          Image.file(_image, fit: BoxFit.fill,):
+                                          VideoThumbnailFile(videoUrl: _video),
+                                      ),
                                     ),
                                     Positioned(
                                       top: -5,
@@ -647,6 +958,8 @@ class _CreateFeedPostState extends State<CreateFeedPost> {
                                           setState(() {
                                             _image = null;
                                             _base64encodedImage = null;
+                                            _video = null;
+                                            _base64encodedVideo = null;
                                           });
                                         },
                                         child: SizedBox(
@@ -696,45 +1009,10 @@ class _CreateFeedPostState extends State<CreateFeedPost> {
         mainAxisAlignment: MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.max,
         children: [
-          GestureDetector(
-            onTap: ()async{
-              final pickedFile = await picker.getImage(source: ImageSource.gallery,imageQuality: 70);
-              if (pickedFile != null) {
-                _image = File(pickedFile.path);
-                var img = _image.readAsBytesSync();
-                _base64encodedImage = base64Encode(img);
-                setState(() {});
-                print('image selected:: ${_base64encodedImage.toString()}');
-              } else {
-                print('No image selected.');
-              }
-            },
-            child: Container(
-              height: 60,
-              width: 60,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
-                color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
-              ),
-              child: Center(
-                child: Image.asset(
-                  "lib/asset/icons/galleryPlus.png",
-                  height: 25,
-                  width: 25,
-                  color: themeController.isDarkMode?Colors.white:Colors.black,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(
-            width: 20,
-          ),
           _submitButton(context),
-          SizedBox(
-            width: 5,
-          ),
         ],
       ),
     );
   }
+
 }

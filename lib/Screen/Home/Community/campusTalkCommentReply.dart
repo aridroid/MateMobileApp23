@@ -12,6 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../constant.dart';
+import 'package:mate_app/Model/campusTalkPostsModel.dart' as postModel;
 
 class CampusTalkCommentReply extends StatefulWidget {
   final bool isBookmarkedPage;
@@ -20,7 +21,23 @@ class CampusTalkCommentReply extends StatefulWidget {
   final int commentId;
   final int commentIndex;
   final int postId;
-  const CampusTalkCommentReply({Key key, this.commentId, this.commentIndex, this.postId, this.postIndex, this.isBookmarkedPage=false, this.isUserProfile=false}) : super(key: key);
+  final bool isTrending;
+  final bool isLatest;
+  final bool isForums;
+  final bool isYourCampus;
+  final bool isListCard;
+  final bool isSearch;
+  final postModel.User user;
+
+  const CampusTalkCommentReply({Key key,
+    this.isTrending = false,
+    this.isLatest = false,
+    this.isForums = false,
+    this.isYourCampus = false,
+    this.isListCard = false,
+    this.isSearch = false,
+    this.user,
+    this.commentId, this.commentIndex, this.postId, this.postIndex, this.isBookmarkedPage=false, this.isUserProfile=false}) : super(key: key);
 
   @override
   _CampusTalkCommentReplyState createState() => _CampusTalkCommentReplyState();
@@ -304,10 +321,27 @@ class _CampusTalkCommentReplyState extends State<CampusTalkCommentReply> {
                                                               if (updated) {
                                                                 if(widget.isBookmarkedPage){
                                                                   --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsBookmarkData.data.result[widget.postIndex].commentsCount;
-                                                                }else if(widget.isUserProfile){
+                                                                }
+                                                                if(widget.isUserProfile){
                                                                   --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkByUserPostsResultsList[widget.postIndex].commentsCount;
-                                                                }else{
-                                                                  --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsList[widget.postIndex].commentsCount;
+                                                                }
+                                                                if(widget.isTrending){
+                                                                  --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsTrendingList[widget.postIndex].commentsCount;
+                                                                }
+                                                                if(widget.isLatest){
+                                                                  --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsLatestList[widget.postIndex].commentsCount;
+                                                                }
+                                                                if(widget.isForums){
+                                                                  --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsForumsList[widget.postIndex].commentsCount;
+                                                                }
+                                                                if(widget.isYourCampus){
+                                                                  --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsYourCampusList[widget.postIndex].commentsCount;
+                                                                }
+                                                                if(widget.isListCard){
+                                                                  --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsListCard[widget.postIndex].commentsCount;
+                                                                }
+                                                                if(widget.isSearch){
+                                                                  --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkBySearchResultsList[widget.postIndex].commentsCount;
                                                                 }
                                                                 Future.delayed(Duration(seconds: 0), () {
                                                                   Provider.of<CampusTalkProvider>(context, listen: false).fetchCommentsOfACampusTalk(widget.postId);
@@ -429,11 +463,27 @@ class _CampusTalkCommentReplyState extends State<CampusTalkCommentReply> {
                           if (updated) {
                             if(widget.isBookmarkedPage){
                               ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsBookmarkData.data.result[widget.postIndex].commentsCount;
-                            }else if(widget.isUserProfile){
+                            }
+                            if(widget.isUserProfile){
                               ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkByUserPostsResultsList[widget.postIndex].commentsCount;
-                            }else{
-                              ++
-                              Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsList[widget.postIndex].commentsCount;
+                            }
+                            if(widget.isTrending){
+                              ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsTrendingList[widget.postIndex].commentsCount;
+                            }
+                            if(widget.isLatest){
+                              ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsLatestList[widget.postIndex].commentsCount;
+                            }
+                            if(widget.isForums){
+                              ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsForumsList[widget.postIndex].commentsCount;
+                            }
+                            if(widget.isYourCampus){
+                              ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsYourCampusList[widget.postIndex].commentsCount;
+                            }
+                            if(widget.isListCard){
+                              ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsListCard[widget.postIndex].commentsCount;
+                            }
+                            if(widget.isSearch){
+                              ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkBySearchResultsList[widget.postIndex].commentsCount;
                             }
                             messageEditingController.text = "";
                             imageFile = null;

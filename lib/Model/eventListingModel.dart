@@ -95,6 +95,8 @@ class Result {
     this.userId,
     this.title,
     this.description,
+    this.locationOpt,
+    this.typeId,
     this.location,
     this.hyperLinkText,
     this.hyperLink,
@@ -120,6 +122,8 @@ class Result {
   int userId;
   String title;
   String description;
+  String locationOpt;
+  int typeId;
   String location;
   String hyperLinkText;
   String hyperLink;
@@ -145,6 +149,8 @@ class Result {
     userId: json["user_id"],
     title: json["title"],
     description: json["description"],
+    locationOpt: json["location_opt"]??"On Campus",
+    typeId: json["type_id"]??1,
     location: json["location"],
     hyperLinkText: json["hyperlinkText"],
     hyperLink: json["hyperlink"],
@@ -158,7 +164,7 @@ class Result {
     updatedAt: DateTime.parse(json["updated_at"]),
     bookmarksCount: json["bookmarks_count"],
     commentsCount: json["comments_count"],
-    goingList: List<GoingList>.from(json["going_list"].map((x) => GoingList.fromJson(x))),
+    goingList: json.containsKey('going_list')?List<GoingList>.from(json["going_list"].map((x) => GoingList.fromJson(x))):[],
     user: User.fromJson(json["user"]),
     isBookmarked: json["is_bookmarked"],
     isReacted: json["is_reacted"] == null ? null : IsReacted.fromJson(json["is_reacted"]),
@@ -171,6 +177,8 @@ class Result {
     "user_id": userId,
     "title": title,
     "description": description,
+    "location_opt": locationOpt,
+    "type_id": typeId,
     "location": location,
     "hyperlinkText": hyperLinkText,
     "hyperlink": hyperLink,

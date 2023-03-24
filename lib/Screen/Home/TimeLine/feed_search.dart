@@ -1,11 +1,14 @@
 import 'dart:async';
-import 'dart:developer';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:mate_app/Providers/AuthUserProvider.dart';
 import 'package:mate_app/Services/FeedService.dart';
 import 'package:mate_app/Widget/Home/HomeRow.dart';
 import 'package:mate_app/asset/Colors/MateColors.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
@@ -16,6 +19,7 @@ import '../../../Widget/Loaders/Shimmer.dart';
 import '../../../Widget/searchShimmer.dart';
 import '../../../constant.dart';
 import '../../../controller/theme_controller.dart';
+import 'package:http/http.dart'as http;
 
 
 class FeedSearch extends StatefulWidget {
@@ -126,6 +130,124 @@ class _FeedSearchState extends State<FeedSearch> {
     setState(() {
       isLoading = false;
     });
+  }
+
+  final audioPlayer = AudioPlayer();
+
+  Future<void> startAudio(String url,int index) async {
+    print(url);
+    print(index);
+    print(feedProvider.feedItem[index].isPaused);
+    if(feedProvider.feedItem[index].isPaused==true){
+      for(int i=0;i<feedProvider.feedItem.length;i++){
+        feedProvider.feedItem[i].isPlaying = false;
+      }
+      feedProvider.feedItem[index].isPaused = false;
+      audioPlayer.play();
+      setState(() {
+        feedProvider.feedItem[index].isPlaying = true;
+      });
+      audioPlayer.playerStateStream.listen((state) {
+        if (state.processingState == ProcessingState.completed) {
+          setState(() {
+            feedProvider.feedItem[index].isPlaying = false;
+            feedProvider.feedItem[index].isPaused = false;
+          });
+        }
+      });
+
+      audioPlayer.positionStream.listen((event) {
+        setState(() {
+          // currentDuration = event;
+        });
+      });
+
+    }else{
+      try{
+        audioPlayer.playerStateStream.listen((state) {
+          if (state.processingState == ProcessingState.completed) {
+            setState(() {
+              feedProvider.feedItem[index].isPlaying = false;
+              feedProvider.feedItem[index].isPaused = false;
+            });
+          }
+        });
+
+        audioPlayer.positionStream.listen((event) {
+          setState(() {
+            //currentDuration = event;
+          });
+        });
+
+        audioPlayer.stop();
+        for(int i=0;i<feedProvider.feedItem.length;i++){
+          feedProvider.feedItem[i].isPlaying = false;
+        }
+        setState(() {});
+
+        var dir = await getApplicationDocumentsDirectory();
+        var filePathAndName = dir.path + "/audios/" +url.split("/").last + ".mp3";
+        if(File(filePathAndName).existsSync()){
+          print("------File Already Exist-------");
+          print(filePathAndName);
+          await audioPlayer.setFilePath(filePathAndName);
+          audioPlayer.play();
+          setState(() {
+            feedProvider.feedItem[index].isPlaying = true;
+          });
+        }else{
+          setState(() {
+            feedProvider.feedItem[index].isLoadingAudio = true;
+          });
+
+          String path = await downloadAudio(url);
+
+          setState(() {
+            feedProvider.feedItem[index].isLoadingAudio = false;
+          });
+
+          if(path !=""){
+            await audioPlayer.setFilePath(path);
+            audioPlayer.play();
+            setState(() {
+              feedProvider.feedItem[index].isPlaying = true;
+            });
+          }else{
+            Fluttertoast.showToast(msg: "Something went wrong while playing audio please try again!", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+          }
+        }
+
+      }catch(e){
+        print("Error loading audio source: $e");
+      }
+    }
+  }
+
+  void pauseAudio(int index)async{
+    audioPlayer.pause();
+    setState(() {
+      feedProvider.feedItem[index].isPlaying = false;
+      feedProvider.feedItem[index].isPaused = true;
+    });
+  }
+
+  Future<String> downloadAudio(String url)async{
+    var dir = await getApplicationDocumentsDirectory();
+    var firstPath = dir.path + "/audios";
+    var filePathAndName = dir.path + "/audios/" +url.split("/").last + ".mp3";
+    await Directory(firstPath).create(recursive: true);
+    File file = new File(filePathAndName);
+    try{
+      var request = await http.get(Uri.parse(url));
+      print(request.statusCode);
+      var res = await file.writeAsBytes(request.bodyBytes);
+      print("---File Path----");
+      print(res.path);
+      return res.path;
+    }catch(e){
+      print(e);
+      return "";
+    }
   }
 
   @override
@@ -319,6 +441,12 @@ class _FeedSearchState extends State<FeedSearch> {
                           indexVal: index,
                           pageType: "Search",
                           showUniversityTag: true,
+                          mediaOther: feedProvider.feedItem[index].mediaOther,
+                          isPlaying: feedProvider.feedItem[index].isPlaying,
+                          isPaused: feedProvider.feedItem[index].isPaused,
+                          isLoadingAudio: feedProvider.feedItem[index].isLoadingAudio,
+                          startAudio: startAudio,
+                          pauseAudio: pauseAudio,
                         );
                       },
                     ):

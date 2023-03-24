@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -66,6 +67,13 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
   bool refreshPageOnBottomClick = false;
   FeedProvider feedProvider;
 
+  List<String> filterDate = ['Today','This Week','This Month'];
+  String filterDateValue = "";
+  List<String> filterLocation = ['On Campus','Off Campus','Virtual'];
+  String filterLocationValue = "";
+  List<String> filterType = ['Conference','Festival','Party','Game','Networking','Performance','Rally','Retreat','Lecture','Seminar','Social','Class','Other'];
+  String filterTypeValue = "";
+
   @override
   void didUpdateWidget(covariant EventDashBoard oldWidget) {
     print("Did update widget is calling");
@@ -125,7 +133,9 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
   getStoredValue() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     token = preferences.getString("token");
+    print('///////////////////////////');
     log(token);
+    print('///////////////////////////');
 
     setState(() {
       doingPagination = false;
@@ -283,6 +293,307 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                 ],
               ),
             ),
+            Container(
+              height: 70,
+              margin: EdgeInsets.only(top: 10,left: 16,),
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                shrinkWrap: true,
+                physics: ScrollPhysics(),
+                padding: EdgeInsets.zero,
+                itemCount: 3,
+                itemBuilder: (context,index){
+                  if(index==0){
+                    return
+
+
+
+                      Container(
+                      width: 220,
+                      child: Theme(
+                        data: ThemeData(
+                          textTheme: TextTheme(
+                            subtitle1: TextStyle(
+                              color: themeController.isDarkMode?Colors.white:Colors.black,
+                            ),
+                          ),
+                        ),
+                        child: DropdownSearch<String>(
+                          mode: Mode.MENU,
+                          showSelectedItems: false,
+                          popupShape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                          maxHeight: 170,
+                          popupBackgroundColor: themeController.isDarkMode?Color(0xFF2a3b4b).withOpacity(0.9):Color(0xFFe8f8f5),
+                          dropdownButtonProps: IconButtonProps(
+                            icon: Icon(Icons.keyboard_arrow_down_sharp,size: 0),
+                            color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,
+                          ),
+                          dropdownBuilder: (context,data){
+                            return Container(
+                              height: 48,
+                              width: 140,
+                              decoration: BoxDecoration(
+                                color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                                borderRadius: BorderRadius.circular(48),
+                              ),
+                              child: ListTile(
+                                dense: true,
+                                contentPadding: EdgeInsets.only(left: 5,right: 15,),
+                                horizontalTitleGap: 13,
+                                leading: Padding(
+                                  padding: const EdgeInsets.only(bottom: 2),
+                                  child: Container(
+                                    height: 40,
+                                    width: 40,
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: themeController.isDarkMode?Colors.white.withOpacity(0.12):Colors.white.withOpacity(0.2)
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: Image.asset(
+                                        'lib/asset/iconsNewDesign/bottomBarEvent.png',
+                                        color: filterDateValue==""?
+                                        themeController.isDarkMode?Color(0xFFC5CACA):Color(0xFF8A8A99):
+                                        themeController.isDarkMode?Color(0xFF67AE8C):Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                title: Text(filterDateValue==""?'Date':filterDateValue,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w600,
+                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                  ),
+                                ),
+                                trailing: Icon(
+                                  Icons.keyboard_arrow_down,
+                                  size: 30,
+                                  color: themeController.isDarkMode?Colors.white:Colors.black,
+                                ),
+                              ),
+                            );
+                          },
+                          showSearchBox: false,
+                          items: filterDate,
+                          itemAsString: (String u) => u,
+                          dropdownSearchDecoration: InputDecoration(
+                            hintText: '',
+                            hintStyle: TextStyle(
+                              fontSize: 0,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.1,
+                              color: themeController.isDarkMode?Colors.white:Colors.black,
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.only(top: 10),
+                          ),
+                          onChanged: (value)async{
+                            setState(() {
+                              filterDateValue = value;
+                            });
+                          },
+                        ),
+                      ),
+                    );
+                  }else if(index==1){
+                    return Container(
+                      width: 250,
+                      child: Theme(
+                        data: ThemeData(
+                          textTheme: TextTheme(
+                            subtitle1: TextStyle(
+                              color: themeController.isDarkMode?Colors.white:Colors.black,
+                            ),
+                          ),
+                        ),
+                        child: DropdownSearch<String>(
+                          mode: Mode.MENU,
+                          showSelectedItems: false,
+                          popupShape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                          maxHeight: 170,
+                          popupBackgroundColor: themeController.isDarkMode?Color(0xFF2a3b4b).withOpacity(0.9):Color(0xFFe8f8f5),
+                          dropdownButtonProps: IconButtonProps(
+                            icon: Icon(Icons.keyboard_arrow_down_sharp,size: 0),
+                            color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,
+                          ),
+                          dropdownBuilder: (context,data){
+                            return Container(
+                              height: 48,
+                              width: 168,
+                              decoration: BoxDecoration(
+                                color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                                borderRadius: BorderRadius.circular(48),
+                              ),
+                              child: ListTile(
+                                dense: true,
+                                contentPadding: EdgeInsets.only(left: 5,right: 15,),
+                                horizontalTitleGap: 13,
+                                leading: Padding(
+                                  padding: const EdgeInsets.only(bottom: 2),
+                                  child: Container(
+                                    height: 40,
+                                    width: 40,
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: themeController.isDarkMode?Colors.white.withOpacity(0.12):Colors.white.withOpacity(0.2)
+                                    ),
+                                    child: Center(
+                                      child: Icon(
+                                        Icons.location_on_sharp,
+                                        color: filterLocationValue==""?
+                                        themeController.isDarkMode?Color(0xFFC5CACA):Color(0xFF8A8A99):
+                                        themeController.isDarkMode?Color(0xFF67AE8C):Colors.black,
+                                        size: 25,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                title: Text(filterLocationValue==""?'Location':filterLocationValue,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w600,
+                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                  ),
+                                ),
+                                trailing: Icon(
+                                  Icons.keyboard_arrow_down,
+                                  size: 30,
+                                  color: themeController.isDarkMode?Colors.white:Colors.black,
+                                ),
+                              ),
+                            );
+                          },
+                          showSearchBox: false,
+                          items: filterLocation,
+                          itemAsString: (String u) => u,
+                          dropdownSearchDecoration: InputDecoration(
+                            hintText: '',
+                            hintStyle: TextStyle(
+                              fontSize: 0,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.1,
+                              color: themeController.isDarkMode?Colors.white:Colors.black,
+                            ),
+                            border: InputBorder.none,
+                          ),
+                          onChanged: (value)async{
+                            setState(() {
+                              filterLocationValue = value;
+                            });
+                          },
+                        ),
+                      ),
+                    );
+                  }else{
+                    return Container(
+                      width: 220,
+                      child: Theme(
+                        data: ThemeData(
+                          textTheme: TextTheme(
+                            subtitle1: TextStyle(
+                              color: themeController.isDarkMode?Colors.white:Colors.black,
+                            ),
+                          ),
+                        ),
+                        child: DropdownSearch<String>(
+                          mode: Mode.MENU,
+                          showSelectedItems: false,
+                          popupShape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                          maxHeight: 500,
+                          popupBackgroundColor: themeController.isDarkMode?Color(0xFF2a3b4b).withOpacity(0.9):Color(0xFFe8f8f5),
+                          dropdownButtonProps: IconButtonProps(
+                            icon: Icon(Icons.keyboard_arrow_down_sharp,size: 0),
+                            color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,
+                          ),
+                          dropdownBuilder: (context,data){
+                            return Container(
+                              height: 48,
+                              width: 140,
+                              decoration: BoxDecoration(
+                                color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                                borderRadius: BorderRadius.circular(48),
+                              ),
+                              child: ListTile(
+                                dense: true,
+                                contentPadding: EdgeInsets.only(left: 5,right: 15,),
+                                horizontalTitleGap: 13,
+                                leading: Padding(
+                                  padding: const EdgeInsets.only(bottom: 2),
+                                  child: Container(
+                                    height: 40,
+                                    width: 40,
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: themeController.isDarkMode?Colors.white.withOpacity(0.12):Colors.white.withOpacity(0.2)
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: Image.asset(
+                                        'lib/asset/iconsNewDesign/type.png',
+                                        color: filterTypeValue==""?
+                                        themeController.isDarkMode?Color(0xFFC5CACA):Color(0xFF8A8A99):
+                                        themeController.isDarkMode?Color(0xFF67AE8C):Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                title: Text(filterTypeValue==""?'Type':filterTypeValue,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w600,
+                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                  ),
+                                ),
+                                trailing: Icon(
+                                  Icons.keyboard_arrow_down,
+                                  size: 30,
+                                  color: themeController.isDarkMode?Colors.white:Colors.black,
+                                ),
+                              ),
+                            );
+                          },
+                          showSearchBox: false,
+                          items: filterType,
+                          itemAsString: (String u) => u,
+                          dropdownSearchDecoration: InputDecoration(
+                            hintText: '',
+                            hintStyle: TextStyle(
+                              fontSize: 0,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.1,
+                              color: themeController.isDarkMode?Colors.white:Colors.black,
+                            ),
+                            border: InputBorder.none,
+                          ),
+                          onChanged: (value)async{
+                            setState(() {
+                              filterTypeValue = value;
+                            });
+                          },
+                        ),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ),
             Expanded(
               child: refreshPageOnBottomClick ?
               timelineLoader() :
@@ -344,7 +655,7 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                           shrinkWrap: true,
                           physics: ScrollPhysics(),
                           controller: _scrollController,
-                          padding: EdgeInsets.only(top: 10),
+                          padding: EdgeInsets.only(top: 0),
                           children: [
                             ListView.builder(
                               scrollDirection: Axis.vertical,

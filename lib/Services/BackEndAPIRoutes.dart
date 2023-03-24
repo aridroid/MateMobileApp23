@@ -83,6 +83,9 @@ class BackEndAPIRoutes {
   Uri allBookmarkedFeed() =>
       Uri(scheme: _scheme, host: _host, path: '$_path/feed/bookmarkbyuser');
 
+  Uri myCampusBookmarkedFeed() =>
+      Uri(scheme: _scheme, host: _host, path: '$_path/feed/bookmarkbyuser',query: 'my_campus=1');
+
   Uri postAFeed() =>
       Uri(scheme: _scheme, host: _host, path: '$_path/feeds'); // method POST
 

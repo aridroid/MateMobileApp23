@@ -37,6 +37,13 @@ class CampusTalkRow extends StatefulWidget {
   final bool isBookmarkedPage;
   final bool isUserProfile;
   final bool navigateToDetailsPage;
+  final bool isTrending;
+  final bool isLatest;
+  final bool isForums;
+  final bool isYourCampus;
+  final bool isListCard;
+  final bool isSearch;
+  final List<CampusTalkTypes> campusTalkType;
 
   CampusTalkRow(
       {Key key,
@@ -55,7 +62,15 @@ class CampusTalkRow extends StatefulWidget {
       this.commentsCount,
       this.isBookmarkedPage = false,
       this.isUserProfile = false,
-      this.navigateToDetailsPage = true})
+      this.navigateToDetailsPage = true,
+        this.isTrending = false,
+        this.isLatest = false,
+        this.isForums = false,
+        this.isYourCampus = false,
+        this.isListCard = false,
+        this.isSearch = false,
+        this.campusTalkType,
+      })
       : super(key: key);
 
   @override
@@ -204,6 +219,15 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                           description: widget.description,
                           isAnonymous: widget.isAnonymous,
                           anonymousUser: widget.anonymousUser,
+                          isBookmarkedPage: widget.isBookmarkedPage,
+                          isUserProfile: widget.isUserProfile,
+                          isTrending: widget.isTrending,
+                          isLatest: widget.isLatest,
+                          isForums: widget.isForums,
+                          isYourCampus: widget.isYourCampus,
+                          isListCard: widget.isListCard,
+                          user: widget.user,
+                          campusTalkTypes: widget.campusTalkType,
                         ),
                       ));
                 }
@@ -287,6 +311,38 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
             child: Divider(
               thickness: 1,
               color: themeController.isDarkMode?MateColors.dividerDark:MateColors.dividerLight,
+            ),
+          ),
+          Container(
+            height: widget.campusTalkType.isNotEmpty?39:0,
+            margin: EdgeInsets.only(left: 16,top: 6),
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: widget.campusTalkType.length,
+              itemBuilder: (context, index) => Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: InkWell(
+                  onTap: () {},
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(25),
+                      color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 15,right: 15),
+                      child: Center(
+                        child: Text("${widget.campusTalkType[index].type.name}",
+                          style: TextStyle(
+                            fontFamily: "Poppins",
+                            fontSize: 15,
+                            color: themeController.isDarkMode?Colors.white:Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
           Column(
@@ -378,21 +434,46 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                             ),
                             onTap: () async {
                               liked=!liked;
-                              bool likedDone = await Provider.of<CampusTalkProvider>(context, listen: false).upVoteAPost(widget.talkId, widget.rowIndex, isBookmarkedPage: widget.isBookmarkedPage, isUserProfile: widget.isUserProfile);
+                              bool likedDone = await Provider.of<CampusTalkProvider>(context, listen: false).upVoteAPost(
+                                  widget.talkId,
+                                  widget.rowIndex,
+                                  isBookmarkedPage: widget.isBookmarkedPage,
+                                  isUserProfile: widget.isUserProfile,
+                                isTrending: widget.isTrending,
+                                isLatest: widget.isLatest,
+                                isForums: widget.isForums,
+                                isYourCampus: widget.isYourCampus,
+                                isListCard: widget.isListCard,
+                                isSearch: widget.isSearch,
+
+                              );
                               if (likedDone && liked) {
-                                widget.isUserProfile
-                                    ? ++value.campusTalkByUserPostsResultsList[widget.rowIndex].likesCount
-                                    : widget.isBookmarkedPage
-                                    ? ++value.campusTalkPostsBookmarkData.data.result[widget.rowIndex].likesCount
-                                    : ++value.campusTalkPostsResultsList[widget.rowIndex].likesCount;
+                                if(widget.isUserProfile){
+                                  ++value.campusTalkByUserPostsResultsList[widget.rowIndex].likesCount;
+                                }
+                                if(widget.isBookmarkedPage){
+                                  ++value.campusTalkPostsBookmarkData.data.result[widget.rowIndex].likesCount;
+                                }
+                                if(widget.isTrending){
+                                  ++value.campusTalkPostsResultsTrendingList[widget.rowIndex].likesCount;
+                                }
+                                if(widget.isLatest){
+                                  ++value.campusTalkPostsResultsLatestList[widget.rowIndex].likesCount;
+                                }
+                                if(widget.isForums){
+                                  ++value.campusTalkPostsResultsForumsList[widget.rowIndex].likesCount;
+                                }
+                                if(widget.isYourCampus){
+                                  ++value.campusTalkPostsResultsYourCampusList[widget.rowIndex].likesCount;
+                                }
+                                if(widget.isListCard){
+                                  ++value.campusTalkPostsResultsListCard[widget.rowIndex].likesCount;
+                                }
+                                if(widget.isSearch){
+                                  ++value.campusTalkBySearchResultsList[widget.rowIndex].likesCount;
+                                }
+                                setState(() {});
                               }
-                              // else if (likedDone && !liked) {
-                              //   widget.isUserProfile
-                              //       ? --value.campusTalkByUserPostsResultsList[widget.rowIndex].likesCount
-                              //       : widget.isBookmarkedPage
-                              //       ? --value.campusTalkPostsBookmarkData.data.result[widget.rowIndex].likesCount
-                              //       : --value.campusTalkPostsResultsList[widget.rowIndex].likesCount;
-                              // }
                             }
                         );
                       },
@@ -409,6 +490,12 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                             postIndex: widget.rowIndex,
                             isUserProfile: widget.isUserProfile,
                             isBookmarkedPage: widget.isBookmarkedPage,
+                            isTrending: widget.isTrending,
+                            isLatest: widget.isLatest,
+                            isForums: widget.isForums,
+                            isYourCampus: widget.isYourCampus,
+                            isListCard: widget.isListCard,
+                            user: widget.user,
                           ),
                         ));
                       },
@@ -448,7 +535,16 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                         return InkWell(
                           onTap: ()async{
                             bookMarked=!bookMarked;
-                            bool isBookmarked = await Provider.of<CampusTalkProvider>(context, listen: false).bookmarkAPost(widget.talkId, widget.rowIndex, isBookmarkedPage: widget.isBookmarkedPage, isUserProfile: widget.isUserProfile);
+                            bool isBookmarked = await Provider.of<CampusTalkProvider>(context, listen: false).bookmarkAPost(widget.talkId, widget.rowIndex,
+                                isBookmarkedPage: widget.isBookmarkedPage,
+                                isUserProfile: widget.isUserProfile,
+                              isTrending: widget.isTrending,
+                              isLatest: widget.isLatest,
+                              isForums: widget.isForums,
+                              isYourCampus: widget.isYourCampus,
+                              isListCard: widget.isListCard,
+                              isSearch: widget.isSearch,
+                            );
                             if (widget.isBookmarkedPage) {
                               if (isBookmarked) {
                                 Future.delayed(Duration(seconds: 0), () {
@@ -526,6 +622,12 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
               commentsCount: widget.commentsCount,
               isBookmarkedPage: widget.isBookmarkedPage,
               isUserProfile: widget.isUserProfile,
+              isTrending: widget.isTrending,
+              isLatest: widget.isLatest,
+              isForums: widget.isForums,
+              isYourCampus: widget.isYourCampus,
+              isListCard: widget.isListCard,
+              isSearch: widget.isSearch,
             ),
           ));
     }
@@ -548,15 +650,24 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
               child: Text("Yes"),
               onPressed: () async {
                 bool isDeleted = await campusTalkProvider.deleteACampusTalk(talkId, rowIndex);
-
                 if (isDeleted) {
                   Future.delayed(Duration(seconds: 0), () {
                     if (widget.isBookmarkedPage) {
                       campusTalkProvider.fetchCampusTalkPostBookmarkedList();
                     } else if (widget.isUserProfile) {
                       campusTalkProvider.fetchCampusTalkByAuthUser(user.uuid, page: 1);
-                    } else {
-                      campusTalkProvider.fetchCampusTalkPostList(page: 1);
+                    } else if(widget.isTrending){
+                      campusTalkProvider.fetchCampusTalkPostTendingList(page: 1);
+                    } else if(widget.isLatest){
+                      campusTalkProvider.fetchCampusTalkPostTLatestList(page: 1);
+                    }else if(widget.isForums){
+                      campusTalkProvider.fetchCampusTalkPostForumsList(page: 1);
+                    }else if(widget.isYourCampus){
+                      campusTalkProvider.fetchCampusTalkPostYourCampusList(page: 1);
+                    }else if(widget.isListCard){
+                      campusTalkProvider.fetchCampusTalkPostListCard();
+                    }else if(widget.isSearch){
+                      Get.back();
                     }
                     Navigator.pop(context);
                   });

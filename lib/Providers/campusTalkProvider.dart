@@ -1,6 +1,4 @@
-
 import 'dart:io';
-
 import 'package:image_picker/image_picker.dart';
 import 'package:mate_app/Exceptions/Custom_Exception.dart';
 import 'package:mate_app/Model/CampusTalkPostCommentUpVoteModel.dart';
@@ -20,22 +18,34 @@ class CampusTalkProvider extends ChangeNotifier{
   CampusTalkService _campusTalkService;
   String _apiError = "";
   Map<String, dynamic> _validationErrors = Map();
-  ctpm.CampusTalkPostsModel _campusTalkPostsModelData;
+  ctpm.CampusTalkPostsModel _campusTalkPostsModelDataTrending;
+  ctpm.CampusTalkPostsModel _campusTalkPostsModelDataLatest;
+  ctpm.CampusTalkPostsModel _campusTalkPostsModelDataForums;
+  ctpm.CampusTalkPostsModel _campusTalkPostsModelDataYourCampus;
+  ctpm.CampusTalkPostsModel _campusTalkPostsModelDataSearch;
   ctpm.CampusTalkPostsModel _campusTalkPostsModelDataCard;
-  List<ctpm.Result> _campusTalkPostsResultsList = [];
+  List<ctpm.Result> _campusTalkPostsResultsTrendingList = [];
+  List<ctpm.Result> _campusTalkPostsResultsLatestList = [];
+  List<ctpm.Result> _campusTalkPostsResultsForumsList = [];
+  List<ctpm.Result> _campusTalkPostsResultsYourCampusList = [];
   List<ctpm.Result> _campusTalkPostsResultsListCard = [];
   List<ctpm.Result> _campusTalkByUserPostsResultsList = [];
+  List<ctpm.Result> _campusTalkBySearchList = [];
   ctpm.CampusTalkPostsModel campusTalkPostsBookmarkData;
-  // CampusTalkPostsModel campusTalkByAuthUserData;
+  //CampusTalkPostsModel campusTalkByAuthUserData;
   CampusTalkPostsUpVoteModel _upVotePostData;
   CampusTalkPostCommentUpVoteModel _upVotePostCommentData;
   CampusTalkPostBookmarkModel _bookmarkPostData;
   CampusTalkCommentFetchModel _commentFetchData;
 
   /// initializing loader status
-  bool _talkPostLoader = false;
+  bool _talkPostTrendingLoader = false;
+  bool _talkPostLatestLoader = false;
+  bool _talkPostForumsLoader = false;
+  bool _talkPostYourCampusLoader = false;
   bool _talkPostBookmarkLoader = false;
   bool _talkPostByUserLoader = false;
+  bool _searchLoader = false;
   bool _uploadPostLoader = false;
   bool _likeAPostLoader = false;
   bool _bookmarkAPostLoader = false;
@@ -53,9 +63,13 @@ class CampusTalkProvider extends ChangeNotifier{
 
   ///getters
 
-  bool get talkPostLoader => _talkPostLoader;
+  bool get talkPostTrendingLoader => _talkPostTrendingLoader;
+  bool get talkPostLatestLoader => _talkPostLatestLoader;
+  bool get talkPostForumsLoader => _talkPostForumsLoader;
+  bool get talkPostYourCampusLoader => _talkPostYourCampusLoader;
   bool get talkPostBookmarkLoader => _talkPostBookmarkLoader;
   bool get talkPostByUserLoader => _talkPostByUserLoader;
+  bool get searchLoader => _searchLoader;
   bool get uploadPostLoader => _uploadPostLoader;
   bool get likeAPostLoader => _likeAPostLoader;
   bool get bookmarkAPostLoader => _bookmarkAPostLoader;
@@ -63,10 +77,18 @@ class CampusTalkProvider extends ChangeNotifier{
   bool get postCommentsLoader => _postCommentsLoader;
   bool get postShareLoader => _postShareLoader;
   bool get postReportLoader => _postReportLoader;
-  List<ctpm.Result> get campusTalkPostsResultsList => _campusTalkPostsResultsList;
+  List<ctpm.Result> get campusTalkPostsResultsTrendingList => _campusTalkPostsResultsTrendingList;
+  List<ctpm.Result> get campusTalkPostsResultsLatestList => _campusTalkPostsResultsLatestList;
+  List<ctpm.Result> get campusTalkPostsResultsForumsList => _campusTalkPostsResultsForumsList;
+  List<ctpm.Result> get campusTalkPostsResultsYourCampusList => _campusTalkPostsResultsYourCampusList;
   List<ctpm.Result> get campusTalkPostsResultsListCard => _campusTalkPostsResultsListCard;
   List<ctpm.Result> get campusTalkByUserPostsResultsList => _campusTalkByUserPostsResultsList;
-  ctpm.CampusTalkPostsModel get campusTalkPostsModelData => _campusTalkPostsModelData;
+  List<ctpm.Result> get campusTalkBySearchResultsList => _campusTalkBySearchList;
+  ctpm.CampusTalkPostsModel get campusTalkPostsModelDataTrending => _campusTalkPostsModelDataTrending;
+  ctpm.CampusTalkPostsModel get campusTalkPostsModelDataLatest => _campusTalkPostsModelDataLatest;
+  ctpm.CampusTalkPostsModel get campusTalkPostsModelDataForums => _campusTalkPostsModelDataForums;
+  ctpm.CampusTalkPostsModel get campusTalkPostsModelDataYourCampus => _campusTalkPostsModelDataYourCampus;
+  ctpm.CampusTalkPostsModel get campusTalkPostsModelDataSearch => _campusTalkPostsModelDataSearch;
   CampusTalkPostsUpVoteModel get upVotePostData => _upVotePostData;
   CampusTalkPostCommentUpVoteModel get upVotePostCommentData => _upVotePostCommentData;
   CampusTalkPostBookmarkModel get bookmarkPostData => _bookmarkPostData;
@@ -88,9 +110,37 @@ class CampusTalkProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  set campusTalkPostLoaderStatus(bool val) {
-    if (_talkPostLoader != val) {
-      _talkPostLoader = val;
+  set campusTalkPostLoaderStatusTrending(bool val) {
+    if (_talkPostTrendingLoader != val) {
+      _talkPostTrendingLoader = val;
+      notifyListeners();
+    }
+  }
+
+  set campusTalkPostLoaderStatusLatest(bool val) {
+    if (_talkPostLatestLoader != val) {
+      _talkPostLatestLoader = val;
+      notifyListeners();
+    }
+  }
+
+  set campusTalkPostLoaderStatusForums(bool val) {
+    if (_talkPostForumsLoader != val) {
+      _talkPostForumsLoader = val;
+      notifyListeners();
+    }
+  }
+
+  set campusTalkPostLoaderStatusYourCampus(bool val) {
+    if (_talkPostYourCampusLoader != val) {
+      _talkPostYourCampusLoader = val;
+      notifyListeners();
+    }
+  }
+
+  set campusTalkPostLoaderStatusSearch(bool val) {
+    if (_searchLoader != val) {
+      _searchLoader = val;
       notifyListeners();
     }
   }
@@ -111,43 +161,208 @@ class CampusTalkProvider extends ChangeNotifier{
 
   /// methods
 
-  Future<void> fetchCampusTalkPostList({int page, bool paginationCheck=false,}) async {
+  Future<void> fetchCampusTalkPostTendingList({int page, bool paginationCheck=false,}) async {
     error = '';
-    _talkPostLoader = true;
+    _talkPostTrendingLoader = true;
 
     if (page == 1) {
-      _campusTalkPostsResultsList.clear();
-
+      _campusTalkPostsResultsTrendingList.clear();
     }
     print('fetching $page');
 
     try {
-      Map<String, dynamic> queryParams = {"page": page.toString()};
+      Map<String, dynamic> queryParams = {"page": page.toString(),"type":"trending"};
 
       var data = await _campusTalkService.fetchCampusTalkPostList(queryParams);
-      _campusTalkPostsModelData = data;
+      _campusTalkPostsModelDataTrending = data;
 
       List<ctpm.Result> rawFeedList = [];
-      for (int i = 0; i < _campusTalkPostsModelData.data.result.length; i++) {
-        rawFeedList.add(_campusTalkPostsModelData.data.result[i]);
+      for (int i = 0; i < _campusTalkPostsModelDataTrending.data.result.length; i++) {
+        rawFeedList.add(_campusTalkPostsModelDataTrending.data.result[i]);
       }
 
 
       if(paginationCheck){
-        _campusTalkPostsResultsList.addAll(rawFeedList);
+        _campusTalkPostsResultsTrendingList.addAll(rawFeedList);
         notifyListeners();
-      }else if(_campusTalkPostsResultsList.isEmpty){
-        _campusTalkPostsResultsList.addAll(rawFeedList);
+      }else if(_campusTalkPostsResultsTrendingList.isEmpty){
+        _campusTalkPostsResultsTrendingList.addAll(rawFeedList);
         notifyListeners();
       }
-      print("campusTalkPostsResultsList length ${_campusTalkPostsResultsList.length}");
+      print("campusTalkPostsResultsList length ${_campusTalkPostsResultsTrendingList.length}");
 
     } catch (err) {
       _setError(err);
     } finally {
-      _talkPostLoader = false;
+      _talkPostTrendingLoader = false;
       notifyListeners();
 
+    }
+  }
+
+  Future<void> fetchCampusTalkPostTLatestList({int page, bool paginationCheck=false,}) async {
+    error = '';
+    _talkPostLatestLoader = true;
+
+    if (page == 1) {
+      _campusTalkPostsResultsLatestList.clear();
+    }
+    print('fetching $page');
+
+    try {
+      Map<String, dynamic> queryParams = {"page": page.toString(),"type":"latest"};
+
+      var data = await _campusTalkService.fetchCampusTalkPostList(queryParams);
+      _campusTalkPostsModelDataLatest = data;
+
+      List<ctpm.Result> rawFeedList = [];
+      for (int i = 0; i < _campusTalkPostsModelDataLatest.data.result.length; i++) {
+        rawFeedList.add(_campusTalkPostsModelDataLatest.data.result[i]);
+      }
+
+
+      if(paginationCheck){
+        _campusTalkPostsResultsLatestList.addAll(rawFeedList);
+        notifyListeners();
+      }else if(_campusTalkPostsResultsLatestList.isEmpty){
+        _campusTalkPostsResultsLatestList.addAll(rawFeedList);
+        notifyListeners();
+      }
+      print("campusTalkPostsResultsList length ${_campusTalkPostsResultsLatestList.length}");
+
+    } catch (err) {
+      _setError(err);
+    } finally {
+      _talkPostLatestLoader = false;
+      notifyListeners();
+
+    }
+  }
+
+  Future<void> fetchCampusTalkPostForumsList({int page, bool paginationCheck=false,}) async {
+    error = '';
+    _talkPostForumsLoader = true;
+
+    if (page == 1) {
+      _campusTalkPostsResultsForumsList.clear();
+    }
+    print('fetching $page');
+
+    try {
+      Map<String, dynamic> queryParams = {"page": page.toString(),"type":"forums"};
+
+      var data = await _campusTalkService.fetchCampusTalkPostList(queryParams);
+      _campusTalkPostsModelDataForums = data;
+
+      List<ctpm.Result> rawFeedList = [];
+      for (int i = 0; i < _campusTalkPostsModelDataForums.data.result.length; i++) {
+        rawFeedList.add(_campusTalkPostsModelDataForums.data.result[i]);
+      }
+
+
+      if(paginationCheck){
+        _campusTalkPostsResultsForumsList.addAll(rawFeedList);
+        notifyListeners();
+      }else if(_campusTalkPostsResultsForumsList.isEmpty){
+        _campusTalkPostsResultsForumsList.addAll(rawFeedList);
+        notifyListeners();
+      }
+      print("campusTalkPostsResultsList length ${_campusTalkPostsResultsForumsList.length}");
+
+    } catch (err) {
+      _setError(err);
+    } finally {
+      _talkPostForumsLoader = false;
+      notifyListeners();
+
+    }
+  }
+
+  Future<void> fetchCampusTalkPostYourCampusList({int page, bool paginationCheck=false,}) async {
+    error = '';
+    _talkPostYourCampusLoader = true;
+
+    if (page == 1) {
+      _campusTalkPostsResultsYourCampusList.clear();
+    }
+    print('fetching $page');
+
+    try {
+      Map<String, dynamic> queryParams = {"page": page.toString(),"type":"my_campus"};
+
+      var data = await _campusTalkService.fetchCampusTalkPostList(queryParams);
+      _campusTalkPostsModelDataYourCampus = data;
+
+      List<ctpm.Result> rawFeedList = [];
+      for (int i = 0; i < _campusTalkPostsModelDataYourCampus.data.result.length; i++) {
+        rawFeedList.add(_campusTalkPostsModelDataYourCampus.data.result[i]);
+      }
+
+
+      if(paginationCheck){
+        _campusTalkPostsResultsYourCampusList.addAll(rawFeedList);
+        notifyListeners();
+      }else if(_campusTalkPostsResultsYourCampusList.isEmpty){
+        _campusTalkPostsResultsYourCampusList.addAll(rawFeedList);
+        notifyListeners();
+      }
+      print("campusTalkPostsResultsList length ${_campusTalkPostsResultsYourCampusList.length}");
+
+    } catch (err) {
+      _setError(err);
+    } finally {
+      _talkPostYourCampusLoader = false;
+      notifyListeners();
+
+    }
+  }
+
+  Future<void> fetchCampusTalkPostSearchList({
+    int page,
+    bool paginationCheck=false,
+    String searchType,
+    String text
+  }) async {
+    error = '';
+    _searchLoader = true;
+
+    if (page == 1) {
+      _campusTalkBySearchList.clear();
+    }
+    print('fetching $page');
+    Map<String, dynamic> queryParams;
+
+    try {
+      if(searchType=="Global"){
+        queryParams = {"page": page.toString(),"search_text":text};
+      }else{
+        queryParams = {"page": page.toString(),"type": searchType,"search_text":text};
+      }
+
+
+      var data = await _campusTalkService.fetchCampusTalkPostList(queryParams);
+      _campusTalkPostsModelDataSearch = data;
+
+      List<ctpm.Result> rawFeedList = [];
+      for (int i = 0; i < _campusTalkPostsModelDataSearch.data.result.length; i++) {
+        rawFeedList.add(_campusTalkPostsModelDataSearch.data.result[i]);
+      }
+
+
+      if(paginationCheck){
+        _campusTalkBySearchList.addAll(rawFeedList);
+        notifyListeners();
+      }else if(_campusTalkBySearchList.isEmpty){
+        _campusTalkBySearchList.addAll(rawFeedList);
+        notifyListeners();
+      }
+      print("campusTalkPostsResultsList length ${_campusTalkBySearchList.length}");
+
+    } catch (err) {
+      _setError(err);
+    } finally {
+      _searchLoader = false;
+      notifyListeners();
     }
   }
 
@@ -175,23 +390,23 @@ class CampusTalkProvider extends ChangeNotifier{
   }
 
 
-  Future<void> fetchCampusTalkPostDetails(int talkId) async {
-    error = '';
-    _talkPostLoader = true;
-
-    try {
-
-      var data = await _campusTalkService.fetchCampusTalkPostDetails(talkId);
-      _campusTalkPostsModelData = data;
-
-    } catch (err) {
-      _setError(err);
-    } finally {
-      _talkPostLoader = false;
-      notifyListeners();
-
-    }
-  }
+  // Future<void> fetchCampusTalkPostDetails(int talkId) async {
+  //   error = '';
+  //   _talkPostTrendingLoader = true;
+  //
+  //   try {
+  //
+  //     var data = await _campusTalkService.fetchCampusTalkPostDetails(talkId);
+  //     _campusTalkPostsModelDataTrending = data;
+  //
+  //   } catch (err) {
+  //     _setError(err);
+  //   } finally {
+  //     _talkPostTrendingLoader = false;
+  //     notifyListeners();
+  //
+  //   }
+  // }
 
   Future<void> fetchCampusTalkPostBookmarkedList() async {
     error = '';
@@ -230,11 +445,11 @@ class CampusTalkProvider extends ChangeNotifier{
 
         var data = await _campusTalkService.fetchCampusTalkByAuthUser(uuid, queryParams);
 
-        _campusTalkPostsModelData = data;
+        _campusTalkPostsModelDataTrending = data;
 
         List<ctpm.Result> rawFeedList = [];
-        for (int i = 0; i < _campusTalkPostsModelData.data.result.length; i++) {
-          rawFeedList.add(_campusTalkPostsModelData.data.result[i]);
+        for (int i = 0; i < _campusTalkPostsModelDataTrending.data.result.length; i++) {
+          rawFeedList.add(_campusTalkPostsModelDataTrending.data.result[i]);
         }
 
 
@@ -261,11 +476,17 @@ class CampusTalkProvider extends ChangeNotifier{
 
 
 
-  Future<bool> uploadACampusTalkPost(String title, String description, bool isAnonymous) async {
+  Future<bool> uploadACampusTalkPost(String title, String description, bool isAnonymous,List<String> uuid) async {
     error = '';
     _uploadPostLoader = true;
     try {
-      var data = await _campusTalkService.postACampusTalk({"title":title, "description": description, "is_anonymous":isAnonymous});
+      var data = await _campusTalkService.postACampusTalk({
+        "title":title,
+        "description": description,
+        "is_anonymous":isAnonymous,
+        if(uuid.isNotEmpty)
+          "campus_talk_type_id":uuid,
+      });
     } catch (err) {
       _setError(err);
       return false;
@@ -275,7 +496,7 @@ class CampusTalkProvider extends ChangeNotifier{
     return true;
   }
 
-  Future<bool> updateACampusTalkPost(int id,String title, String description, bool isAnonymous,String anonymousUser) async {
+  Future<bool> updateACampusTalkPost(int id,String title, String description, bool isAnonymous,String anonymousUser,List<String> uuid) async {
     error = '';
     _uploadPostLoader = true;
     try {
@@ -286,6 +507,8 @@ class CampusTalkProvider extends ChangeNotifier{
             "is_anonymous":isAnonymous,
             if(anonymousUser!=null)
               "anonymous_user":anonymousUser,
+            if(uuid.isNotEmpty)
+              "campus_talk_type_id":uuid,
 
           },
         id,
@@ -300,12 +523,30 @@ class CampusTalkProvider extends ChangeNotifier{
   }
 
 
-  Future<bool> upVoteAPost(int postId, int index, {bool isBookmarkedPage=false, bool isUserProfile=false}) async {
+  Future<bool> upVoteAPost(
+      int postId,
+      int index,
+      {bool isBookmarkedPage=false,
+        bool isUserProfile=false,
+        bool isTrending = false,
+        bool isLatest = false,
+        bool isForums = false,
+        bool isYourCampus = false,
+        bool isListCard = false,
+        bool isSearch = false,
+      }
+      ) async {
     error = '';
     _likeAPostLoader = true;
     isUserProfile?_campusTalkByUserPostsResultsList[index].upVoteLoader=true:
     isBookmarkedPage?campusTalkPostsBookmarkData.data.result[index].upVoteLoader=true:
-    _campusTalkPostsResultsList[index].upVoteLoader=true;
+    isTrending? _campusTalkPostsResultsTrendingList[index].upVoteLoader=true:
+    isLatest? _campusTalkPostsResultsLatestList[index].upVoteLoader=true:
+    isForums? _campusTalkPostsResultsForumsList[index].upVoteLoader=true:
+    isYourCampus? _campusTalkPostsResultsYourCampusList[index].upVoteLoader=true:
+    isListCard? _campusTalkPostsResultsListCard[index].upVoteLoader=true:
+    isSearch? _campusTalkBySearchList[index].upVoteLoader=true:
+        null;
     var data;
     try {
       data = await _campusTalkService.upVoteAPost(postId);
@@ -316,8 +557,14 @@ class CampusTalkProvider extends ChangeNotifier{
     } finally {
       _likeAPostLoader = false;
       isUserProfile?_campusTalkByUserPostsResultsList[index].upVoteLoader=false:
-      isBookmarkedPage?campusTalkPostsBookmarkData.data.result[index].upVoteLoader=false
-          :_campusTalkPostsResultsList[index].upVoteLoader=false;
+      isBookmarkedPage?campusTalkPostsBookmarkData.data.result[index].upVoteLoader=false :
+      isTrending? _campusTalkPostsResultsTrendingList[index].upVoteLoader=false:
+      isLatest? _campusTalkPostsResultsLatestList[index].upVoteLoader=false:
+      isForums? _campusTalkPostsResultsForumsList[index].upVoteLoader=false:
+      isYourCampus? _campusTalkPostsResultsYourCampusList[index].upVoteLoader=false:
+      isListCard? _campusTalkPostsResultsListCard[index].upVoteLoader=false:
+      isSearch? _campusTalkBySearchList[index].upVoteLoader=false:
+      null;
 
     }
     notifyListeners();
@@ -349,14 +596,27 @@ class CampusTalkProvider extends ChangeNotifier{
   }
 
 
-
-
-  Future<bool> bookmarkAPost(int postId, int index, {bool isBookmarkedPage=false, bool isUserProfile=false}) async {
+  Future<bool> bookmarkAPost(int postId, int index,
+      {bool isBookmarkedPage=false,
+        bool isUserProfile=false,
+        bool isTrending = false,
+        bool isLatest = false,
+        bool isForums = false,
+        bool isYourCampus = false,
+        bool isListCard = false,
+        bool isSearch = false,
+      }) async {
     error = '';
     _bookmarkAPostLoader = true;
     isUserProfile?_campusTalkByUserPostsResultsList[index].bookmarkLoader=true:
-    isBookmarkedPage?campusTalkPostsBookmarkData.data.result[index].bookmarkLoader=true
-        :_campusTalkPostsResultsList[index].bookmarkLoader=true;
+    isBookmarkedPage?campusTalkPostsBookmarkData.data.result[index].bookmarkLoader=true :
+    isTrending? _campusTalkPostsResultsTrendingList[index].bookmarkLoader=true:
+    isLatest? _campusTalkPostsResultsLatestList[index].bookmarkLoader=true:
+    isForums? _campusTalkPostsResultsForumsList[index].bookmarkLoader=true:
+    isYourCampus? _campusTalkPostsResultsYourCampusList[index].bookmarkLoader=true:
+    isListCard? _campusTalkPostsResultsListCard[index].bookmarkLoader=true:
+    isSearch? _campusTalkBySearchList[index].bookmarkLoader=true:
+    null;
     var data;
     try {
       data = await _campusTalkService.bookmarkAPost(postId);
@@ -368,8 +628,14 @@ class CampusTalkProvider extends ChangeNotifier{
       _bookmarkAPostLoader = false;
 
       isUserProfile?_campusTalkByUserPostsResultsList[index].bookmarkLoader=false:
-      isBookmarkedPage?campusTalkPostsBookmarkData.data.result[index].bookmarkLoader=false
-          :_campusTalkPostsResultsList[index].bookmarkLoader=false;
+      isBookmarkedPage?campusTalkPostsBookmarkData.data.result[index].bookmarkLoader=false :
+      isTrending? _campusTalkPostsResultsTrendingList[index].bookmarkLoader=false:
+      isLatest? _campusTalkPostsResultsLatestList[index].bookmarkLoader=false:
+      isForums? _campusTalkPostsResultsForumsList[index].bookmarkLoader=false:
+      isYourCampus? _campusTalkPostsResultsYourCampusList[index].bookmarkLoader=false:
+      isListCard? _campusTalkPostsResultsListCard[index].bookmarkLoader=false:
+      isSearch? _campusTalkBySearchList[index].bookmarkLoader=false:
+      null;
     }
     notifyListeners();
     return true;
@@ -503,7 +769,7 @@ class CampusTalkProvider extends ChangeNotifier{
 
   Future<bool> deleteACampusTalk(int postId, int index) async {
     error = '';
-    campusTalkPostsResultsList[index].deleteLoader=true;
+    campusTalkPostsResultsTrendingList[index].deleteLoader=true;
     //campusTalkPostsModelData.data.result[index].deleteLoader=true;
     var data;
     try {
@@ -512,7 +778,7 @@ class CampusTalkProvider extends ChangeNotifier{
       _setError(err);
       return false;
     } finally {
-      campusTalkPostsResultsList[index].deleteLoader=false;
+      campusTalkPostsResultsTrendingList[index].deleteLoader=false;
       //campusTalkPostsModelData.data.result[index].deleteLoader=false;
     }
     return true;

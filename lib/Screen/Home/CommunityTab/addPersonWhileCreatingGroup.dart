@@ -9,6 +9,7 @@ import '../../../asset/Colors/MateColors.dart';
 import '../../../controller/addUserController.dart';
 import '../../../controller/theme_controller.dart';
 import '../../../groupChat/services/database_service.dart';
+import 'createGroupScreen.dart';
 
 class AddPersonWhileCreatingGroup extends StatefulWidget {
   const AddPersonWhileCreatingGroup({Key key}) : super(key: key);
@@ -46,9 +47,21 @@ class _AddPersonWhileCreatingGroupState extends State<AddPersonWhileCreatingGrou
                 email: searchResultSnapshot.docs[i]["email"],
               )
           );
+          _addUserController.personList.add(
+              UserListModel(
+                uuid: searchResultSnapshot.docs[i]["uuid"],
+                uid: searchResultSnapshot.docs[i]["uid"],
+                displayName: searchResultSnapshot.docs[i]["displayName"],
+                photoURL: searchResultSnapshot.docs[i]["photoURL"],
+                email: searchResultSnapshot.docs[i]["email"],
+              )
+          );
         }
       }
       personList.sort((a, b) {
+        return a.displayName.toLowerCase().compareTo(b.displayName.toLowerCase());
+      });
+      _addUserController.personList.sort((a, b) {
         return a.displayName.toLowerCase().compareTo(b.displayName.toLowerCase());
       });
       setState(() {
@@ -62,25 +75,6 @@ class _AddPersonWhileCreatingGroupState extends State<AddPersonWhileCreatingGrou
     final scH = MediaQuery.of(context).size.height;
     final scW = MediaQuery.of(context).size.width;
     return Scaffold(
-      floatingActionButton: _addUserController.addConnectionUid.isNotEmpty?InkWell(
-        onTap: (){
-          Get.back();
-        },
-        child: Container(
-          height: 56,
-          width: 56,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: MateColors.activeIcons,
-          ),
-          child: Icon(
-            Icons.check,
-            size: 31,
-            color: themeController.isDarkMode?Colors.black:Colors.white,
-          ),
-        ),
-      ):Offstage(),
       body: Container(
         height: scH,
         width: scW,
@@ -106,20 +100,38 @@ class _AddPersonWhileCreatingGroupState extends State<AddPersonWhileCreatingGrou
                     onTap: (){
                       Get.back();
                     },
-                    child: Icon(Icons.arrow_back_ios,
-                      size: 20,
-                      color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
+                    child: Text(
+                      "Cancel",
+                      style: TextStyle(
+                        color: Color(0xFF007AFE),
+                        fontWeight: FontWeight.w500,
+                        fontSize: 17.0,
+                      ),
                     ),
                   ),
                   Text(
-                    "New Message",
+                    "New Group",
                     style: TextStyle(
                       color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
                       fontWeight: FontWeight.w700,
                       fontSize: 17.0,
                     ),
                   ),
-                  SizedBox(),
+                  _addUserController.addConnectionUid.isNotEmpty?
+                  GestureDetector(
+                    onTap: ()async{
+                      await Get.to(CreateGroupScreen());
+                      setState(() {});
+                    },
+                    child: Text(
+                      "Next",
+                      style: TextStyle(
+                        color: Color(0xFF007AFE),
+                        fontWeight: FontWeight.w500,
+                        fontSize: 17.0,
+                      ),
+                    ),
+                  ):SizedBox(width: 35,),
                 ],
               ),
             ),
@@ -139,7 +151,7 @@ class _AddPersonWhileCreatingGroupState extends State<AddPersonWhileCreatingGrou
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Search here...",
+                    Text("Search people",
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 14,
@@ -164,6 +176,95 @@ class _AddPersonWhileCreatingGroupState extends State<AddPersonWhileCreatingGrou
                   ],
                 ),
               ),
+            ),
+            isLoading?
+            SizedBox():
+            Container(
+              margin: EdgeInsets.only(top: 20,left: 6,right: 16),
+              height: _addUserController.selected.isNotEmpty?100:0,
+              width: scW,
+              child: ListView.builder(
+                  shrinkWrap: true,
+                  padding: EdgeInsets.zero,
+                  scrollDirection: Axis.horizontal,
+                  physics: BouncingScrollPhysics(),
+                  itemCount: personList.length,
+                  itemBuilder: (context, index) {
+                    return Visibility(
+                      visible: _addUserController.selected.contains(index),
+                      child: InkWell(
+                        onTap: ()async{
+                          setState(() {
+                            if(_addUserController.selected.contains(index)){
+                              _addUserController.selected.remove(index);
+                            }else{
+                              _addUserController.selected.add(index);
+                            }
+                          });
+                          if(_addUserController.addConnectionUid.contains(personList[index].uid)){
+                            _addUserController.addConnectionUid.remove(personList[index].uid);
+                          }else{
+                            _addUserController.addConnectionUid.add(personList[index].uid);
+                          }
+                          if(_addUserController.addConnectionDisplayName.contains(personList[index].displayName)){
+                            _addUserController.addConnectionDisplayName.remove(personList[index].displayName);
+                          }else{
+                            _addUserController.addConnectionDisplayName.add(personList[index].displayName);
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: Stack(
+                            children: [
+                              personList[index].photoURL!=null?
+                              CircleAvatar(
+                                radius: 30,
+                                backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+                                backgroundImage: NetworkImage(
+                                  personList[index].photoURL,
+                                ),
+                              ):
+                              CircleAvatar(
+                                radius: 30,
+                                backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+                                child: Text(personList[index].displayName.substring(0,1),
+                                  style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                left: 0,
+                                child: Text(personList[index].displayName,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontFamily: "Poppins",
+                                    fontWeight: FontWeight.w400,
+                                    color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                right: 0,
+                                top: 0,
+                                child: Container(
+                                  height: 24,
+                                  width: 24,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: themeController.isDarkMode?Color(0xFF6A6A6A):Colors.white.withOpacity(0.5),
+                                  ),
+                                  child: Icon(Icons.clear,
+                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                    size: 15,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
             ),
             Expanded(
               child: isLoading?
@@ -207,8 +308,6 @@ class _AddPersonWhileCreatingGroupState extends State<AddPersonWhileCreatingGrou
                               }else{
                                 _addUserController.addConnectionDisplayName.add(personList[index].displayName);
                               }
-                              print(_addUserController.addConnectionUid);
-                              print(_addUserController.addConnectionDisplayName);
                             },
                             child: ListTile(
                               leading: personList[index].photoURL!=null?
@@ -233,10 +332,16 @@ class _AddPersonWhileCreatingGroupState extends State<AddPersonWhileCreatingGrou
                                   color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
                                 ),
                               ),
-                              trailing: _addUserController.selected.contains(index)?
-                              Icon(Icons.check,
+                              trailing:
+                              _addUserController.selected.contains(index)?
+                              Image.asset(
+                                "lib/asset/iconsNewDesign/radioColor.png",
                                 color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
-                              ):Offstage(),
+                              ):
+                              Image.asset(
+                                "lib/asset/iconsNewDesign/radio.png",
+                                color: themeController.isDarkMode?Colors.white.withOpacity(0.2):Colors.black.withOpacity(0.28),
+                              ),
                             ),
                           ),
                         );

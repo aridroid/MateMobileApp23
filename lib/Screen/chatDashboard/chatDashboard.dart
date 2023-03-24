@@ -11,7 +11,6 @@ import 'package:mate_app/Screen/chatDashboard/new_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:sizer/sizer.dart';
 
 import '../../Model/callHistoryModel.dart';
 import '../../Providers/AuthUserProvider.dart';
@@ -415,10 +414,11 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                     _addUserController.addConnectionDisplayName.clear();
                                     _addUserController.selected.clear();
                                     await Get.to(()=>AddPersonWhileCreatingGroup());
-                                    print(_addUserController.addConnectionUid);
-                                    if(_addUserController.addConnectionUid.isNotEmpty){
-                                      _popupDialog(context);
-                                    }
+                                    loadData();
+                                    // print(_addUserController.addConnectionUid);
+                                    // if(_addUserController.addConnectionUid.isNotEmpty){
+                                    //   _popupDialog(context);
+                                    // }
                                   },
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

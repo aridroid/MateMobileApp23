@@ -32,6 +32,7 @@ class FeedDetailsFullScreen extends StatefulWidget{
   String hyperlinkText;
   String hyperlink;
   List media;
+  List mediaOther;
   bool bookMarked;
   IsLiked isLiked;
   bool liked;
@@ -63,6 +64,7 @@ class FeedDetailsFullScreen extends StatefulWidget{
         this.hyperlinkText,
         this.hyperlink,
         this.media,
+        this.mediaOther,
         this.isLiked,
         this.liked,
         this.bookMarked,
@@ -153,6 +155,7 @@ class FeedDetailsFullScreenState extends State<FeedDetailsFullScreen>{
                 indexVal: widget.indexVal,
                 navigateToDetailsPage: false,
                 pageType: widget.pageType,
+                mediaOther: widget.mediaOther,
               ),
               _messageSendWidget(),
               _comments(),

@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:googleapis/spanner/v1.dart';
 import 'package:http/http.dart'as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -30,15 +29,27 @@ class ConnectingScreen extends StatefulWidget {
   State<ConnectingScreen> createState() => _ConnectingScreenState();
 }
 
-class _ConnectingScreenState extends State<ConnectingScreen> {
+class _ConnectingScreenState extends State<ConnectingScreen> with SingleTickerProviderStateMixin{
   ThemeController themeController = Get.find<ThemeController>();
   bool callPushApi = true;
   User _user;
   String tokenApi;
+  AnimationController _controller;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
     _user = FirebaseAuth.instance.currentUser;
+    _controller = AnimationController(
+      vsync: this,
+      lowerBound: 0.5,
+      duration: Duration(seconds: 3),
+    )..repeat();
     getStoredValue();
     onJoin();
     super.initState();
@@ -52,60 +63,94 @@ class _ConnectingScreenState extends State<ConnectingScreen> {
   @override
   Widget build(BuildContext context) {
     final scH = MediaQuery.of(context).size.height;
-    return SafeArea(
-      child: Scaffold(
-        body: Column(
+    final scW = MediaQuery.of(context).size.width;
+    return Scaffold(
+      body: Container(
+        height: scH,
+        width: scW,
+        decoration: BoxDecoration(
+          color: themeController.isDarkMode?Color(0xFF000000):Colors.white,
+          image: DecorationImage(
+            image: AssetImage(themeController.isDarkMode?'lib/asset/Background.png':'lib/asset/BackgroundLight.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Column(
           children: [
+            SizedBox(
+              height: scH*0.07,
+            ),
             Center(
               child: Padding(
                 padding: EdgeInsets.only(top: scH*0.05),
                 child: Text(
                   "Connecting...",
                   style: TextStyle(
-                    color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                    color: themeController.isDarkMode?Colors.white:MateColors.blackText,
                     fontWeight: FontWeight.w700,
+                    fontFamily: 'Poppins',
                     fontSize: 17.0,
                   ),
                 ),
               ),
             ),
             SizedBox(
-              height: scH*0.15,
+              height: scH*0.1,
             ),
-            CachedNetworkImage(
-                imageUrl: widget.receiverImage,
-                progressIndicatorBuilder: (context, url, downloadProgress){
-                  return CircleAvatar(
-                    radius: 60,
-                    backgroundImage: AssetImage("lib/asset/profile.png"),
+            Expanded(
+              child: AnimatedBuilder(
+                animation: CurvedAnimation(parent: _controller, curve: Curves.fastOutSlowIn),
+                builder: (context, child) {
+                  return Stack(
+                    alignment: Alignment.center,
+                    children: <Widget>[
+                      _buildContainer(150 * _controller.value),
+                      _buildContainer(200 * _controller.value),
+                      _buildContainer(250 * _controller.value),
+                      _buildContainer(300 * _controller.value),
+                      Align(
+                        child: CachedNetworkImage(
+                            imageUrl: widget.receiverImage,
+                            progressIndicatorBuilder: (context, url, downloadProgress){
+                              return CircleAvatar(
+                                radius: 60,
+                                backgroundImage: AssetImage("lib/asset/profile.png"),
+                              );
+                            },
+                            errorWidget: (context, url, error){
+                              return CircleAvatar(
+                                radius: 60,
+                                backgroundImage: AssetImage("lib/asset/profile.png"),
+                              );
+                            },
+                            imageBuilder: (context,url){
+                              return CircleAvatar(
+                                radius: 60,
+                                backgroundImage: url,
+                              );
+                            }
+                        ),
+                      ),
+                      //Align(child: Icon(Icons.phone_android, size: 44,)),
+                    ],
                   );
                 },
-                errorWidget: (context, url, error){
-                  return CircleAvatar(
-                    radius: 60,
-                    backgroundImage: AssetImage("lib/asset/profile.png"),
-                  );
-                },
-                imageBuilder: (context,url){
-                  return CircleAvatar(
-                    radius: 60,
-                    backgroundImage: url,
-                  );
-                }
+              ),
             ),
             Padding(
               padding: EdgeInsets.only(top: scH*0.03),
               child: Text(
                 widget.receiverName,
                 style: TextStyle(
-                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                  color: themeController.isDarkMode?Colors.white:MateColors.blackText,
                   fontWeight: FontWeight.w700,
                   fontSize: 17.0,
+                  fontFamily: 'Poppins',
                 ),
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(top: scH*0.3),
+              padding: EdgeInsets.only(top: scH*0.3,bottom: scH*0.05),
               child: InkWell(
                 onTap: (){
                   setState(() {
@@ -132,6 +177,17 @@ class _ConnectingScreenState extends State<ConnectingScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildContainer(double radius) {
+    return Container(
+      width: radius,
+      height: radius,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.blue.withOpacity(1 - _controller.value),
       ),
     );
   }

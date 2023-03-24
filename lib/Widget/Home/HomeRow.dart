@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:mate_app/Providers/FeedProvider.dart';
 import 'package:mate_app/Screen/Home/HomeScreen.dart';
 import 'package:mate_app/Screen/Home/TimeLine/feedComments.dart';
@@ -14,6 +15,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
@@ -28,6 +30,9 @@ import '../../Screen/Home/TimeLine/feed_search.dart';
 import '../../Services/FeedService.dart';
 import '../../controller/theme_controller.dart';
 import '../mediaViewer.dart';
+import 'package:http/http.dart'as http;
+
+import '../video_thumbnail.dart';
 
 class HomeRow extends StatefulWidget {
   String previousPageUserId;
@@ -45,6 +50,7 @@ class HomeRow extends StatefulWidget {
   String hyperlinkText;
   String hyperlink;
   List media;
+  final List mediaOther;
   bool bookMarked;
   bool isFollowed;
   IsLiked isLiked;
@@ -61,6 +67,11 @@ class HomeRow extends StatefulWidget {
   bool navigateToDetailsPage;
   String pageType;
   bool showUniversityTag;
+  final bool isPlaying;
+  final bool isPaused;
+  final bool isLoadingAudio;
+  Function(String url,int index) startAudio;
+  Function(int index) pauseAudio;
 
   HomeRow(
       {this.previousPageUserId,
@@ -93,10 +104,13 @@ class HomeRow extends StatefulWidget {
       this.navigateToDetailsPage = true,
         this.showUniversityTag = false,
         this.pageType,
-      this.isShared});
+      this.isShared, this.mediaOther, this.isPlaying, this.isPaused, this.isLoadingAudio,
+        this.startAudio,
+        this.pauseAudio,
+      });
 
   @override
-  _HomeRowState createState() => _HomeRowState(this.id, this.feedId, this.title, this.feedType, this.start, this.end, this.calenderDate, this.description, this.created, this.user, this.location, this.media, this.liked, this.bookMarked,this.showUniversityTag);
+  _HomeRowState createState() => _HomeRowState(this.id, this.feedId, this.title, this.feedType, this.start, this.end, this.calenderDate, this.description, this.created, this.user, this.location, this.media, this.liked, this.bookMarked,this.showUniversityTag,this.mediaOther);
 }
 
 class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
@@ -111,12 +125,13 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
   var user;
   final String location;
   final List media;
+  final List mediaOther;
   final List feedType;
   bool bookMarked;
   bool liked;
   bool showUniversityTag;
   auth.User _currentUser = auth.FirebaseAuth.instance.currentUser;
-  _HomeRowState(this.id, this.feedId, this.title, this.feedType, this.startTime, this.endTime, this.calenderDate, this.description, this.created, this.user, this.location, this.media, this.liked, this.bookMarked,this.showUniversityTag);
+  _HomeRowState(this.id, this.feedId, this.title, this.feedType, this.startTime, this.endTime, this.calenderDate, this.description, this.created, this.user, this.location, this.media, this.liked, this.bookMarked,this.showUniversityTag, this.mediaOther);
 
   ClientId _credentials;
   String token;
@@ -253,6 +268,8 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                     linkText: widget.hyperlinkText,
                     imageUrl: widget.media.isNotEmpty?widget.media[0].url:"",
                     feedType: widget.feedType,
+                    videoUrl: widget.mediaOther.isNotEmpty? widget.mediaOther[0].url.contains(".mp4")?widget.mediaOther[0].url:"":"",
+                    audioUrl: widget.mediaOther.isNotEmpty? !widget.mediaOther[0].url.contains(".mp4")?widget.mediaOther[0].url:"":"",
                   ),));
                 }
               },
@@ -456,7 +473,9 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                           commentCount: widget.commentCount,
                           isShared: widget.isShared,
                           pageType: widget.pageType,
-                          indexVal: widget.indexVal),
+                          indexVal: widget.indexVal,
+                          mediaOther: widget.mediaOther,
+                      ),
                     ));
                setState(() {});
               }
@@ -528,6 +547,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
             ),
           ):SizedBox(),
           ..._buildMedia(context, media),
+          ..._buildMediaOther(context, mediaOther),
           widget.isShared != null ? _sharedWidget(widget.isShared) : SizedBox(),
           location!=null?
           Padding(
@@ -580,6 +600,10 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                       if(feedProvider.feedItem[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedItem[widget.indexVal].likeCount[1].count!=0){
                         Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
                       }
+                    }else if(widget.pageType == "BookmarkMyCampus"){
+                      if(feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count!=0 || feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
                     }
                   },
                   onDoubleTap: ()async{
@@ -601,6 +625,9 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                       }else if(widget.pageType == "Search"){
                         feedProvider.feedItem[widget.indexVal].likeCount[0].count++;
                         feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                      }else if(widget.pageType == "BookmarkMyCampus"){
+                        feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count++;
+                        feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
                       }
                     }else if(response == 'Feed Unliked successfully'){
                       if(widget.pageType == "TimeLineMyCampus"){
@@ -653,6 +680,16 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                           feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
                           feedProvider.feedItem[widget.indexVal].likeCount[1].count--;
                         }
+                      }else if(widget.pageType == "BookmarkMyCampus"){
+                        if(feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked.emojiValue==0){
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count--;
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 0, token);
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count++;
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count--;
+                        }
                       }
                     }
                     setState(() {});
@@ -687,6 +724,8 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                           feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count.toString():
                           widget.pageType == "Bookmark"?
                           feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count.toString():
+                          widget.pageType == "BookmarkMyCampus"?
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count.toString():
                           widget.pageType == "Search"?
                           feedProvider.feedItem[widget.indexVal].likeCount[0].count.toString():
                           widget.likeCount[0].count.toString(),
@@ -722,6 +761,10 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                       if(feedProvider.feedItem[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedItem[widget.indexVal].likeCount[1].count!=0){
                         Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
                       }
+                    }else if(widget.pageType == "BookmarkMyCampus"){
+                      if(feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count!=0 || feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
                     }
                   },
                   onDoubleTap: ()async{
@@ -743,6 +786,9 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                       }else if(widget.pageType == "Search"){
                         feedProvider.feedItem[widget.indexVal].likeCount[1].count++;
                         feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                      }else if(widget.pageType == "BookmarkMyCampus"){
+                        feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count++;
+                        feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
                       }
                     }else if(response == 'Feed Unliked successfully'){
                       if(widget.pageType == "TimeLineMyCampus"){
@@ -795,6 +841,16 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                           feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
                           feedProvider.feedItem[widget.indexVal].likeCount[0].count--;
                         }
+                      }else if(widget.pageType == "BookmarkMyCampus"){
+                        if(feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked.emojiValue==1){
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count--;
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 1, token);
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count++;
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count--;
+                        }
                       }
                     }
                     setState(() {});
@@ -829,6 +885,8 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                           feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count.toString():
                           widget.pageType == "Bookmark"?
                           feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count.toString():
+                          widget.pageType == "BookmarkMyCampus"?
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count.toString():
                           widget.pageType == "Search"?
                           feedProvider.feedItem[widget.indexVal].likeCount[1].count.toString():
                           widget.likeCount[0].count.toString(),
@@ -960,6 +1018,69 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                 ),
               ),
             ),
+          ),
+        ),
+      );
+    }
+    return mda;
+  }
+
+  List _buildMediaOther(BuildContext context, List mediaOther) {
+    List mda = [];
+    for (int i = 0; i < mediaOther.length; i++) {
+      mda.add(
+        mediaOther[i].url.contains(".mp4")?
+        VideoThumbnail(videoUrl: mediaOther[i].url):
+        Container(
+          height: 82,
+          margin: EdgeInsets.only(top: 16,left: 16,right: 16),
+          padding: EdgeInsets.only(left: 16,right: 16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            color: themeController.isDarkMode?Colors.white.withOpacity(0.06):MateColors.containerLight,
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+              SizedBox(width: 20,),
+              GestureDetector(
+                onTap: (){
+                  if(widget.isLoadingAudio==false){
+                    widget.isPlaying ? widget.pauseAudio(widget.indexVal): widget.startAudio(mediaOther[i].url,widget.indexVal);
+                  }
+                },
+                child: Container(
+                  height: 34,
+                  width: 34,
+                  margin: EdgeInsets.only(left: 10),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: themeController.isDarkMode?Colors.white.withOpacity(0.23):Colors.white.withOpacity(0.5),
+                  ),
+                  alignment: Alignment.center,
+                  child: widget.isLoadingAudio?
+                  Center(
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                    ),
+                  ):
+                  Icon(
+                    widget.isPlaying?
+                    Icons.pause:Icons.play_arrow,
+                    size: 25,
+                    color: themeController.isDarkMode?Color(0xFF67AE8C):Color(0xFF049571),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -1220,6 +1341,7 @@ class HomeRowForFeedDetails extends StatefulWidget {
   String hyperlinkText;
   String hyperlink;
   List media;
+  final List mediaOther;
   bool bookMarked;
   bool isFollowed;
   IsLiked isLiked;
@@ -1266,11 +1388,11 @@ class HomeRowForFeedDetails extends StatefulWidget {
         this.isFeedDetailsPage = false,
         this.navigateToDetailsPage = true,
         this.pageType,
-        this.isShared});
+        this.isShared, this.mediaOther});
 
   @override
   _HomeRowForFeedDetailsState createState() =>
-      _HomeRowForFeedDetailsState(this.id, this.feedId, this.title, this.feedType, this.start, this.end, this.calenderDate, this.description, this.created, this.user, this.location, this.media, this.liked, this.bookMarked);
+      _HomeRowForFeedDetailsState(this.id, this.feedId, this.title, this.feedType, this.start, this.end, this.calenderDate, this.description, this.created, this.user, this.location, this.media, this.liked, this.bookMarked,this.mediaOther);
 }
 
 class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with SingleTickerProviderStateMixin {
@@ -1285,11 +1407,12 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
   var user;
   final String location;
   final List media;
+  final List mediaOther;
   final List feedType;
   bool bookMarked;
   bool liked;
   auth.User _currentUser = auth.FirebaseAuth.instance.currentUser;
-  _HomeRowForFeedDetailsState(this.id, this.feedId, this.title, this.feedType, this.startTime, this.endTime, this.calenderDate, this.description, this.created, this.user, this.location, this.media, this.liked, this.bookMarked);
+  _HomeRowForFeedDetailsState(this.id, this.feedId, this.title, this.feedType, this.startTime, this.endTime, this.calenderDate, this.description, this.created, this.user, this.location, this.media, this.liked, this.bookMarked, this.mediaOther);
 
   ClientId _credentials;
   IsLiked isLiked;
@@ -1314,6 +1437,122 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
     token = preferences.getString("token");
+  }
+
+  final audioPlayer = AudioPlayer();
+  bool isPlaying = false;
+  bool isPause = false;
+  bool isLoadingAudio = false;
+
+  Future<void> startAudio(String url) async {
+    if(isPause==true){
+      isPlaying = false;
+      isPause = false;
+      audioPlayer.play();
+      setState(() {
+        isPlaying = true;
+      });
+      audioPlayer.playerStateStream.listen((state) {
+        if (state.processingState == ProcessingState.completed) {
+          setState(() {
+            isPlaying = false;
+            isPause = false;
+          });
+        }
+      });
+
+      audioPlayer.positionStream.listen((event) {
+        setState(() {
+          // currentDuration = event;
+        });
+      });
+
+    }else{
+      try{
+        audioPlayer.playerStateStream.listen((state) {
+          if (state.processingState == ProcessingState.completed) {
+            setState(() {
+              isPlaying = false;
+              isPause = false;
+            });
+          }
+        });
+
+        audioPlayer.positionStream.listen((event) {
+          setState(() {
+            //currentDuration = event;
+          });
+        });
+
+        audioPlayer.stop();
+        for(int i=0;i<feedProvider.feedList.length;i++){
+          feedProvider.feedList[i].isPlaying = false;
+        }
+        setState(() {});
+
+        var dir = await getApplicationDocumentsDirectory();
+        var filePathAndName = dir.path + "/audios/" +url.split("/").last + ".mp3";
+        if(File(filePathAndName).existsSync()){
+          print("------File Already Exist-------");
+          print(filePathAndName);
+          await audioPlayer.setFilePath(filePathAndName);
+          audioPlayer.play();
+          setState(() {
+            isPlaying = true;
+          });
+        }else{
+          setState(() {
+            isLoadingAudio = true;
+          });
+
+          String path = await downloadAudio(url);
+
+          setState(() {
+           isLoadingAudio = false;
+          });
+
+          if(path !=""){
+            await audioPlayer.setFilePath(path);
+            audioPlayer.play();
+            setState(() {
+              isPlaying = true;
+            });
+          }else{
+            Fluttertoast.showToast(msg: "Something went wrong while playing audio please try again!", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+          }
+        }
+
+      }catch(e){
+        print("Error loading audio source: $e");
+      }
+    }
+  }
+
+  void pauseAudio(int index)async{
+    audioPlayer.pause();
+    setState(() {
+      isPlaying = false;
+      isPause = true;
+    });
+  }
+
+  Future<String> downloadAudio(String url)async{
+    var dir = await getApplicationDocumentsDirectory();
+    var firstPath = dir.path + "/audios";
+    var filePathAndName = dir.path + "/audios/" +url.split("/").last + ".mp3";
+    await Directory(firstPath).create(recursive: true);
+    File file = new File(filePathAndName);
+    try{
+      var request = await http.get(Uri.parse(url));
+      print(request.statusCode);
+      var res = await file.writeAsBytes(request.bodyBytes);
+      print("---File Path----");
+      print(res.path);
+      return res.path;
+    }catch(e){
+      print(e);
+      return "";
+    }
   }
 
   @override
@@ -1587,6 +1826,7 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
             ),
           ):SizedBox(),
           ..._buildMedia(context, media),
+          ..._buildMediaOther(context, mediaOther),
           widget.isShared != null ? _sharedWidget(widget.isShared) : SizedBox(),
           location!=null?
           Padding(
@@ -1639,6 +1879,10 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                       if(feedProvider.feedItem[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedItem[widget.indexVal].likeCount[1].count!=0){
                         Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
                       }
+                    }else if(widget.pageType == "BookmarkMyCampus"){
+                      if(feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count!=0 || feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
                     }
                   },
                   onDoubleTap: ()async{
@@ -1660,6 +1904,9 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                       }else if(widget.pageType == "Search"){
                         feedProvider.feedItem[widget.indexVal].likeCount[0].count++;
                         feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                      }else if(widget.pageType == "BookmarkMyCampus"){
+                        feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count++;
+                        feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
                       }
                     }else if(response == 'Feed Unliked successfully'){
                       if(widget.pageType == "TimeLineMyCampus"){
@@ -1712,6 +1959,16 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                           feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
                           feedProvider.feedItem[widget.indexVal].likeCount[1].count--;
                         }
+                      }else if(widget.pageType == "BookmarkMyCampus"){
+                        if(feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked.emojiValue==0){
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count--;
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 0, token);
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count++;
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count--;
+                        }
                       }
                     }
                     setState(() {});
@@ -1746,6 +2003,8 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                           feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count.toString():
                           widget.pageType == "Bookmark"?
                           feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count.toString():
+                          widget.pageType == "BookmarkMyCampus"?
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count.toString():
                           widget.pageType == "Search"?
                           feedProvider.feedItem[widget.indexVal].likeCount[0].count.toString():
                           widget.likeCount[0].count.toString(),
@@ -1781,6 +2040,10 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                       if(feedProvider.feedItem[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedItem[widget.indexVal].likeCount[1].count!=0){
                         Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
                       }
+                    }else if(widget.pageType == "BookmarkMyCampus"){
+                      if(feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count!=0 || feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      }
                     }
                   },
                   onDoubleTap: ()async{
@@ -1802,6 +2065,9 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                       }else if(widget.pageType == "Search"){
                         feedProvider.feedItem[widget.indexVal].likeCount[1].count++;
                         feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                      }else if(widget.pageType == "BookmarkMyCampus"){
+                        feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count++;
+                        feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
                       }
                     }else if(response == 'Feed Unliked successfully'){
                       if(widget.pageType == "TimeLineMyCampus"){
@@ -1854,6 +2120,16 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                           feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
                           feedProvider.feedItem[widget.indexVal].likeCount[0].count--;
                         }
+                      }else if(widget.pageType == "BookmarkMyCampus"){
+                        if(feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked.emojiValue==1){
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count--;
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = null;
+                        }else{
+                          await FeedService().likeFeed(feedId, 1, token);
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count++;
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count--;
+                        }
                       }
                     }
                     setState(() {});
@@ -1888,6 +2164,8 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                           feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count.toString():
                           widget.pageType == "Bookmark"?
                           feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count.toString():
+                          widget.pageType == "BookmarkMyCampus"?
+                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count.toString():
                           widget.pageType == "Search"?
                           feedProvider.feedItem[widget.indexVal].likeCount[1].count.toString():
                           widget.likeCount[0].count.toString(),
@@ -1981,6 +2259,69 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                 ),
               ),
             ),
+          ),
+        ),
+      );
+    }
+    return mda;
+  }
+
+  List _buildMediaOther(BuildContext context, List mediaOther) {
+    List mda = [];
+    for (int i = 0; i < mediaOther.length; i++) {
+      mda.add(
+        mediaOther[i].url.contains(".mp4")?
+        VideoThumbnail(videoUrl: mediaOther[i].url):
+        Container(
+          height: 82,
+          margin: EdgeInsets.only(top: 16,left: 16,right: 16),
+          padding: EdgeInsets.only(left: 16,right: 16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            color: themeController.isDarkMode?Colors.white.withOpacity(0.06):MateColors.containerLight,
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+              Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+              SizedBox(width: 20,),
+              GestureDetector(
+                onTap: (){
+                  if(isLoadingAudio==false){
+                    isPlaying ? pauseAudio(widget.indexVal): startAudio(mediaOther[i].url);
+                  }
+                },
+                child: Container(
+                  height: 34,
+                  width: 34,
+                  margin: EdgeInsets.only(left: 10),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: themeController.isDarkMode?Colors.white.withOpacity(0.23):Colors.white.withOpacity(0.5),
+                  ),
+                  alignment: Alignment.center,
+                  child: isLoadingAudio?
+                  Center(
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                    ),
+                  ):
+                  Icon(
+                    isPlaying?
+                    Icons.pause:Icons.play_arrow,
+                    size: 25,
+                    color: themeController.isDarkMode?Color(0xFF67AE8C):Color(0xFF049571),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       );

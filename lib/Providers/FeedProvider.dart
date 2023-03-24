@@ -30,6 +30,7 @@ class FeedProvider with ChangeNotifier {
   FeedItemsLikeModel _feedItemsLikeData;
   FeedItemsBookmarkModel _feedItemsBookmarkData;
   BookmarkByUserModel _bookmarkByUserData;
+  BookmarkByUserModel _bookmarkByUserDataMyCampus;
   FeedsCommentFetchModel _commentFetchData;
   List<storiesModel.Result> getStoryList = [];
   FeedLikesDetailsModel _likeDetailsFetchData;
@@ -42,6 +43,7 @@ class FeedProvider with ChangeNotifier {
   bool _storyPostLoader = false;
   bool _likeAFeedLoader = false;
   bool _allBookmarkedFeedLoader = false;
+  bool _myCampusBookmarkedFeedLoader = false;
   bool _fetchCommentsLoader = false;
   bool getStoriesLoader = false;
   bool _fetchLikeDetailsLoader = false;
@@ -73,6 +75,7 @@ class FeedProvider with ChangeNotifier {
   FeedItemsBookmarkModel get feedItemsBookmarkData => _feedItemsBookmarkData;
 
   BookmarkByUserModel get bookmarkByUserData => _bookmarkByUserData;
+  BookmarkByUserModel get bookmarkByUserDataMycampus => _bookmarkByUserDataMyCampus;
 
   FeedsCommentFetchModel get commentFetchData => _commentFetchData;
 
@@ -97,6 +100,7 @@ class FeedProvider with ChangeNotifier {
   bool get feedFollowLoader => _feedFollowLoader;
 
   bool get allbookmarkedFeedLoader => _allBookmarkedFeedLoader;
+  bool get myCampusBookmarkedFeedLoader => _myCampusBookmarkedFeedLoader;
 
   bool get feedLoader => _feedLoader;
 
@@ -376,6 +380,21 @@ class FeedProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future myCampusBookmarkedFeed() async {
+    error = '';
+    _myCampusBookmarkedFeedLoader = true;
+    var data;
+    try {
+      data = await _feedService.myCampusBookmarkedFeed();
+      _bookmarkByUserDataMyCampus = data;
+    } catch (err) {
+      _setError(err);
+    } finally {
+      _myCampusBookmarkedFeedLoader = false;
+    }
+    notifyListeners();
+  }
+
   Future<bool> postFeed(
       {@required List<String> id,
         @required String title,
@@ -386,66 +405,9 @@ class FeedProvider with ChangeNotifier {
         String feedTypeOther,
         String startDate,
         String endDate,
-        String image}) async {
-    error = "";
-    feedPostLoaderStatus = true;
-    validationErrors = Map();
-
-    Map<String, dynamic> userInput = {"title": title, "description": description, "location": location};
-
-    if (id != null) {
-      userInput["feed_type_id"] = id;
-    }
-    if (feedTypeOther != null) {
-      userInput["custom_feed_type"] = feedTypeOther;
-    }
-
-    if (hyperlinkText!= null && hyperlink!= null) {
-      userInput["hyperlinkText"] = hyperlinkText;
-      userInput["hyperlink"] = hyperlink;
-    }
-
-    if (startDate != null) {
-      userInput["start"] = startDate;
-    }
-
-    if (endDate != null) {
-      userInput["end"] = endDate;
-    }
-
-    if (image != null) {
-      print('image type is ${image.runtimeType}');
-      List media = [];
-      media.add(image);
-      userInput["media"] = media;
-    }
-
-    try {
-      print(userInput);
-      await _feedService.postAFeed(userInput);
-    } catch (err) {
-      _setError(err);
-      return false;
-    } finally {
-      feedPostLoaderStatus = false;
-    }
-
-    return true;
-  }
-
-  Future<bool> updateFeed(
-      {@required List<String> id,
-        @required String title,
-        @required String description,
-        @required location,
-        @required int feedId,
-        String hyperlinkText,
-        String hyperlink,
-        String feedTypeOther,
-        String startDate,
-        String endDate,
         String image,
-        bool imageDeleted,
+        String audio,
+        String video,
       }) async {
     error = "";
     feedPostLoaderStatus = true;
@@ -473,7 +435,86 @@ class FeedProvider with ChangeNotifier {
       userInput["end"] = endDate;
     }
 
-    if (imageDeleted) {
+    if (image != null) {
+      print('image type is ${image.runtimeType}');
+      List media = [];
+      media.add(image);
+      userInput["media"] = media;
+      userInput["media_type"] = "image";
+    }
+
+    if (audio != null) {
+      print('audio type is ${audio.runtimeType}');
+      List media = [];
+      media.add(audio);
+      userInput["media"] = media;
+      userInput["media_type"] = "audio";
+    }
+
+    if (video != null) {
+      print('video type is ${video.runtimeType}');
+      List media = [];
+      media.add(video);
+      userInput["media"] = media;
+      userInput["media_type"] = "video";
+    }
+
+    try {
+      print(userInput);
+      await _feedService.postAFeed(userInput);
+    } catch (err) {
+      _setError(err);
+      return false;
+    } finally {
+      feedPostLoaderStatus = false;
+    }
+
+    return true;
+  }
+
+  Future<bool> updateFeed(
+      {@required List<String> id,
+        @required String title,
+        @required String description,
+        @required location,
+        @required int feedId,
+        String hyperlinkText,
+        String hyperlink,
+        String feedTypeOther,
+        String startDate,
+        String endDate,
+        String image,
+        bool mediaDeleted,
+        String audio,
+        String video,
+      }) async {
+    error = "";
+    feedPostLoaderStatus = true;
+    validationErrors = Map();
+
+    Map<String, dynamic> userInput = {"title": title, "description": description, "location": location};
+
+    if (id != null) {
+      userInput["feed_type_id"] = id;
+    }
+    if (feedTypeOther != null) {
+      userInput["custom_feed_type"] = feedTypeOther;
+    }
+
+    if (hyperlinkText!= null && hyperlink!= null) {
+      userInput["hyperlinkText"] = hyperlinkText;
+      userInput["hyperlink"] = hyperlink;
+    }
+
+    if (startDate != null) {
+      userInput["start"] = startDate;
+    }
+
+    if (endDate != null) {
+      userInput["end"] = endDate;
+    }
+
+    if (mediaDeleted) {
       userInput["delete_media"] = true;
     }
 
@@ -482,6 +523,23 @@ class FeedProvider with ChangeNotifier {
       List media = [];
       media.add(image);
       userInput["media"] = media;
+      userInput["media_type"] = "image";
+    }
+
+    if (audio != null) {
+      print('audio type is ${audio.runtimeType}');
+      List media = [];
+      media.add(audio);
+      userInput["media"] = media;
+      userInput["media_type"] = "audio";
+    }
+
+    if (video != null) {
+      print('video type is ${video.runtimeType}');
+      List media = [];
+      media.add(video);
+      userInput["media"] = media;
+      userInput["media_type"] = "video";
     }
 
     try {

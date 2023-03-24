@@ -73,46 +73,9 @@ class _AddParticipantsToCallScreenState extends State<AddParticipantsToCallScree
 
   @override
   Widget build(BuildContext context) {
+    final scH = MediaQuery.of(context).size.height;
+    final scW = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        iconTheme: IconThemeData(
-          color: MateColors.activeIcons,
-        ),
-        actions: [
-          InkWell(
-            onTap: ()async{
-              await Navigator.of(context).push(MaterialPageRoute(builder: (context)=>AddParticipantsToCallSearch(
-                channelName: widget.channelName,
-                isGroupCall: widget.isGroupCall,
-                image: widget.image,
-                name: widget.name,
-                callType: widget.callType,
-                token: widget.token,
-              )));
-              setState(() {});
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(right: 20),
-              child: Image.asset(
-                "lib/asset/homePageIcons/searchPurple@3x.png",
-                height: 23.7,
-                width: 23.7,
-                color: MateColors.activeIcons,
-              ),
-            ),
-          ),
-        ],
-        title: Text(
-          "Add Participants",
-          style: TextStyle(
-            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-            fontWeight: FontWeight.w700,
-            fontSize: 17.0,
-          ),
-        ),
-        centerTitle: true,
-      ),
       floatingActionButton: _addUserController.addConnectionUid.isNotEmpty?InkWell(
         onTap: (){
           Get.back();
@@ -133,24 +96,93 @@ class _AddParticipantsToCallScreenState extends State<AddParticipantsToCallScree
           alignment: Alignment.center,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: MateColors.activeIcons,
+            color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
           ),
           child: Icon(
             Icons.person_add,
             size: 25,
-            color: themeController.isDarkMode?Colors.black:Colors.white,
+            color: Colors.black,
           ),
         ),
       ):Offstage(),
-      body: isLoading ?
-      Container(
-        child: Center(
-          child: CircularProgressIndicator(
-            color: MateColors.activeIcons,
+      body: Container(
+        height: scH,
+        width: scW,
+        decoration: BoxDecoration(
+          color: themeController.isDarkMode?Color(0xFF000000):Colors.white,
+          image: DecorationImage(
+            image: AssetImage(themeController.isDarkMode?'lib/asset/Background.png':'lib/asset/BackgroundLight.png'),
+            fit: BoxFit.cover,
           ),
         ),
-      ):
-      groupList(),
+        child:  Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).size.height*0.07,
+                left: 16,
+                right: 6,
+                bottom: 16,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: (){
+                      Get.back();
+                    },
+                    child: Icon(Icons.arrow_back_ios,
+                      size: 20,
+                      color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
+                    ),
+                  ),
+                  Text(
+                    "Add Participants",
+                    style: TextStyle(
+                      color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 17.0,
+                    ),
+                  ),
+                  InkWell(
+                    onTap: ()async{
+                      await Navigator.of(context).push(MaterialPageRoute(builder: (context)=>AddParticipantsToCallSearch(
+                        channelName: widget.channelName,
+                        isGroupCall: widget.isGroupCall,
+                        image: widget.image,
+                        name: widget.name,
+                        callType: widget.callType,
+                        token: widget.token,
+                      )));
+                      setState(() {});
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 16,left: 16),
+                      child: Image.asset(
+                        "lib/asset/homePageIcons/searchPurple@3x.png",
+                        height: 23.7,
+                        width: 23.7,
+                        color: themeController.isDarkMode?Colors.white:Colors.black,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: isLoading ?
+              Container(
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: MateColors.activeIcons,
+                  ),
+                ),
+              ):
+              groupList(),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -208,29 +240,35 @@ class _AddParticipantsToCallScreenState extends State<AddParticipantsToCallScree
           },
           contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
           leading: CircleAvatar(
-            radius: 24,
-            backgroundColor: MateColors.activeIcons,
+            radius: 30,
+            backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
             backgroundImage: NetworkImage(peerAvatar??""),
           ),
           title: Text(
             peerName,
             style: TextStyle(
+              fontSize: 15,
               fontFamily: "Poppins",
-              fontSize: 15.0,
-              fontWeight: FontWeight.w500,
-              letterSpacing: 0.1,
-              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+              fontWeight: FontWeight.w600,
+              color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
             ),
           ),
           subtitle: Padding(
             padding: const EdgeInsets.only(top: 3),
             child: Text("Tap to add on the call",
-              style: TextStyle(letterSpacing: 0.1,fontFamily: "Poppins",fontSize: 14.0, fontWeight: FontWeight.w400, color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight),
+              style: TextStyle(
+                fontSize: 14,
+                fontFamily: "Poppins",
+                fontWeight: FontWeight.w400,
+                color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
           trailing: _addUserController.selected.contains(index)?
-          Icon(Icons.check,color: MateColors.activeIcons,):Offstage(),
+          Icon(Icons.check,
+            color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+          ):Offstage(),
         ),
       ],
     );

@@ -72,6 +72,7 @@ class Result {
   bool bookmarkLoader=false;
   bool deleteLoader=false;
   bool upVoteLoader=false;
+  List<CampusTalkTypes> campusTalkTypes;
 
   Result(
       {this.id,
@@ -93,6 +94,7 @@ class Result {
         this.bookmarkLoader,
         this.deleteLoader,
         this.upVoteLoader,
+        this.campusTalkTypes,
       });
 
   Result.fromJson(Map<String, dynamic> json) {
@@ -104,7 +106,7 @@ class Result {
     status = json['status'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
-    isAnonymous = int.parse(json['is_anonymous']);
+    isAnonymous = json['is_anonymous'].runtimeType == int? json['is_anonymous']:int.parse(json['is_anonymous']);
     anonymousUser = json['anonymous_user'];
     bookmarksCount = json['bookmarks_count'];
     likesCount = json['likes_count'];
@@ -116,6 +118,12 @@ class Result {
     isLiked = json['is_liked'] != null
         ? new IsLiked.fromJson(json['is_liked'])
         : null;
+    if (json['campus_talk_types'] != null) {
+      campusTalkTypes = <CampusTalkTypes>[];
+      json['campus_talk_types'].forEach((v) {
+        campusTalkTypes.add(new CampusTalkTypes.fromJson(v));
+      });
+    }
 
   }
 
@@ -142,6 +150,10 @@ class Result {
     }
     if (this.isLiked != null) {
       data['is_liked'] = this.isLiked.toJson();
+    }
+    if (this.campusTalkTypes != null) {
+      data['campus_talk_types'] =
+          this.campusTalkTypes.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -279,6 +291,70 @@ class Pagination {
     data['current_page'] = this.currentPage;
     data['total_pages'] = this.totalPages;
     data['more_pages'] = this.morePages;
+    return data;
+  }
+}
+
+class CampusTalkTypes {
+  int id;
+  int campusTalkId;
+  int campusTalkTypeId;
+  String createdAt;
+  String updatedAt;
+  Type type;
+
+  CampusTalkTypes(
+      {this.id,
+        this.campusTalkId,
+        this.campusTalkTypeId,
+        this.createdAt,
+        this.updatedAt,
+        this.type});
+
+  CampusTalkTypes.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    campusTalkId = json['campus_talk_id'];
+    campusTalkTypeId = json['campus_talk_type_id'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
+    type = json['type'] != null ? new Type.fromJson(json['type']) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['campus_talk_id'] = this.campusTalkId;
+    data['campus_talk_type_id'] = this.campusTalkTypeId;
+    data['created_at'] = this.createdAt;
+    data['updated_at'] = this.updatedAt;
+    if (this.type != null) {
+      data['type'] = this.type.toJson();
+    }
+    return data;
+  }
+}
+
+class Type {
+  int id;
+  String uuid;
+  String name;
+  Null deletedAt;
+
+  Type({this.id, this.uuid, this.name, this.deletedAt});
+
+  Type.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    uuid = json['uuid'];
+    name = json['name'];
+    deletedAt = json['deleted_at'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['uuid'] = this.uuid;
+    data['name'] = this.name;
+    data['deleted_at'] = this.deletedAt;
     return data;
   }
 }

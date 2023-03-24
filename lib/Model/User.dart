@@ -4,6 +4,8 @@ class User {
   String firstName;
   String lastName;
   String displayName;
+  int universityId;
+  String university;
   String phoneNumber;
   String photoUrl;
   String coverPhotoUrl;
@@ -23,6 +25,8 @@ class User {
       this.firstName,
       this.lastName,
       this.displayName,
+        this.universityId,
+        this.university,
       this.phoneNumber,
       this.photoUrl,
       this.coverPhotoUrl,
@@ -42,6 +46,8 @@ class User {
     firstName = json['first_name'];
     lastName = json['last_name'];
     displayName = json['display_name'];
+    universityId = json['university_id'];
+    university = json['university'];
     phoneNumber = json['phone_number'];
     photoUrl = json['photo_url'];
     coverPhotoUrl = json['cover_photo_url'];
@@ -63,6 +69,8 @@ class User {
     data['first_name'] = this.firstName;
     data['last_name'] = this.lastName;
     data['display_name'] = this.displayName;
+    data['university_id'] = this.universityId;
+    data['university'] = this.university;
     data['phone_number'] = this.phoneNumber;
     data['photo_url'] = this.photoUrl;
     data['cover_photo_url'] = this.coverPhotoUrl;

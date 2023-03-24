@@ -1,17 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:mate_app/Screen/Profile/UserProfileScreen.dart';
-import 'package:mate_app/Utility/Utility.dart';
 import 'package:mate_app/Model/campusTalkPostsModel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:share/share.dart';
-import 'package:sizer/sizer.dart';
 import '../../../Providers/AuthUserProvider.dart';
 import '../../../Providers/campusTalkProvider.dart';
 import '../../../asset/Colors/MateColors.dart';
 import '../../../controller/theme_controller.dart';
-import '../../../groupChat/services/dynamicLinkService.dart';
 import '../../Profile/ProfileScreen.dart';
 import '../../Report/reportPage.dart';
 import 'campusTalkComments.dart';
@@ -32,6 +28,12 @@ class CampusTalkDetailsScreen extends StatefulWidget{
   int commentsCount;
   final bool isBookmarkedPage;
   final bool isUserProfile;
+  final bool isTrending;
+  final bool isLatest;
+  final bool isForums;
+  final bool isYourCampus;
+  final bool isListCard;
+  final bool isSearch;
 
   CampusTalkDetailsScreen({Key key, 
     this.user, 
@@ -48,7 +50,13 @@ class CampusTalkDetailsScreen extends StatefulWidget{
     this.likesCount,
     this.commentsCount,
     this.isBookmarkedPage=false,
-    this.isUserProfile=false
+    this.isUserProfile=false,
+    this.isTrending = false,
+    this.isLatest = false,
+    this.isForums = false,
+    this.isYourCampus = false,
+    this.isListCard = false,
+    this.isSearch = false,
   }) : super(key: key);
 
   @override
@@ -354,19 +362,29 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreen>{
                                         liked=!liked;
                                         bool likedDone = await Provider.of<CampusTalkProvider>(context, listen: false).upVoteAPost(widget.talkId, widget.rowIndex, isBookmarkedPage: widget.isBookmarkedPage, isUserProfile: widget.isUserProfile);
                                         if (likedDone && liked) {
-                                          widget.isUserProfile
-                                              ? ++value.campusTalkByUserPostsResultsList[widget.rowIndex].likesCount
-                                              : widget.isBookmarkedPage
-                                              ? ++value.campusTalkPostsBookmarkData.data.result[widget.rowIndex].likesCount
-                                              : ++value.campusTalkPostsResultsList[widget.rowIndex].likesCount;
+                                          if(widget.isUserProfile){
+                                            ++value.campusTalkByUserPostsResultsList[widget.rowIndex].likesCount;
+                                          }
+                                          if(widget.isBookmarkedPage){
+                                            ++value.campusTalkPostsBookmarkData.data.result[widget.rowIndex].likesCount;
+                                          }
+                                          if(widget.isTrending){
+                                            ++value.campusTalkPostsResultsTrendingList[widget.rowIndex].likesCount;
+                                          }
+                                          if(widget.isLatest){
+                                            ++value.campusTalkPostsResultsLatestList[widget.rowIndex].likesCount;
+                                          }
+                                          if(widget.isForums){
+                                            ++value.campusTalkPostsResultsForumsList[widget.rowIndex].likesCount;
+                                          }
+                                          if(widget.isYourCampus){
+                                            ++value.campusTalkPostsResultsYourCampusList[widget.rowIndex].likesCount;
+                                          }
+                                          if(widget.isSearch){
+                                            ++value.campusTalkBySearchResultsList[widget.rowIndex].likesCount;
+                                          }
+                                          setState(() {});
                                         }
-                                        // else if (likedDone && !liked) {
-                                        //   widget.isUserProfile
-                                        //       ? --value.campusTalkByUserPostsResultsList[widget.rowIndex].likesCount
-                                        //       : widget.isBookmarkedPage
-                                        //       ? --value.campusTalkPostsBookmarkData.data.result[widget.rowIndex].likesCount
-                                        //       : --value.campusTalkPostsResultsList[widget.rowIndex].likesCount;
-                                        // }
                                       }
                                   );
                                 },
@@ -383,6 +401,13 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreen>{
                                       postIndex: widget.rowIndex,
                                       isUserProfile: widget.isUserProfile,
                                       isBookmarkedPage: widget.isBookmarkedPage,
+                                      isListCard: widget.isListCard,
+                                      isYourCampus: widget.isYourCampus,
+                                      user: widget.user,
+                                      isForums: widget.isForums,
+                                      isLatest: widget.isLatest,
+                                      isTrending: widget.isTrending,
+                                      isSearch: widget.isSearch,
                                     ),
                                   ));
                                 },
@@ -426,7 +451,24 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreen>{
                                       if (widget.isBookmarkedPage) {
                                         if (isBookmarked) {
                                           Future.delayed(Duration(seconds: 0), () {
-                                            Provider.of<CampusTalkProvider>(context, listen: false).fetchCampusTalkPostBookmarkedList();
+                                            final campusTalkProvider = Provider.of<CampusTalkProvider>(context, listen: false);
+                                            if (widget.isBookmarkedPage) {
+                                              campusTalkProvider.fetchCampusTalkPostBookmarkedList();
+                                            } else if (widget.isUserProfile) {
+                                              campusTalkProvider.fetchCampusTalkByAuthUser(widget.user.uuid, page: 1);
+                                            } else if(widget.isTrending){
+                                              campusTalkProvider.fetchCampusTalkPostTendingList(page: 1);
+                                            } else if(widget.isLatest){
+                                              campusTalkProvider.fetchCampusTalkPostTLatestList(page: 1);
+                                            }else if(widget.isForums){
+                                              campusTalkProvider.fetchCampusTalkPostForumsList(page: 1);
+                                            }else if(widget.isYourCampus){
+                                              campusTalkProvider.fetchCampusTalkPostYourCampusList(page: 1);
+                                            }else if(widget.isListCard){
+                                              campusTalkProvider.fetchCampusTalkPostListCard();
+                                            }else if(widget.isSearch){
+                                              //campusTalkProvider.fetchCampusTalkPostSearchList();
+                                            }
                                           });
                                         }
                                       }
@@ -457,119 +499,9 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreen>{
                               ),
                             ],
                           ),
-                          // Row(
-                          //   children: [
-                          //     InkWell(
-                          //       onTap: ()async{
-                          //         String response = await DynamicLinkService.buildDynamicLinkCampusTalk(id: widget.talkId.toString());
-                          //         if(response!=null){
-                          //           Share.share(response);
-                          //         }
-                          //       },
-                          //       child: Image.asset("lib/asset/icons/share.png",height: 20,color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,),
-                          //     ),
-                          //   ],
-                          // ),
                         ],
                       ),
                     ),
-                    // Padding(
-                    //   padding: const EdgeInsets.only(left: 16,right: 16,top: 25),
-                    //   child: Row(
-                    //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //     children: [
-                    //       Row(
-                    //         children: [
-                    //           Consumer<CampusTalkProvider>(
-                    //             builder: (context, value, child) {
-                    //               return InkWell(
-                    //                   child: Container(
-                    //                     height: 32,
-                    //                     width: 64,
-                    //                     decoration: BoxDecoration(
-                    //                         color: liked ?MateColors.activeIcons:null,
-                    //                         borderRadius: BorderRadius.circular(16),
-                    //                         border: Border.all(color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider,width: 1)
-                    //                     ),
-                    //                     child: Row(
-                    //                       mainAxisAlignment: MainAxisAlignment.center,
-                    //                       children: [
-                    //                         Image.asset("lib/asset/icons/upArrow.png",
-                    //                           height: 20,width: 13,
-                    //                           color:  themeController.isDarkMode?
-                    //                           liked?MateColors.blackTextColor:Colors.white:
-                    //                           liked?
-                    //                           Colors.white:MateColors.blackTextColor,
-                    //                         ),
-                    //                         SizedBox(width: 5,),
-                    //                         Text("${widget.likesCount}",
-                    //                           style: TextStyle(
-                    //                             fontWeight: FontWeight.w500,
-                    //                             fontSize: 13,
-                    //                             color:
-                    //                             themeController.isDarkMode?
-                    //                             liked?MateColors.blackTextColor:Colors.white:
-                    //                             liked?
-                    //                             Colors.white:MateColors.blackTextColor,
-                    //                           ),
-                    //                         ),
-                    //                       ],
-                    //                     ),
-                    //                   ),
-                    //                   onTap: () async {
-                    //                     liked=!liked;
-                    //                     bool likedDone = await Provider.of<CampusTalkProvider>(context, listen: false)
-                    //                         .upVoteAPost(widget.talkId, widget.rowIndex, isBookmarkedPage: widget.isBookmarkedPage, isUserProfile: widget.isUserProfile);
-                    //                     if (likedDone && liked) {
-                    //                       widget.isUserProfile
-                    //                           ? ++value.campusTalkByUserPostsResultsList[widget.rowIndex].likesCount
-                    //                           : widget.isBookmarkedPage
-                    //                           ? ++value.campusTalkPostsBookmarkData.data.result[widget.rowIndex].likesCount
-                    //                           : ++value.campusTalkPostsResultsList[widget.rowIndex].likesCount;
-                    //                     }
-                    //                   }
-                    //               );
-                    //             },
-                    //           ),
-                    //         ],
-                    //       ),
-                    //       Row(
-                    //         children: [
-                    //           InkWell(
-                    //             onTap: ()async{
-                    //               String response = await DynamicLinkService.buildDynamicLinkCampusTalk(id: widget.talkId.toString());
-                    //               if(response!=null){
-                    //                 Share.share(response);
-                    //               }
-                    //             },
-                    //             child: Image.asset("lib/asset/icons/share.png",height: 20,color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,),
-                    //           ),
-                    //           SizedBox(width: 20,),
-                    //           Consumer<CampusTalkProvider>(
-                    //             builder: (context, value, child) {
-                    //               return InkWell(
-                    //                   child: bookMarked?
-                    //                   Image.asset("lib/asset/icons/bookmarkColor.png",height: 20):
-                    //                   Image.asset("lib/asset/homePageIcons/drawerBookmark@3x.png",height: 20,color: themeController.isDarkMode?MateColors.iconDark:MateColors.iconLight,),
-                    //                   onTap: () async {
-                    //                     bookMarked=!bookMarked;
-                    //                     bool isBookmarked = await Provider.of<CampusTalkProvider>(context, listen: false)
-                    //                         .bookmarkAPost(widget.talkId, widget.rowIndex, isBookmarkedPage: widget.isBookmarkedPage, isUserProfile: widget.isUserProfile);
-                    //                     if (widget.isBookmarkedPage) {
-                    //                       if (isBookmarked) {
-                    //                         Future.delayed(Duration(seconds: 0), () {
-                    //                           Provider.of<CampusTalkProvider>(context, listen: false).fetchCampusTalkPostBookmarkedList();
-                    //                         });
-                    //                       }
-                    //                     }
-                    //                   });
-                    //             },
-                    //           ),
-                    //         ],
-                    //       ),
-                    //     ],
-                    //   ),
-                    // ),
                     SizedBox(height: 20,),
                   ],
                 ),
@@ -580,6 +512,13 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreen>{
                   postId: widget.talkId,
                   isBookmarkedPage: widget.isBookmarkedPage,
                   isUserProfile: widget.isUserProfile,
+                  isTrending: widget.isTrending,
+                  isLatest: widget.isLatest,
+                  isForums: widget.isForums,
+                  isYourCampus: widget.isYourCampus,
+                  isListCard: widget.isListCard,
+                  user: widget.user,
+                  isSearch: widget.isSearch,
                 ),
               )
             ],
@@ -603,15 +542,24 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreen>{
               child: Text("Yes"),
               onPressed: () async {
                 bool isDeleted = await Provider.of<CampusTalkProvider>(context, listen: false).deleteACampusTalk(widget.talkId, rowIndex);
-
                 if (isDeleted) {
                   Future.delayed(Duration(seconds: 0), () {
                     if (widget.isBookmarkedPage) {
                       Provider.of<CampusTalkProvider>(context, listen: false).fetchCampusTalkPostBookmarkedList();
                     } else if (widget.isUserProfile) {
                       Provider.of<CampusTalkProvider>(context, listen: false).fetchCampusTalkByAuthUser(widget.user.uuid, page: 1);
-                    } else {
-                      Provider.of<CampusTalkProvider>(context, listen: false).fetchCampusTalkPostList(page: 1);
+                    } else if(widget.isTrending){
+                      Provider.of<CampusTalkProvider>(context, listen: false).fetchCampusTalkPostTendingList(page: 1);
+                    } else if(widget.isLatest){
+                      Provider.of<CampusTalkProvider>(context, listen: false).fetchCampusTalkPostTLatestList(page: 1);
+                    }else if(widget.isForums){
+                      Provider.of<CampusTalkProvider>(context, listen: false).fetchCampusTalkPostForumsList(page: 1);
+                    }else if(widget.isYourCampus){
+                      Provider.of<CampusTalkProvider>(context, listen: false).fetchCampusTalkPostYourCampusList(page: 1);
+                    }else if(widget.isListCard){
+                      Provider.of<CampusTalkProvider>(context, listen: false).fetchCampusTalkPostListCard();
+                    }else if(widget.isSearch){
+                      Get.back();
                     }
                     Navigator.pop(context);
                   });

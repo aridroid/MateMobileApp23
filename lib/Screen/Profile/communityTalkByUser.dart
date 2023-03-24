@@ -106,6 +106,7 @@ class _CampusTalkByUserState extends State<CampusTalkByUser> {
                   isLiked: campusTalkData.isLiked,
                   likesCount: campusTalkData.likesCount,
                   isUserProfile: true,
+                  campusTalkType: campusTalkData.campusTalkTypes,
                 ),
               );
             },

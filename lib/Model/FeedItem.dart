@@ -14,6 +14,7 @@ class FeedItem {
   List<FeedTypes> feedTypes;
   User user;
   List<Media> media;
+  List<Media> mediaOther;
   IsLiked isLiked;
   bool isBookmarked;
   bool isFollowed;
@@ -26,6 +27,9 @@ class FeedItem {
   int commentCount;
   bool likeLoader=false;
   bool bookmarkLoader=false;
+  bool isPlaying = false;
+  bool isPaused = false;
+  bool isLoadingAudio = false;
 
   FeedItem(
       {this.id,
@@ -43,6 +47,7 @@ class FeedItem {
         this.feedTypes,
         this.user,
         this.media,
+        this.mediaOther,
         this.isLiked,
         this.isBookmarked,
         this.isFollowed,
@@ -55,6 +60,9 @@ class FeedItem {
         this.commentCount,
         this.likeLoader,
         this.bookmarkLoader,
+        this.isLoadingAudio,
+        this.isPlaying,
+        this.isPaused,
       });
 
   FeedItem.fromJson(Map<String, dynamic> json) {
@@ -78,6 +86,12 @@ class FeedItem {
       media = new List<Media>();
       json['media'].forEach((v) {
         media.add(new Media.fromJson(v));
+      });
+    }
+    if (json['media_other'] != null) {
+      mediaOther = new List<Media>();
+      json['media_other'].forEach((v) {
+        mediaOther.add(new Media.fromJson(v));
       });
     }
     isLiked = json['is_liked'] != null
@@ -125,6 +139,9 @@ class FeedItem {
     }
     if (this.media != null) {
       data['media'] = this.media.map((v) => v.toJson()).toList();
+    }
+    if (this.mediaOther != null) {
+      data['media_other'] = this.mediaOther.map((v) => v.toJson()).toList();
     }
 
     if (this.isLiked != null) {

@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:mate_app/constant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../asset/Colors/MateColors.dart';
@@ -80,61 +81,9 @@ class _AddParticipantsToCallSearchState extends State<AddParticipantsToCallSearc
 
   @override
   Widget build(BuildContext context) {
+    final scH = MediaQuery.of(context).size.height;
+    final scW = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        titleSpacing: 0,
-        automaticallyImplyLeading: false,
-        title: TextField(
-          onChanged: (val) => setState((){
-            searchedName=val;
-          }),
-          style: TextStyle(color: themeController.isDarkMode?Colors.white:Colors.black),
-          decoration: InputDecoration(
-            hintStyle: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              letterSpacing: 0.1,
-              color: themeController.isDarkMode?MateColors.subTitleTextDark:MateColors.subTitleTextLight,
-            ),
-            hintText: "Search",
-            prefixIcon: Padding(
-              padding: const EdgeInsets.only(left: 15,top: 15,bottom: 15),
-              child: Image.asset(
-                "lib/asset/homePageIcons/searchPurple@3x.png",
-                height: 10,
-                width: 10,
-                color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-              ),
-            ),
-            suffixIcon: InkWell(
-              onTap: (){
-                Get.back();
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(top: 16,right: 15),
-                child: Text(
-                  "Close",
-                  style: TextStyle(
-                    fontSize: 15,
-                    letterSpacing: 0.1,
-                    fontWeight: FontWeight.w700,
-                    color: MateColors.activeIcons,
-                  ),
-                ),
-              ),
-            ),
-            enabledBorder: UnderlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(4)),
-              borderSide: BorderSide(width: 3,color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(4)),
-              borderSide: BorderSide(width: 3,color: themeController.isDarkMode?MateColors.darkDivider:MateColors.lightDivider),
-            ),
-          ),
-        ),
-      ),
       floatingActionButton: _addUserController.addConnectionUid.isNotEmpty?InkWell(
         onTap: (){
           Get.back();
@@ -156,84 +105,158 @@ class _AddParticipantsToCallSearchState extends State<AddParticipantsToCallSearc
           alignment: Alignment.center,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: MateColors.activeIcons,
+            color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
           ),
           child: Icon(
             Icons.person_add,
             size: 25,
-            color: themeController.isDarkMode?Colors.black:Colors.white,
+            color: Colors.black,
           ),
         ),
       ):Offstage(),
-      body: ListView(
-        scrollDirection: Axis.vertical,
-        shrinkWrap: true,
-        physics: ScrollPhysics(),
-        children: [
-          SizedBox(height: 25,),
-          ListView.builder(
-              shrinkWrap: true,
-              scrollDirection: Axis.vertical,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: userList.length,
-              itemBuilder: (context, index) {
-                return FutureBuilder(
-                    future: DatabaseService().getUsersDetails(userList[index].uid),
-                    builder: (context, snapshot1) {
-                      if(snapshot1.hasData){
-                        return Visibility(
-                          visible: searchedName!="" && snapshot1.data.data()['displayName'].toString().toLowerCase().contains(searchedName.toLowerCase()),
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 35),
-                            child: InkWell(
-                              onTap: (){
-                                setState(() {
-                                  if(_addUserController.selected.contains(index)){
-                                    _addUserController.selected.remove(index);
-                                  }else{
-                                    _addUserController.selected.add(index);
-                                  }
-                                });
-                                if(_addUserController.addConnectionUid.contains(userList[index].uid)){
-                                  _addUserController.addConnectionUid.remove(userList[index].uid);
-                                }else{
-                                  _addUserController.addConnectionUid.add(userList[index].uid);
-                                }
-                              },
-                              child: ListTile(
-                                leading: snapshot1.data.data()['photoURL']!=null?
-                                CircleAvatar(
-                                  radius: 28,
-                                  backgroundColor: MateColors.activeIcons,
-                                  backgroundImage: NetworkImage(
-                                    snapshot1.data.data()['photoURL'],
+      body: Container(
+        height: scH,
+        width: scW,
+        decoration: BoxDecoration(
+          color: themeController.isDarkMode?Color(0xFF000000):Colors.white,
+          image: DecorationImage(
+            image: AssetImage(themeController.isDarkMode?'lib/asset/Background.png':'lib/asset/BackgroundLight.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Column(
+          children: [
+            SizedBox(
+              height: scH*0.07,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TextField(
+                onChanged: (val) => setState((){
+                  searchedName=val;
+                }),
+                cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                style:  TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.1,
+                  color: themeController.isDarkMode?Colors.white:Colors.black,
+                ),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: themeController.isDarkMode ? MateColors.containerDark : MateColors.containerLight,
+                  hintStyle: TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w400,
+                    color: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                  ),
+                  hintText: "Search",
+                  prefixIcon: Padding(
+                    padding: const EdgeInsets.only(left: 15,top: 15,bottom: 15),
+                    child: Image.asset(
+                      "lib/asset/homePageIcons/searchPurple@3x.png",
+                      height: 10,
+                      width: 10,
+                      color: themeController.isDarkMode?Colors.white:Colors.black,
+                    ),
+                  ),
+                  suffixIcon: InkWell(
+                    onTap: (){
+                      Get.back();
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 16,right: 15),
+                      child: Text(
+                        "Close",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w700,
+                          color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+                        ),
+                      ),
+                    ),
+                  ),
+                  enabledBorder: commonBorder,
+                  focusedBorder: commonBorder,
+                ),
+              ),
+            ),
+            Expanded(
+              child: ListView(
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                physics: ScrollPhysics(),
+                children: [
+                  ListView.builder(
+                    padding: EdgeInsets.only(top: 0),
+                      shrinkWrap: true,
+                      scrollDirection: Axis.vertical,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: userList.length,
+                      itemBuilder: (context, index) {
+                        return FutureBuilder(
+                            future: DatabaseService().getUsersDetails(userList[index].uid),
+                            builder: (context, snapshot1) {
+                              if(snapshot1.hasData){
+                                return Visibility(
+                                  visible: searchedName!="" && snapshot1.data.data()['displayName'].toString().toLowerCase().contains(searchedName.toLowerCase()),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(bottom: 35),
+                                    child: InkWell(
+                                      onTap: (){
+                                        setState(() {
+                                          if(_addUserController.selected.contains(index)){
+                                            _addUserController.selected.remove(index);
+                                          }else{
+                                            _addUserController.selected.add(index);
+                                          }
+                                        });
+                                        if(_addUserController.addConnectionUid.contains(userList[index].uid)){
+                                          _addUserController.addConnectionUid.remove(userList[index].uid);
+                                        }else{
+                                          _addUserController.addConnectionUid.add(userList[index].uid);
+                                        }
+                                      },
+                                      child: ListTile(
+                                        leading: snapshot1.data.data()['photoURL']!=null?
+                                        CircleAvatar(
+                                          radius: 30,
+                                          backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+                                          backgroundImage: NetworkImage(
+                                            snapshot1.data.data()['photoURL'],
+                                          ),
+                                        ):
+                                        CircleAvatar(
+                                          radius: 30,
+                                          backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+                                          child: Text(snapshot1.data.data()['displayName'].substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
+                                        ),
+                                        title: Text(snapshot1.data.data()['displayName'],
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            fontFamily: "Poppins",
+                                            fontWeight: FontWeight.w600,
+                                            color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                                          ),
+                                        ),
+                                        trailing: _addUserController.selected.contains(index)?
+                                        Icon(Icons.check,color: MateColors.activeIcons,):Offstage(),
+                                      ),
+                                    ),
                                   ),
-                                ):
-                                CircleAvatar(
-                                  radius: 28,
-                                  backgroundColor: MateColors.activeIcons,
-                                  child: Text(snapshot1.data.data()['displayName'].substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
-                                ),
-                                title: Text(snapshot1.data.data()['displayName'],
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w500,
-                                    letterSpacing: 0.1,
-                                    color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                                  ),
-                                ),
-                                trailing: _addUserController.selected.contains(index)?
-                                Icon(Icons.check,color: MateColors.activeIcons,):Offstage(),
-                              ),
-                            ),
-                          ),
+                                );
+                              }
+                              return SizedBox();
+                            }
                         );
-                      }
-                      return SizedBox();
-                    }
-                );
-              }),
-        ],
+                      }),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -12,6 +12,7 @@ import 'package:mate_app/groupChat/services/database_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../asset/Colors/MateColors.dart';
+import '../controller/theme_controller.dart';
 
 class Calling extends StatefulWidget {
   final String channelName;
@@ -26,13 +27,36 @@ class Calling extends StatefulWidget {
   State<Calling> createState() => _CallingState();
 }
 
-class _CallingState extends State<Calling> {
+class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
   static final _users = <int>[];
   final _infoStrings = <String>[];
   bool muted = false;
   bool disableVideo = false;
   bool speakerOn = false;
   RtcEngine _engine;
+  ThemeController themeController = Get.find<ThemeController>();
+  AnimationController _controller;
+  int second = 0;
+  int minute = 0;
+  Timer _timerCounter;
+
+  void _mapCounterGenerater() {
+    _timerCounter = Timer(const Duration(seconds: 1), () {
+      _increaseCounterWhilePressed();
+      _mapCounterGenerater();
+    });
+  }
+
+  _increaseCounterWhilePressed() {
+    second = second + 1;
+    if (second == 60) {
+      second = 0;
+      minute = minute + 1;
+    }
+    if(_draggableScrollableController.pixels<400){
+      setState(() {});
+    }
+  }
 
   @override
   void dispose() {
@@ -42,6 +66,7 @@ class _CallingState extends State<Calling> {
     _engine.leaveChannel();
     _engine.destroy();
     setSharedPreference();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -61,12 +86,18 @@ class _CallingState extends State<Calling> {
   @override
   void initState() {
     super.initState();
+    _mapCounterGenerater();
     addUserToFirebase();
     // initialize agora sdk
     // Future.delayed(Duration.zero,(){
     //   showBottomSheetTool();
     // });
     initialize();
+    _controller = AnimationController(
+      vsync: this,
+      lowerBound: 0.5,
+      duration: Duration(seconds: 3),
+    )..repeat();
   }
 
   Future<void> initialize() async {
@@ -204,6 +235,7 @@ class _CallingState extends State<Calling> {
   @override
   Widget build(BuildContext context) {
     final scH = MediaQuery.of(context).size.height;
+    final scW = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: widget.callType=="Video Calling"?Colors.white:Colors.grey.shade900,
       body:
@@ -216,51 +248,130 @@ class _CallingState extends State<Calling> {
           ],
         ),
       ):
-      Stack(
-        children: [
-          Column(
-            children: [
-              SizedBox(
-                height: scH*0.2,
-              ),
-              Center(
-                child: CachedNetworkImage(
-                    imageUrl: widget.image,
-                    progressIndicatorBuilder: (context, url, downloadProgress){
-                      return CircleAvatar(
-                        radius: 60,
-                        backgroundImage: AssetImage("lib/asset/profile.png"),
-                      );
-                    },
-                    errorWidget: (context, url, error){
-                      return CircleAvatar(
-                        radius: 60,
-                        backgroundImage: AssetImage("lib/asset/profile.png"),
-                      );
-                    },
-                    imageBuilder: (context,url){
-                      return CircleAvatar(
-                        radius: 60,
-                        backgroundImage: url,
-                      );
-                    }
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 15),
-                child: Text(
-                  widget.name,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 17.0,
+      Container(
+        height: scH,
+        width: scW,
+        decoration: BoxDecoration(
+          color: themeController.isDarkMode?Color(0xFF000000):Colors.white,
+          image: DecorationImage(
+            image: AssetImage(themeController.isDarkMode?'lib/asset/Background.png':'lib/asset/BackgroundLight.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(top: scH*0.07),
+                  child: Text(
+                    "End to end encrypted",
+                    style: TextStyle(
+                      color: themeController.isDarkMode?Colors.white:MateColors.blackText,
+                      fontWeight: FontWeight.w300,
+                      fontSize: 16.0,
+                      fontFamily: 'Poppins',
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          _draggableScrollableSheet(),
-        ],
+                SizedBox(
+                  height: scH*0.05,
+                ),
+                Padding(
+                  padding: EdgeInsets.only(bottom: 5),
+                  child: Text(
+                    widget.name,
+                    style: TextStyle(
+                      color: themeController.isDarkMode?Colors.white:MateColors.blackText,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 32.0,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 15),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        minute.toString().padLeft(2, '0'),
+                        style: TextStyle(
+                          color: themeController.isDarkMode?Colors.white:MateColors.blackText,
+                          fontWeight: FontWeight.w300,
+                          fontSize: 16.0,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                      Text(" : ",
+                        style: TextStyle(
+                          color: themeController.isDarkMode?Colors.white:MateColors.blackText,
+                          fontWeight: FontWeight.w300,
+                          fontSize: 16.0,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                      Text(
+                        second.toString().padLeft(2, '0'),
+                        style: TextStyle(
+                          color: themeController.isDarkMode?Colors.white:MateColors.blackText,
+                          fontWeight: FontWeight.w300,
+                          fontSize: 16.0,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  height: 250,
+                  child: Center(
+                    child: AnimatedBuilder(
+                      animation: CurvedAnimation(parent: _controller, curve: Curves.fastOutSlowIn),
+                      builder: (context, child) {
+                        return Stack(
+                          alignment: Alignment.center,
+                          children: <Widget>[
+                            _buildContainer(150 * _controller.value),
+                            _buildContainer(200 * _controller.value),
+                            _buildContainer(250 * _controller.value),
+                            _buildContainer(300 * _controller.value),
+                            Align(
+                              child:  CachedNetworkImage(
+                                  imageUrl: widget.image,
+                                  progressIndicatorBuilder: (context, url, downloadProgress){
+                                    return CircleAvatar(
+                                      radius: 60,
+                                      backgroundImage: AssetImage("lib/asset/profile.png"),
+                                    );
+                                  },
+                                  errorWidget: (context, url, error){
+                                    return CircleAvatar(
+                                      radius: 60,
+                                      backgroundImage: AssetImage("lib/asset/profile.png"),
+                                    );
+                                  },
+                                  imageBuilder: (context,url){
+                                    return CircleAvatar(
+                                      radius: 60,
+                                      backgroundImage: url,
+                                    );
+                                  }
+                              ),
+                            ),
+                            //Align(child: Icon(Icons.phone_android, size: 44,)),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            _draggableScrollableSheet(),
+          ],
+        ),
       ),
     );
   }
@@ -278,28 +389,34 @@ class _CallingState extends State<Calling> {
           },
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(25),
-                topRight: Radius.circular(25),
-              ),
+              color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
             ),
             child: SingleChildScrollView(
               controller: scrollController,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  SizedBox(
+                    height: 10,
+                  ),
                   Center(
                     child: InkWell(
                       onTap: (){
                         _draggableScrollableController.animateTo(0.5, duration: Duration(milliseconds: 200), curve: Curves.ease);
                         setState(() {});
                       },
-                      child: Icon(Icons.keyboard_arrow_up_outlined,
-                        color: Colors.grey.shade900,
-                        size: 50,
+                      child: Container(
+                        height: 6,
+                        width: 50,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: themeController.isDarkMode?Colors.white.withOpacity(0.2):Colors.black.withOpacity(0.05),
+                        ),
                       ),
                     ),
+                  ),
+                  SizedBox(
+                    height: 20,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -314,12 +431,12 @@ class _CallingState extends State<Calling> {
                           },
                           child: Icon(
                             disableVideo ? Icons.videocam_off : Icons.videocam,
-                            color: Colors.white,
+                            color: themeController.isDarkMode?Colors.white:Colors.black,
                             size: 25.0,
                           ),
                           shape: CircleBorder(),
                           elevation: 2.0,
-                          fillColor: Colors.grey.shade900,
+                          fillColor: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
                           padding: const EdgeInsets.all(12.0),
                         ),
                       if(widget.callType=="Audio Calling")
@@ -332,12 +449,12 @@ class _CallingState extends State<Calling> {
                           },
                           child: Icon(
                             speakerOn ? Icons.volume_up : Icons.volume_off,
-                            color: Colors.white,
+                            color: themeController.isDarkMode?Colors.white:Colors.black,
                             size: 25.0,
                           ),
                           shape: CircleBorder(),
                           elevation: 2.0,
-                          fillColor: Colors.grey.shade900,
+                          fillColor: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
                           padding: const EdgeInsets.all(12.0),
                         ),
                       RawMaterialButton(
@@ -349,12 +466,12 @@ class _CallingState extends State<Calling> {
                         },
                         child: Icon(
                           muted ? Icons.mic_off : Icons.mic,
-                          color: Colors.white,
+                          color: themeController.isDarkMode?Colors.white:Colors.black,
                           size: 25.0,
                         ),
                         shape: CircleBorder(),
                         elevation: 2.0,
-                        fillColor: Colors.grey.shade900,
+                        fillColor: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
                         padding: const EdgeInsets.all(12.0),
                       ),
                       if(widget.callType == "Video Calling")
@@ -362,12 +479,12 @@ class _CallingState extends State<Calling> {
                           onPressed: _onSwitchCamera,
                           child: Icon(
                             Icons.switch_camera,
-                            color: Colors.white,
+                            color: themeController.isDarkMode?Colors.white:Colors.black,
                             size: 25.0,
                           ),
                           shape: CircleBorder(),
                           elevation: 2.0,
-                          fillColor: Colors.grey.shade900,
+                          fillColor: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
                           padding: const EdgeInsets.all(12.0),
                         ),
                       RawMaterialButton(
@@ -403,17 +520,17 @@ class _CallingState extends State<Calling> {
                           width: 45,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.grey.shade900,
+                            color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
                           ),
-                          child: Icon(Icons.person_add, color: Colors.white, size: 25.0,),
+                          child: Icon(Icons.person_add, color: themeController.isDarkMode?Colors.white:Colors.black, size: 25.0,),
                         ),
                         title: Text(
                           "Add Participants",
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
-                            letterSpacing: 0.1,
-                            color: Colors.white,
+                            fontFamily: 'Poppins',
+                            color: themeController.isDarkMode?Colors.white:Colors.black,
                           ),
                         ),
                       ),
@@ -455,8 +572,8 @@ class _CallingState extends State<Calling> {
                                               style: TextStyle(
                                                 fontSize: 15,
                                                 fontWeight: FontWeight.w500,
-                                                letterSpacing: 0.1,
-                                                color: Colors.white,
+                                                fontFamily: 'Poppins',
+                                                color: themeController.isDarkMode?Colors.white:Colors.black,
                                               ),
                                             ),
                                           ),
@@ -488,6 +605,17 @@ class _CallingState extends State<Calling> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildContainer(double radius) {
+    return Container(
+      width: radius,
+      height: radius,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.blue.withOpacity(1 - _controller.value),
+      ),
     );
   }
 

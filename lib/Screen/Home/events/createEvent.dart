@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -10,6 +9,7 @@ import 'package:mate_app/Widget/loader.dart';
 import 'package:mate_app/Widget/video_thumbnail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../Model/eventCateoryModel.dart';
 import '../../../asset/Colors/MateColors.dart';
 import '../../../constant.dart';
 import '../../../controller/theme_controller.dart';
@@ -49,6 +49,12 @@ class _CreateEventState extends State<CreateEvent> {
   String timeValueEnd;
   EventService _eventService = EventService();
   String token = "";
+  EventCategoryModel eventCategoryModel;
+  List<int> categoryId = [];
+  List<String> categoryName = [];
+  int selectedCategoryId = 0;
+  String selectedCategoryName = "";
+  String selectedLocationOption = "On Campus";
 
   @override
   void initState() {
@@ -65,7 +71,16 @@ class _CreateEventState extends State<CreateEvent> {
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
     token = preferences.getString("token");
-    log(token);
+    eventCategoryModel = await _eventService.getCategory(token: token);
+    for(int i=0;i<eventCategoryModel.data.length;i++){
+      categoryId.add(eventCategoryModel.data[i].id);
+      categoryName.add(eventCategoryModel.data[i].name);
+    }
+    if(categoryId.isNotEmpty && categoryName.isNotEmpty){
+      selectedCategoryId = categoryId[0];
+      selectedCategoryName = categoryName[0];
+    }
+    setState(() {});
   }
 
   _submitButton(BuildContext context) {
@@ -80,6 +95,10 @@ class _CreateEventState extends State<CreateEvent> {
           ),
           onPressed: ()async{
             if(_formKey.currentState.validate()){
+              if(selectedCategoryId==0){
+                Fluttertoast.showToast(msg: "Please select category", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+                return;
+              }
               setState(() {
                 isLoading = true;
               });
@@ -95,6 +114,8 @@ class _CreateEventState extends State<CreateEvent> {
                 linkText: _linkText.text,
                 link: _link.text,
                 endTime: timeValueEnd,
+                locationOption: selectedLocationOption,
+                typeId: selectedCategoryId,
               );
               setState(() {
                 isLoading = false;
@@ -286,6 +307,60 @@ class _CreateEventState extends State<CreateEvent> {
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.only(left: 2,right: 2,top: 10),
+                                  child:   Text(
+                                    "Categories",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      fontFamily: 'Poppins',
+                                      color: themeController.isDarkMode?Colors.white: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 10,),
+                                Container(
+                                  height: 60,
+                                  padding: EdgeInsets.only(left: 16,right: 16),
+                                  decoration: ShapeDecoration(
+                                    color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(Radius.circular(14)),
+                                    ),
+                                  ),
+                                  child: DropdownButtonHideUnderline(
+                                    child: DropdownButton<String>(
+                                      isDense: true,
+                                      isExpanded: true,
+                                      //value: selectedCategoryName,
+                                      items: categoryName.map((String items) {
+                                        return DropdownMenuItem(
+                                          value: items,
+                                          child: Text(items,
+                                            style: const TextStyle(fontSize: 14.0),
+                                          ),
+                                        );
+                                      }).toList(),
+                                      hint: Text(selectedCategoryName==""?"Types":selectedCategoryName,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontFamily: 'Poppins',
+                                          fontWeight: FontWeight.w400,
+                                          color: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                                        ),
+                                      ),
+                                      onChanged: (newValue) {
+                                        setState(() {
+                                          selectedCategoryName = newValue;
+                                          int index = categoryName.indexOf(selectedCategoryName);
+                                          selectedCategoryId = categoryId[index];
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 40,),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 2,right: 2,),
                                   child:   Text(
                                     "Title",
                                     style: TextStyle(
@@ -496,6 +571,113 @@ class _CreateEventState extends State<CreateEvent> {
                                     }
                                     return null;
                                   },
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: (){
+                                        selectedLocationOption = "On Campus";
+                                        setState(() {});
+                                      },
+                                      child: Container(
+                                        margin: EdgeInsets.only(top: 20),
+                                        height: 39,
+                                        padding: EdgeInsets.symmetric(horizontal: 16),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(25),
+                                          color: selectedLocationOption=="On Campus"?
+                                          themeController.isDarkMode?
+                                          MateColors.appThemeDark:
+                                          MateColors.appThemeLight:
+                                          themeController.isDarkMode?
+                                          Color(0xFF595E6E).withOpacity(0.35):
+                                          Colors.white.withOpacity(0.5),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "On Campus",
+                                            style: TextStyle(
+                                              fontFamily: 'Poppins',
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w400,
+                                              color: selectedLocationOption=="On Campus"?
+                                              themeController.isDarkMode? Colors.black: Colors.white:
+                                              themeController.isDarkMode? Colors.white:Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: (){
+                                        selectedLocationOption = "Off Campus";
+                                        setState(() {});
+                                      },
+                                      child: Container(
+                                        margin: EdgeInsets.only(top: 20),
+                                        height: 39,
+                                        padding: EdgeInsets.symmetric(horizontal: 16),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(25),
+                                          color: selectedLocationOption=="Off Campus"?
+                                          themeController.isDarkMode?
+                                          MateColors.appThemeDark:
+                                          MateColors.appThemeLight:
+                                          themeController.isDarkMode?
+                                          Color(0xFF595E6E).withOpacity(0.35):
+                                          Colors.white.withOpacity(0.5),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "Off Campus",
+                                            style: TextStyle(
+                                              fontFamily: 'Poppins',
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w400,
+                                              color: selectedLocationOption=="Off Campus"?
+                                              themeController.isDarkMode? Colors.black: Colors.white:
+                                              themeController.isDarkMode? Colors.white:Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: (){
+                                        selectedLocationOption = "Virtual";
+                                        setState(() {});
+                                      },
+                                      child: Container(
+                                        margin: EdgeInsets.only(top: 20),
+                                        height: 39,
+                                        padding: EdgeInsets.symmetric(horizontal: 16),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(25),
+                                          color: selectedLocationOption=="Virtual"?
+                                          themeController.isDarkMode?
+                                          MateColors.appThemeDark:
+                                          MateColors.appThemeLight:
+                                          themeController.isDarkMode?
+                                          Color(0xFF595E6E).withOpacity(0.35):
+                                          Colors.white.withOpacity(0.5),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "Virtual",
+                                            style: TextStyle(
+                                              fontFamily: 'Poppins',
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w400,
+                                              color: selectedLocationOption=="Virtual"?
+                                              themeController.isDarkMode? Colors.black: Colors.white:
+                                              themeController.isDarkMode? Colors.white:Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 SizedBox(height: 40,),
                                 Padding(

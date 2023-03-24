@@ -4,6 +4,7 @@ import 'package:mate_app/Screen/Home/TimeLine/TimeLine.dart';
 import 'package:mate_app/Screen/Home/events/eventDashboard.dart';
 import 'package:mate_app/Screen/Home/explore/explore.dart';
 import 'package:mate_app/Widget/Drawer/DrawerWidget.dart';
+import 'package:mate_app/Widget/Loaders/Shimmer.dart';
 import 'package:mate_app/asset/Colors/MateColors.dart';
 import 'package:mate_app/constant.dart';
 import 'package:flutter/cupertino.dart';
@@ -168,109 +169,286 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
-      child: Scaffold(
-        drawer: DrawerWidget(),
-        body: Container(
-          padding: EdgeInsets.only(top: 0.0.sp),
-          color: myHexColor,
-          child: Column(
-            children: [
-              Consumer<ReportProvider>(
-                builder: (ctx, reportProvider, _) {
-                  if (!reportProvider.appUpdateLoader && reportProvider.appUpdateModelData !=null) {
-                    if(appCheckFirstTime){
-                      bool willUpdate=false;
-                      int storeVersion=0;
-                      var platform = Theme.of(context).platform;
-                      int appVersion=getExtendedVersionNumber(_projectVersion);
-                      if(platform == TargetPlatform.android){
-                        storeVersion=getExtendedVersionNumber(reportProvider.appUpdateModelData.data.androidVersion);
-                      }else if(platform == TargetPlatform.iOS){
-                        storeVersion=getExtendedVersionNumber(reportProvider.appUpdateModelData.data.iosVersion);
-                      }
-                      if(storeVersion>appVersion){
-                        Future.delayed(Duration.zero, (){
-                          showDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              builder: (context) {
-                                return WillPopScope(
-                                    onWillPop: () async => false,
-                                    child: CupertinoAlertDialog(
-                                      title: new Text("Update your app"),
-                                      content: new Text("You are using an old version of this app.\n"
-                                          "Please update our app for better performance"),
-                                      actions: <Widget>[
-                                        CupertinoDialogAction(
-                                          isDefaultAction: true,
-                                          child: _reportProvider.postReportLoader?
-                                          Center(
-                                            child: CircularProgressIndicator(
-                                              color: Colors.white,
+      child: Stack(
+        children: [
+          Scaffold(
+            resizeToAvoidBottomInset: false,
+            drawer: DrawerWidget(),
+            body: Container(
+              padding: EdgeInsets.only(top: 0.0.sp),
+              color: myHexColor,
+              child: Column(
+                children: [
+                  Consumer<ReportProvider>(
+                    builder: (ctx, reportProvider, _) {
+                      if (!reportProvider.appUpdateLoader && reportProvider.appUpdateModelData !=null) {
+                        if(appCheckFirstTime){
+                          bool willUpdate=false;
+                          int storeVersion=0;
+                          var platform = Theme.of(context).platform;
+                          int appVersion=getExtendedVersionNumber(_projectVersion);
+                          if(platform == TargetPlatform.android){
+                            storeVersion=getExtendedVersionNumber(reportProvider.appUpdateModelData.data.androidVersion);
+                          }else if(platform == TargetPlatform.iOS){
+                            storeVersion=getExtendedVersionNumber(reportProvider.appUpdateModelData.data.iosVersion);
+                          }
+                          if(storeVersion>appVersion){
+                            Future.delayed(Duration.zero, (){
+                              showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) {
+                                    return WillPopScope(
+                                        onWillPop: () async => false,
+                                        child: CupertinoAlertDialog(
+                                          title: new Text("Update your app"),
+                                          content: new Text("You are using an old version of this app.\n"
+                                              "Please update our app for better performance"),
+                                          actions: <Widget>[
+                                            CupertinoDialogAction(
+                                              isDefaultAction: true,
+                                              child: _reportProvider.postReportLoader?
+                                              Center(
+                                                child: CircularProgressIndicator(
+                                                  color: Colors.white,
+                                                ),
+                                              ):Text("Update"),
+                                              onPressed: () async {
+                                                StoreRedirect.redirect(iOSAppId: "1547466147");
+                                              },
                                             ),
-                                          ):Text("Update"),
-                                          onPressed: () async {
-                                            StoreRedirect.redirect(iOSAppId: "1547466147");
-                                          },
-                                        ),
-                                      ],
-                                    ));
-                              });
-                        });
+                                          ],
+                                        ));
+                                  });
+                            });
+                          }
+                          appCheckFirstTime=false;
+                        }
+                        return SizedBox();
+                      }else{
+                        return SizedBox();
                       }
-                      appCheckFirstTime=false;
-                    }
-                    return SizedBox();
-                  }else{
-                    return SizedBox();
-                  }
-                },
+                    },
+                  ),
+                  Expanded(child: Container(child: _children[_currentIndex])),
+                ],
               ),
-              Expanded(child: Container(child: _children[_currentIndex])),
-            ],
+            ),
           ),
-        ),
-        bottomNavigationBar: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-              border: Border(top: BorderSide(color: MateColors.darkDivider, width: 0.2)),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 20,
+            child: Container(
+              margin: const EdgeInsets.only(left: 16,right: 16),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(100),
+                child: Container(
+                  height: 80,
+                  padding: EdgeInsets.only(top: 16,left: 20,right: 20),
+                  decoration: BoxDecoration(
+                    //color: themeController.isDarkMode?Colors.white:Colors.white.withOpacity(0.12),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.topRight,
+                      colors: themeController.isDarkMode?
+                      [
+                        Color(0xFF333333),
+                        Color(0xFF494C55),
+                        Color(0xFF2A2A30),
+
+                        // Color(0xFF3c3c44),
+                        // Color(0xFF4c4c51),
+                        // Color(0xFF44484e),
+                        // Color(0xFF3c444c),
+                        // Color(0xFF424444),
+                        // Color(0xFF343b43),
+                        // Color(0xFF4c5454),
+                        // Color(0xFF4c4c5c),
+                        // Color(0xFF545454),
+                      ]:
+                      [
+                        // Color(0xFF242424),
+                        // Color(0xFFDBE2E1),
+                        // Color(0xFF333333),
+
+                        Color(0xFFdae1e1),
+                        Color(0xFFe4ecec),
+                        Color(0xFFecf3f3),
+                        Color(0xFFecf3f3),
+                        Color(0xFFe4f4ed),
+                        //Color(0xFFccd5d4),
+                        Color(0xFFdcece4),
+                        //Color(0xFFccd4cc),
+                        //Color(0xFFd4d4d4),
+                      ],
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: (){
+                          setState(() {
+                            _currentIndex = 0;
+                          });
+                        },
+                        child: Column(
+                          children: [
+                            Image.asset("lib/asset/iconsNewDesign/bottomBarHome.png",
+                              width: 23.0.sp,
+                              color: _currentIndex==0?
+                              themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight:
+                              themeController.isDarkMode?Color(0xFF9D9EA1):Color(0xFF8A8A99),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text('home',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w400,
+                                color: _currentIndex==0?
+                                themeController.isDarkMode?Colors.white:Colors.black:
+                                themeController.isDarkMode?Color(0xFF9D9EA1):Color(0xFF8A8A99),
+                                decoration: TextDecoration.none,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: (){
+                          setState(() {
+                            _currentIndex = 1;
+                          });
+                        },
+                        child: Column(
+                          children: [
+                            Image.asset("lib/asset/iconsNewDesign/bottomBarExplore.png",
+                              width: 23.0.sp,
+                              color: _currentIndex==1?
+                              themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight:
+                              themeController.isDarkMode?Color(0xFF9D9EA1):Color(0xFF8A8A99),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text('explore',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w400,
+                                color: _currentIndex==1?
+                                themeController.isDarkMode?Colors.white:Colors.black:
+                                themeController.isDarkMode?Color(0xFF9D9EA1):Color(0xFF8A8A99),
+                                decoration: TextDecoration.none,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: (){
+                          setState(() {
+                            _currentIndex = 2;
+                          });
+                        },
+                        child: Column(
+                          children: [
+                            Image.asset("lib/asset/iconsNewDesign/bottomBarEvent.png",
+                              width: 23.0.sp,
+                              color: _currentIndex==2?
+                              themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight:
+                              themeController.isDarkMode?Color(0xFF9D9EA1):Color(0xFF8A8A99),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text('events',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w400,
+                                color: _currentIndex==2?
+                                themeController.isDarkMode?Colors.white:Colors.black:
+                                themeController.isDarkMode?Color(0xFF9D9EA1):Color(0xFF8A8A99),
+                                decoration: TextDecoration.none,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: (){
+                          setState(() {
+                            _currentIndex = 3;
+                          });
+                        },
+                        child: Column(
+                          children: [
+                            Image.asset("lib/asset/iconsNewDesign/bottomBarCampus.png",
+                              width: 23.0.sp,
+                              color: _currentIndex==3?
+                              themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight:
+                              themeController.isDarkMode?Color(0xFF9D9EA1):Color(0xFF8A8A99),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text('forums',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w400,
+                                color: _currentIndex==3?
+                                themeController.isDarkMode?Colors.white:Colors.black:
+                                themeController.isDarkMode?Color(0xFF9D9EA1):Color(0xFF8A8A99),
+                                decoration: TextDecoration.none,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: (){
+                          setState(() {
+                            _currentIndex = 4;
+                          });
+                        },
+                        child: Column(
+                          children: [
+                            Image.asset("lib/asset/iconsNewDesign/bottomBarChat.png",
+                              width: 23.0.sp,
+                              color: _currentIndex==4?
+                              themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight:
+                              themeController.isDarkMode?Color(0xFF9D9EA1):Color(0xFF8A8A99),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text('chats',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w400,
+                                color: _currentIndex==4?
+                                themeController.isDarkMode?Colors.white:Colors.black:
+                                themeController.isDarkMode?Color(0xFF9D9EA1):Color(0xFF8A8A99),
+                                decoration: TextDecoration.none,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
-        child: BottomNavigationBar(
-            onTap: onTabTapped,
-            showSelectedLabels: false,
-            showUnselectedLabels: false,
-            type: BottomNavigationBarType.fixed,
-            currentIndex: _currentIndex,
-            unselectedItemColor: MateColors.inActiveIcons,
-            selectedItemColor: MateColors.activeIcons,
-            items: [
-              BottomNavigationBarItem(
-                icon: Image.asset("lib/asset/homePageIcons/homeBlack.png",width: 18.0.sp,color: Color(0xFF414147),),
-                activeIcon: Image.asset("lib/asset/homePageIcons/home.png",width: 18.0.sp,color: MateColors.activeIcons,),
-                label: "Home",
-              ),
-              BottomNavigationBarItem(
-                icon: Image.asset("lib/asset/iconsNewDesign/explore.png",width: 18.0.sp,color: Color(0xFF414147),),
-                activeIcon: Image.asset("lib/asset/iconsNewDesign/eploreColor.png",width: 18.0.sp,color: MateColors.activeIcons,),
-                label: "Explore",
-              ),
-              BottomNavigationBarItem(
-                icon: Image.asset("lib/asset/homePageIcons/event.png",width: 18.0.sp,color: Color(0xFF414147),),
-                activeIcon: Image.asset("lib/asset/homePageIcons/eventColor.png",width: 18.0.sp,color: MateColors.activeIcons,),
-                label: "Events",
-              ),
-              BottomNavigationBarItem(
-                icon: Image.asset("lib/asset/homePageIcons/cross.png",width: 24.0.sp,color: Color(0xFF414147),),
-                activeIcon: Image.asset("lib/asset/homePageIcons/cross.png",width: 24.0.sp,color: MateColors.activeIcons,),
-                label: "Campus",
-              ),
-              BottomNavigationBarItem(
-                icon: Image.asset("lib/asset/homePageIcons/chat.png",width: 18.0.sp,color: Color(0xFF414147),),
-                activeIcon: Image.asset("lib/asset/homePageIcons/chatColor.png",width: 18.0.sp,color: MateColors.activeIcons,),
-                label: "Message",
-              ),
-            ])
-        ),
+        ],
       ));
   }
 
@@ -302,10 +480,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
       if(_currentIndex==0){
         Provider.of<FeedProvider>(context, listen: false).fetchFeedListMyCampus(page: 1);
         Provider.of<FeedProvider>(context, listen: false).fetchFeedList(page: 1);
-      }else if(_currentIndex==1){
-        print("Event");
       }else if(_currentIndex==2){
-        Provider.of<CampusTalkProvider>(context, listen: false).fetchCampusTalkPostList(page: 1);
+        print("Event");
+      }else if(_currentIndex==4){
+        //Provider.of<CampusTalkProvider>(context, listen: false).fetchCampusTalkPostList(page: 1);
       }
     });
   }

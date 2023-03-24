@@ -300,6 +300,7 @@ Widget userListLoader() {
       highlightColor: themeController.isDarkMode?Colors.white54:Colors.black54,
       child: ListView.builder(
         itemCount: 10,
+        padding: EdgeInsets.only(top: 10),
         itemBuilder: (ctx, index) {
           return ListTile(
             leading: CircleAvatar(

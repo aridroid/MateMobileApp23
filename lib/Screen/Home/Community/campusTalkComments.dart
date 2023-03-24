@@ -14,13 +14,29 @@ import 'package:provider/provider.dart';
 
 import '../../../constant.dart';
 import '../../../controller/theme_controller.dart';
+import 'package:mate_app/Model/campusTalkPostsModel.dart' as postModel;
 
 class CampusTalkComments extends StatefulWidget {
   final bool isBookmarkedPage;
   final bool isUserProfile;
   final int postIndex;
   final int postId;
-  const CampusTalkComments({Key key, this.postId, this.postIndex, this.isBookmarkedPage=false, this.isUserProfile=false}) : super(key: key);
+  final bool isTrending;
+  final bool isLatest;
+  final bool isForums;
+  final bool isYourCampus;
+  final bool isListCard;
+  final bool isSearch;
+  final postModel.User user;
+  const CampusTalkComments({Key key,
+    this.isTrending = false,
+    this.isLatest = false,
+    this.isForums = false,
+    this.isYourCampus = false,
+    this.isListCard = false,
+    this.isSearch = false,
+    this.user,
+    this.postId, this.postIndex, this.isBookmarkedPage=false, this.isUserProfile=false}) : super(key: key);
 
   @override
   _CampusTalkCommentsState createState() => _CampusTalkCommentsState();
@@ -90,6 +106,13 @@ class _CampusTalkCommentsState extends State<CampusTalkComments> {
                   isBookmarkedPage: widget.isBookmarkedPage,
                   postId: widget.postId,
                   postIndex: widget.postIndex,
+                  isTrending: widget.isTrending,
+                  isLatest: widget.isLatest,
+                  isForums: widget.isForums,
+                  isYourCampus: widget.isYourCampus,
+                  isListCard: widget.isListCard,
+                  user: widget.user,
+                  isSearch: widget.isSearch,
                 ),
               ),
             ],
@@ -106,7 +129,22 @@ class CampusTalkCommentsWidget extends StatefulWidget {
   final bool isUserProfile;
   final int postIndex;
   final int postId;
-  const CampusTalkCommentsWidget({Key key, this.isBookmarkedPage, this.isUserProfile, this.postIndex, this.postId}) : super(key: key);
+  final bool isTrending;
+  final bool isLatest;
+  final bool isForums;
+  final bool isYourCampus;
+  final bool isListCard;
+  final bool isSearch;
+  final postModel.User user;
+  const CampusTalkCommentsWidget({Key key, this.isBookmarkedPage, this.isUserProfile, this.postIndex, this.postId,
+    this.isTrending = false,
+    this.isLatest = false,
+    this.isForums = false,
+    this.isYourCampus = false,
+    this.isListCard = false,
+    this.isSearch = false,
+    this.user,
+  }) : super(key: key);
 
   @override
   _CampusTalkCommentsWidgetState createState() => _CampusTalkCommentsWidgetState();
@@ -236,6 +274,13 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
                                           isBookmarkedPage: widget.isBookmarkedPage,
                                           isUserProfile: widget.isUserProfile,
                                           postIndex: widget.postIndex,
+                                          isTrending: widget.isTrending,
+                                          isLatest: widget.isLatest,
+                                          isForums: widget.isForums,
+                                          isYourCampus: widget.isYourCampus,
+                                          isListCard: widget.isListCard,
+                                          user: widget.user,
+                                          isSearch: widget.isSearch,
                                         ))),
                                     child: Text("Reply",
                                       style: TextStyle(
@@ -279,10 +324,27 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
                                                 if (updated) {
                                                   if(widget.isBookmarkedPage){
                                                     --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsBookmarkData.data.result[widget.postIndex].commentsCount;
-                                                  }else if(widget.isUserProfile){
+                                                  }
+                                                  if(widget.isUserProfile){
                                                     --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkByUserPostsResultsList[widget.postIndex].commentsCount;
-                                                  }else{
-                                                    --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsList[widget.postIndex].commentsCount;
+                                                  }
+                                                  if(widget.isTrending){
+                                                    --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsTrendingList[widget.postIndex].commentsCount;
+                                                  }
+                                                  if(widget.isLatest){
+                                                    --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsLatestList[widget.postIndex].commentsCount;
+                                                  }
+                                                  if(widget.isForums){
+                                                    --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsForumsList[widget.postIndex].commentsCount;
+                                                  }
+                                                  if(widget.isYourCampus){
+                                                    --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsYourCampusList[widget.postIndex].commentsCount;
+                                                  }
+                                                  if(widget.isListCard){
+                                                    --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsListCard[widget.postIndex].commentsCount;
+                                                  }
+                                                  if(widget.isSearch){
+                                                    --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkBySearchResultsList[widget.postIndex].commentsCount;
                                                   }
                                                   Future.delayed(Duration(seconds: 0), () {
                                                     Provider.of<CampusTalkProvider>(context, listen: false).fetchCommentsOfACampusTalk(widget.postId);
@@ -315,6 +377,13 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
                                         isBookmarkedPage: widget.isBookmarkedPage,
                                         isUserProfile: widget.isUserProfile,
                                         postIndex: widget.postIndex,
+                                        isTrending: widget.isTrending,
+                                        isLatest: widget.isLatest,
+                                        isForums: widget.isForums,
+                                        isYourCampus: widget.isYourCampus,
+                                        isListCard: widget.isListCard,
+                                        user: widget.user,
+                                        isSearch: widget.isSearch,
                                       ))),
                                   child: Text(
                                     "Show previous replies...",
@@ -501,10 +570,27 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
                             if (updated) {
                               if(widget.isBookmarkedPage){
                                 ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsBookmarkData.data.result[widget.postIndex].commentsCount;
-                              }else if(widget.isUserProfile){
+                              }
+                              if(widget.isUserProfile){
                                 ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkByUserPostsResultsList[widget.postIndex].commentsCount;
-                              }else{
-                                ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsList[widget.postIndex].commentsCount;
+                              }
+                              if(widget.isTrending){
+                                ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsTrendingList[widget.postIndex].commentsCount;
+                              }
+                              if(widget.isLatest){
+                                ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsLatestList[widget.postIndex].commentsCount;
+                              }
+                              if(widget.isForums){
+                                ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsForumsList[widget.postIndex].commentsCount;
+                              }
+                              if(widget.isYourCampus){
+                                ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsYourCampusList[widget.postIndex].commentsCount;
+                              }
+                              if(widget.isListCard){
+                                ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsListCard[widget.postIndex].commentsCount;
+                              }
+                              if(widget.isSearch){
+                                ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkBySearchResultsList[widget.postIndex].commentsCount;
                               }
 
                               messageEditingController.text = "";

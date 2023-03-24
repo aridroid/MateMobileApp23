@@ -71,26 +71,6 @@ class _AddPersonWhileCreatingGroupSearchState extends State<AddPersonWhileCreati
     final scH = MediaQuery.of(context).size.height;
     final scW = MediaQuery.of(context).size.width;
     return Scaffold(
-      floatingActionButton: _addUserController.addConnectionUid.isNotEmpty?InkWell(
-        onTap: (){
-          Get.back();
-          Get.back();
-        },
-        child: Container(
-          height: 56,
-          width: 56,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: MateColors.activeIcons,
-          ),
-          child: Icon(
-            Icons.check,
-            size: 31,
-            color: themeController.isDarkMode?Colors.black:Colors.white,
-          ),
-        ),
-      ):Offstage(),
       body: Container(
         height: scH,
         width: scW,
@@ -234,9 +214,14 @@ class _AddPersonWhileCreatingGroupSearchState extends State<AddPersonWhileCreati
                                           ),
                                         ),
                                         trailing: _addUserController.selected.contains(index)?
-                                        Icon(Icons.check,
+                                        Image.asset(
+                                          "lib/asset/iconsNewDesign/radioColor.png",
                                           color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
-                                        ):Offstage(),
+                                        ):
+                                        Image.asset(
+                                          "lib/asset/iconsNewDesign/radio.png",
+                                          color: themeController.isDarkMode?Colors.white.withOpacity(0.2):Colors.black.withOpacity(0.28),
+                                        ),
                                       ),
                                     ),
                                   ),

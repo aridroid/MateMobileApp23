@@ -1,13 +1,16 @@
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mate_app/Screen/Home/Community/campusTalkLatest.dart';
+import 'package:mate_app/Screen/Home/Community/campusTalkYourCampus.dart';
 import 'package:provider/provider.dart';
 
 import '../../../Model/campusTalkPostsModel.dart';
 import '../../../Providers/campusTalkProvider.dart';
 import '../../../asset/Colors/MateColors.dart';
 import '../../../controller/theme_controller.dart';
-import 'campusTalk.dart';
+import 'campusTalkSearch.dart';
+import 'campusTalkTrending.dart';
 import 'campusTalkDetailsFullScreen.dart';
 import 'createCampusTalkPost.dart';
 
@@ -90,8 +93,7 @@ class _CampusDashboardState extends State<CampusDashboard> {
             isLiked: list.isLiked,
             likesCount: list.likesCount,
             commentsCount: list.commentsCount,
-            isBookmarkedPage: false,
-            isUserProfile: false,
+            isListCard: true,
           ),
         ));
   }
@@ -146,6 +148,7 @@ class _CampusDashboardState extends State<CampusDashboard> {
                      Expanded(
                        child: GestureDetector(
                          onTap: () {
+                           Get.to(()=>CampusTalkSearch(searchType: 'Global',));
                          },
                          child: Container(
                            margin: EdgeInsets.only(left: 16),
@@ -228,7 +231,7 @@ class _CampusDashboardState extends State<CampusDashboard> {
                            children: [
                              GestureDetector(
                                onTap: () {
-                                 Get.to(()=>CampusTalkScreen());
+                                 Get.to(()=>CampusTalkScreenTrending());
                                },
                                child: Container(
                                  height: 140,
@@ -269,7 +272,9 @@ class _CampusDashboardState extends State<CampusDashboard> {
                                ),
                              ),
                              GestureDetector(
-                               onTap: () {},
+                               onTap: () {
+                                 Get.to(()=>CampusTalkScreenLatest());
+                               },
                                child: Container(
                                  height: 140,
                                  width: MediaQuery.of(context).size.width*0.44,
@@ -295,7 +300,7 @@ class _CampusDashboardState extends State<CampusDashboard> {
                                          color: themeController.isDarkMode?Colors.white:MateColors.blackText,
                                        ),
                                      ),
-                                     Text('Top Posts',
+                                     Text('Latest',
                                        style: TextStyle(
                                            fontSize: 13,
                                            fontFamily: "Poppins",
@@ -358,7 +363,9 @@ class _CampusDashboardState extends State<CampusDashboard> {
                                ),
                              ),
                              GestureDetector(
-                               onTap: () {},
+                               onTap: () {
+                                 Get.to(()=>CampusTalkScreenYourCampus());
+                               },
                                child: Container(
                                  height: 140,
                                  width: MediaQuery.of(context).size.width*0.44,
@@ -421,7 +428,7 @@ class _CampusDashboardState extends State<CampusDashboard> {
                          itemHeight: 150.0,
                          layout: SwiperLayout.TINDER,
                        ),
-                       SizedBox(height: 16,),
+                       SizedBox(height: 150,),
                      ],
                    ),
                  ),

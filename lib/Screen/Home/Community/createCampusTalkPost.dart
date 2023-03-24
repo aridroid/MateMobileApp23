@@ -1,12 +1,15 @@
 import 'package:get/get.dart';
 import 'package:mate_app/Providers/campusTalkProvider.dart';
+import 'package:mate_app/Services/campusTalkService.dart';
 import 'package:mate_app/Widget/loader.dart';
 import 'package:mate_app/asset/Colors/MateColors.dart';
 import 'package:flutter/material.dart';
 import 'package:mate_app/controller/theme_controller.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../constant.dart';
+import 'package:mate_app/Model/campusTalkTypeModel.dart' as campusTalkTypeModel;
 
 class CreateCampusTalkPost extends StatefulWidget {
   const CreateCampusTalkPost({Key key}) : super(key: key);
@@ -25,11 +28,26 @@ class _CreateCampusTalkPostState extends State<CreateCampusTalkPost> {
   int titleLength = 0;
   int descriptionLength = 0;
   bool isLoading = false;
+  String token = "";
+  List<campusTalkTypeModel.Data> type = [];
+  List<bool> typeSelected = [];
+  CampusTalkService _campusTalkService = CampusTalkService();
 
   @override
   void initState() {
     focusNode.requestFocus();
+    getStoredValue();
     super.initState();
+  }
+
+  getStoredValue()async{
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    token = preferences.getString("token");
+    type = await _campusTalkService.getType(token: token);
+    for(int i=0;i<type.length;i++){
+      typeSelected.add(false);
+    }
+    setState(() {});
   }
 
   @override
@@ -246,6 +264,48 @@ class _CreateCampusTalkPostState extends State<CreateCampusTalkPost> {
                               ),
                             ),
                           ),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(0.0, 15.0, 3.0, 10.0),
+                            child: Text(
+                              "Tags",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'Poppins',
+                                color: themeController.isDarkMode?Colors.white: Colors.black,
+                              ),
+                            ),
+                          ),
+                          Wrap(
+                            spacing: 10,
+                            runSpacing: 10,
+                            children: List.generate(type.length, (index) =>
+                            InkWell(
+                                onTap: (){
+                                  typeSelected[index]=!typeSelected[index];
+                                  setState(() {});
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 18,vertical: 6),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(25),
+                                    color: typeSelected[index]?
+                                    themeController.isDarkMode? MateColors.appThemeDark:MateColors.appThemeLight:
+                                    themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                                  ),
+                                  child: Text(type[index].name,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontFamily: "Poppins",
+                                      color: themeController.isDarkMode?
+                                      typeSelected[index]?Colors.black:Colors.white:
+                                      typeSelected[index]?
+                                      Colors.white:Colors.black,
+                                    ),
+                                  ),
+                                ))
+                            ),
+                          ),
                           _submitButton(context),
                         ],
                       ),
@@ -313,13 +373,19 @@ class _CreateCampusTalkPostState extends State<CreateCampusTalkPost> {
       setState(() {
         isLoading = true;
       });
-      _formKey.currentState.save(); //it will trigger a onSaved(){} method on all TextEditingController();
-      bool posted= await Provider.of<CampusTalkProvider>(context, listen: false).uploadACampusTalkPost(_title, _description, isAnonymous);
+      _formKey.currentState.save();
+      List<String> uuid = [];
+      for(int i=0;i<typeSelected.length;i++){
+        if(typeSelected[i]){
+          uuid.add(type[i].uuid);
+        }
+      }
+      bool posted= await Provider.of<CampusTalkProvider>(context, listen: false).uploadACampusTalkPost(_title, _description, isAnonymous,uuid);
       setState(() {
         isLoading = false;
       });
       if(posted){
-        Provider.of<CampusTalkProvider>(context, listen: false).fetchCampusTalkPostList(page: 1);
+        Provider.of<CampusTalkProvider>(context, listen: false).fetchCampusTalkPostTendingList(page: 1);
         Navigator.pop(context);
       }
     }

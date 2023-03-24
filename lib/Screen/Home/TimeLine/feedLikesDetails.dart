@@ -1,16 +1,14 @@
+import 'package:get/get.dart';
 import 'package:mate_app/Providers/FeedProvider.dart';
 import 'package:mate_app/Screen/Profile/UserProfileScreen.dart';
-import 'package:mate_app/Utility/Utility.dart';
 import 'package:mate_app/Widget/Loaders/Shimmer.dart';
 import 'package:mate_app/asset/Colors/MateColors.dart';
 import 'package:mate_app/asset/Reactions/reactionsContants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sizer/sizer.dart';
 
 class FeedLikesDetails extends StatefulWidget {
   final int feedId;
-
   const FeedLikesDetails({Key key, this.feedId}) : super(key: key);
 
   @override
@@ -18,9 +16,7 @@ class FeedLikesDetails extends StatefulWidget {
 }
 
 class _FeedLikesDetailsState extends State<FeedLikesDetails> with TickerProviderStateMixin{
-
   TabController _tabController;
-
   List<Widget> _containers = [];
   List<Tab> _tabList = [];
   int totalTab=0;
@@ -32,17 +28,8 @@ class _FeedLikesDetailsState extends State<FeedLikesDetails> with TickerProvider
     Future.delayed(Duration.zero,(){
       FeedProvider fp = Provider.of<FeedProvider>(context, listen: false);
       fp.fetchLikeDetailsOfAFeed(widget.feedId).then((value) {
-
         _containers.add(mainList(fp));
         _tabList.add(Tab(text: "ALL  ${fp.likeDetailsFetchData.data.result.length} "));
-
-
-        // if(reactionTexts.length==0){
-        //   totalTab = 1;
-        //   setState(() {
-        //
-        //   });
-        // }
 
         for (int i = 0; i < reactionTexts.length; i++) {
           print(fp.likeDetailsFetchData.emojiGroups["$i"]);
@@ -52,7 +39,6 @@ class _FeedLikesDetailsState extends State<FeedLikesDetails> with TickerProvider
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  //Text("${reactionTexts[i]}  "),
                   Image.asset(
                     reactionImages[i],
                     width: 16,
@@ -70,13 +56,6 @@ class _FeedLikesDetailsState extends State<FeedLikesDetails> with TickerProvider
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    print('didchange dpend called');
-  }
-
-
-  @override
   void dispose() {
     _tabController.dispose();
     print('dispose called');
@@ -85,79 +64,101 @@ class _FeedLikesDetailsState extends State<FeedLikesDetails> with TickerProvider
 
   @override
   Widget build(BuildContext context) {
+    final scH = MediaQuery.of(context).size.height;
+    final scW = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        iconTheme: IconThemeData(
-          color: MateColors.activeIcons,
-        ),
-        title: Text(
-          "Reactions",
-          style: TextStyle(
-            color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-            fontWeight: FontWeight.w700,
-            fontSize: 17.0,
+      body: Container(
+        height: scH,
+        width: scW,
+        decoration: BoxDecoration(
+          color: themeController.isDarkMode?Color(0xFF000000):Colors.white,
+          image: DecorationImage(
+            image: AssetImage(themeController.isDarkMode?'lib/asset/Background.png':'lib/asset/BackgroundLight.png'),
+            fit: BoxFit.cover,
           ),
         ),
-        centerTitle: true,
-      ),
-      //backgroundColor: myHexColor,
-      body: Consumer<FeedProvider>(
-        builder: (ctx, feedProvider, _){
-
-          if(feedProvider.fetchLikeDetailsLoader){
-            return userListLoader();
-          }
-          else if (feedProvider.error != '') {
-            return Center(
-                child: Container(
-                    color: Colors.red,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        '${feedProvider.error}',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    )));
-
-          }else if(feedProvider.likeDetailsFetchData!=null){
-            return Column(
-              //crossAxisAlignment: CrossAxisAlignment.start,
-              //mainAxisSize: MainAxisSize.min,
-              children: [
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.0),
-                    border: Border(bottom: BorderSide(color: Color(0xFF65656B).withOpacity(0.2), width: 0.8)),
-                  ),
-                  child: TabBar(
-                    controller: _tabController,
-                    //isScrollable: totalTab>1?true:false,
-                    //unselectedLabelColor: Colors.grey,
-                    //indicatorColor: MateColors.activeIcons,
-                    //labelStyle: TextStyle(fontSize: 14.0),
-
-                    unselectedLabelColor: Color(0xFF656568),
-                    indicatorColor: MateColors.activeIcons,
-                    indicatorPadding: EdgeInsets.symmetric(horizontal: 20),
-                    labelColor: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                    labelStyle: TextStyle(fontSize: 15.0,fontFamily: "Poppins",fontWeight: FontWeight.w500),
-                    onTap: (int index) {
-                      print('on tap called');
-                      //feedProvider.fetchFeedList(page: 1, feedId: feedProvider.feedTypeList[index].id.toString());
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).size.height*0.07,
+                left: 16,
+                right: 16,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: (){
+                      Get.back();
                     },
-                    tabs: _tabList,
+                    child: Icon(Icons.arrow_back_ios,
+                      size: 20,
+                      color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
+                    ),
                   ),
-                ),
-                Expanded(
-                  child:
-                  TabBarView(controller: _tabController, children: _containers),
-                ),
-              ],
-            );
-          }
-          return Center(child: Text("No Data Found"),);
-        },
+                  Text(
+                    "Reactions",
+                    style: TextStyle(
+                      color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 17.0,
+                    ),
+                  ),
+                  SizedBox(),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Consumer<FeedProvider>(
+                builder: (ctx, feedProvider, _){
+                  if(feedProvider.fetchLikeDetailsLoader){
+                    return userListLoader();
+                  }
+                  else if (feedProvider.error != '') {
+                    return Center(
+                        child: Container(
+                            color: Colors.red,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                '${feedProvider.error}',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            )));
+
+                  }else if(feedProvider.likeDetailsFetchData!=null){
+                    return Column(
+                      children: [
+                        DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.0),
+                            border: Border(bottom: BorderSide(color: Color(0xFF65656B).withOpacity(0.2), width: 0.8)),
+                          ),
+                          child: TabBar(
+                            controller: _tabController,
+                            unselectedLabelColor: Color(0xFF656568),
+                            indicatorColor: MateColors.activeIcons,
+                            indicatorPadding: EdgeInsets.symmetric(horizontal: 20),
+                            labelColor: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            labelStyle: TextStyle(fontSize: 15.0,fontFamily: "Poppins",fontWeight: FontWeight.w500),
+                            onTap: (int index) {},
+                            tabs: _tabList,
+                          ),
+                        ),
+                        Expanded(
+                          child:
+                          TabBarView(controller: _tabController, children: _containers),
+                        ),
+                      ],
+                    );
+                  }
+                  return Center(child: Text("No Data Found"),);
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -190,7 +191,6 @@ class _FeedLikesDetailsState extends State<FeedLikesDetails> with TickerProvider
                       feedProvider.likeDetailsFetchData.data.result[index].user.profilePhoto,
                     ),
                   ),
-
                   Positioned(
                     right: -4,
                     top: 27,
@@ -207,9 +207,10 @@ class _FeedLikesDetailsState extends State<FeedLikesDetails> with TickerProvider
               ),
               title: Text(feedProvider.likeDetailsFetchData.data.result[index].user.displayName,
                 style: TextStyle(
-                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14.0,
+                  fontSize: 15,
+                  fontFamily: "Poppins",
+                  fontWeight: FontWeight.w600,
+                  color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
                 ),
               ),
             ),
@@ -246,7 +247,6 @@ class _FeedLikesDetailsState extends State<FeedLikesDetails> with TickerProvider
                       result[index]["user"]['profile_photo'],
                     ),
                   ),
-
                   Positioned(
                     right: -4,
                     top: 27,
@@ -263,9 +263,10 @@ class _FeedLikesDetailsState extends State<FeedLikesDetails> with TickerProvider
               ),
               title: Text(result[index]["user"]['display_name'],
                 style: TextStyle(
-                  color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14.0,
+                  fontSize: 15,
+                  fontFamily: "Poppins",
+                  fontWeight: FontWeight.w600,
+                  color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
                 ),
               ),
             ),
