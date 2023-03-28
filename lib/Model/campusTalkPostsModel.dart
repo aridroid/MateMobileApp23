@@ -65,10 +65,12 @@ class Result {
   String anonymousUser;
   int bookmarksCount;
   int likesCount;
+  int dislikesCount;
   int commentsCount;
   User user;
   IsBookmarked isBookmarked;
   IsLiked isLiked;
+  IsLiked isDisliked;
   bool bookmarkLoader=false;
   bool deleteLoader=false;
   bool upVoteLoader=false;
@@ -87,10 +89,12 @@ class Result {
         this.anonymousUser,
         this.bookmarksCount,
         this.likesCount,
+        this.dislikesCount,
         this.commentsCount,
         this.user,
         this.isBookmarked,
         this.isLiked,
+        this.isDisliked,
         this.bookmarkLoader,
         this.deleteLoader,
         this.upVoteLoader,
@@ -110,6 +114,7 @@ class Result {
     anonymousUser = json['anonymous_user'];
     bookmarksCount = json['bookmarks_count'];
     likesCount = json['likes_count'];
+    dislikesCount = json['dislikes_count'];
     commentsCount = json['comments_count'];
     user = json['user'] != null ? new User.fromJson(json['user']) : null;
     isBookmarked = json['is_bookmarked'] != null
@@ -117,6 +122,9 @@ class Result {
         : null;
     isLiked = json['is_liked'] != null
         ? new IsLiked.fromJson(json['is_liked'])
+        : null;
+    isDisliked = json['is_disliked'] != null
+        ? new IsLiked.fromJson(json['is_disliked'])
         : null;
     if (json['campus_talk_types'] != null) {
       campusTalkTypes = <CampusTalkTypes>[];
@@ -141,6 +149,7 @@ class Result {
     data['anonymous_user'] = this.anonymousUser;
     data['bookmarks_count'] = this.bookmarksCount;
     data['likes_count'] = this.likesCount;
+    data['dislikes_count'] = this.dislikesCount;
     data['comments_count'] = this.commentsCount;
     if (this.user != null) {
       data['user'] = this.user.toJson();
@@ -150,6 +159,9 @@ class Result {
     }
     if (this.isLiked != null) {
       data['is_liked'] = this.isLiked.toJson();
+    }
+    if (this.isDisliked != null) {
+      data['is_disliked'] = this.isDisliked.toJson();
     }
     if (this.campusTalkTypes != null) {
       data['campus_talk_types'] =

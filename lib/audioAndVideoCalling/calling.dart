@@ -389,7 +389,9 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
           },
           child: Container(
             decoration: BoxDecoration(
-              color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+              color: widget.callType == "Video Calling"?
+              themeController.isDarkMode?Colors.black.withOpacity(0.7):Colors.white.withOpacity(0.7):
+              themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
             ),
             child: SingleChildScrollView(
               controller: scrollController,
@@ -432,10 +434,10 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
                           child: Icon(
                             disableVideo ? Icons.videocam_off : Icons.videocam,
                             color: themeController.isDarkMode?Colors.white:Colors.black,
-                            size: 25.0,
+                            size: 30.0,
                           ),
                           shape: CircleBorder(),
-                          elevation: 2.0,
+                          elevation: 0.0,
                           fillColor: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
                           padding: const EdgeInsets.all(12.0),
                         ),
@@ -450,10 +452,10 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
                           child: Icon(
                             speakerOn ? Icons.volume_up : Icons.volume_off,
                             color: themeController.isDarkMode?Colors.white:Colors.black,
-                            size: 25.0,
+                            size: 30.0,
                           ),
                           shape: CircleBorder(),
-                          elevation: 2.0,
+                          elevation: 0.0,
                           fillColor: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
                           padding: const EdgeInsets.all(12.0),
                         ),
@@ -467,10 +469,10 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
                         child: Icon(
                           muted ? Icons.mic_off : Icons.mic,
                           color: themeController.isDarkMode?Colors.white:Colors.black,
-                          size: 25.0,
+                          size: 30.0,
                         ),
                         shape: CircleBorder(),
-                        elevation: 2.0,
+                        elevation: 0.0,
                         fillColor: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
                         padding: const EdgeInsets.all(12.0),
                       ),
@@ -480,10 +482,10 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
                           child: Icon(
                             Icons.switch_camera,
                             color: themeController.isDarkMode?Colors.white:Colors.black,
-                            size: 25.0,
+                            size: 30.0,
                           ),
                           shape: CircleBorder(),
-                          elevation: 2.0,
+                          elevation: 0.0,
                           fillColor: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
                           padding: const EdgeInsets.all(12.0),
                         ),
@@ -495,11 +497,18 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
                           size: 25.0,
                         ),
                         shape: CircleBorder(),
-                        elevation: 2.0,
-                        fillColor: Colors.redAccent,
-                        padding: const EdgeInsets.all(12.0),
+                        elevation: 0.0,
+                        fillColor: Color(0xFFF23324),
+                        padding: const EdgeInsets.all(15.0),
                       ),
                     ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16,bottom: 0,left: 16,right: 16),
+                    child: Divider(
+                      thickness: 1,
+                      color: themeController.isDarkMode?MateColors.dividerDark:MateColors.dividerLight,
+                    ),
                   ),
                   if(widget.isGroupCall==false)
                     Padding(

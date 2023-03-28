@@ -94,6 +94,8 @@ class _CampusDashboardState extends State<CampusDashboard> {
             likesCount: list.likesCount,
             commentsCount: list.commentsCount,
             isListCard: true,
+            disLikeCount: list.dislikesCount,
+            isDisLiked: list.isDisliked,
           ),
         ));
   }

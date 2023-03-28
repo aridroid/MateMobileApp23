@@ -321,7 +321,8 @@ class CampusTalkProvider extends ChangeNotifier{
     int page,
     bool paginationCheck=false,
     String searchType,
-    String text
+    String text,
+    String typeKey,
   }) async {
     error = '';
     _searchLoader = true;
@@ -334,9 +335,20 @@ class CampusTalkProvider extends ChangeNotifier{
 
     try {
       if(searchType=="Global"){
-        queryParams = {"page": page.toString(),"search_text":text};
+        queryParams = {
+          "page": page.toString(),
+          "search_text":text,
+          if(typeKey!="")
+            "type_name":typeKey,
+        };
       }else{
-        queryParams = {"page": page.toString(),"type": searchType,"search_text":text};
+        queryParams = {
+          "page": page.toString(),
+          "type": searchType,
+          "search_text":text,
+          if(typeKey!="")
+            "type_name":typeKey,
+        };
       }
 
 
@@ -571,6 +583,53 @@ class CampusTalkProvider extends ChangeNotifier{
     return true;
   }
 
+  Future<bool> downVoteAPost(
+      int postId,
+      int index,
+      {bool isBookmarkedPage=false,
+        bool isUserProfile=false,
+        bool isTrending = false,
+        bool isLatest = false,
+        bool isForums = false,
+        bool isYourCampus = false,
+        bool isListCard = false,
+        bool isSearch = false,
+      }
+      ) async {
+    error = '';
+    _likeAPostLoader = true;
+    isUserProfile?_campusTalkByUserPostsResultsList[index].upVoteLoader=true:
+    isBookmarkedPage?campusTalkPostsBookmarkData.data.result[index].upVoteLoader=true:
+    isTrending? _campusTalkPostsResultsTrendingList[index].upVoteLoader=true:
+    isLatest? _campusTalkPostsResultsLatestList[index].upVoteLoader=true:
+    isForums? _campusTalkPostsResultsForumsList[index].upVoteLoader=true:
+    isYourCampus? _campusTalkPostsResultsYourCampusList[index].upVoteLoader=true:
+    isListCard? _campusTalkPostsResultsListCard[index].upVoteLoader=true:
+    isSearch? _campusTalkBySearchList[index].upVoteLoader=true:
+    null;
+    var data;
+    try {
+      data = await _campusTalkService.downVoteAPost(postId);
+      _upVotePostData = data;
+    } catch (err) {
+      _setError(err);
+      return false;
+    } finally {
+      _likeAPostLoader = false;
+      isUserProfile?_campusTalkByUserPostsResultsList[index].upVoteLoader=false:
+      isBookmarkedPage?campusTalkPostsBookmarkData.data.result[index].upVoteLoader=false :
+      isTrending? _campusTalkPostsResultsTrendingList[index].upVoteLoader=false:
+      isLatest? _campusTalkPostsResultsLatestList[index].upVoteLoader=false:
+      isForums? _campusTalkPostsResultsForumsList[index].upVoteLoader=false:
+      isYourCampus? _campusTalkPostsResultsYourCampusList[index].upVoteLoader=false:
+      isListCard? _campusTalkPostsResultsListCard[index].upVoteLoader=false:
+      isSearch? _campusTalkBySearchList[index].upVoteLoader=false:
+      null;
+    }
+    notifyListeners();
+    return true;
+  }
+
 
   Future<bool> upVoteAPostComment({int commentId, int index, bool isReply=false, int replyIndex}) async {
     error = '';
@@ -769,7 +828,7 @@ class CampusTalkProvider extends ChangeNotifier{
 
   Future<bool> deleteACampusTalk(int postId, int index) async {
     error = '';
-    campusTalkPostsResultsTrendingList[index].deleteLoader=true;
+    //campusTalkPostsResultsTrendingList[index].deleteLoader=true;
     //campusTalkPostsModelData.data.result[index].deleteLoader=true;
     var data;
     try {
@@ -778,7 +837,7 @@ class CampusTalkProvider extends ChangeNotifier{
       _setError(err);
       return false;
     } finally {
-      campusTalkPostsResultsTrendingList[index].deleteLoader=false;
+      //campusTalkPostsResultsTrendingList[index].deleteLoader=false;
       //campusTalkPostsModelData.data.result[index].deleteLoader=false;
     }
     return true;

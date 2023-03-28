@@ -265,6 +265,9 @@ class BackEndAPIRoutes {
   Uri upVoteACampusTalk(int postId) =>
       Uri(scheme: _scheme, host: _host, path: '$_path/discussion/post/$postId/like');
 
+  Uri downVoteACampusTalk(int postId) =>
+      Uri(scheme: _scheme, host: _host, path: '$_path/discussion/post/$postId/dislike');
+
   Uri upVoteACampusTalkComment(int commentId) =>
       Uri(scheme: _scheme, host: _host, path: '$_path/discussion/comment/$commentId/like');
 

@@ -6,12 +6,16 @@ import 'package:mate_app/Providers/campusTalkProvider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mate_app/Model/campusTalkPostsModel.dart';
+import 'package:shimmer/shimmer.dart';
 
+import '../../../Services/campusTalkService.dart';
 import '../../../Widget/Home/Community/campusTalkRow.dart';
 import '../../../Widget/Loaders/Shimmer.dart';
+import '../../../Widget/searchShimmer.dart';
 import '../../../asset/Colors/MateColors.dart';
 import '../../../constant.dart';
 import '../../../controller/theme_controller.dart';
+import 'package:mate_app/Model/campusTalkTypeModel.dart' as campusTalkTypeModel;
 
 class CampusTalkSearch extends StatefulWidget {
   final String searchType;
@@ -30,6 +34,11 @@ class _CampusTalkSearchState extends State<CampusTalkSearch> {
   bool doingPagination = false;
   ScrollController _scrollController;
   CampusTalkProvider campusTalkProvider;
+  List<campusTalkTypeModel.Data> type = [];
+  CampusTalkService _campusTalkService = CampusTalkService();
+  bool isLoadingType = true;
+  List<bool> selected = [];
+  String typeKey = "";
 
   Timer _throttle;
   _onSearchChanged() {
@@ -49,6 +58,7 @@ class _CampusTalkSearchState extends State<CampusTalkSearch> {
       text: _textEditingController.text,
       searchType: widget.searchType,
       paginationCheck: false,
+      typeKey: typeKey,
     );
   }
 
@@ -90,6 +100,13 @@ class _CampusTalkSearchState extends State<CampusTalkSearch> {
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
     token = preferences.getString("token");
+    type = await _campusTalkService.getType(token: token);
+    for(int i=0;i<type.length;i++){
+      selected.add(false);
+    }
+    setState(() {
+      isLoadingType = false;
+    });
   }
 
   @override
@@ -178,6 +195,59 @@ class _CampusTalkSearchState extends State<CampusTalkSearch> {
                   ),
                 ),
               ),
+              !isLoadingType?
+              Container(
+                height: type.isNotEmpty?39:0,
+                margin: EdgeInsets.only(left: 16,top: 16),
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: type.length,
+                  itemBuilder: (context, index) => Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: InkWell(
+                      onTap: () {
+                        for(int i=0;i<selected.length;i++){
+                          if(i==index){
+                            selected[i] = true;
+                          }else{
+                            selected[i] = false;
+                          }
+                        }
+                        typeKey = type[index].name;
+                        _textEditingController.clear();
+                        setState(() {});
+                        fetchData();
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(25),
+                          color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 15,right: 15),
+                          child: Center(
+                            child: Text("${type[index].name}",
+                              style: TextStyle(
+                                fontFamily: "Poppins",
+                                fontSize: 15,
+                                color: themeController.isDarkMode?Colors.white:Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ):Container(
+                height: 55,
+                child: Shimmer.fromColors(
+                  baseColor: themeController.isDarkMode?Colors.white12:Colors.black12,
+                  highlightColor: themeController.isDarkMode?Colors.white54:Colors.black54,
+                  enabled: true,
+                  child: SearchShimmer(),
+                ),
+              ),
               Expanded(
                 child: Consumer<CampusTalkProvider>(
                   builder: (context,campusTalk,_){
@@ -214,6 +284,8 @@ class _CampusTalkSearchState extends State<CampusTalkSearch> {
                               commentsCount: campusTalkData.commentsCount,
                               isSearch: true,
                               campusTalkType: campusTalkData.campusTalkTypes,
+                              isDisLiked: campusTalkData.isDisliked,
+                              disLikeCount: campusTalkData.dislikesCount,
                             );
                           },
                         ):

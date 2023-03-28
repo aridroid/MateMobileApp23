@@ -146,13 +146,37 @@ class EventService{
 
 
 
-  Future<EventListingModel> getEventListing({String token,int page})async{
+  Future<EventListingModel> getEventListing({String token,int page,String filterDate,int filterType,String filterLocation})async{
     EventListingModel eventListingModel;
-    debugPrint("https://api.mateapp.us/api/events?page=$page");
     debugPrint(token);
     try {
+
+      final String _scheme = 'https';
+      final String _host = 'api.mateapp.us';
+      final String _path = 'api';
+
+      Map<String, dynamic> queryParams = {"page": page.toString()};
+
+      if (filterDate != "") {
+        queryParams["filter_date"] = filterDate;
+      }
+      if (filterType != 0) {
+        queryParams["filter_type"] = filterType.toString();
+      }
+      if (filterLocation != "") {
+        queryParams["filter_location"] = filterLocation;
+      }
+
+      Uri url = Uri(
+          scheme: _scheme,
+          host: _host,
+          path: '$_path/events',
+          queryParameters: queryParams);
+
+      debugPrint(url.toString());
+
       final response = await http.get(
-        Uri.parse("https://api.mateapp.us/api/events?page=$page"),
+        url,
         headers: {"Authorization": "Bearer" +token},);
       if (response.statusCode == 200) {
         var parsed = json.decode(utf8.decode(response.bodyBytes));

@@ -154,6 +154,23 @@ class CampusTalkService {
     }
   }
 
+  Future<dynamic> downVoteAPost(int postId) async {
+    try {
+      final response = await _apiService.post(
+          uri: _backEndAPIRoutes.downVoteACampusTalk(postId));
+
+      return CampusTalkPostsUpVoteModel.fromJson(json.decode(response.body));
+    } on SocketException catch (error) {
+      throw Exception('NO INTERNET :: $error');
+    } on ValidationFailureException catch (error) {
+      throw error;
+    } catch (error) {
+      print(
+          'error occurred fetching from ${_backEndAPIRoutes.upVoteACampusTalk(postId).toString()} :: $error');
+      throw Exception('$error');
+    }
+  }
+
   Future<dynamic> upVoteAPostComment(int commentId) async {
     try {
       final response = await _apiService.post(

@@ -17,6 +17,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../Model/eventCateoryModel.dart';
 import '../../../Providers/AuthUserProvider.dart';
 import '../../../Providers/FeedProvider.dart';
 import '../../../Widget/Loaders/Shimmer.dart';
@@ -69,10 +70,15 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
 
   List<String> filterDate = ['Today','This Week','This Month'];
   String filterDateValue = "";
+  String filterDateValueApi = "";
   List<String> filterLocation = ['On Campus','Off Campus','Virtual'];
   String filterLocationValue = "";
-  List<String> filterType = ['Conference','Festival','Party','Game','Networking','Performance','Rally','Retreat','Lecture','Seminar','Social','Class','Other'];
+  String filterLocationValueApi = "";
+  EventCategoryModel eventCategoryModel;
+  List<String> filterType = [];
+  List<int> categoryId = [];
   String filterTypeValue = "";
+  int filterTypeValueApi = 0;
 
   @override
   void didUpdateWidget(covariant EventDashBoard oldWidget) {
@@ -120,7 +126,7 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
             doingPagination = true;
           });
           print('scrolled to bottom page is now $page');
-          future = _eventService.getEventListing(page: page, token: token);
+          future = _eventService.getEventListing(page: page, filterDate: filterDateValueApi,filterLocation: filterLocationValueApi,filterType: filterTypeValueApi,token: token);
           future.then((value) {
             setState(() {
               enableFutureBuilder = true;
@@ -133,6 +139,7 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
   getStoredValue() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     token = preferences.getString("token");
+    getTypeListing();
     print('///////////////////////////');
     log(token);
     print('///////////////////////////');
@@ -142,7 +149,7 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
       page = 1;
     });
 
-    future = _eventService.getEventListing(page: page, token: token);
+    future = _eventService.getEventListing(page: page, filterDate: filterDateValueApi,filterLocation: filterLocationValueApi,filterType: filterTypeValueApi,token: token);
     future.then((value) {
       setState(() {
         enableFutureBuilder = true;
@@ -152,6 +159,15 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
     setState(() {
       refreshPageOnBottomClick = false;
     });
+  }
+
+  getTypeListing()async{
+    eventCategoryModel = await _eventService.getCategory(token: token);
+    for(int i=0;i<eventCategoryModel.data.length;i++){
+      categoryId.add(eventCategoryModel.data[i].id);
+      filterType.add(eventCategoryModel.data[i].name);
+    }
+    setState(() {});
   }
 
   void changeBookmark(int index) {
@@ -180,7 +196,7 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
     setState(() {
       page = 1;
     });
-    future = _eventService.getEventListing(page: page, token: token);
+    future = _eventService.getEventListing(page: page, filterDate: filterDateValueApi,filterLocation: filterLocationValueApi,filterType: filterTypeValueApi,token: token);
     future.then((value) {
       setState(() {
         doingPagination = false;
@@ -295,7 +311,7 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
             ),
             Container(
               height: 70,
-              margin: EdgeInsets.only(top: 10,left: 16,),
+              margin: EdgeInsets.only(top: 10,left: 0,),
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 shrinkWrap: true,
@@ -304,12 +320,8 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                 itemCount: 3,
                 itemBuilder: (context,index){
                   if(index==0){
-                    return
-
-
-
-                      Container(
-                      width: 220,
+                    return Container(
+                      width: 260,
                       child: Theme(
                         data: ThemeData(
                           textTheme: TextTheme(
@@ -371,10 +383,23 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                                     color: themeController.isDarkMode?Colors.white:Colors.black,
                                   ),
                                 ),
-                                trailing: Icon(
+                                trailing: filterDateValue==""?
+                                Icon(
                                   Icons.keyboard_arrow_down,
                                   size: 30,
                                   color: themeController.isDarkMode?Colors.white:Colors.black,
+                                ):GestureDetector(
+                                  onTap: (){
+                                    setState(() {
+                                      filterDateValue = "";
+                                      filterDateValueApi = "";
+                                    });
+                                    refreshPage();
+                                  },
+                                  child: Icon(Icons.clear,
+                                    size: 25,
+                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                  ),
                                 ),
                               ),
                             );
@@ -393,18 +418,27 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                             ),
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.only(top: 10),
+                            icon: Icon(Icons.add,size: 0,),
                           ),
                           onChanged: (value)async{
                             setState(() {
                               filterDateValue = value;
+                              if(filterDateValue=="Today"){
+                                filterDateValueApi = "today";
+                              }else if(filterDateValue=="This Week"){
+                                filterDateValueApi = "this_week";
+                              }else{
+                                filterDateValueApi = "this_month";
+                              }
                             });
+                            refreshPage();
                           },
                         ),
                       ),
                     );
                   }else if(index==1){
                     return Container(
-                      width: 250,
+                      width: 210,
                       child: Theme(
                         data: ThemeData(
                           textTheme: TextTheme(
@@ -466,10 +500,23 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                                     color: themeController.isDarkMode?Colors.white:Colors.black,
                                   ),
                                 ),
-                                trailing: Icon(
+                                trailing: filterLocationValue==""?
+                                Icon(
                                   Icons.keyboard_arrow_down,
                                   size: 30,
                                   color: themeController.isDarkMode?Colors.white:Colors.black,
+                                ):GestureDetector(
+                                  onTap: (){
+                                    setState(() {
+                                      filterLocationValue = "";
+                                      filterLocationValueApi = "";
+                                    });
+                                    refreshPage();
+                                  },
+                                  child: Icon(Icons.clear,
+                                    size: 25,
+                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                  ),
                                 ),
                               ),
                             );
@@ -487,11 +534,14 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                               color: themeController.isDarkMode?Colors.white:Colors.black,
                             ),
                             border: InputBorder.none,
+                            contentPadding: EdgeInsets.only(left: -40,top: 10),
                           ),
                           onChanged: (value)async{
                             setState(() {
                               filterLocationValue = value;
+                              filterLocationValueApi = filterLocationValue;
                             });
+                            refreshPage();
                           },
                         ),
                       ),
@@ -560,10 +610,23 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                                     color: themeController.isDarkMode?Colors.white:Colors.black,
                                   ),
                                 ),
-                                trailing: Icon(
+                                trailing: filterTypeValue==""?
+                                Icon(
                                   Icons.keyboard_arrow_down,
                                   size: 30,
                                   color: themeController.isDarkMode?Colors.white:Colors.black,
+                                ):GestureDetector(
+                                  onTap: (){
+                                    setState(() {
+                                      filterTypeValue = "";
+                                      filterTypeValueApi = 0;
+                                    });
+                                    refreshPage();
+                                  },
+                                  child: Icon(Icons.clear,
+                                    size: 25,
+                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                  ),
                                 ),
                               ),
                             );
@@ -581,11 +644,15 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                               color: themeController.isDarkMode?Colors.white:Colors.black,
                             ),
                             border: InputBorder.none,
+                            contentPadding: EdgeInsets.only(left: -40,top: 10),
                           ),
                           onChanged: (value)async{
                             setState(() {
                               filterTypeValue = value;
+                              int index = filterType.indexOf(filterTypeValue);
+                              filterTypeValueApi = categoryId[index];
                             });
+                            refreshPage();
                           },
                         ),
                       ),

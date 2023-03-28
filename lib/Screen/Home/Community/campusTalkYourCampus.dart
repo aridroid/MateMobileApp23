@@ -264,6 +264,8 @@ class _CampusTalkState extends State<CampusTalk> {
                 commentsCount: campusTalkData.commentsCount,
                 isYourCampus: true,
                 campusTalkType: campusTalkData.campusTalkTypes,
+                isDisLiked: campusTalkData.isDisliked,
+                disLikeCount: campusTalkData.dislikesCount,
               );
             },
           ),

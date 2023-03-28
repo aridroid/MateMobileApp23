@@ -24,7 +24,9 @@ class CampusTalkDetailsScreen extends StatefulWidget{
   final int rowIndex;
   final IsBookmarked isBookmarked;
   final IsLiked isLiked;
+  final IsLiked isDisLiked;
   int likesCount;
+  int disLikeCount;
   int commentsCount;
   final bool isBookmarkedPage;
   final bool isUserProfile;
@@ -48,6 +50,7 @@ class CampusTalkDetailsScreen extends StatefulWidget{
     this.isBookmarked, 
     this.isLiked, 
     this.likesCount,
+    this.disLikeCount,
     this.commentsCount,
     this.isBookmarkedPage=false,
     this.isUserProfile=false,
@@ -57,6 +60,7 @@ class CampusTalkDetailsScreen extends StatefulWidget{
     this.isYourCampus = false,
     this.isListCard = false,
     this.isSearch = false,
+    this.isDisLiked,
   }) : super(key: key);
 
   @override
@@ -69,11 +73,13 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreen>{
   ThemeController themeController = Get.find<ThemeController>();
   bool liked;
   bool bookMarked;
+  bool disLiked;
 
   @override
   void initState() {
     bookMarked = (widget.isBookmarked == null) ? false : true;
     liked = (widget.isLiked == null) ? false : true;
+    disLiked = (widget.isDisLiked == null) ? false : true;
     super.initState();
   }
 
@@ -382,6 +388,87 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreen>{
                                           }
                                           if(widget.isSearch){
                                             ++value.campusTalkBySearchResultsList[widget.rowIndex].likesCount;
+                                          }
+                                          setState(() {});
+                                        }
+                                      }
+                                  );
+                                },
+                              ),
+                              SizedBox(width: 10,),
+                              Consumer<CampusTalkProvider>(
+                                builder: (context, value, child) {
+                                  return InkWell(
+                                      child: Container(
+                                        height: 32,
+                                        width: 64,
+                                        decoration: BoxDecoration(
+                                          color: disLiked ?themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight:
+                                          themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                                          borderRadius: BorderRadius.circular(16),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Image.asset("lib/asset/icons/downArrow.png",
+                                              height: 20,
+                                              width: 13,
+                                              color:  themeController.isDarkMode?
+                                              disLiked? Colors.black:Colors.white:
+                                              disLiked? Colors.white: Colors.black,
+                                            ),
+                                            SizedBox(width: 5,),
+                                            Text("${widget.disLikeCount}",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w400,
+                                                fontSize: 14,
+                                                fontFamily: 'Poppins',
+                                                color: themeController.isDarkMode?
+                                                disLiked? Colors.black:Colors.white:
+                                                disLiked? Colors.white: Colors.black,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      onTap: () async {
+                                        disLiked=!disLiked;
+                                        bool likedDone = await Provider.of<CampusTalkProvider>(context, listen: false).downVoteAPost(
+                                          widget.talkId,
+                                          widget.rowIndex,
+                                          isBookmarkedPage: widget.isBookmarkedPage,
+                                          isUserProfile: widget.isUserProfile,
+                                          isTrending: widget.isTrending,
+                                          isLatest: widget.isLatest,
+                                          isForums: widget.isForums,
+                                          isYourCampus: widget.isYourCampus,
+                                          isListCard: widget.isListCard,
+                                          isSearch: widget.isSearch,
+                                        );
+                                        if (likedDone && disLiked) {
+                                          if(widget.isUserProfile){
+                                            ++value.campusTalkByUserPostsResultsList[widget.rowIndex].dislikesCount;
+                                          }
+                                          if(widget.isBookmarkedPage){
+                                            ++value.campusTalkPostsBookmarkData.data.result[widget.rowIndex].dislikesCount;
+                                          }
+                                          if(widget.isTrending){
+                                            ++value.campusTalkPostsResultsTrendingList[widget.rowIndex].dislikesCount;
+                                          }
+                                          if(widget.isLatest){
+                                            ++value.campusTalkPostsResultsLatestList[widget.rowIndex].dislikesCount;
+                                          }
+                                          if(widget.isForums){
+                                            ++value.campusTalkPostsResultsForumsList[widget.rowIndex].dislikesCount;
+                                          }
+                                          if(widget.isYourCampus){
+                                            ++value.campusTalkPostsResultsYourCampusList[widget.rowIndex].dislikesCount;
+                                          }
+                                          if(widget.isListCard){
+                                            ++value.campusTalkPostsResultsListCard[widget.rowIndex].dislikesCount;
+                                          }
+                                          if(widget.isSearch){
+                                            ++value.campusTalkBySearchResultsList[widget.rowIndex].dislikesCount;
                                           }
                                           setState(() {});
                                         }

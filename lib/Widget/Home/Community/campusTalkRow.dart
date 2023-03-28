@@ -32,7 +32,9 @@ class CampusTalkRow extends StatefulWidget {
   final int rowIndex;
   final IsBookmarked isBookmarked;
   final IsLiked isLiked;
+  final IsLiked isDisLiked;
   int likesCount;
+  int disLikeCount;
   int commentsCount;
   final bool isBookmarkedPage;
   final bool isUserProfile;
@@ -59,6 +61,7 @@ class CampusTalkRow extends StatefulWidget {
       this.isBookmarked,
       this.isLiked,
       this.likesCount,
+        this.disLikeCount,
       this.commentsCount,
       this.isBookmarkedPage = false,
       this.isUserProfile = false,
@@ -69,7 +72,7 @@ class CampusTalkRow extends StatefulWidget {
         this.isYourCampus = false,
         this.isListCard = false,
         this.isSearch = false,
-        this.campusTalkType,
+        this.campusTalkType, this.isDisLiked,
       })
       : super(key: key);
 
@@ -90,6 +93,7 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
 
   bool bookMarked;
   bool liked;
+  bool disLiked;
   CampusTalkProvider campusTalkProvider;
 
   @override
@@ -97,6 +101,7 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
     campusTalkProvider = Provider.of<CampusTalkProvider>(context, listen: false);
     bookMarked = (widget.isBookmarked == null) ? false : true;
     liked = (widget.isLiked == null) ? false : true;
+    disLiked = (widget.isDisLiked == null) ? false : true;
     super.initState();
   }
 
@@ -435,10 +440,10 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                             onTap: () async {
                               liked=!liked;
                               bool likedDone = await Provider.of<CampusTalkProvider>(context, listen: false).upVoteAPost(
-                                  widget.talkId,
-                                  widget.rowIndex,
-                                  isBookmarkedPage: widget.isBookmarkedPage,
-                                  isUserProfile: widget.isUserProfile,
+                                widget.talkId,
+                                widget.rowIndex,
+                                isBookmarkedPage: widget.isBookmarkedPage,
+                                isUserProfile: widget.isUserProfile,
                                 isTrending: widget.isTrending,
                                 isLatest: widget.isLatest,
                                 isForums: widget.isForums,
@@ -471,6 +476,87 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                                 }
                                 if(widget.isSearch){
                                   ++value.campusTalkBySearchResultsList[widget.rowIndex].likesCount;
+                                }
+                                setState(() {});
+                              }
+                            }
+                        );
+                      },
+                    ),
+                    SizedBox(width: 10,),
+                    Consumer<CampusTalkProvider>(
+                      builder: (context, value, child) {
+                        return InkWell(
+                            child: Container(
+                              height: 32,
+                              width: 64,
+                              decoration: BoxDecoration(
+                                color: disLiked ?themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight:
+                                themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset("lib/asset/icons/downArrow.png",
+                                    height: 20,
+                                    width: 13,
+                                    color:  themeController.isDarkMode?
+                                    disLiked? Colors.black:Colors.white:
+                                    disLiked? Colors.white: Colors.black,
+                                  ),
+                                  SizedBox(width: 5,),
+                                  Text("${widget.disLikeCount}",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 14,
+                                      fontFamily: 'Poppins',
+                                      color: themeController.isDarkMode?
+                                      disLiked? Colors.black:Colors.white:
+                                      disLiked? Colors.white: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            onTap: () async {
+                              disLiked=!disLiked;
+                              bool likedDone = await Provider.of<CampusTalkProvider>(context, listen: false).downVoteAPost(
+                                widget.talkId,
+                                widget.rowIndex,
+                                isBookmarkedPage: widget.isBookmarkedPage,
+                                isUserProfile: widget.isUserProfile,
+                                isTrending: widget.isTrending,
+                                isLatest: widget.isLatest,
+                                isForums: widget.isForums,
+                                isYourCampus: widget.isYourCampus,
+                                isListCard: widget.isListCard,
+                                isSearch: widget.isSearch,
+                              );
+                              if (likedDone && disLiked) {
+                                if(widget.isUserProfile){
+                                  ++value.campusTalkByUserPostsResultsList[widget.rowIndex].dislikesCount;
+                                }
+                                if(widget.isBookmarkedPage){
+                                  ++value.campusTalkPostsBookmarkData.data.result[widget.rowIndex].dislikesCount;
+                                }
+                                if(widget.isTrending){
+                                  ++value.campusTalkPostsResultsTrendingList[widget.rowIndex].dislikesCount;
+                                }
+                                if(widget.isLatest){
+                                  ++value.campusTalkPostsResultsLatestList[widget.rowIndex].dislikesCount;
+                                }
+                                if(widget.isForums){
+                                  ++value.campusTalkPostsResultsForumsList[widget.rowIndex].dislikesCount;
+                                }
+                                if(widget.isYourCampus){
+                                  ++value.campusTalkPostsResultsYourCampusList[widget.rowIndex].dislikesCount;
+                                }
+                                if(widget.isListCard){
+                                  ++value.campusTalkPostsResultsListCard[widget.rowIndex].dislikesCount;
+                                }
+                                if(widget.isSearch){
+                                  ++value.campusTalkBySearchResultsList[widget.rowIndex].dislikesCount;
                                 }
                                 setState(() {});
                               }
@@ -628,6 +714,8 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
               isYourCampus: widget.isYourCampus,
               isListCard: widget.isListCard,
               isSearch: widget.isSearch,
+              disLikeCount: widget.disLikeCount,
+              isDisLiked: widget.isDisLiked,
             ),
           ));
     }

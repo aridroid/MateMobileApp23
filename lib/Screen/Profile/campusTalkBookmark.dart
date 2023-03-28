@@ -53,6 +53,8 @@ class _CampusTalkBookmarkState extends State<CampusTalkBookmark> {
                   likesCount: campusTalkData.likesCount,
                   commentsCount: campusTalkData.commentsCount,
                   campusTalkType: campusTalkData.campusTalkTypes,
+                  isDisLiked: campusTalkData.isDisliked,
+                  disLikeCount: campusTalkData.dislikesCount,
                 );
               });
         }
