@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:mate_app/Exceptions/Custom_Exception.dart';
@@ -9,6 +11,8 @@ import 'package:mate_app/Model/campusTalkPostsUpVoteModel.dart';
 import 'package:mate_app/Services/campusTalkService.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart'as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CampusTalkProvider extends ChangeNotifier{
 
@@ -239,7 +243,7 @@ class CampusTalkProvider extends ChangeNotifier{
     }
   }
 
-  Future<void> fetchCampusTalkPostForumsList({int page, bool paginationCheck=false,}) async {
+  Future<void> fetchCampusTalkPostForumsList({int page, bool paginationCheck=false,String typeKey}) async {
     error = '';
     _talkPostForumsLoader = true;
 
@@ -249,7 +253,11 @@ class CampusTalkProvider extends ChangeNotifier{
     print('fetching $page');
 
     try {
-      Map<String, dynamic> queryParams = {"page": page.toString(),"type":"forums"};
+      Map<String, dynamic> queryParams = {
+        "page": page.toString(),
+        if(typeKey!="")
+          "type_name":typeKey,
+      };
 
       var data = await _campusTalkService.fetchCampusTalkPostList(queryParams);
       _campusTalkPostsModelDataForums = data;
@@ -488,50 +496,147 @@ class CampusTalkProvider extends ChangeNotifier{
 
 
 
-  Future<bool> uploadACampusTalkPost(String title, String description, bool isAnonymous,List<String> uuid) async {
+  Future<bool> uploadACampusTalkPost(String title, String description, bool isAnonymous,List<String> uuid,String photo,String video,String audio) async {
     error = '';
     _uploadPostLoader = true;
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token =  prefs.getString('token');
+
+    Map<String, String> headers = { "Authorization": "Bearer " + token,'Content-Type': 'application/json','accept': 'application/json'};
+    final request = new http.MultipartRequest('POST', Uri.parse("https://api.mateapp.us/api/discussion/post"));
+    request.headers.addAll(headers);
+
+    String uuidAsString = "";
+    for(int i=0;i<uuid.length;i++){
+      if(i==0){
+        uuidAsString = uuid[0];
+      }else{
+        uuidAsString = uuidAsString + "," + uuid[i];
+      }
+    }
+
+    request.fields['title'] = title;
+    request.fields['description'] = description;
+    request.fields['is_anonymous'] = isAnonymous?"1":"0";
+    if(uuid.isNotEmpty)
+      request.fields['campus_talk_type_id'] = uuidAsString;
+
+    if(photo!=null){
+      request.files.add(await http.MultipartFile.fromPath('photo',photo));
+    }
+    if(video!=null){
+      request.files.add(await http.MultipartFile.fromPath('video',video));
+    }
+    if(audio!=null){
+      request.files.add(await http.MultipartFile.fromPath('audio',audio));
+    }
+
     try {
-      var data = await _campusTalkService.postACampusTalk({
-        "title":title,
-        "description": description,
-        "is_anonymous":isAnonymous,
-        if(uuid.isNotEmpty)
-          "campus_talk_type_id":uuid,
+      // var data = await _campusTalkService.postACampusTalk({
+      //   "title":title,
+      //   "description": description,
+      //   "is_anonymous":isAnonymous,
+      //   if(uuid.isNotEmpty)
+      //     "campus_talk_type_id":uuid,
+      // });
+      var response = await request.send();
+      response.stream.transform(utf8.decoder).listen((value) {
+        log(value);
       });
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      }else{
+        return false;
+      }
     } catch (err) {
       _setError(err);
       return false;
     } finally {
       _uploadPostLoader = false;
     }
-    return true;
   }
 
-  Future<bool> updateACampusTalkPost(int id,String title, String description, bool isAnonymous,String anonymousUser,List<String> uuid) async {
+  Future<bool> updateACampusTalkPost(
+      int id,String title, String description,
+      bool isAnonymous,String anonymousUser,List<String> uuid,
+      String photo,String video,String audio,
+      bool isImageDeleted, bool isVideoDeleted, bool isAudioDeleted,
+      ) async {
     error = '';
     _uploadPostLoader = true;
-    try {
-      var data = await _campusTalkService.updateACampusTalk(
-          {
-            "title":title,
-            "description": description,
-            "is_anonymous":isAnonymous,
-            if(anonymousUser!=null)
-              "anonymous_user":anonymousUser,
-            if(uuid.isNotEmpty)
-              "campus_talk_type_id":uuid,
 
-          },
-        id,
-      );
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token =  prefs.getString('token');
+
+    Map<String, String> headers = { "Authorization": "Bearer " + token,'Content-Type': 'application/json','accept': 'application/json'};
+    final request = new http.MultipartRequest('POST', Uri.parse("https://api.mateapp.us/api/discussion/post/$id/update"));
+    request.headers.addAll(headers);
+
+    String uuidAsString = "";
+    for(int i=0;i<uuid.length;i++){
+      if(i==0){
+        uuidAsString = uuid[0];
+      }else{
+        uuidAsString = uuidAsString + "," + uuid[i];
+      }
+    }
+
+    request.fields['title'] = title;
+    request.fields['description'] = description;
+    request.fields['is_anonymous'] = isAnonymous?"1":"0";
+    if(uuid.isNotEmpty)
+      request.fields['campus_talk_type_id'] = uuidAsString;
+    if(anonymousUser!=null)
+      request.fields['anonymous_user'] = anonymousUser;
+    if(isImageDeleted)
+      request.fields['delete_photo'] = "1";
+    if(isVideoDeleted)
+      request.fields['delete_video'] = "1";
+    if(isAudioDeleted)
+      request.fields['delete_audio'] = "1";
+
+
+    if(photo!=null){
+      request.files.add(await http.MultipartFile.fromPath('photo',photo));
+    }
+    if(video!=null){
+      request.files.add(await http.MultipartFile.fromPath('video',video));
+    }
+    if(audio!=null){
+      request.files.add(await http.MultipartFile.fromPath('audio',audio));
+    }
+
+
+    try {
+      // var data = await _campusTalkService.updateACampusTalk(
+      //     {
+      //       "title":title,
+      //       "description": description,
+      //       "is_anonymous":isAnonymous,
+      //       if(anonymousUser!=null)
+      //         "anonymous_user":anonymousUser,
+      //       if(uuid.isNotEmpty)
+      //         "campus_talk_type_id":uuid,
+      //
+      //     },
+      //   id,
+      // );
+      var response = await request.send();
+      response.stream.transform(utf8.decoder).listen((value) {
+        log(value);
+      });
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      }else{
+        return false;
+      }
     } catch (err) {
       _setError(err);
       return false;
     } finally {
       _uploadPostLoader = false;
     }
-    return true;
   }
 
 

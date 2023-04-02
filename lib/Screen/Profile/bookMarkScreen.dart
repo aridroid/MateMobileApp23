@@ -393,7 +393,19 @@ class _BookmarkScreenState extends State<BookmarkScreen> with TickerProviderStat
                 },
                 children: [
                   FeedsBookmark(),
-                  Container(),
+                  Container(
+                    child: Center(
+                      child: Text(
+                        "Coming soon",
+                        style: TextStyle(
+                          color: themeController.isDarkMode ? Colors.white : Colors.black,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Poppins',
+                          fontSize: 18.0,
+                        ),
+                      ),
+                    ),
+                  ),
                   EventBookmark(),
                   CampusTalkBookmark(),
                 ],

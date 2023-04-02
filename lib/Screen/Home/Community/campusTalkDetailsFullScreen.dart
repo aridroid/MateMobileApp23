@@ -1,16 +1,24 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:mate_app/Screen/Profile/UserProfileScreen.dart';
 import 'package:mate_app/Model/campusTalkPostsModel.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import '../../../Providers/AuthUserProvider.dart';
 import '../../../Providers/campusTalkProvider.dart';
+import '../../../Widget/mediaViewer.dart';
+import '../../../Widget/video_thumbnail.dart';
 import '../../../asset/Colors/MateColors.dart';
 import '../../../controller/theme_controller.dart';
 import '../../Profile/ProfileScreen.dart';
 import '../../Report/reportPage.dart';
 import 'campusTalkComments.dart';
+import 'package:http/http.dart'as http;
 
 class CampusTalkDetailsScreen extends StatefulWidget{
   final User user;
@@ -36,6 +44,10 @@ class CampusTalkDetailsScreen extends StatefulWidget{
   final bool isYourCampus;
   final bool isListCard;
   final bool isSearch;
+  final String image;
+  final String video;
+  final String audio;
+
 
   CampusTalkDetailsScreen({Key key, 
     this.user, 
@@ -61,6 +73,7 @@ class CampusTalkDetailsScreen extends StatefulWidget{
     this.isListCard = false,
     this.isSearch = false,
     this.isDisLiked,
+    this.image,this.video,this.audio
   }) : super(key: key);
 
   @override
@@ -74,13 +87,176 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreen>{
   bool liked;
   bool bookMarked;
   bool disLiked;
+  CampusTalkProvider campusTalkProvider;
+
+  final audioPlayer = AudioPlayer();
+  bool isPlaying = false;
+  bool isPause = false;
+  bool isLoadingAudio = false;
+
+  Future<void> startAudio(String url) async {
+    if(isPause==true){
+      isPlaying = false;
+      isPause = false;
+      audioPlayer.play();
+      setState(() {
+        isPlaying = true;
+      });
+      audioPlayer.playerStateStream.listen((state) {
+        if (state.processingState == ProcessingState.completed) {
+          setState(() {
+            isPlaying = false;
+            isPause = false;
+          });
+        }
+      });
+
+      audioPlayer.positionStream.listen((event) {
+        setState(() {
+          // currentDuration = event;
+        });
+      });
+
+    }else{
+      try{
+        audioPlayer.playerStateStream.listen((state) {
+          if (state.processingState == ProcessingState.completed) {
+            setState(() {
+              isPlaying = false;
+              isPause = false;
+            });
+          }
+        });
+
+        audioPlayer.positionStream.listen((event) {
+          setState(() {
+            //currentDuration = event;
+          });
+        });
+
+        audioPlayer.stop();
+
+        if(widget.isBookmarkedPage){
+          for(int i=0;i<campusTalkProvider.campusTalkPostsBookmarkData.data.result.length;i++){
+            campusTalkProvider.campusTalkPostsBookmarkData.data.result[i].isPlaying = false;
+          }
+        }
+        if(widget.isUserProfile){
+          for(int i=0;i<campusTalkProvider.campusTalkByUserPostsResultsList.length;i++){
+            campusTalkProvider.campusTalkByUserPostsResultsList[i].isPlaying = false;
+          }
+        }
+        if(widget.isTrending){
+          for(int i=0;i<campusTalkProvider.campusTalkPostsResultsTrendingList.length;i++){
+            campusTalkProvider.campusTalkPostsResultsTrendingList[i].isPlaying = false;
+          }
+        }
+        if(widget.isLatest){
+          for(int i=0;i<campusTalkProvider.campusTalkPostsResultsLatestList.length;i++){
+            campusTalkProvider.campusTalkPostsResultsLatestList[i].isPlaying = false;
+          }
+        }
+        if(widget.isForums){
+          for(int i=0;i<campusTalkProvider.campusTalkPostsResultsForumsList.length;i++){
+            campusTalkProvider.campusTalkPostsResultsForumsList[i].isPlaying = false;
+          }
+        }
+        if(widget.isYourCampus){
+          for(int i=0;i<campusTalkProvider.campusTalkPostsResultsYourCampusList.length;i++){
+            campusTalkProvider.campusTalkPostsResultsYourCampusList[i].isPlaying = false;
+          }
+        }
+        if(widget.isListCard){
+          for(int i=0;i<campusTalkProvider.campusTalkPostsResultsListCard.length;i++){
+            campusTalkProvider.campusTalkPostsResultsListCard[i].isPlaying = false;
+          }
+        }
+        if(widget.isSearch){
+          for(int i=0;i<campusTalkProvider.campusTalkBySearchResultsList.length;i++){
+            campusTalkProvider.campusTalkBySearchResultsList[i].isPlaying = false;
+          }
+        }
+        
+        setState(() {});
+
+        var dir = await getApplicationDocumentsDirectory();
+        var filePathAndName = dir.path + "/audios/" +url.split("/").last + ".mp3";
+        if(File(filePathAndName).existsSync()){
+          print("------File Already Exist-------");
+          print(filePathAndName);
+          await audioPlayer.setFilePath(filePathAndName);
+          audioPlayer.play();
+          setState(() {
+            isPlaying = true;
+          });
+        }else{
+          setState(() {
+            isLoadingAudio = true;
+          });
+
+          String path = await downloadAudio(url);
+
+          setState(() {
+            isLoadingAudio = false;
+          });
+
+          if(path !=""){
+            await audioPlayer.setFilePath(path);
+            audioPlayer.play();
+            setState(() {
+              isPlaying = true;
+            });
+          }else{
+            Fluttertoast.showToast(msg: "Something went wrong while playing audio please try again!", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+          }
+        }
+
+      }catch(e){
+        print("Error loading audio source: $e");
+      }
+    }
+  }
+
+  void pauseAudio(int index)async{
+    audioPlayer.pause();
+    setState(() {
+      isPlaying = false;
+      isPause = true;
+    });
+  }
+
+  Future<String> downloadAudio(String url)async{
+    var dir = await getApplicationDocumentsDirectory();
+    var firstPath = dir.path + "/audios";
+    var filePathAndName = dir.path + "/audios/" +url.split("/").last + ".mp3";
+    await Directory(firstPath).create(recursive: true);
+    File file = new File(filePathAndName);
+    try{
+      var request = await http.get(Uri.parse(url));
+      print(request.statusCode);
+      var res = await file.writeAsBytes(request.bodyBytes);
+      print("---File Path----");
+      print(res.path);
+      return res.path;
+    }catch(e){
+      print(e);
+      return "";
+    }
+  }
 
   @override
   void initState() {
+    campusTalkProvider = Provider.of<CampusTalkProvider>(context,listen: false);
     bookMarked = (widget.isBookmarked == null) ? false : true;
     liked = (widget.isLiked == null) ? false : true;
     disLiked = (widget.isDisLiked == null) ? false : true;
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    audioPlayer.dispose();
+    super.dispose();
   }
 
   @override
@@ -322,6 +498,101 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreen>{
                         ),
                       ),
                     ),
+
+                    if(widget.audio!=null)
+                    Container(
+                      height: 82,
+                      margin: EdgeInsets.only(top: 16,left: 16,right: 16),
+                      padding: EdgeInsets.only(left: 16,right: 16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        color: themeController.isDarkMode?Colors.white.withOpacity(0.06):MateColors.containerLight,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                          Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                          Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                          Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                          Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                          Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                          Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                          Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                          SizedBox(width: 20,),
+                          GestureDetector(
+                            onTap: (){
+                              if(isLoadingAudio==false){
+                                isPlaying ? pauseAudio(widget.rowIndex): startAudio(widget.audio);
+                              }
+                            },
+                            child: Container(
+                              height: 34,
+                              width: 34,
+                              margin: EdgeInsets.only(left: 10),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: themeController.isDarkMode?Colors.white.withOpacity(0.23):Colors.white.withOpacity(0.5),
+                              ),
+                              alignment: Alignment.center,
+                              child: isLoadingAudio?
+                              Center(
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                                ),
+                              ):
+                              Icon(
+                                isPlaying?
+                                Icons.pause:Icons.play_arrow,
+                                size: 25,
+                                color: themeController.isDarkMode?Color(0xFF67AE8C):Color(0xFF049571),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    if(widget.image!=null || widget.video!=null)
+                      Container(
+                        height: 150,
+                        margin: EdgeInsets.only(bottom: 0.0, left: 16, right: 16, top: 10),
+                        child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            shrinkWrap: true,
+                            physics: BouncingScrollPhysics(),
+                            itemCount: widget.image!=null && widget.video!=null? 2 : widget.image!=null?1:widget.video!=null?1:0,
+                            itemBuilder: (context,indexSwipe){
+                              if(indexSwipe==0){
+                                return
+                                  widget.image!=null?
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 0.0, left: 0, right: 0, top: 10),
+                                    child: Container(
+                                      height: 150,
+                                      width: MediaQuery.of(context).size.width/1.1,
+                                      child: InkWell(
+                                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>MediaViewer(url: widget.image,))),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(12.0),
+                                          clipBehavior: Clip.hardEdge,
+                                          child: Image.network(
+                                            widget.image,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ):widget.video!=null?
+                                  VideoThumbnail(videoUrl: widget.video,isLeftPadding: false,):Container();
+                              }else{
+                                return  widget.video!=null?
+                                VideoThumbnail(videoUrl: widget.video):Container();
+                              }
+                            }
+                        ),
+                      ),
+
                     Padding(
                       padding: const EdgeInsets.only(left: 16,right: 16,top: 25),
                       child: Row(

@@ -1,6 +1,7 @@
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mate_app/Screen/Home/Community/campusTalkForums.dart';
 import 'package:mate_app/Screen/Home/Community/campusTalkLatest.dart';
 import 'package:mate_app/Screen/Home/Community/campusTalkYourCampus.dart';
 import 'package:provider/provider.dart';
@@ -96,6 +97,9 @@ class _CampusDashboardState extends State<CampusDashboard> {
             isListCard: true,
             disLikeCount: list.dislikesCount,
             isDisLiked: list.isDisliked,
+            image: list.photoUrl,
+            video: list.videoUrl,
+            audio: list.audioUrl,
           ),
         ));
   }
@@ -325,6 +329,7 @@ class _CampusDashboardState extends State<CampusDashboard> {
                            children: [
                              GestureDetector(
                                onTap: () {
+                                 Get.to(()=>CampusTalkScreenForums());
                                },
                                child: Container(
                                  height: 140,

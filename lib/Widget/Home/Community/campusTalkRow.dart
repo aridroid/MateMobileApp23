@@ -19,6 +19,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controller/theme_controller.dart';
+import '../../mediaViewer.dart';
+import '../../video_thumbnail.dart';
 
 class CampusTalkRow extends StatefulWidget {
   final User user;
@@ -46,6 +48,14 @@ class CampusTalkRow extends StatefulWidget {
   final bool isListCard;
   final bool isSearch;
   final List<CampusTalkTypes> campusTalkType;
+  final String image;
+  final String video;
+  final String audio;
+  final bool isPlaying;
+  final bool isPaused;
+  final bool isLoadingAudio;
+  Function(String url,int index) startAudio;
+  Function(int index) pauseAudio;
 
   CampusTalkRow(
       {Key key,
@@ -73,6 +83,12 @@ class CampusTalkRow extends StatefulWidget {
         this.isListCard = false,
         this.isSearch = false,
         this.campusTalkType, this.isDisLiked,
+        this.image,this.video,this.audio,
+        this.isPlaying,
+        this.isPaused,
+        this.isLoadingAudio,
+        this.startAudio,
+        this.pauseAudio,
       })
       : super(key: key);
 
@@ -233,6 +249,9 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                           isListCard: widget.isListCard,
                           user: widget.user,
                           campusTalkTypes: widget.campusTalkType,
+                          image: widget.image,
+                          video: widget.video,
+                          audio: widget.audio,
                         ),
                       ));
                 }
@@ -395,6 +414,104 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
               ),
             ),
           ),
+
+          if(widget.audio != null)
+          Container(
+            height: 82,
+            margin: EdgeInsets.only(top: 16,left: 16,right: 16),
+            padding: EdgeInsets.only(left: 16,right: 16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              color: themeController.isDarkMode?Colors.white.withOpacity(0.06):MateColors.containerLight,
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                SizedBox(width: 20,),
+                GestureDetector(
+                  onTap: (){
+                    if(widget.isLoadingAudio==false){
+                      widget.isPlaying ? widget.pauseAudio(widget.rowIndex): widget.startAudio(widget.audio,widget.rowIndex);
+                    }
+                  },
+                  child: Container(
+                    height: 34,
+                    width: 34,
+                    margin: EdgeInsets.only(left: 10),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: themeController.isDarkMode?Colors.white.withOpacity(0.23):Colors.white.withOpacity(0.5),
+                    ),
+                    alignment: Alignment.center,
+                    child: widget.isLoadingAudio?
+                    Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                      ),
+                    ):
+                    Icon(
+                      widget.isPlaying?
+                      Icons.pause:Icons.play_arrow,
+                      size: 25,
+                      color: themeController.isDarkMode?Color(0xFF67AE8C):Color(0xFF049571),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          if(widget.image != null || widget.video != null)
+            Container(
+              height: 150,
+              margin: EdgeInsets.only(bottom: 0.0, left: 16, right: 16, top: 10),
+              child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  shrinkWrap: true,
+                  physics: BouncingScrollPhysics(),
+                  itemCount: widget.image != null && widget.video != null ? 2 : widget.image != null ? 1 : widget.video != null ? 1 : 0,
+                  itemBuilder: (context, indexSwipe) {
+                    if (indexSwipe == 0) {
+                      return
+                        widget.image != null ?
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 0.0, left: 0, right: 0, top: 10),
+                          child: Container(
+                            height: 150,
+                            width: MediaQuery
+                                .of(context)
+                                .size
+                                .width / 1.2,
+                            child: InkWell(
+                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => MediaViewer(url: widget.image,))),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12.0),
+                                clipBehavior: Clip.hardEdge,
+                                child: Image.network(
+                                  widget.image,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ) : widget.video != null ?
+                        VideoThumbnail(videoUrl: widget.video, isLeftPadding: false,) : Container();
+                    } else {
+                      return widget.video != null ?
+                      VideoThumbnail(videoUrl: widget.video) : Container();
+                    }
+                  }
+              ),
+            ),
+
           Padding(
             padding: const EdgeInsets.only(left: 16,right: 16,top: 25),
             child: Row(
@@ -716,6 +833,9 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
               isSearch: widget.isSearch,
               disLikeCount: widget.disLikeCount,
               isDisLiked: widget.isDisLiked,
+              image: widget.image,
+              video: widget.video,
+              audio: widget.audio,
             ),
           ));
     }

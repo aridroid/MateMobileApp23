@@ -61,7 +61,9 @@ class _ExploreState extends State<Explore> {
             fit: BoxFit.cover,
           ),
         ),
-        child: Column(
+        child:
+
+        Column(
           children: [
             Padding(
               padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.07,),
@@ -77,193 +79,204 @@ class _ExploreState extends State<Explore> {
                 ),
               ),
             ),
-            Padding(
-              padding: EdgeInsets.only(top: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        margin: EdgeInsets.only(left: 16),
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        padding: EdgeInsets.only(left: 16,right: 16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text("Search here...",
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
-                              ),
-                            ),
-                            Container(
-                              height: 36,
-                              width: 36,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(14),
-                                color: themeController.isDarkMode?MateColors.textFieldSearchDark:MateColors.textFieldSearchLight,
-                              ),
-                              alignment: Alignment.center,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Image.asset(
-                                  "lib/asset/homePageIcons/searchPurple@3x.png",
-                                  color: themeController.isDarkMode?Colors.white:MateColors.blackText,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 16,),
-                  InkWell(
-                    onTap: () async {},
-                    child: Container(
-                      height: 60,
-                      width: 60,
-                      margin: EdgeInsets.only(right: 16),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
-                      ),
-                      child: Icon(Icons.add, color: MateColors.blackTextColor, size: 28),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            // Padding(
+            //   padding: EdgeInsets.only(top: 20),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //     children: [
+            //       Expanded(
+            //         child: GestureDetector(
+            //           onTap: () {},
+            //           child: Container(
+            //             margin: EdgeInsets.only(left: 16),
+            //             height: 60,
+            //             decoration: BoxDecoration(
+            //               color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+            //               borderRadius: BorderRadius.circular(20),
+            //             ),
+            //             padding: EdgeInsets.only(left: 16,right: 16),
+            //             child: Row(
+            //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //               children: [
+            //                 Text("Search here...",
+            //                   overflow: TextOverflow.ellipsis,
+            //                   style: TextStyle(
+            //                     fontSize: 14,
+            //                     color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
+            //                   ),
+            //                 ),
+            //                 Container(
+            //                   height: 36,
+            //                   width: 36,
+            //                   decoration: BoxDecoration(
+            //                     borderRadius: BorderRadius.circular(14),
+            //                     color: themeController.isDarkMode?MateColors.textFieldSearchDark:MateColors.textFieldSearchLight,
+            //                   ),
+            //                   alignment: Alignment.center,
+            //                   child: Padding(
+            //                     padding: const EdgeInsets.all(8.0),
+            //                     child: Image.asset(
+            //                       "lib/asset/homePageIcons/searchPurple@3x.png",
+            //                       color: themeController.isDarkMode?Colors.white:MateColors.blackText,
+            //                     ),
+            //                   ),
+            //                 ),
+            //               ],
+            //             ),
+            //           ),
+            //         ),
+            //       ),
+            //       SizedBox(width: 16,),
+            //       InkWell(
+            //         onTap: () async {},
+            //         child: Container(
+            //           height: 60,
+            //           width: 60,
+            //           margin: EdgeInsets.only(right: 16),
+            //           decoration: BoxDecoration(
+            //             borderRadius: BorderRadius.circular(20),
+            //             color: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+            //           ),
+            //           child: Icon(Icons.add, color: MateColors.blackTextColor, size: 28),
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(
-                        left: 16,
-                        right: 16,
-                        top: 25,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Recommended',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontFamily: "Poppins",
-                              fontWeight: FontWeight.w600,
-                              overflow: TextOverflow.ellipsis,
-                              color: themeController.isDarkMode?Colors.white:Colors.black,
-                            ),
-                          ),
-                          Text('See more',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontFamily: "Poppins",
-                              fontWeight: FontWeight.w300,
-                              color: themeController.isDarkMode?Colors.white:Colors.black,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      height: MediaQuery.of(context).size.height*0.27,
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        physics: ScrollPhysics(),
-                        padding: EdgeInsets.only(left: 16,right: 16,top: 16),
-                        itemCount: 3,
-                        itemBuilder: (context,index){
-                          return Padding(
-                            padding: EdgeInsets.only(
-                              left: index==0?0:16,
-                            ),
-                            child: Image.asset('lib/asset/iconsNewDesign/testSlider2.png'),
-                          );
-                        },
-                      ),
-                    ),
-                    Container(
-                      height: MediaQuery.of(context).size.height*0.135,
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        physics: ScrollPhysics(),
-                        padding: EdgeInsets.only(left: 16,right: 16,),
-                        itemCount: 3,
-                        itemBuilder: (context,index){
-                          return Padding(
-                            padding: EdgeInsets.only(
-                              left: index==0?0:16,
-                            ),
-                            child: customContainerRow(image[index], text[index]),
-                          );
-                        },
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(
-                        left: 16,
-                        right: 16,
-                        top: 16,
-                        //bottom: 16,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Popular',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontFamily: "Poppins",
-                              fontWeight: FontWeight.w600,
-                              overflow: TextOverflow.ellipsis,
-                              color: themeController.isDarkMode?Colors.white:Colors.black,
-                            ),
-                          ),
-                          Text('See more',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontFamily: "Poppins",
-                              fontWeight: FontWeight.w300,
-                              color: themeController.isDarkMode?Colors.white:Colors.black,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      height: MediaQuery.of(context).size.height*0.25,
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        physics: ScrollPhysics(),
-                        padding: EdgeInsets.only(left: 16,right: 16),
-                        itemCount: 3,
-                        itemBuilder: (context,index){
-                          return Padding(
-                            padding: EdgeInsets.only(
-                              left: index==0?0:16,
-                            ),
-                            child: customContainer(image[index], text[index]),
-                          );
-                        },
-                      ),
-                    ),
-                    SizedBox(
-                      height: 40,
-                    ),
-                  ],
+              child: Center(
+                child: Text(
+                  "Coming soon",
+                  style: TextStyle(
+                    color: themeController.isDarkMode ? Colors.white : Colors.black,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Poppins',
+                    fontSize: 18.0,
+                  ),
                 ),
               ),
+              // SingleChildScrollView(
+              //   child: Column(
+              //     children: [
+              //       Padding(
+              //         padding: EdgeInsets.only(
+              //           left: 16,
+              //           right: 16,
+              //           top: 25,
+              //         ),
+              //         child: Row(
+              //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //           children: [
+              //             Text('Recommended',
+              //               style: TextStyle(
+              //                 fontSize: 18,
+              //                 fontFamily: "Poppins",
+              //                 fontWeight: FontWeight.w600,
+              //                 overflow: TextOverflow.ellipsis,
+              //                 color: themeController.isDarkMode?Colors.white:Colors.black,
+              //               ),
+              //             ),
+              //             Text('See more',
+              //               style: TextStyle(
+              //                 fontSize: 14,
+              //                 fontFamily: "Poppins",
+              //                 fontWeight: FontWeight.w300,
+              //                 color: themeController.isDarkMode?Colors.white:Colors.black,
+              //               ),
+              //             ),
+              //           ],
+              //         ),
+              //       ),
+              //       Container(
+              //         height: MediaQuery.of(context).size.height*0.27,
+              //         child: ListView.builder(
+              //           shrinkWrap: true,
+              //           scrollDirection: Axis.horizontal,
+              //           physics: ScrollPhysics(),
+              //           padding: EdgeInsets.only(left: 16,right: 16,top: 16),
+              //           itemCount: 3,
+              //           itemBuilder: (context,index){
+              //             return Padding(
+              //               padding: EdgeInsets.only(
+              //                 left: index==0?0:16,
+              //               ),
+              //               child: Image.asset('lib/asset/iconsNewDesign/testSlider2.png'),
+              //             );
+              //           },
+              //         ),
+              //       ),
+              //       Container(
+              //         height: MediaQuery.of(context).size.height*0.135,
+              //         child: ListView.builder(
+              //           shrinkWrap: true,
+              //           scrollDirection: Axis.horizontal,
+              //           physics: ScrollPhysics(),
+              //           padding: EdgeInsets.only(left: 16,right: 16,),
+              //           itemCount: 3,
+              //           itemBuilder: (context,index){
+              //             return Padding(
+              //               padding: EdgeInsets.only(
+              //                 left: index==0?0:16,
+              //               ),
+              //               child: customContainerRow(image[index], text[index]),
+              //             );
+              //           },
+              //         ),
+              //       ),
+              //       Padding(
+              //         padding: EdgeInsets.only(
+              //           left: 16,
+              //           right: 16,
+              //           top: 16,
+              //           //bottom: 16,
+              //         ),
+              //         child: Row(
+              //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //           children: [
+              //             Text('Popular',
+              //               style: TextStyle(
+              //                 fontSize: 18,
+              //                 fontFamily: "Poppins",
+              //                 fontWeight: FontWeight.w600,
+              //                 overflow: TextOverflow.ellipsis,
+              //                 color: themeController.isDarkMode?Colors.white:Colors.black,
+              //               ),
+              //             ),
+              //             Text('See more',
+              //               style: TextStyle(
+              //                 fontSize: 14,
+              //                 fontFamily: "Poppins",
+              //                 fontWeight: FontWeight.w300,
+              //                 color: themeController.isDarkMode?Colors.white:Colors.black,
+              //               ),
+              //             ),
+              //           ],
+              //         ),
+              //       ),
+              //       Container(
+              //         height: MediaQuery.of(context).size.height*0.25,
+              //         child: ListView.builder(
+              //           shrinkWrap: true,
+              //           scrollDirection: Axis.horizontal,
+              //           physics: ScrollPhysics(),
+              //           padding: EdgeInsets.only(left: 16,right: 16),
+              //           itemCount: 3,
+              //           itemBuilder: (context,index){
+              //             return Padding(
+              //               padding: EdgeInsets.only(
+              //                 left: index==0?0:16,
+              //               ),
+              //               child: customContainer(image[index], text[index]),
+              //             );
+              //           },
+              //         ),
+              //       ),
+              //       SizedBox(
+              //         height: 40,
+              //       ),
+              //     ],
+              //   ),
+              // ),
             ),
           ],
         ),

@@ -1,17 +1,27 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:mate_app/Providers/campusTalkProvider.dart';
 import 'package:mate_app/Widget/loader.dart';
 import 'package:mate_app/asset/Colors/MateColors.dart';
 import 'package:flutter/material.dart';
 import 'package:mate_app/controller/theme_controller.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../Model/campusTalkPostsModel.dart';
 import '../../../Services/campusTalkService.dart';
+import '../../../Widget/video_thumbnail.dart';
 import '../../../constant.dart';
 import 'package:mate_app/Model/campusTalkPostsModel.dart' as postModel;
 import 'package:mate_app/Model/campusTalkTypeModel.dart' as campusTalkTypeModel;
+import 'package:http/http.dart'as http;
 
 class EditCampusTalk extends StatefulWidget {
   final String title,description,anonymousUser;
@@ -26,6 +36,9 @@ class EditCampusTalk extends StatefulWidget {
   final bool isSearch;
   final postModel.User user;
   final List<CampusTalkTypes> campusTalkTypes;
+  final String image;
+  final String video;
+  final String audio;
   const EditCampusTalk({Key key, this.title, this.description, this.anonymousUser, this.isAnonymous, this.id,
     this.isTrending = false,
     this.isLatest = false,
@@ -34,6 +47,7 @@ class EditCampusTalk extends StatefulWidget {
     this.isListCard = false,
     this.isBookmarkedPage = false,
     this.isUserProfile = false, this.user,this.isSearch = false,this.campusTalkTypes,
+    this.image,this.video,this.audio
 
   }) : super(key: key);
 
@@ -59,6 +73,24 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
   List<campusTalkTypeModel.Data> type = [];
   List<bool> typeSelected = [];
   CampusTalkService _campusTalkService = CampusTalkService();
+  String _imageUrl = "";
+  String _videoUrl = "";
+  String _audioUrl = "";
+  bool imagedDeleted = false;
+  bool videoDeleted = false;
+  bool audioDeleted = false;
+  final picker = ImagePicker();
+  File _image;
+  File _video;
+  File _audio;
+  String _base64encodedImage;
+  String _base64encodedVideo;
+  String _base64encodedAudio;
+  bool isPausedRecording = false;
+  bool isPlaying = false;
+  Duration currentDuration;
+  AudioPlayer _audioPlayer = AudioPlayer();
+  bool showDeleteIcon = true;
 
   @override
   void initState() {
@@ -72,6 +104,9 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
     for(int i=0;i<widget.campusTalkTypes.length;i++){
       typeName.add(widget.campusTalkTypes[i].type.name);
     }
+    _imageUrl = widget.image??"";
+    _videoUrl = widget.video??"";
+    _audioUrl = widget.audio??"";
     getStoredValue();
     print(_title);
     print(_description);
@@ -83,6 +118,7 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
 
   @override
   void dispose() {
+    _audioPlayer.dispose();
     focusNode.dispose();
     super.dispose();
   }
@@ -100,6 +136,94 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
       }
     }
     setState(() {});
+  }
+
+  pauseRecording()async{
+    _audioPlayer.pause();
+    setState(() {
+      isPlaying = false;
+      isPausedRecording = true;
+    });
+  }
+
+  startAudio()async{
+    if(isPausedRecording){
+      isPlaying = true;
+      isPausedRecording = false;
+      _audioPlayer.play();
+      setState(() {});
+      _audioPlayer.playerStateStream.listen((state) {
+        if (state.processingState == ProcessingState.completed) {
+          setState(() {
+            isPlaying = false;
+            isPausedRecording = false;
+          });
+        }
+      });
+      _audioPlayer.positionStream.listen((event) {
+        setState(() {
+          currentDuration = event;
+        });
+      });
+    }else{
+      _audioPlayer.playerStateStream.listen((state) {
+        if (state.processingState == ProcessingState.completed) {
+          setState(() {
+            isPlaying = false;
+            isPausedRecording = false;
+          });
+        }
+      });
+      _audioPlayer.positionStream.listen((event) {
+        setState(() {
+          currentDuration = event;
+        });
+      });
+      _audioPlayer.stop();
+      setState(() {
+        isPlaying = false;
+      });
+      if(_audio!=null){
+        _audioPlayer.setFilePath(_audio.path);
+      }else{
+        var dir = await getApplicationDocumentsDirectory();
+        var filePathAndName = dir.path + "/audios/" +_audioUrl.split("/").last + ".mp3";
+        if(File(filePathAndName).existsSync()){
+          print("------File Already Exist-------");
+          print(filePathAndName);
+          await _audioPlayer.setFilePath(filePathAndName);
+        }else{
+          String path = await downloadAudio(_audioUrl);
+          if(path !=""){
+            await _audioPlayer.setFilePath(path);
+          }else{
+            Fluttertoast.showToast(msg: "Something went wrong while playing audio please try again!", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+          }
+        }
+      }
+      _audioPlayer.play();
+      isPlaying = true;
+      setState(() {});
+    }
+  }
+
+  Future<String> downloadAudio(String url)async{
+    var dir = await getApplicationDocumentsDirectory();
+    var firstPath = dir.path + "/audios";
+    var filePathAndName = dir.path + "/audios/" +url.split("/").last + ".mp3";
+    await Directory(firstPath).create(recursive: true);
+    File file = new File(filePathAndName);
+    try{
+      var request = await http.get(Uri.parse(url));
+      print(request.statusCode);
+      var res = await file.writeAsBytes(request.bodyBytes);
+      print("---File Path----");
+      print(res.path);
+      return res.path;
+    }catch(e){
+      print(e);
+      return "";
+    }
   }
 
   @override
@@ -316,6 +440,332 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
                               ),
                             ),
                           ),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              GestureDetector(
+                                onTap: ()async{
+                                  final pickedFile = await picker.getImage(source: ImageSource.gallery,imageQuality: 70);
+                                  if (pickedFile != null) {
+                                    _imageUrl = "";
+                                    _image = File(pickedFile.path);
+                                    _base64encodedImage = pickedFile.path;
+                                    setState(() {});
+                                    print('image selected:: ${_base64encodedImage.toString()}');
+                                  } else {
+                                    print('No image selected.');
+                                  }
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.only(top: 20),
+                                  height: 60,
+                                  width: scW*0.28,
+                                  padding: EdgeInsets.symmetric(horizontal: 16),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                                  ),
+                                  child: Center(
+                                    child: Image.asset(
+                                      "lib/asset/iconsNewDesign/gallery.png",
+                                      height: 26,
+                                      width: 26,
+                                      color: themeController.isDarkMode?Colors.white:Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: ()async{
+                                  final pickedFile = await picker.getVideo(source: ImageSource.gallery,);
+                                  if (pickedFile != null) {
+                                    _videoUrl = "";
+                                    _video = File(pickedFile.path);
+                                    _base64encodedVideo = pickedFile.path;
+                                    setState(() {});
+                                    print('video selected:: ${_base64encodedVideo.toString()}');
+                                  } else {
+                                    print('No video selected.');
+                                  }
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.only(top: 20),
+                                  height: 60,
+                                  width: scW*0.28,
+                                  padding: EdgeInsets.symmetric(horizontal: 16),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.video_call,
+                                      size: 30,
+                                      color: themeController.isDarkMode?Colors.white:Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: ()async{
+                                  final pickedFile = await FilePicker.platform.pickFiles(type: FileType.audio);
+                                  if (pickedFile != null) {
+                                    _audio = File(pickedFile.paths.first);
+                                    var audio = _audio.readAsBytesSync();
+                                    //_base64encodedAudio = base64Encode(audio);
+                                    _base64encodedAudio = pickedFile.paths.first;
+                                    _audioUrl = "";
+                                    isPausedRecording = false;
+                                    isPlaying = false;
+                                    _audioPlayer.stop();
+                                    currentDuration = null;
+                                    setState(() {});
+                                    print('Audio selected:: ${_base64encodedAudio.toString()}');
+                                  } else {
+                                    print('No audio selected.');
+                                  }
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.only(top: 20),
+                                  height: 60,
+                                  width: scW*0.28,
+                                  padding: EdgeInsets.symmetric(horizontal: 16),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
+                                  ),
+                                  child: Center(
+                                    child: Image.asset(
+                                      "lib/asset/iconsNewDesign/mic2.png",
+                                      height: 23,
+                                      width: 23,
+                                      color: themeController.isDarkMode?Colors.white:Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          _audio!=null || _audioUrl!=""?
+                          Container(
+                            height: showDeleteIcon?118:60,
+                            margin: EdgeInsets.only(top: 20),
+                            padding: EdgeInsets.only(left: 16,right: 16),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(14),
+                              color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                            ),
+                            child: Column(
+                              children: [
+                                SizedBox(height: 16,),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        currentDuration!=null?
+                                        Text(currentDuration.inMinutes.toString().padLeft(2,'0') +":"+ currentDuration.inSeconds.toString().padLeft(2,"0"),
+                                          style: TextStyle(
+                                            fontFamily: 'Poppins',
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 15,
+                                            color: themeController.isDarkMode ? Colors.white:Colors.black,
+                                          ),
+                                        ):Text("00" +":"+ "00",
+                                          style: TextStyle(
+                                            fontFamily: 'Poppins',
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 15,
+                                            color: themeController.isDarkMode ? Colors.white:Colors.black,
+                                          ),
+                                        ),
+                                        SizedBox(width: 16,),
+                                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                        Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                        if(showDeleteIcon)
+                                          Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                        if(!showDeleteIcon)
+                                          GestureDetector(
+                                            onTap: (){
+                                              setState(() {
+                                                showDeleteIcon = !showDeleteIcon;
+                                              });
+                                            },
+                                            child: Container(
+                                              height: 34,
+                                              width: 34,
+                                              margin: EdgeInsets.only(left: 10),
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: themeController.isDarkMode?Color(0xFF67AE8C):MateColors.appThemeDark,
+                                              ),
+                                              alignment: Alignment.center,
+                                              child: Icon(Icons.keyboard_arrow_down_outlined,
+                                                size: 25,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                if(showDeleteIcon)
+                                  SizedBox(height: 25,),
+                                if(showDeleteIcon)
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 10,right: 10),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        InkWell(
+                                          onTap: (){
+                                            if(_audioUrl.isNotEmpty){
+                                              _audioUrl = "";
+                                              audioDeleted = true;
+                                            }else{
+                                              _audio = null;
+                                              _base64encodedAudio = null;
+                                            }
+                                            _audioPlayer.stop();
+                                            setState(() {});
+                                          },
+                                          child: Image.asset("lib/asset/iconsNewDesign/delete.png",
+                                            width: 20,
+                                            height: 20,
+                                            color: themeController.isDarkMode?Colors.white:Colors.black,
+                                          ),
+                                        ),
+                                        InkWell(
+                                          onTap: (){
+                                            isPlaying ? pauseRecording(): startAudio();
+                                          },
+                                          child: Icon(isPlaying ? Icons.pause_circle_outline: Icons.play_circle,
+                                            size: 30,
+                                            color: themeController.isDarkMode?Colors.white:Colors.black,
+                                          ),
+                                        ),
+                                        GestureDetector(
+                                          onTap: (){
+                                            setState(() {
+                                              showDeleteIcon = !showDeleteIcon;
+                                            });
+                                          },
+                                          child: Container(
+                                            height: 34,
+                                            width: 34,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: themeController.isDarkMode?Color(0xFF67AE8C):MateColors.appThemeDark,
+                                            ),
+                                            alignment: Alignment.center,
+                                            child: Icon(Icons.keyboard_arrow_up,
+                                              size: 25,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ):SizedBox(),
+
+                          _image!=null || _imageUrl!=""?
+                          Stack(
+                            children: [
+                              Container(
+                                height: 150,
+                                width: MediaQuery.of(context).size.width,
+                                margin: EdgeInsets.only(top: 30),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  clipBehavior: Clip.hardEdge,
+                                  child: _imageUrl!=""?
+                                  Image.network(_imageUrl,fit: BoxFit.fill):
+                                  Image.file(_image,fit: BoxFit.fill),
+                                ),
+                              ),
+                              Positioned(
+                                top: 18,
+                                right: 0,
+                                child: InkWell(
+                                  onTap: (){
+                                    if(_imageUrl!=""){
+                                      _imageUrl = "";
+                                      imagedDeleted = true;
+                                    }else{
+                                      _image = null;
+                                      _base64encodedImage = null;
+                                    }
+                                    setState(() {});
+                                  },
+                                  child: Container(
+                                    height: 30,
+                                    padding: EdgeInsets.all(5),
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: MateColors.activeIcons,
+                                    ),
+                                    child: _imageUrl!=""?
+                                    Icon(Icons.delete,color: Colors.black,size: 16,):
+                                    Icon(Icons.clear,color: Colors.black,size: 16,),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ):Offstage(),
+                          _video!=null || _videoUrl!=""?
+                          Stack(
+                            children: [
+                              Container(
+                                height: 150,
+                                width: MediaQuery.of(context).size.width,
+                                margin: EdgeInsets.only(top: 30),
+                                child: _videoUrl!=""?
+                                VideoThumbnail(videoUrl: _videoUrl):
+                                VideoThumbnailFile(videoUrl: _video),
+                              ),
+                              Positioned(
+                                top: 18,
+                                right: 0,
+                                child: InkWell(
+                                  onTap: (){
+                                    if(_videoUrl!=""){
+                                      _videoUrl = "";
+                                      videoDeleted = true;
+                                    }else{
+                                      _video = null;
+                                      _base64encodedVideo = null;
+                                    }
+                                    setState(() {});
+                                  },
+                                  child: Container(
+                                    height: 30,
+                                    padding: EdgeInsets.all(5),
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: MateColors.activeIcons,
+                                    ),
+                                    child: _videoUrl!=""?
+                                    Icon(Icons.delete,color: Colors.black,size: 16,):
+                                    Icon(Icons.clear,color: Colors.black,size: 16,),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ):Offstage(),
+
                           Padding(
                             padding: EdgeInsets.fromLTRB(0.0, 15.0, 3.0, 10.0),
                             child: Text(
@@ -432,7 +882,20 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
           uuid.add(type[i].uuid);
         }
       }
-      bool posted= await Provider.of<CampusTalkProvider>(context, listen: false).updateACampusTalkPost(_id,_title, _description, isAnonymous,isToggleAvailable==false?anonymousUser:null,uuid);
+      bool posted= await Provider.of<CampusTalkProvider>(context, listen: false).updateACampusTalkPost(
+          _id,
+          _title,
+          _description,
+          isAnonymous,
+          isToggleAvailable==false?anonymousUser:null,
+          uuid,
+        _base64encodedImage,
+        _base64encodedVideo,
+        _base64encodedAudio,
+        imagedDeleted && _image==null,
+        videoDeleted && _video==null,
+        audioDeleted && _audio==null,
+      );
       setState(() {
         isLoading = false;
       });

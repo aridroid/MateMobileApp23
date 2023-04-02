@@ -62,102 +62,113 @@ class _StudentOfferState extends State<StudentOffer> {
             fit: BoxFit.cover,
           ),
         ),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(
-                  top: MediaQuery.of(context).size.height*0.07,
-                  left: 16,
-                  right: 16,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: (){
-                        Get.back();
-                      },
-                      child: Icon(Icons.arrow_back_ios,
-                        size: 20,
-                        color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
-                      ),
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).size.height*0.07,
+                left: 16,
+                right: 16,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: (){
+                      Get.back();
+                    },
+                    child: Icon(Icons.arrow_back_ios,
+                      size: 20,
+                      color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
                     ),
-                    Text(
-                      "Student Offers",
-                      style: TextStyle(
-                        color: themeController.isDarkMode ? Colors.white : MateColors.drawerTileColor,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 18.0,
-                        fontFamily: 'Poppins'
-                      ),
+                  ),
+                  Text(
+                    "Student Offers",
+                    style: TextStyle(
+                      color: themeController.isDarkMode ? Colors.white : MateColors.drawerTileColor,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 18.0,
+                      fontFamily: 'Poppins'
                     ),
-                    SizedBox(),
-                  ],
+                  ),
+                  SizedBox(),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Center(
+                child: Text(
+                  "Coming soon",
+                  style: TextStyle(
+                    color: themeController.isDarkMode ? Colors.white : Colors.black,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Poppins',
+                    fontSize: 18.0,
+                  ),
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.only(
-                    left: 16,
-                    right: 16,
-                    top: 26,
-                ),
-                child: ImageSliderWithIndicator(
-                  list: _imageList,
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                  left: 16,
-                  right: 16,
-                  top: 16,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Popular',
-                      style: TextStyle(
-                          fontSize: 18,
-                          fontFamily: "Poppins",
-                          fontWeight: FontWeight.w600,
-                          overflow: TextOverflow.ellipsis,
-                          color: themeController.isDarkMode?Colors.white:Colors.black,
-                      ),
-                    ),
-                    Text('See more',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontFamily: "Poppins",
-                        fontWeight: FontWeight.w300,
-                        color: themeController.isDarkMode?Colors.white:Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                height: MediaQuery.of(context).size.height*0.25,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  scrollDirection: Axis.horizontal,
-                  physics: ScrollPhysics(),
-                  padding: EdgeInsets.only(left: 16,right: 16),
-                  itemCount: 3,
-                  itemBuilder: (context,index){
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        left: index==0?0:16,
-                      ),
-                      child: customContainer(image[index], text[index]),
-                    );
-                  },
-                ),
-              ),
-              SizedBox(
-                height: 40,
-              ),
-            ],
-          ),
+            ),
+            // Padding(
+            //   padding: EdgeInsets.only(
+            //       left: 16,
+            //       right: 16,
+            //       top: 26,
+            //   ),
+            //   child: ImageSliderWithIndicator(
+            //     list: _imageList,
+            //   ),
+            // ),
+            // Padding(
+            //   padding: EdgeInsets.only(
+            //     left: 16,
+            //     right: 16,
+            //     top: 16,
+            //   ),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //     children: [
+            //       Text('Popular',
+            //         style: TextStyle(
+            //             fontSize: 18,
+            //             fontFamily: "Poppins",
+            //             fontWeight: FontWeight.w600,
+            //             overflow: TextOverflow.ellipsis,
+            //             color: themeController.isDarkMode?Colors.white:Colors.black,
+            //         ),
+            //       ),
+            //       Text('See more',
+            //         style: TextStyle(
+            //           fontSize: 14,
+            //           fontFamily: "Poppins",
+            //           fontWeight: FontWeight.w300,
+            //           color: themeController.isDarkMode?Colors.white:Colors.black,
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // Container(
+            //   height: MediaQuery.of(context).size.height*0.25,
+            //   child: ListView.builder(
+            //     shrinkWrap: true,
+            //     scrollDirection: Axis.horizontal,
+            //     physics: ScrollPhysics(),
+            //     padding: EdgeInsets.only(left: 16,right: 16),
+            //     itemCount: 3,
+            //     itemBuilder: (context,index){
+            //       return Padding(
+            //         padding: EdgeInsets.only(
+            //           left: index==0?0:16,
+            //         ),
+            //         child: customContainer(image[index], text[index]),
+            //       );
+            //     },
+            //   ),
+            // ),
+            // SizedBox(
+            //   height: 40,
+            // ),
+          ],
         ),
       ),
     );

@@ -56,6 +56,9 @@ class Result {
   int id;
   int userId;
   String url;
+  String photoUrl;
+  String videoUrl;
+  String audioUrl;
   String title;
   String description;
   String status;
@@ -75,11 +78,17 @@ class Result {
   bool deleteLoader=false;
   bool upVoteLoader=false;
   List<CampusTalkTypes> campusTalkTypes;
+  bool isPlaying = false;
+  bool isPaused = false;
+  bool isLoadingAudio = false;
 
   Result(
       {this.id,
         this.userId,
         this.url,
+        this.photoUrl,
+        this.videoUrl,
+        this.audioUrl,
         this.title,
         this.description,
         this.status,
@@ -99,12 +108,18 @@ class Result {
         this.deleteLoader,
         this.upVoteLoader,
         this.campusTalkTypes,
+        this.isPlaying,
+        this.isPaused,
+        this.isLoadingAudio,
       });
 
   Result.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     userId = json['user_id'];
     url = json['url'];
+    photoUrl = json['photo_url'];
+    videoUrl = json['video_url'];
+    audioUrl = json['audio_url'];
     title = json['title'];
     description = json['description'];
     status = json['status'];
@@ -140,6 +155,9 @@ class Result {
     data['id'] = this.id;
     data['user_id'] = this.userId;
     data['url'] = this.url;
+    data['photo_url'] = this.photoUrl;
+    data['video_url'] = this.videoUrl;
+    data['audio_url'] = this.audioUrl;
     data['title'] = this.title;
     data['description'] = this.description;
     data['status'] = this.status;

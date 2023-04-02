@@ -10,6 +10,7 @@ import 'package:mate_app/Screen/Home/TimeLine/createFeedSelectType.dart';
 import 'package:mate_app/Screen/Home/TimeLine/globalFeed.dart';
 import 'package:mate_app/Screen/Home/studentOffer/studentOffer.dart';
 import 'package:mate_app/Screen/Login/GoogleLogin.dart';
+import 'package:mate_app/Screen/marketPlace/marketPlaceDashboard.dart';
 import 'package:mate_app/Widget/Loaders/Shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -626,7 +627,7 @@ class _TimeLineState extends State<TimeLine> with TickerProviderStateMixin{
                         ),
                         GestureDetector(
                           onTap: () {
-
+                            Get.to(()=>MarketPlaceDashboard());
                           },
                           child: Container(
                             height: 92,
