@@ -975,120 +975,141 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     final scH = MediaQuery.of(context).size.height;
     final scW = MediaQuery.of(context).size.width;
-    return Scaffold(
-      body: Container(
-        height: scH,
-        width: scW,
-        decoration: BoxDecoration(
-          color: themeController.isDarkMode?Color(0xFF000000):Colors.white,
-          image: DecorationImage(
-            image: AssetImage(themeController.isDarkMode?'lib/asset/Background.png':'lib/asset/BackgroundLight.png'),
-            fit: BoxFit.cover,
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: null,
+      onPanUpdate: (details) {
+        if (details.delta.dy > 0){
+          FocusScope.of(context).requestFocus(FocusNode());
+          print("Dragging in +Y direction");
+        }
+      },
+      child: Scaffold(
+        body: Container(
+          height: scH,
+          width: scW,
+          decoration: BoxDecoration(
+            color: themeController.isDarkMode?Color(0xFF000000):Colors.white,
+            image: DecorationImage(
+              image: AssetImage(themeController.isDarkMode?'lib/asset/Background.png':'lib/asset/BackgroundLight.png'),
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
-        child: Stack(
-          children: [
-            Column(
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height*0.07,
-                    left: 16,
-                    right: 16,
-                    bottom: 10,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: (){
-                          Get.back();
-                        },
-                        child: Icon(Icons.arrow_back_ios,
-                          size: 20,
-                          color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
+          child: Stack(
+            children: [
+              Column(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).size.height*0.07,
+                      left: 16,
+                      right: 16,
+                      bottom: 10,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                          onTap: (){
+                            Get.back();
+                          },
+                          child: Icon(Icons.arrow_back_ios,
+                            size: 20,
+                            color: themeController.isDarkMode ? Colors.white : MateColors.blackTextColor,
+                          ),
                         ),
-                      ),
-                      InkWell(
-                        onTap: ()async{
-                          await Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => GroupSettingsPage(
-                                groupId: widget.groupId,
-                              )));
-                          getGroupDetails();
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                        InkWell(
+                          onTap: ()async{
+                            await Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => GroupSettingsPage(
+                                  groupId: widget.groupId,
+                                )));
+                            getGroupDetails();
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              widget.photoURL != "" ?
+                              Padding(
+                                padding: const EdgeInsets.only(right: 10.0),
+                                child: CircleAvatar(
+                                  radius: 22,
+                                  backgroundImage: NetworkImage(widget.photoURL),
+                                ),
+                              ) :
+                              Padding(
+                                padding: const EdgeInsets.only(right: 10.0),
+                                child: CircleAvatar(
+                                  radius: 22,
+                                  backgroundColor: MateColors.activeIcons,
+                                  child: Text(widget.groupName.substring(0, 1).toUpperCase(),
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white, fontSize: 13.0.sp, fontWeight: FontWeight.w400)),
+                                ),
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  buildEmojiAndText(
+                                    content: widget.groupName,
+                                    textStyle: TextStyle(
+                                      fontFamily: "Poppins",
+                                      fontWeight: FontWeight.w600,
+                                      color: themeController.isDarkMode?Colors.white:MateColors.blackText,
+                                    ),
+                                    normalFontSize: 15,
+                                    emojiFontSize: 25,
+                                  ),
+                                  Text(widget.totalParticipant + " members",
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontFamily: "Poppins",
+                                      fontSize: 14.0,
+                                      fontWeight: FontWeight.w400,
+                                      color: themeController.isDarkMode?Colors.white.withOpacity(0.5):Colors.black.withOpacity(0.5),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(),
+                        SizedBox(),
+                        SizedBox(),
+                        SizedBox(),
+                        Row(
                           children: [
-                            widget.photoURL != "" ?
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10.0),
-                              child: CircleAvatar(
-                                radius: 22,
-                                backgroundImage: NetworkImage(widget.photoURL),
-                              ),
-                            ) :
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10.0),
-                              child: CircleAvatar(
-                                radius: 22,
-                                backgroundColor: MateColors.activeIcons,
-                                child: Text(widget.groupName.substring(0, 1).toUpperCase(),
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white, fontSize: 13.0.sp, fontWeight: FontWeight.w400)),
-                              ),
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(widget.groupName,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontFamily: "Poppins",
-                                    fontSize: 15.0,
-                                    fontWeight: FontWeight.w600,
-                                    color: themeController.isDarkMode?Colors.white:MateColors.blackText,
-                                  ),
-                                ),
-                                Text(widget.totalParticipant + " members",
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontFamily: "Poppins",
-                                    fontSize: 14.0,
-                                    fontWeight: FontWeight.w400,
-                                    color: themeController.isDarkMode?Colors.white.withOpacity(0.5):Colors.black.withOpacity(0.5),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(),
-                      SizedBox(),
-                      SizedBox(),
-                      SizedBox(),
-                      Row(
-                        children: [
-                          IconButton(
-                            onPressed: ()async{
-                              if(isUserMember){
-                                QuerySnapshot res = await DatabaseService().checkCallIsOngoing(widget.groupId);
-                                if(res.docs.length>0){
-                                  DateTime dateTimeLocal = DateTime.now();
-                                  DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(res.docs[0]['createdAt'].toString()));
-                                  Duration diff = dateTimeLocal.difference(dateFormatServer);
-                                  print(diff.inMinutes);
-                                  if(diff.inMinutes<120){
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => Calling(
-                                      channelName: res.docs[0]['channelName'],
-                                      token: res.docs[0]['token'],
-                                      callType: res.docs[0]['callType'],
-                                      image: widget.photoURL,
-                                      name: widget.groupName,
-                                      isGroupCall: true,
-                                    )));
+                            IconButton(
+                              onPressed: ()async{
+                                if(isUserMember){
+                                  QuerySnapshot res = await DatabaseService().checkCallIsOngoing(widget.groupId);
+                                  if(res.docs.length>0){
+                                    DateTime dateTimeLocal = DateTime.now();
+                                    DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(res.docs[0]['createdAt'].toString()));
+                                    Duration diff = dateTimeLocal.difference(dateFormatServer);
+                                    print(diff.inMinutes);
+                                    if(diff.inMinutes<120){
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => Calling(
+                                        channelName: res.docs[0]['channelName'],
+                                        token: res.docs[0]['token'],
+                                        callType: res.docs[0]['callType'],
+                                        image: widget.photoURL,
+                                        name: widget.groupName,
+                                        isGroupCall: true,
+                                      )));
+                                    }else{
+                                      Get.to(()=>ConnectingScreen(
+                                        callType: "Audio Calling",
+                                        receiverImage: widget.photoURL,
+                                        receiverName: widget.groupName,
+                                        uid: widget.memberList,
+                                        isGroupCalling: true,
+                                        groupOrPeerId: widget.groupId,
+                                        groupOrCallerName: widget.groupName,
+                                      ));
+                                    }
                                   }else{
                                     Get.to(()=>ConnectingScreen(
                                       callType: "Audio Calling",
@@ -1100,41 +1121,41 @@ class _ChatPageState extends State<ChatPage> {
                                       groupOrCallerName: widget.groupName,
                                     ));
                                   }
-                                }else{
-                                  Get.to(()=>ConnectingScreen(
-                                    callType: "Audio Calling",
-                                    receiverImage: widget.photoURL,
-                                    receiverName: widget.groupName,
-                                    uid: widget.memberList,
-                                    isGroupCalling: true,
-                                    groupOrPeerId: widget.groupId,
-                                    groupOrCallerName: widget.groupName,
-                                  ));
                                 }
-                              }
-                            },
-                            icon: Icon(Icons.call,
-                              color: themeController.isDarkMode?Colors.white:Colors.black,
+                              },
+                              icon: Icon(Icons.call,
+                                color: themeController.isDarkMode?Colors.white:Colors.black,
+                              ),
                             ),
-                          ),
-                          IconButton(
-                            onPressed: ()async{
-                              if(isUserMember){
-                                QuerySnapshot res = await DatabaseService().checkCallIsOngoing(widget.groupId);
-                                if(res.docs.length>0){
-                                  DateTime dateTimeLocal = DateTime.now();
-                                  DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(res.docs[0]['createdAt'].toString()));
-                                  Duration diff = dateTimeLocal.difference(dateFormatServer);
-                                  print(diff.inMinutes);
-                                  if(diff.inMinutes<120){
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => Calling(
-                                      channelName: res.docs[0]['channelName'],
-                                      token: res.docs[0]['token'],
-                                      callType: res.docs[0]['callType'],
-                                      image: widget.photoURL,
-                                      name: widget.groupName,
-                                      isGroupCall: true,
-                                    )));
+                            IconButton(
+                              onPressed: ()async{
+                                if(isUserMember){
+                                  QuerySnapshot res = await DatabaseService().checkCallIsOngoing(widget.groupId);
+                                  if(res.docs.length>0){
+                                    DateTime dateTimeLocal = DateTime.now();
+                                    DateTime dateFormatServer = new DateTime.fromMillisecondsSinceEpoch(int.parse(res.docs[0]['createdAt'].toString()));
+                                    Duration diff = dateTimeLocal.difference(dateFormatServer);
+                                    print(diff.inMinutes);
+                                    if(diff.inMinutes<120){
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => Calling(
+                                        channelName: res.docs[0]['channelName'],
+                                        token: res.docs[0]['token'],
+                                        callType: res.docs[0]['callType'],
+                                        image: widget.photoURL,
+                                        name: widget.groupName,
+                                        isGroupCall: true,
+                                      )));
+                                    }else{
+                                      Get.to(()=>ConnectingScreen(
+                                        callType: "Video Calling",
+                                        receiverImage: widget.photoURL,
+                                        receiverName: widget.groupName,
+                                        uid: widget.memberList,
+                                        isGroupCalling: true,
+                                        groupOrPeerId: widget.groupId,
+                                        groupOrCallerName: widget.groupName,
+                                      ));
+                                    }
                                   }else{
                                     Get.to(()=>ConnectingScreen(
                                       callType: "Video Calling",
@@ -1146,34 +1167,24 @@ class _ChatPageState extends State<ChatPage> {
                                       groupOrCallerName: widget.groupName,
                                     ));
                                   }
-                                }else{
-                                  Get.to(()=>ConnectingScreen(
-                                    callType: "Video Calling",
-                                    receiverImage: widget.photoURL,
-                                    receiverName: widget.groupName,
-                                    uid: widget.memberList,
-                                    isGroupCalling: true,
-                                    groupOrPeerId: widget.groupId,
-                                    groupOrCallerName: widget.groupName,
-                                  ));
                                 }
-                              }
-                            },
-                            icon: Icon(Icons.video_call_rounded,
-                              color: themeController.isDarkMode?Colors.white:Colors.black,
+                              },
+                              icon: Icon(Icons.video_call_rounded,
+                                color: themeController.isDarkMode?Colors.white:Colors.black,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Expanded(child: _chatMessages()),
-                _messageSendWidget(),
-              ],
-            ),
-            _buildLoading(),
-          ],
+                  Expanded(child: _chatMessages()),
+                  _messageSendWidget(),
+                ],
+              ),
+              _buildLoading(),
+            ],
+          ),
         ),
       ),
     );

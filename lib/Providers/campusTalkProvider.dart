@@ -949,4 +949,22 @@ class CampusTalkProvider extends ChangeNotifier{
     // notifyListeners();
   }
 
+  Future<bool> hideACampusTalk(int postId, int index) async {
+    error = '';
+    //campusTalkPostsResultsTrendingList[index].deleteLoader=true;
+    //campusTalkPostsModelData.data.result[index].deleteLoader=true;
+    var data;
+    try {
+      data = await _campusTalkService.hideACampusTalk(postId);
+    } catch (err) {
+      _setError(err);
+      return false;
+    } finally {
+      //campusTalkPostsResultsTrendingList[index].deleteLoader=false;
+      //campusTalkPostsModelData.data.result[index].deleteLoader=false;
+    }
+    return true;
+    // notifyListeners();
+  }
+
 }

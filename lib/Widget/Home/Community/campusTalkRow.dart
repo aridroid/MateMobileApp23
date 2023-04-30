@@ -16,9 +16,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_share_me/flutter_share_me.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mate_app/constant.dart';
 import 'package:provider/provider.dart';
+import 'package:share/share.dart';
 
 import '../../../controller/theme_controller.dart';
+import '../../../groupChat/services/dynamicLinkService.dart';
 import '../../mediaViewer.dart';
 import '../../video_thumbnail.dart';
 
@@ -217,8 +220,14 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
               onSelected: (index) async {
                 if (index == 0) {
                   // Map<String, dynamic> body;
-                  // Provider.of<ExternalShareProvider>(context,listen: false).externalSharePost(body);
+                  // externalShareProvider.externalSharePost(body);
                   // modalSheetToShare();
+                  String response  = await DynamicLinkService.buildDynamicLinkCampusTalk(
+                    id: widget.talkId.toString(),
+                  );
+                  if(response!=null){
+                    Share.share(response);
+                  }
                 } else if (index == 1) {
                   _showDeleteAlertDialog(postId: widget.talkId, rowIndex: widget.rowIndex);
                 } else if (index == 2) {
@@ -254,18 +263,25 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                           audio: widget.audio,
                         ),
                       ));
+                }else if (index == 4) {
+                  _showHideAlertDialog(postId: widget.talkId, rowIndex: widget.rowIndex);
                 }
               },
               itemBuilder: (context) => [
-                // PopupMenuItem(
-                //     value: 0,
-                //     height: 40,
-                //     child: Text(
-                //       "Share",
-                //       textAlign: TextAlign.start,
-                //       style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
-                //     ),
-                //   ),
+                PopupMenuItem(
+                    value: 0,
+                    height: 40,
+                    child: Text(
+                      "Share",
+                      textAlign: TextAlign.start,
+                      style: TextStyle(
+                        color: themeController.isDarkMode?Colors.white:Colors.black,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Poppins',
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
                 (widget.user.uuid != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user.uuid)) ?
                 PopupMenuItem(
                   value: 1,
@@ -327,6 +343,29 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                     width: 0,
                   ),
                 ),
+                (widget.user.uuid != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id != widget.user.uuid))?
+                PopupMenuItem(
+                  value: 4,
+                  height: 40,
+                  child: Text(
+                    "Hide",
+                    textAlign: TextAlign.start,
+                    style: TextStyle(
+                      color: themeController.isDarkMode?Colors.white:Colors.black,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Poppins',
+                      fontSize: 14,
+                    ),
+                  ),
+                ):PopupMenuItem(
+                  value: 4,
+                  enabled: false,
+                  height: 0,
+                  child: SizedBox(
+                    height: 0,
+                    width: 0,
+                  ),
+                ),
               ],
             ),
           ),
@@ -378,14 +417,17 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                     splashColor: Colors.transparent,
                     highlightColor: Colors.transparent,
                     onTap: () => _navigateToDetailsPage(),
-                    child: Text(title, textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontSize: 16,
+                    child: buildEmojiAndText(
+                      content: title,
+                      textStyle: TextStyle(
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w700,
                         color: themeController.isDarkMode?Colors.white:Colors.black,
                       ),
-                    )),
+                      normalFontSize: 16,
+                      emojiFontSize: 26,
+                    ),
+                ),
               ),
             ],
           ),
@@ -400,15 +442,17 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                 child: description != null ?
                 Padding(
                   padding: EdgeInsets.fromLTRB(0, 0, 14, 0),
-                  child: Text(
-                    description,
-                    style: TextStyle(
+                  child: buildEmojiAndText(
+                    content: description,
+                    textStyle: TextStyle(
                       fontSize: 14,
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.w400,
                       letterSpacing: 0.1,
                       color: themeController.isDarkMode?Colors.white:Colors.black,
                     ),
+                    normalFontSize: 14,
+                    emojiFontSize: 24,
                   ),
                 ) : SizedBox(),
               ),
@@ -859,6 +903,58 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
               onPressed: () async {
                 bool isDeleted = await campusTalkProvider.deleteACampusTalk(talkId, rowIndex);
                 if (isDeleted) {
+                  Future.delayed(Duration(seconds: 0), () {
+                    if (widget.isBookmarkedPage) {
+                      campusTalkProvider.fetchCampusTalkPostBookmarkedList();
+                    } else if (widget.isUserProfile) {
+                      campusTalkProvider.fetchCampusTalkByAuthUser(user.uuid, page: 1);
+                    } else if(widget.isTrending){
+                      campusTalkProvider.fetchCampusTalkPostTendingList(page: 1);
+                    } else if(widget.isLatest){
+                      campusTalkProvider.fetchCampusTalkPostTLatestList(page: 1);
+                    }else if(widget.isForums){
+                      campusTalkProvider.fetchCampusTalkPostForumsList(page: 1);
+                    }else if(widget.isYourCampus){
+                      campusTalkProvider.fetchCampusTalkPostYourCampusList(page: 1);
+                    }else if(widget.isListCard){
+                      campusTalkProvider.fetchCampusTalkPostListCard();
+                    }else if(widget.isSearch){
+                      Get.back();
+                    }
+                    Navigator.pop(context);
+                  });
+                }
+              },
+            ),
+            CupertinoDialogAction(
+                child: Text("No"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                })
+          ],
+        );
+      },
+    );
+  }
+
+  _showHideAlertDialog({
+    @required int postId,
+    @required int rowIndex,
+  }) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: new Text("Are you sure?"),
+          content: new Text("You want to hide this post"),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              child: Text("Yes"),
+              onPressed: () async {
+                bool isHide = await campusTalkProvider.hideACampusTalk(talkId, rowIndex);
+                if (isHide) {
                   Future.delayed(Duration(seconds: 0), () {
                     if (widget.isBookmarkedPage) {
                       campusTalkProvider.fetchCampusTalkPostBookmarkedList();

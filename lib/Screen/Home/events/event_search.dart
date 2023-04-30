@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:googleapis_auth/auth_io.dart';
 import 'package:intl/intl.dart';
+import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -15,6 +16,7 @@ import '../../../Widget/video_thumbnail.dart';
 import '../../../asset/Colors/MateColors.dart';
 import '../../../constant.dart';
 import '../../../controller/theme_controller.dart';
+import '../../../groupChat/services/dynamicLinkService.dart';
 import '../../chat1/screens/chat.dart';
 import 'eventDetails.dart';
 import 'package:googleapis/calendar/v3.dart' as gCal;
@@ -322,8 +324,8 @@ class _EventSearchState extends State<EventSearch> {
                                               Icons.more_vert,
                                               color: themeController.isDarkMode?Colors.white:MateColors.blackText,
                                             ),
-                                            onSelected: (index) async {
-                                              if (index == 0) {
+                                            onSelected: (index1) async {
+                                              if (index1 == 0) {
                                                 gCal.Event event = gCal.Event(); // Create object of event
                                                 event.summary = list[index].title; //Setting summary of object
                                                 event.description = list[index].description; //Setting summary of object
@@ -339,8 +341,15 @@ class _EventSearchState extends State<EventSearch> {
                                                 event.end = end;
 
                                                 insertEvent(event);
-                                              } else if (index == 1) {
+                                              } else if (index1 == 1) {
                                                 Navigator.push(context, MaterialPageRoute(builder: (context) => Chat(peerUuid: list[index].user.uuid, currentUserId: _currentUser.uid, peerId: list[index].user.firebaseUid, peerAvatar: list[index].user.profilePhoto, peerName: list[index].user.displayName)));
+                                              }else if(index1 == 6){
+                                                String response  = await DynamicLinkService.buildDynamicLinkEvent(
+                                                  id: list[index].id.toString(),
+                                                );
+                                                if(response!=null){
+                                                  Share.share(response);
+                                                }
                                               }
                                             },
                                             itemBuilder: (context) => [
@@ -362,6 +371,20 @@ class _EventSearchState extends State<EventSearch> {
                                               //     style: TextStyle(color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor, fontWeight: FontWeight.w500, fontSize: 12.6.sp),
                                               //   ),
                                               // ),
+                                              PopupMenuItem(
+                                                value: 6,
+                                                height: 40,
+                                                child: Text(
+                                                  "Share",
+                                                  textAlign: TextAlign.start,
+                                                  style: TextStyle(
+                                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                                    fontWeight: FontWeight.w500,
+                                                    fontFamily: 'Poppins',
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ),
                                             ]
                                         ),
                                       ),

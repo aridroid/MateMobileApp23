@@ -64,5 +64,45 @@ class DynamicLinkService {
     return dynamicUrl.shortUrl.toString();
   }
 
+  static Future<String> buildDynamicLinkEvent({String id}) async {
+    FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
+    String url = "https://matechat.page.link";
+    print(id);
+    final DynamicLinkParameters parameters = DynamicLinkParameters(
+      uriPrefix: url,
+      link: Uri.parse('$url/event/$id'),
+      androidParameters: AndroidParameters(
+        packageName: "com.mateinc.mateapp",
+        minimumVersion: 0,
+      ),
+      iosParameters: IOSParameters(
+        bundleId: "com.mate.apps",
+        minimumVersion: '0',
+      ),
+    );
+    final ShortDynamicLink dynamicUrl = await dynamicLinks.buildShortLink(parameters);
+    return dynamicUrl.shortUrl.toString();
+  }
+
+
+  static Future<String> buildDynamicLinkFeed({String id}) async {
+    FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
+    String url = "https://matechat.page.link";
+    print(id);
+    final DynamicLinkParameters parameters = DynamicLinkParameters(
+      uriPrefix: url,
+      link: Uri.parse('$url/feed/$id'),
+      androidParameters: AndroidParameters(
+        packageName: "com.mateinc.mateapp",
+        minimumVersion: 0,
+      ),
+      iosParameters: IOSParameters(
+        bundleId: "com.mate.apps",
+        minimumVersion: '0',
+      ),
+    );
+    final ShortDynamicLink dynamicUrl = await dynamicLinks.buildShortLink(parameters);
+    return dynamicUrl.shortUrl.toString();
+  }
 
 }

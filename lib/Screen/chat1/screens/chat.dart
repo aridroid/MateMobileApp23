@@ -684,170 +684,180 @@ class _ChatScreenState extends State<_ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        Column(
-          children: <Widget>[
-            // List of messages
-            // ChatWidget.widgetChatBuildListMessage(personChatId, listMessage, widget.currentUserId, peerAvatar, listScrollController),
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: null,
+      onPanUpdate: (details) {
+        if (details.delta.dy > 0){
+          FocusScope.of(context).requestFocus(FocusNode());
+          print("Dragging in +Y direction");
+        }
+      },
+      child: Stack(
+        children: <Widget>[
+          Column(
+            children: <Widget>[
+              // List of messages
+              // ChatWidget.widgetChatBuildListMessage(personChatId, listMessage, widget.currentUserId, peerAvatar, listScrollController),
 
-            Flexible(
-              child: personChatId == ''
-                  ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(themeColor)))
-                  : GestureDetector(
-                onHorizontalDragStart: (val){
-                  showDateToggle();
-                },
-                onHorizontalDragEnd: (val){
-                  showDateToggle();
-                },
-                    child: StreamBuilder(
-                stream: FirebaseFirestore.instance.collection('messages').doc(personChatId).collection(personChatId).orderBy('timestamp', descending: true) /*.limit(20)*/ .snapshots(),
-                builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(themeColor)));
-                    } else {
-                      listMessage = snapshot.data.docs;
+              Flexible(
+                child: personChatId == ''
+                    ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(themeColor)))
+                    : GestureDetector(
+                  onHorizontalDragStart: (val){
+                    showDateToggle();
+                  },
+                  onHorizontalDragEnd: (val){
+                    showDateToggle();
+                  },
+                      child: StreamBuilder(
+                  stream: FirebaseFirestore.instance.collection('messages').doc(personChatId).collection(personChatId).orderBy('timestamp', descending: true) /*.limit(20)*/ .snapshots(),
+                  builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(themeColor)));
+                      } else {
+                        listMessage = snapshot.data.docs;
 
-                      messageLength = snapshot.data.docs.length;
-                      if(messageLength!=isPlaying.length){
-                        if(messageLength>isPlaying.length && messageLength<isPlaying.length+2){
-                          isPlaying.add(false);
-                          isPaused.add(false);
-                          isLoadingAudio.add(false);
-                        }else{
-                          isPlaying.clear();
-                          isPaused.clear();
-                          isLoadingAudio.clear();
-                          for(int i=0;i<messageLength;i++){
+                        messageLength = snapshot.data.docs.length;
+                        if(messageLength!=isPlaying.length){
+                          if(messageLength>isPlaying.length && messageLength<isPlaying.length+2){
                             isPlaying.add(false);
                             isPaused.add(false);
                             isLoadingAudio.add(false);
-                          }
-                        }
-                        print(isPlaying.length);
-                        print(isPaused.length);
-                        print(isLoadingAudio.length);
-                      }
-
-                      if(readMessageUpdate){
-                        Map<String, dynamic> body={
-                          "room_id": personChatId,
-                          "read_by": widget.currentUserId,
-                          "messages_read": listMessage.length
-                        };
-                        Future.delayed(Duration.zero,(){
-                          Provider.of<ChatProvider>(context,listen: false).personalChatMessageReadUpdate(body);
-                          Provider.of<ChatProvider>(context,listen: false).personalChatDataFetch(widget.currentUserId);
-                        });
-                        readMessageUpdate=false;
-                      }
-
-
-                      List<String> date = [];
-                      List<String> time = [];
-
-                      var dateTimeNowToday = DateTime.now();
-                      List<String> splitToday = dateTimeNowToday.toString().split(" ");
-                      DateTime dateParsedToday = DateTime.parse(splitToday[0]);
-                      String dateFormattedToday = DateFormat('dd MMMM yyyy').format(dateParsedToday);
-
-                      var dateTimeNowYesterday = DateTime.now().subtract(const Duration(days:1));
-                      List<String> splitYesterday = dateTimeNowYesterday.toString().split(" ");
-                      DateTime dateParsedYesterday = DateTime.parse(splitYesterday[0]);
-                      String dateFormattedYesterday = DateFormat('dd MMMM yyyy').format(dateParsedYesterday);
-
-                      for(int i=0; i<snapshot.data.docs.length; i++){
-                        DateTime dateFormat = new DateTime.fromMillisecondsSinceEpoch(int.parse(snapshot.data.docs[i].data()["timestamp"].toString()));
-                        String dateFormatted = DateFormat('dd MMMM yyyy').format(dateFormat);
-                        if(dateFormatted == dateFormattedToday){
-                          date.add("Today");
-                        }else if(dateFormatted == dateFormattedYesterday){
-                          date.add("Yesterday");
-                        }else{
-                          date.add(dateFormatted);
-                        }
-                        String formattedTime = DateFormat.jm().format(dateFormat);
-                        time.add(formattedTime);
-                      }
-
-                      List<String> dateReversed = date.reversed.toList();
-                      List<String> timeReversed = time.reversed.toList();
-
-
-                      return ListView.builder(
-                        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                        itemBuilder: (context, index) {
-                          double size = 0;
-                          String unit = "";
-                          if (snapshot.data.docs[index].data()["fileSize"] != null) {
-                            if (snapshot.data.docs[index].data()["fileSize"] < 100000) {
-                              size = snapshot.data.docs[index].data()["fileSize"] / 1000;
-                              unit = "KB";
-                            } else if (snapshot.data.docs[index].data()["fileSize"] > 100000) {
-                              size = snapshot.data.docs[index].data()["fileSize"] / 1000000;
-                              unit = "MB";
+                          }else{
+                            isPlaying.clear();
+                            isPaused.clear();
+                            isLoadingAudio.clear();
+                            for(int i=0;i<messageLength;i++){
+                              isPlaying.add(false);
+                              isPaused.add(false);
+                              isLoadingAudio.add(false);
                             }
                           }
-                          int itemCount = snapshot.data.docs.length ?? 0;
-                          int reversedIndex = itemCount - 1 - index;
-                          return PersonMessageTile(
-                            messageTime: snapshot.data.docs[index].data()["timestamp"],
-                            message: snapshot.data.docs[index].data()["content"],
-                            sentByMe: snapshot.data.docs[index].data()["idFrom"] == id,
-                            isImage: snapshot.data.docs[index].data()["type"] == 1,
-                            isFile: snapshot.data.docs[index].data()["type"] == 3,
-                            fileExtension: snapshot.data.docs[index].data()["fileExtension"] ?? "",
-                            fileName: snapshot.data.docs[index].data()["fileName"] ?? "",
-                            fileSize: size.toStringAsPrecision(2),
-                            fileSizeUnit: unit,
-                            index: reversedIndex,
-                            date: dateReversed,
-                            time: timeReversed,
-                            isForwarded: snapshot.data.docs[index].data()["isForwarded"]!=null?true:false,
-                            messageReaction: snapshot.data.docs[index].data()["messageReaction"]??[],
-                            messageId: snapshot.data.docs[index].data()["messageId"]??"",
-                            userId: _user.uid,
-                            displayName: _user.displayName,
-                            photo: _user.photoURL,
-                            personChatId: personChatId,
-                            fileSizeFull: snapshot.data.docs[index].data()["fileSize"]??0,
-                            sender: snapshot.data.docs[index].data()["idFrom"] == id?_user.displayName:widget.peerName,
-                            selectMessage: selectedMessageFunc,
-                            previousMessage: snapshot.data.docs[index].data()["previousMessage"]??"",
-                            previousSender: snapshot.data.docs[index].data()["previousSender"]??"",
-                            roomId: widget.roomId,
-                            isAudio: snapshot.data.docs[index].data()["type"] == 4,
-                            isPlaying: isPlaying[reversedIndex],
-                            isPaused: isPaused[reversedIndex],
-                            isLoadingAudio: isLoadingAudio[reversedIndex],
-                            startAudio: startAudio,
-                            pauseAudio: pauseAudio,
-                            duration: duration,
-                            currentDuration: currentDuration,
-                            editMessage: editMessage,
-                            showDate: showDate,
-                            showDateToggle: showDateToggle,
-                          );
-                        },
-                        // ChatWidget.widgetChatBuildItem(context, listMessage, widget.currentUserId, index, snapshot.data.documents[index], peerAvatar),
-                        itemCount: snapshot.data.docs.length,
-                        reverse: true,
-                        controller: listScrollController,
-                      );
-                    }
-                },
-              ),
-                  ),
-            ),
-            // Input content
-            buildInput(),
-          ],
-        ),
+                          print(isPlaying.length);
+                          print(isPaused.length);
+                          print(isLoadingAudio.length);
+                        }
 
-        // Loading
-        buildLoading()
-      ],
+                        if(readMessageUpdate){
+                          Map<String, dynamic> body={
+                            "room_id": personChatId,
+                            "read_by": widget.currentUserId,
+                            "messages_read": listMessage.length
+                          };
+                          Future.delayed(Duration.zero,(){
+                            Provider.of<ChatProvider>(context,listen: false).personalChatMessageReadUpdate(body);
+                            Provider.of<ChatProvider>(context,listen: false).personalChatDataFetch(widget.currentUserId);
+                          });
+                          readMessageUpdate=false;
+                        }
+
+
+                        List<String> date = [];
+                        List<String> time = [];
+
+                        var dateTimeNowToday = DateTime.now();
+                        List<String> splitToday = dateTimeNowToday.toString().split(" ");
+                        DateTime dateParsedToday = DateTime.parse(splitToday[0]);
+                        String dateFormattedToday = DateFormat('dd MMMM yyyy').format(dateParsedToday);
+
+                        var dateTimeNowYesterday = DateTime.now().subtract(const Duration(days:1));
+                        List<String> splitYesterday = dateTimeNowYesterday.toString().split(" ");
+                        DateTime dateParsedYesterday = DateTime.parse(splitYesterday[0]);
+                        String dateFormattedYesterday = DateFormat('dd MMMM yyyy').format(dateParsedYesterday);
+
+                        for(int i=0; i<snapshot.data.docs.length; i++){
+                          DateTime dateFormat = new DateTime.fromMillisecondsSinceEpoch(int.parse(snapshot.data.docs[i].data()["timestamp"].toString()));
+                          String dateFormatted = DateFormat('dd MMMM yyyy').format(dateFormat);
+                          if(dateFormatted == dateFormattedToday){
+                            date.add("Today");
+                          }else if(dateFormatted == dateFormattedYesterday){
+                            date.add("Yesterday");
+                          }else{
+                            date.add(dateFormatted);
+                          }
+                          String formattedTime = DateFormat.jm().format(dateFormat);
+                          time.add(formattedTime);
+                        }
+
+                        List<String> dateReversed = date.reversed.toList();
+                        List<String> timeReversed = time.reversed.toList();
+
+
+                        return ListView.builder(
+                          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                          itemBuilder: (context, index) {
+                            double size = 0;
+                            String unit = "";
+                            if (snapshot.data.docs[index].data()["fileSize"] != null) {
+                              if (snapshot.data.docs[index].data()["fileSize"] < 100000) {
+                                size = snapshot.data.docs[index].data()["fileSize"] / 1000;
+                                unit = "KB";
+                              } else if (snapshot.data.docs[index].data()["fileSize"] > 100000) {
+                                size = snapshot.data.docs[index].data()["fileSize"] / 1000000;
+                                unit = "MB";
+                              }
+                            }
+                            int itemCount = snapshot.data.docs.length ?? 0;
+                            int reversedIndex = itemCount - 1 - index;
+                            return PersonMessageTile(
+                              messageTime: snapshot.data.docs[index].data()["timestamp"],
+                              message: snapshot.data.docs[index].data()["content"],
+                              sentByMe: snapshot.data.docs[index].data()["idFrom"] == id,
+                              isImage: snapshot.data.docs[index].data()["type"] == 1,
+                              isFile: snapshot.data.docs[index].data()["type"] == 3,
+                              fileExtension: snapshot.data.docs[index].data()["fileExtension"] ?? "",
+                              fileName: snapshot.data.docs[index].data()["fileName"] ?? "",
+                              fileSize: size.toStringAsPrecision(2),
+                              fileSizeUnit: unit,
+                              index: reversedIndex,
+                              date: dateReversed,
+                              time: timeReversed,
+                              isForwarded: snapshot.data.docs[index].data()["isForwarded"]!=null?true:false,
+                              messageReaction: snapshot.data.docs[index].data()["messageReaction"]??[],
+                              messageId: snapshot.data.docs[index].data()["messageId"]??"",
+                              userId: _user.uid,
+                              displayName: _user.displayName,
+                              photo: _user.photoURL,
+                              personChatId: personChatId,
+                              fileSizeFull: snapshot.data.docs[index].data()["fileSize"]??0,
+                              sender: snapshot.data.docs[index].data()["idFrom"] == id?_user.displayName:widget.peerName,
+                              selectMessage: selectedMessageFunc,
+                              previousMessage: snapshot.data.docs[index].data()["previousMessage"]??"",
+                              previousSender: snapshot.data.docs[index].data()["previousSender"]??"",
+                              roomId: widget.roomId,
+                              isAudio: snapshot.data.docs[index].data()["type"] == 4,
+                              isPlaying: isPlaying[reversedIndex],
+                              isPaused: isPaused[reversedIndex],
+                              isLoadingAudio: isLoadingAudio[reversedIndex],
+                              startAudio: startAudio,
+                              pauseAudio: pauseAudio,
+                              duration: duration,
+                              currentDuration: currentDuration,
+                              editMessage: editMessage,
+                              showDate: showDate,
+                              showDateToggle: showDateToggle,
+                            );
+                          },
+                          // ChatWidget.widgetChatBuildItem(context, listMessage, widget.currentUserId, index, snapshot.data.documents[index], peerAvatar),
+                          itemCount: snapshot.data.docs.length,
+                          reverse: true,
+                          controller: listScrollController,
+                        );
+                      }
+                  },
+                ),
+                    ),
+              ),
+              // Input content
+              buildInput(),
+            ],
+          ),
+
+          // Loading
+          buildLoading()
+        ],
+      ),
     );
   }
 

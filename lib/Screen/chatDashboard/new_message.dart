@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:mate_app/Screen/chatDashboard/search_person.dart';
 
 import '../../asset/Colors/MateColors.dart';
+import '../../constant.dart';
 import '../../controller/theme_controller.dart';
 import '../../groupChat/services/database_service.dart';
 import '../chat1/screens/chat.dart';
@@ -48,7 +49,7 @@ class _NewMessageState extends State<NewMessage> {
       });
       setState(() {
         isLoading = false;
-        hasUserSearched = true;
+        //hasUserSearched = true;
       });
     });
     super.initState();
@@ -101,31 +102,43 @@ class _NewMessageState extends State<NewMessage> {
                 ],
               ),
             ),
-            GestureDetector(
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context)=>SearchPerson()));
-              },
-              child: Container(
-                margin: EdgeInsets.only(left: 16,right: 16,top: 16),
-                height: 60,
-                decoration: BoxDecoration(
-                  color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
-                  borderRadius: BorderRadius.circular(20),
+            SizedBox(
+              height: 16,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TextField(
+                onChanged: (val) => setState((){
+                  searchedName=val;
+                  if(searchedName==""){
+                    hasUserSearched = false;
+                  }else{
+                    hasUserSearched = true;
+                  }
+                }),
+                cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                style:  TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.1,
+                  color: themeController.isDarkMode?Colors.white:Colors.black,
                 ),
-                padding: EdgeInsets.only(left: 16, right: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("Search here...",
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
-                      ),
-                    ),
-                    Container(
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: themeController.isDarkMode ? MateColors.containerDark : MateColors.containerLight,
+                  hintStyle: TextStyle(
+                    fontSize: 14,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w400,
+                    color: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                  ),
+                  hintText: "Search here...",
+                  suffixIcon: Padding(
+                    padding: const EdgeInsets.only(right: 5),
+                    child: Container(
                       height: 40,
                       width: 40,
+                      margin: EdgeInsets.all(3),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(14),
                         color: themeController.isDarkMode?MateColors.textFieldSearchDark:MateColors.textFieldSearchLight,
@@ -138,12 +151,14 @@ class _NewMessageState extends State<NewMessage> {
                         ),
                       ),
                     ),
-                  ],
+                  ),
+                  enabledBorder: commonBorder.copyWith(borderRadius: BorderRadius.circular(20.0),),
+                  focusedBorder: commonBorder.copyWith(borderRadius: BorderRadius.circular(20.0),),
                 ),
               ),
             ),
             Expanded(
-              child:  isLoading ?
+              child: isLoading ?
               Container(
                 child: Center(
                   child: CircularProgressIndicator(
@@ -167,6 +182,24 @@ class _NewMessageState extends State<NewMessage> {
         itemCount: userList.length,//searchResultSnapshot.docs.length,
         itemBuilder: (context, index) {
           print(userList[index].displayName);
+          return Visibility(
+            visible: searchedName!="" && userList[index].displayName.toString().toLowerCase().contains(searchedName.toLowerCase()),
+            child: groupTile(
+              userList[index].uuid,
+              userList[index].uid,
+              userList[index].displayName,
+              userList[index].photoURL,
+              userList[index].email,
+              index==0? true: userList[index].displayName[0].toLowerCase() != userList[index-1].displayName[0].toLowerCase()? true : false,
+            ),
+          );
+        }) :
+    ListView.builder(
+        padding: EdgeInsets.only(top: 16),
+        shrinkWrap: true,
+        itemCount: userList.length,//searchResultSnapshot.docs.length,
+        itemBuilder: (context, index) {
+          print(userList[index].displayName);
           return groupTile(
             userList[index].uuid,
             userList[index].uid,
@@ -175,8 +208,7 @@ class _NewMessageState extends State<NewMessage> {
             userList[index].email,
             index==0? true: userList[index].displayName[0].toLowerCase() != userList[index-1].displayName[0].toLowerCase()? true : false,
           );
-        }) :
-    Container();
+        });
   }
 
   Widget groupTile(String peerUuid,String peerId, String peerName, String peerAvatar,String email,bool showOrNot) {

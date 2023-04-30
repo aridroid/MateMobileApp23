@@ -14,11 +14,13 @@ import '../Model/AuthUser.dart';
 import '../Services/AuthUserService.dart';
 import '../Exceptions/Custom_Exception.dart';
 import '../Model/UserClass.dart';
+import '../Services/appleSigninService.dart';
 
 class AuthUserProvider with ChangeNotifier {
   ///initialization
   FirebaseMessaging _firebaseMessaging;
   GoogleSignInService _googleSignInService;
+  AppleSignInService _appleSignInService;
   AuthUser _authUser;
   List<UserClass> _authUserClasses = [];
   AuthUserService _authUserService;
@@ -47,6 +49,7 @@ class AuthUserProvider with ChangeNotifier {
     _authUserService = AuthUserService();
     _firebaseMessaging = FirebaseMessaging.instance;
     _googleSignInService = GoogleSignInService();
+    _appleSignInService = AppleSignInService();
     // _firebaseMessaging.requestNotificationPermissions();
     _firebaseMessaging.requestPermission();
   }
@@ -283,6 +286,41 @@ class AuthUserProvider with ChangeNotifier {
     return result;
   }
 
+  Future<bool> appleLogin() async {
+    error = '';
+    bool result = false;
+    try {
+      String deviceId= await _firebaseMessaging.getToken();
+      await _authUserService.clearAuthUserDataFromSharedPreference();
+      List<dynamic> data = await _appleSignInService.useAppleAuthentication();
+      loggingInLoaderStatus = true;
+      String googleToken= data[0];
+      User user= data[1];
+      log(user.toString());
+      print("deviceId : $deviceId");
+      AuthUser userData = await _authUserService.login(googleToken: googleToken, deviceId: deviceId);
+      if(userData != null){
+        DatabaseService(uid: user.uid).updateUserData(user, userData.id, userData.displayName,userData.photoUrl);
+        authUser = userData;
+        result = true;
+        var _user = FirebaseAuth.instance.currentUser;
+        await _user.updateProfile(displayName: authUser.displayName,photoURL: authUser.photoUrl);
+      }
+    } on PlatformException catch (err) {
+      print('platform exception: ${err.toString()}');
+      error = "Sign in failed. Check Your Internet Connection";
+    } catch (err) {
+      if(err.toString().contains("User is de-activated.")){
+        error = "Your account is deleted";
+      }else{
+        _setError(err);
+      }
+    } finally {
+      loggingInLoaderStatus = false;
+    }
+    return result;
+  }
+
   /// we will try to check if user google token saved into the shared preference or not
   /// if google token is found then we will check if the authUser is there or not
   /// if authUser is there then we will set it as runtime variable and navigate use to the
@@ -318,6 +356,7 @@ class AuthUserProvider with ChangeNotifier {
 
   Future<void> logout() async {
     await _googleSignInService.signOutGoogle();
+    await _appleSignInService.signOutApple();
     await _authUserService.clearAuthUserDataFromSharedPreference();
   }
 

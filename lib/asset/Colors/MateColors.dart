@@ -55,8 +55,8 @@ class MateColors extends ColorSwatch<int> {
   static Color dividerLight = Colors.black.withOpacity(0.1);
   static Color smallContainerDark = Color(0xFF595E6E).withOpacity(0.35);
   static Color smallContainerLight = Colors.white.withOpacity(0.50);
-  static Color popupDark = Colors.white.withOpacity(0.12);
-  static Color popupLight = Colors.white.withOpacity(0.7);
+  static Color popupDark = Color(0xFF2a3b4b);
+  static Color popupLight = Colors.white;
   static Color iconPopupLight = Color(0xFF8A8A99);
 
 

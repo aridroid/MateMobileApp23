@@ -224,6 +224,50 @@ class _ReportPageState extends State<ReportPage> {
                             ),
                           ),
                         ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 50),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Divider(
+                                  thickness: 1,
+                                  color: themeController.isDarkMode?MateColors.dividerDark:MateColors.dividerLight,
+                                ),
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text('Or mail us at',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  fontFamily: 'Poppins',
+                                  color: themeController.isDarkMode?Colors.white: Colors.black,
+                                ),
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Expanded(
+                                child: Divider(
+                                  thickness: 1,
+                                  color: themeController.isDarkMode?MateColors.dividerDark:MateColors.dividerLight,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 16,),
+                        Center(
+                          child: Text('info@mateapp.us',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'Poppins',
+                              color: themeController.isDarkMode?Colors.white: Colors.black,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),

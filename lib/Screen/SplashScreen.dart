@@ -195,43 +195,59 @@ class _SplashScreenState extends State<SplashScreen>{
     List<String> separatedString = [];
     separatedString.addAll(url.path.split('/'));
     print("hello sibasis its ${url.path}");
+    print(separatedString[1]);
     if (separatedString[1] == "group") {
     print("hello sibasis its0 ${url.path}");
       groupId=separatedString[2];
       isDynamicLinkHit=true;
       //from here changing
       //_attemptAutoLogin(context,pageIndex: 3);
-      Provider.of<AuthUserProvider>(context, listen: false).autoLogin().then((value) async {
+      Provider.of<AuthUserProvider>(Get.context, listen: false).autoLogin().then((value) async {
       if (value) {
         print('autologin attempt was fine');
         var res = await Get.to(GroupDetailsBeforeJoining(groupId: groupId,));
         //navigatorKey.currentState.push(MaterialPageRoute(builder: (context)=>GroupDetailsBeforeJoining(groupId: groupId,)));
         if(res!=null && ModalRoute.of(context).isCurrent){
           Timer(Duration(seconds: 1), () async {
-            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen(groupId: groupId, index: 0,)));
+            Navigator.of(Get.context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen(groupId: groupId, index: 0,)));
           });
         }
       }else{
         print('autologin attempt false');
-        Navigator.of(context).pushReplacementNamed(GoogleLogin.loginScreenRoute);
+        Navigator.of(Get.context).pushReplacementNamed(GoogleLogin.loginScreenRoute);
       }
     });
     }else if(separatedString[1] == "campus"){
       isDynamicLinkHit=true;
-      Provider.of<AuthUserProvider>(context, listen: false).autoLogin().then((value) async {
+      Provider.of<AuthUserProvider>(Get.context, listen: false).autoLogin().then((value) async {
         if (value) {
           print('autologin attempt was fine');
-          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen(index: 2,)));
-          //var res = await Get.to(GroupDetailsBeforeJoining(groupId: groupId,));
-          //navigatorKey.currentState.push(MaterialPageRoute(builder: (context)=>GroupDetailsBeforeJoining(groupId: groupId,)));
-          // if(res!=null && ModalRoute.of(context).isCurrent){
-          //   Timer(Duration(seconds: 1), () async {
-          //     Navigator.of(context).push(MaterialPageRoute(builder: (context) => HomeScreen(groupId: groupId, index: 0,)));
-          //   });
-          // }
+          Navigator.of(Get.context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen(index: 3,)));
         }else{
           print('autologin attempt false');
-          Navigator.of(context).pushReplacementNamed(GoogleLogin.loginScreenRoute);
+          Navigator.of(Get.context).pushReplacementNamed(GoogleLogin.loginScreenRoute);
+        }
+      });
+    }else if(separatedString[1] == "event"){
+      isDynamicLinkHit=true;
+      Provider.of<AuthUserProvider>(Get.context, listen: false).autoLogin().then((value) async {
+        if (value) {
+          print('autologin attempt was fine');
+          Navigator.of(Get.context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen(index: 2,)));
+        }else{
+          print('autologin attempt false');
+          Navigator.of(Get.context).pushReplacementNamed(GoogleLogin.loginScreenRoute);
+        }
+      });
+    }else if(separatedString[1] == "feed"){
+      isDynamicLinkHit=true;
+      Provider.of<AuthUserProvider>(Get.context, listen: false).autoLogin().then((value) async {
+        if (value) {
+          print('autologin attempt was fine');
+          Navigator.of(Get.context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen(index: 0,)));
+        }else{
+          print('autologin attempt false');
+          Navigator.of(Get.context).pushReplacementNamed(GoogleLogin.loginScreenRoute);
         }
       });
     }

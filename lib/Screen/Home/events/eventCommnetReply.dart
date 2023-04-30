@@ -154,15 +154,16 @@ class _EventCommentReplyState extends State<EventCommentReply> {
                                 ),
                                 title: Padding(
                                   padding: const EdgeInsets.only(top: 10),
-                                  child: Text(
-                                    widget.result.content,
-                                    style: TextStyle(
-                                      fontSize: 14,
+                                  child: buildEmojiAndText(
+                                    content: widget.result.content,
+                                    textStyle: TextStyle(
                                       fontFamily: 'Poppins',
                                       fontWeight: FontWeight.w400,
                                       letterSpacing: 0.1,
                                       color: themeController.isDarkMode?Colors.white:Colors.black,
                                     ),
+                                    normalFontSize: 14,
+                                    emojiFontSize: 24,
                                   ),
                                 ),
                                 subtitle: Padding(
@@ -251,15 +252,16 @@ class _EventCommentReplyState extends State<EventCommentReply> {
                                           ),
                                           title: Padding(
                                             padding: const EdgeInsets.only(top: 10),
-                                            child: Text(
-                                              widget.result.replies[index].content,
-                                              style:  TextStyle(
-                                                fontSize: 14,
+                                            child: buildEmojiAndText(
+                                              content:  widget.result.replies[index].content,
+                                              textStyle: TextStyle(
+                                                fontFamily: 'Poppins',
                                                 fontWeight: FontWeight.w400,
                                                 letterSpacing: 0.1,
-                                                fontFamily: 'Poppins',
                                                 color: themeController.isDarkMode?Colors.white:Colors.black,
                                               ),
+                                              normalFontSize: 14,
+                                              emojiFontSize: 24,
                                             ),
                                           ),
                                           subtitle: Padding(

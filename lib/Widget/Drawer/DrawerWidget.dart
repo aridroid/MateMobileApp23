@@ -37,7 +37,7 @@ class DrawerWidget extends StatelessWidget {
           child: Column(
             children: [
               SizedBox(
-                height: scH*0.12,
+                height: scH*0.08,
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 16,right: 16),
@@ -105,13 +105,15 @@ class DrawerWidget extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                height: scH*0.04,
+                height: scH*0.03,
               ),
               Divider(
                 thickness: 1,
                 color: themeController.isDarkMode?MateColors.dividerDark:MateColors.dividerLight,
               ),
               ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.only(top: 0,left: 16,right: 16),
                 horizontalTitleGap: 10,
                 leading: Padding(
                   padding: const EdgeInsets.only(left: 8.0),
@@ -149,6 +151,8 @@ class DrawerWidget extends StatelessWidget {
                 ),
               ),
               ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.only(top: 0,left: 16,right: 16),
                 horizontalTitleGap: 10,
                 leading: Padding(
                   padding: const EdgeInsets.only(left: 8.0),
@@ -186,6 +190,8 @@ class DrawerWidget extends StatelessWidget {
                 ),
               ),
               ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.only(top: 0,left: 16,right: 16),
                 horizontalTitleGap: 10,
                 leading: Padding(
                   padding: const EdgeInsets.only(left: 8.0),
@@ -223,6 +229,8 @@ class DrawerWidget extends StatelessWidget {
                 ),
               ),
               ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.only(top: 0,left: 16,right: 16),
                 horizontalTitleGap: 10,
                 leading: Padding(
                   padding: const EdgeInsets.only(left: 8.0),
@@ -260,6 +268,8 @@ class DrawerWidget extends StatelessWidget {
                 ),
               ),
               ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.only(top: 0,left: 16,right: 16),
                 horizontalTitleGap: 10,
                 leading: Padding(
                   padding: const EdgeInsets.only(left: 8.0),
@@ -297,6 +307,8 @@ class DrawerWidget extends StatelessWidget {
                 color: themeController.isDarkMode?MateColors.dividerDark:MateColors.dividerLight,
               ),
               ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.only(top: 0,left: 16,right: 16),
                 horizontalTitleGap: 10,
                 leading: Padding(
                   padding: const EdgeInsets.only(left: 8.0),

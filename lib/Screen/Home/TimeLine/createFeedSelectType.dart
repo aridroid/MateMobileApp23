@@ -179,8 +179,8 @@ class _CreateFeedSelectTypeState extends State<CreateFeedSelectType> {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 height: 1.2,
-                                color: themeController.isDarkMode ? Colors.white.withOpacity(0.12) : Colors.black.withOpacity(0.6),
-                                fontWeight: FontWeight.w500,
+                                color: themeController.isDarkMode ? Colors.white : Colors.black,
+                                fontWeight: FontWeight.w400,
                                 fontFamily: 'Poppins',
                                 fontSize: 12.0,
                               ),
@@ -248,8 +248,8 @@ class _CreateFeedSelectTypeState extends State<CreateFeedSelectType> {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 height: 1.2,
-                                color: themeController.isDarkMode ? Colors.white.withOpacity(0.12) : Colors.black.withOpacity(0.6),
-                                fontWeight: FontWeight.w500,
+                                color: themeController.isDarkMode ? Colors.white : Colors.black,
+                                fontWeight: FontWeight.w400,
                                 fontFamily: 'Poppins',
                                 fontSize: 12.0,
                               ),

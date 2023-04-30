@@ -199,8 +199,8 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
       },
       child: AnimatedContainer(
         duration: Duration(milliseconds: soundRecordNotifier.isShow ? 0 : 300),
-        height: 50,
-        width: (soundRecordNotifier.isShow) ? MediaQuery.of(context).size.width : 35,
+        height: 60,//50,
+        width: (soundRecordNotifier.isShow) ? MediaQuery.of(context).size.width : 50,
         child: Stack(
           children: [
             Padding(

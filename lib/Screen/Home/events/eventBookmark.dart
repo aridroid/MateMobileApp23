@@ -17,6 +17,7 @@ import '../../../Widget/Loaders/Shimmer.dart';
 import '../../../Widget/mediaViewer.dart';
 import '../../../Widget/video_thumbnail.dart';
 import '../../../asset/Colors/MateColors.dart';
+import '../../../constant.dart';
 import '../../../controller/theme_controller.dart';
 import 'package:mate_app/Model/eventListingModel.dart';
 
@@ -430,14 +431,15 @@ class _EventBookmarkState extends State<EventBookmark> {
                               },
                               child: Padding(
                                 padding: EdgeInsets.only(left: 16, top: 5),
-                                child: Text(
-                                  list[index].title,
-                                  style: TextStyle(
-                                    fontSize: 16,
+                                child: buildEmojiAndText(
+                                  content: list[index].title,
+                                  textStyle: TextStyle(
                                     fontFamily: 'Poppins',
                                     fontWeight: FontWeight.w700,
                                     color: themeController.isDarkMode?Colors.white:Colors.black,
                                   ),
+                                  normalFontSize: 16,
+                                  emojiFontSize: 26,
                                 ),
                               ),
                             ),
@@ -458,15 +460,16 @@ class _EventBookmarkState extends State<EventBookmark> {
                               },
                               child: Padding(
                                 padding: EdgeInsets.only(left: 16, top: 10, right: 10),
-                                child: Text(
-                                  list[index].description,
-                                  style: TextStyle(
-                                    fontSize: 14,
+                                child: buildEmojiAndText(
+                                  content: list[index].description,
+                                  textStyle: TextStyle(
                                     fontFamily: 'Poppins',
                                     fontWeight: FontWeight.w400,
                                     letterSpacing: 0.1,
                                     color: themeController.isDarkMode?Colors.white:Colors.black,
                                   ),
+                                  normalFontSize: 14,
+                                  emojiFontSize: 24,
                                 ),
                               ),
                             ),

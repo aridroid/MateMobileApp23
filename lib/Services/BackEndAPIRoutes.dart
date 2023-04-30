@@ -308,6 +308,11 @@ class BackEndAPIRoutes {
       host: _host,
       path: '$_path/discussion/postdelete/$postId');
 
+  Uri hideACampusTalk(int postId) => Uri(
+      scheme: _scheme,
+      host: _host,
+      path: '$_path/discussion/posthide/$postId');
+
 
 
 

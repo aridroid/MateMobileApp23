@@ -35,6 +35,10 @@ class _AddPersonWhileCreatingGroupState extends State<AddPersonWhileCreatingGrou
   getData()async{
     DatabaseService().getAllUserData(_user.uid).then((snapshot){
       searchResultSnapshot = snapshot;
+      _addUserController.personList.clear();
+      _addUserController.selected.clear();
+      _addUserController.addConnectionUid.clear();
+      _addUserController.addConnectionDisplayName.clear();
       for(int i=0;i<searchResultSnapshot.docs.length;i++){
         if(searchResultSnapshot.docs[i]["displayName"]!=null && searchResultSnapshot.docs[i]["displayName"]!="")
         {

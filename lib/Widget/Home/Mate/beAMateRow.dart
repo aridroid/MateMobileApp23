@@ -12,6 +12,7 @@ import 'package:flutter_switch/flutter_switch.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../constant.dart';
 import '../../Loaders/Shimmer.dart';
 
 class BeAMateRow extends StatefulWidget {
@@ -195,28 +196,29 @@ class _BeAMateRowState extends State<BeAMateRow> {
           ),
           Padding(
             padding: EdgeInsets.only(left: 16,top: 0),
-            child: Text(
-              title,
-              style: TextStyle(
-                fontSize: 16,
+            child: buildEmojiAndText(
+              content: title,
+              textStyle: TextStyle(
                 fontFamily: 'Poppins',
                 fontWeight: FontWeight.w700,
                 color: themeController.isDarkMode?Colors.white:Colors.black,
               ),
+              normalFontSize: 16,
+              emojiFontSize: 26,
             ),
           ),
           Padding(
             padding: EdgeInsets.fromLTRB(15, 10, 14, 0),
-            child: Text(
-              description,
-              style: TextStyle(
-                fontSize: 14,
+            child: buildEmojiAndText(
+              content: description,
+              textStyle: TextStyle(
                 fontFamily: 'Poppins',
                 fontWeight: FontWeight.w400,
                 letterSpacing: 0.1,
                 color: themeController.isDarkMode?Colors.white:Colors.black,
               ),
-              overflow: TextOverflow.visible,
+              normalFontSize: 14,
+              emojiFontSize: 24,
             ),
           ),
           portfolioLink != null ?

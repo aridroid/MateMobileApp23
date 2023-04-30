@@ -1,9 +1,11 @@
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:mate_app/Screen/Home/Community/campusTalkForums.dart';
 import 'package:mate_app/Screen/Home/Community/campusTalkLatest.dart';
 import 'package:mate_app/Screen/Home/Community/campusTalkYourCampus.dart';
+import 'package:mate_app/constant.dart';
 import 'package:provider/provider.dart';
 
 import '../../../Model/campusTalkPostsModel.dart';
@@ -44,22 +46,25 @@ class _CampusDashboardState extends State<CampusDashboard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title,
-              style: TextStyle(
-                fontSize: 16,
+            buildEmojiAndText(
+              content: title,
+              textStyle: TextStyle(
                 fontWeight: FontWeight.w700,
                 color: themeController.isDarkMode?Colors.white:Colors.black,
               ),
+              normalFontSize: 16,
+              emojiFontSize: 26,
             ),
             SizedBox(height: 10,),
             Expanded(
-              child: Text(subTitle,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 14,
+              child: buildEmojiAndText(
+                content: subTitle,
+                textStyle: TextStyle(
                   fontWeight: FontWeight.w400,
                   color: themeController.isDarkMode?Colors.white:Colors.black,
                 ),
+                normalFontSize: 14,
+                emojiFontSize: 24,
               ),
             ),
           ],
@@ -88,7 +93,7 @@ class _CampusDashboardState extends State<CampusDashboard> {
             isAnonymous: list.isAnonymous,
             anonymousUser: list.anonymousUser,
             url: list.url,
-            createdAt: list.createdAt,
+            createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(list.createdAt, true))}",
             rowIndex: 0,
             isBookmarked: list.isBookmarked,
             isLiked: list.isLiked,

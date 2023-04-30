@@ -53,8 +53,8 @@ class ShowMicWithText extends StatelessWidget {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeIn,
-                  width: soundRecorderState.buttonPressed ? 50 : 35,
-                  height: soundRecorderState.buttonPressed ? 50 : 35,
+                  width: soundRecorderState.buttonPressed ? 50 : 50,
+                  height: soundRecorderState.buttonPressed ? 50 : 50,
                   child: Container(
                     color: (soundRecorderState.buttonPressed)
                         ? backGroundColor ??

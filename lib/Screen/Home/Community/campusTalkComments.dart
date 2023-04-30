@@ -237,15 +237,16 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
                                   ),
                                   title: Padding(
                                     padding: const EdgeInsets.only(top: 10),
-                                    child: Text(
-                                      commentData.content,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontFamily: 'Poppins',
+                                    child: buildEmojiAndText(
+                                      content: commentData.content,
+                                      textStyle: TextStyle(
                                         fontWeight: FontWeight.w400,
                                         letterSpacing: 0.1,
+                                        fontFamily: 'Poppins',
                                         color: themeController.isDarkMode?Colors.white:Colors.black,
                                       ),
+                                      normalFontSize: 14,
+                                      emojiFontSize: 24,
                                     ),
                                   ),
                                   subtitle: Padding(
@@ -446,15 +447,16 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
                                         ),
                                         title: Padding(
                                           padding: const EdgeInsets.only(top: 10),
-                                          child: Text(
-                                            commentData.replies.last.content,
-                                            style:  TextStyle(
-                                              fontSize: 14,
+                                          child: buildEmojiAndText(
+                                            content: commentData.replies.last.content,
+                                            textStyle: TextStyle(
                                               fontWeight: FontWeight.w400,
                                               letterSpacing: 0.1,
                                               fontFamily: 'Poppins',
                                               color: themeController.isDarkMode?Colors.white:Colors.black,
                                             ),
+                                            normalFontSize: 14,
+                                            emojiFontSize: 24,
                                           ),
                                         ),
                                         subtitle: Padding(

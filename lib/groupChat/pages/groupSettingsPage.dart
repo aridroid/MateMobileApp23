@@ -6,6 +6,7 @@ import 'package:mate_app/Screen/Profile/UserProfileScreen.dart';
 import 'package:mate_app/Services/community_tab_services.dart';
 import 'package:mate_app/Utility/Utility.dart';
 import 'package:mate_app/asset/Colors/MateColors.dart';
+import 'package:mate_app/constant.dart';
 import 'package:mate_app/controller/theme_controller.dart';
 import 'package:mate_app/groupChat/pages/groupDescriptionPage.dart';
 import 'package:mate_app/groupChat/pages/groupDescriptionShowpage.dart';
@@ -182,15 +183,28 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                             },
                             child: Padding(
                               padding: const EdgeInsets.only(top: 20),
-                              child: Text(snapshot.data['groupName'],
-                                textAlign: TextAlign.center,
-                                overflow: TextOverflow.ellipsis,
-                                style:  TextStyle(fontSize: 18,
-                                  fontFamily: "Poppins",
-                                  fontWeight: FontWeight.w600,
-                                  color: themeController.isDarkMode?Colors.white:MateColors.blackText,
+                              child: Center(
+                                child: buildEmojiAndText(
+                                  content: snapshot.data['groupName'],
+                                  textStyle: TextStyle(
+                                    fontFamily: "Poppins",
+                                    fontWeight: FontWeight.w600,
+                                    color: themeController.isDarkMode?Colors.white:MateColors.blackText,
+                                  ),
+                                  normalFontSize: 18,
+                                  emojiFontSize: 28,
                                 ),
                               ),
+                              // Text(
+                              //   snapshot.data['groupName'],
+                              //   textAlign: TextAlign.center,
+                              //   overflow: TextOverflow.ellipsis,
+                              //   style:  TextStyle(fontSize: 18,
+                              //     fontFamily: "Poppins",
+                              //     fontWeight: FontWeight.w600,
+                              //     color: themeController.isDarkMode?Colors.white:MateColors.blackText,
+                              //   ),
+                              // ),
                             ),
                           ),
                           Center(

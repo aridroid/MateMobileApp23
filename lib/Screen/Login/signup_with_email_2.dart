@@ -3,6 +3,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:mate_app/Services/AuthUserService.dart';
 import 'package:mate_app/Widget/loader.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../asset/Colors/MateColors.dart';
 import '../../constant.dart';
@@ -26,6 +27,7 @@ class _SignupWithEmail2State extends State<SignupWithEmail2> {
   bool indicator = true;
   final formKey = GlobalKey<FormState>();
   AuthUserService authUserService = AuthUserService();
+  bool is18 = false;
 
   @override
   Widget build(BuildContext context) {
@@ -175,6 +177,35 @@ class _SignupWithEmail2State extends State<SignupWithEmail2> {
                           focusedErrorBorder: commonBorder,
                         ),
                       ),
+                      SizedBox(height: 5,),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: SizedBox(
+                          width: 160,
+                          child: CheckboxListTile(
+                            dense: true,
+                            side: BorderSide(color: themeController.isDarkMode?Colors.white:Colors.black),
+                            activeColor: MateColors.activeIcons,
+                            checkColor: Colors.black,
+                            contentPadding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
+                            title: Text(
+                              "Are you 17+ ?",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'Poppins',
+                                color: themeController.isDarkMode?Colors.white: Colors.black,
+                              ),
+                            ),
+                            value: is18,
+                            onChanged: (newValue) {
+                              is18=newValue;
+                              setState(() {});
+                            },
+                            controlAffinity: ListTileControlAffinity.trailing,
+                          ),
+                        ),
+                      ),
                       Container(
                         height: 60,
                         width: scW,
@@ -187,30 +218,40 @@ class _SignupWithEmail2State extends State<SignupWithEmail2> {
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                           ),
                           onPressed: ()async{
-                            if(formKey.currentState.validate()){
-                              setState(() {
-                                isLoadingSignup = true;
-                              });
-                              String response = await authUserService.signupWithEmail(
-                                email: emailController.text,
-                                password: passwordController.text,
-                                category: signupController.category,
-                              );
-                              if(response=="User created successfully"){
-                                setState(() {
-                                  isLoadingSignup = false;
-                                });
-                                Get.to(CreateProfile(fullName: "",photoUrl: "",coverPhotoUrl: "",email: emailController.text,password: passwordController.text,));
-                              }else if(response == "The email has already been taken."){
-                                setState(() {
-                                  isLoadingSignup = false;
-                                });
-                                Fluttertoast.showToast(msg: "The email has already been taken", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
-                              }else{
-                                setState(() {
-                                  isLoadingSignup = false;
-                                });
-                                Fluttertoast.showToast(msg: "Something went wrong", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+                            SharedPreferences preferences = await SharedPreferences.getInstance();
+                            bool val = preferences.getBool('signupEula')??false;
+                            if(val==false){
+                              showEulaPopup(context,"signup");
+                            }else{
+                              if(formKey.currentState.validate()){
+                                if(is18){
+                                  setState(() {
+                                    isLoadingSignup = true;
+                                  });
+                                  String response = await authUserService.signupWithEmail(
+                                    email: emailController.text,
+                                    password: passwordController.text,
+                                    category: signupController.category,
+                                  );
+                                  if(response=="User created successfully"){
+                                    setState(() {
+                                      isLoadingSignup = false;
+                                    });
+                                    Get.to(CreateProfile(fullName: "",photoUrl: "",coverPhotoUrl: "",email: emailController.text,password: passwordController.text,));
+                                  }else if(response == "The email has already been taken."){
+                                    setState(() {
+                                      isLoadingSignup = false;
+                                    });
+                                    Fluttertoast.showToast(msg: "The email has already been taken", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+                                  }else{
+                                    setState(() {
+                                      isLoadingSignup = false;
+                                    });
+                                    Fluttertoast.showToast(msg: "Something went wrong", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+                                  }
+                                }else{
+                                  Fluttertoast.showToast(msg: "Please agree that you are 17+", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+                                }
                               }
                             }
                           },

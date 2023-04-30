@@ -125,6 +125,7 @@ class ChatProvider extends ChangeNotifier{
       for(int i=0;i<_mergedChatModelData.data.length;i++){
         messageList.add(CustomDataForChatList(
           name: "",
+          author: "",
           roomId: _mergedChatModelData.data[i].roomId,
           receiverUid: _mergedChatModelData.data[i].receiverUid,
           updatedAt: _mergedChatModelData.data[i].updatedAt,
@@ -140,6 +141,7 @@ class ChatProvider extends ChangeNotifier{
       for(int i=0;i<_mergedChatModelData.archived.length;i++){
         archiveList.add(CustomDataForChatList(
           name: "",
+          author: "",
           roomId: _mergedChatModelData.archived[i].roomId,
           receiverUid: _mergedChatModelData.archived[i].receiverUid,
           updatedAt: _mergedChatModelData.archived[i].updatedAt,

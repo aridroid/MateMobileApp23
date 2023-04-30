@@ -47,6 +47,7 @@ class Datum {
     this.isMuted,
     this.isPinned,
     this.receiverUid,
+    this.isVisible = false,
   });
 
   String roomId;
@@ -58,6 +59,7 @@ class Datum {
   bool isMuted;
   int isPinned;
   String receiverUid;
+  bool isVisible;
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
     roomId: json["room_id"],
@@ -88,6 +90,7 @@ class Datum {
 class CustomDataForChatList{
   CustomDataForChatList({
     this.name,
+    this.author,
     this.roomId,
     this.totalMessages,
     this.type,
@@ -97,9 +100,11 @@ class CustomDataForChatList{
     this.isMuted,
     this.isPinned,
     this.receiverUid,
+    this.isVisible = false,
   });
 
   String name;
+  String author;
   String roomId;
   int totalMessages;
   String type;
@@ -109,4 +114,5 @@ class CustomDataForChatList{
   bool isMuted;
   int isPinned;
   String receiverUid;
+  bool isVisible;
 }

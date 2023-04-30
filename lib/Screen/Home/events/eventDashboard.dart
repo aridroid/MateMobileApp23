@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 import 'package:dropdown_search/dropdown_search.dart';
@@ -14,6 +15,7 @@ import 'package:mate_app/Screen/Home/events/memberList.dart';
 import 'package:mate_app/Services/eventService.dart';
 import 'package:mate_app/Widget/video_thumbnail.dart';
 import 'package:provider/provider.dart';
+import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -23,8 +25,10 @@ import '../../../Providers/FeedProvider.dart';
 import '../../../Widget/Loaders/Shimmer.dart';
 import '../../../Widget/mediaViewer.dart';
 import '../../../asset/Colors/MateColors.dart';
+import '../../../constant.dart';
 import '../../../controller/theme_controller.dart';
 import 'package:googleapis/calendar/v3.dart' as gCal;
+import '../../../groupChat/services/dynamicLinkService.dart';
 import '../../Profile/ProfileScreen.dart';
 import '../../Profile/UserProfileScreen.dart';
 import '../../Report/reportPage.dart';
@@ -42,6 +46,7 @@ class EventDashBoard extends StatefulWidget {
 
 class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStateMixin {
   ThemeController themeController = Get.find<ThemeController>();
+  TextEditingController _textEditingController = TextEditingController();
   final GlobalKey<ScaffoldState> _key = GlobalKey();
   String token = "";
   EventService _eventService = EventService();
@@ -99,6 +104,7 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
   @override
   void initState() {
     super.initState();
+    _textEditingController.addListener(_onSearchChanged);
     feedProvider = Provider.of<FeedProvider>(context, listen: false);
     getStoredValue();
     _scrollController = new ScrollController()..addListener(_scrollListener);
@@ -112,6 +118,7 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
   @override
   void dispose() {
     super.dispose();
+    _textEditingController.removeListener(_onSearchChanged);
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
   }
@@ -126,7 +133,9 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
             doingPagination = true;
           });
           print('scrolled to bottom page is now $page');
-          future = _eventService.getEventListing(page: page, filterDate: filterDateValueApi,filterLocation: filterLocationValueApi,filterType: filterTypeValueApi,token: token);
+          future = _textEditingController.text.isNotEmpty?
+          _eventService.getSearch(text: _textEditingController.text,page: page,token: token):
+          _eventService.getEventListing(page: page, filterDate: filterDateValueApi,filterLocation: filterLocationValueApi,filterType: filterTypeValueApi,token: token);
           future.then((value) {
             setState(() {
               enableFutureBuilder = true;
@@ -195,8 +204,34 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
   refreshPage() async {
     setState(() {
       page = 1;
+      _textEditingController.clear();
     });
     future = _eventService.getEventListing(page: page, filterDate: filterDateValueApi,filterLocation: filterLocationValueApi,filterType: filterTypeValueApi,token: token);
+    future.then((value) {
+      setState(() {
+        doingPagination = false;
+        Future.delayed(Duration.zero, () {
+          enableFutureBuilder = true;
+        });
+      });
+    });
+  }
+
+  Timer _throttle;
+  _onSearchChanged() {
+    if (_throttle?.isActive??false) _throttle?.cancel();
+    _throttle = Timer(const Duration(milliseconds: 200), () {
+      if(_textEditingController.text.length>2){
+        onSearch();
+      }
+    });
+  }
+
+  onSearch()async{
+    setState(() {
+      page = 1;
+    });
+    future = _eventService.getSearch(text: _textEditingController.text,page: page,token: token);
     future.then((value) {
       setState(() {
         doingPagination = false;
@@ -245,33 +280,40 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                          return EventSearch(isLocal: false,);
-                        },),);
-                      },
-                      child: Container(
-                        margin: EdgeInsets.only(left: 16),
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
-                          borderRadius: BorderRadius.circular(20),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: TextField(
+                        controller: _textEditingController,
+                        onChanged: (value){
+                          if(value.isEmpty){
+                            refreshPage();
+                          }else if(value.length>2){
+                            _onSearchChanged();
+                          }
+                        },
+                        cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                        style:  TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.1,
+                          color: themeController.isDarkMode?Colors.white:Colors.black,
                         ),
-                        padding: EdgeInsets.only(left: 16, right: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text("Search here...",
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
-                              ),
-                            ),
-                            Container(
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: themeController.isDarkMode ? MateColors.containerDark : MateColors.containerLight,
+                          hintStyle: TextStyle(
+                            fontSize: 14,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w400,
+                            color: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                          ),
+                          hintText: "Search here...",
+                          suffixIcon: Padding(
+                            padding: const EdgeInsets.only(right: 5),
+                            child: Container(
                               height: 40,
                               width: 40,
+                              margin: EdgeInsets.all(3),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
                                 color: themeController.isDarkMode?MateColors.textFieldSearchDark:MateColors.textFieldSearchLight,
@@ -284,7 +326,9 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                                 ),
                               ),
                             ),
-                          ],
+                          ),
+                          enabledBorder: commonBorder.copyWith(borderRadius: BorderRadius.circular(20.0),),
+                          focusedBorder: commonBorder.copyWith(borderRadius: BorderRadius.circular(20.0),),
                         ),
                       ),
                     ),
@@ -817,6 +861,13 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                                               } else if (index1 == 5) {
                                                 await Navigator.push(context, MaterialPageRoute(builder: (context) => EditEvent(data: list[index]),));
                                                 getStoredValue();
+                                              }else if(index1 == 6){
+                                                String response  = await DynamicLinkService.buildDynamicLinkEvent(
+                                                  id: list[index].id.toString(),
+                                                );
+                                                if(response!=null){
+                                                  Share.share(response);
+                                                }
                                               }
                                             },
                                             itemBuilder: (context) => [
@@ -914,6 +965,20 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                                                   width: 0,
                                                 ),
                                               ),
+                                              PopupMenuItem(
+                                                value: 6,
+                                                height: 40,
+                                                child: Text(
+                                                  "Share",
+                                                  textAlign: TextAlign.start,
+                                                  style: TextStyle(
+                                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                                    fontWeight: FontWeight.w500,
+                                                    fontFamily: 'Poppins',
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ),
                                             ]
                                         ),
                                       ),
@@ -941,14 +1006,15 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                                         },
                                         child: Padding(
                                           padding: EdgeInsets.only(left: 16, top: 5),
-                                          child: Text(
-                                            list[index].title,
-                                            style: TextStyle(
-                                              fontSize: 16,
+                                          child: buildEmojiAndText(
+                                            content: list[index].title,
+                                            textStyle: TextStyle(
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w700,
                                               color: themeController.isDarkMode?Colors.white:Colors.black,
                                             ),
+                                            normalFontSize: 16,
+                                            emojiFontSize: 26,
                                           ),
                                         ),
                                       ),
@@ -969,15 +1035,16 @@ class _EventDashBoardState extends State<EventDashBoard> with TickerProviderStat
                                         },
                                         child: Padding(
                                           padding: EdgeInsets.only(left: 16, top: 10, right: 10),
-                                          child: Text(
-                                            list[index].description,
-                                            style: TextStyle(
-                                              fontSize: 14,
+                                          child: buildEmojiAndText(
+                                            content:  list[index].description,
+                                            textStyle: TextStyle(
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w400,
                                               letterSpacing: 0.1,
                                               color: themeController.isDarkMode?Colors.white:Colors.black,
                                             ),
+                                            normalFontSize: 14,
+                                            emojiFontSize: 24,
                                           ),
                                         ),
                                       ),

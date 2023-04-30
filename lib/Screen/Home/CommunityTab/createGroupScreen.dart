@@ -67,6 +67,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     }
     categoryValue = category[0];
     typeValue = type[0];
+    print(category);
     setState(() {});
   }
 
@@ -147,7 +148,11 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                                     Fluttertoast.showToast(msg: "Something went wrong", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
                                   }
                                 }
-                                await _uploadFile(value);
+                                if(imageFile!=null){
+                                  await _uploadFile(value);
+                                }
+                                ///For current user
+                                CommunityTabService().joinGroup(token: token,groupId: value,uid: FirebaseAuth.instance.currentUser.uid);
                                 setState(() {
                                   isLoading = false;
                                 });

@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:mate_app/Model/eventCommentListingModel.dart';
 import 'package:mate_app/Services/eventService.dart';
 import 'package:provider/provider.dart';
+import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
@@ -23,6 +24,7 @@ import '../../../constant.dart';
 import '../../../controller/theme_controller.dart';
 import 'package:mate_app/Model/eventListingModel.dart' as listing;
 
+import '../../../groupChat/services/dynamicLinkService.dart';
 import '../../Profile/ProfileScreen.dart';
 import '../../Profile/UserProfileScreen.dart';
 import 'package:googleapis/calendar/v3.dart' as gCal;
@@ -250,11 +252,12 @@ class _EventDetailsState extends State<EventDetails> {
                                 ),
                               ),
                               trailing: PopupMenuButton<int>(
-                                  padding: EdgeInsets.only(bottom: 0, top: 0, left: 25, right: 0),
-                                  color: themeController.isDarkMode?backgroundColor:Colors.white,
-                                  icon: Image.asset(
-                                    "lib/asset/icons/menu@3x.png",
-                                    height: 18,
+                                  padding: EdgeInsets.zero,
+                                  elevation: 0,
+                                  color: themeController.isDarkMode?MateColors.popupDark:MateColors.popupLight,
+                                  icon: Icon(
+                                    Icons.more_vert,
+                                    color: themeController.isDarkMode?Colors.white:MateColors.blackText,
                                   ),
                                   onSelected: (index1)async{
                                     if (index1 == 0) {
@@ -281,6 +284,13 @@ class _EventDetailsState extends State<EventDetails> {
                                       Navigator.push(context, MaterialPageRoute(builder: (context) => ReportPage(moduleId: widget.list.id, moduleType: "Event",),));
                                     }else if(index1 == 4){
                                       Navigator.push(context, MaterialPageRoute(builder: (context) => EditEvent(data: widget.list),));
+                                    }else if(index1 == 6){
+                                      String response  = await DynamicLinkService.buildDynamicLinkEvent(
+                                        id: widget.list.id.toString(),
+                                      );
+                                      if(response!=null){
+                                        Share.share(response);
+                                      }
                                     }
                                   },
                                   itemBuilder: (context) => [
@@ -358,32 +368,48 @@ class _EventDetailsState extends State<EventDetails> {
                                         width: 0,
                                       ),
                                     ),
+                                    PopupMenuItem(
+                                      value: 6,
+                                      height: 40,
+                                      child: Text(
+                                        "Share",
+                                        textAlign: TextAlign.start,
+                                        style: TextStyle(
+                                          color: themeController.isDarkMode?Colors.white:Colors.black,
+                                          fontWeight: FontWeight.w500,
+                                          fontFamily: 'Poppins',
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
                                   ]
                               ),
                             ),
                             Padding(
                               padding: EdgeInsets.only(left: 16,top: 0),
-                              child: Text(
-                                widget.list.title,
-                                style: TextStyle(
-                                  fontSize: 16,
+                              child: buildEmojiAndText(
+                                content: widget.list.title,
+                                textStyle: TextStyle(
                                   fontFamily: 'Poppins',
                                   fontWeight: FontWeight.w700,
                                   color: themeController.isDarkMode?Colors.white:Colors.black,
                                 ),
+                                normalFontSize: 16,
+                                emojiFontSize: 26,
                               ),
                             ),
                             Padding(
                               padding: EdgeInsets.only(left: 16,top: 10,right: 10),
-                              child: Text(
-                                widget.list.description,
-                                style: TextStyle(
-                                  fontSize: 14,
+                              child: buildEmojiAndText(
+                                content:  widget.list.description,
+                                textStyle: TextStyle(
                                   fontFamily: 'Poppins',
                                   fontWeight: FontWeight.w400,
                                   letterSpacing: 0.1,
                                   color: themeController.isDarkMode?Colors.white:Colors.black,
                                 ),
+                                normalFontSize: 14,
+                                emojiFontSize: 24,
                               ),
                             ),
                             widget.list.hyperLinkText!=null && widget.list.hyperLink!=null ?
@@ -798,15 +824,16 @@ class _EventDetailsState extends State<EventDetails> {
                                               ),
                                               title: Padding(
                                                 padding: const EdgeInsets.only(top: 10),
-                                                child: Text(
-                                                  list[index].content,
-                                                  style: TextStyle(
-                                                    fontSize: 14,
+                                                child: buildEmojiAndText(
+                                                  content:  list[index].content,
+                                                  textStyle: TextStyle(
                                                     fontFamily: 'Poppins',
                                                     fontWeight: FontWeight.w400,
                                                     letterSpacing: 0.1,
                                                     color: themeController.isDarkMode?Colors.white:Colors.black,
                                                   ),
+                                                  normalFontSize: 14,
+                                                  emojiFontSize: 24,
                                                 ),
                                               ),
                                               subtitle: Padding(
@@ -960,15 +987,16 @@ class _EventDetailsState extends State<EventDetails> {
                                                     ),
                                                     title: Padding(
                                                       padding: const EdgeInsets.only(top: 10),
-                                                      child: Text(
-                                                        list[index].replies.last.content,
-                                                        style:  TextStyle(
-                                                          fontSize: 14,
+                                                      child: buildEmojiAndText(
+                                                        content:  list[index].replies.last.content,
+                                                        textStyle: TextStyle(
+                                                          fontFamily: 'Poppins',
                                                           fontWeight: FontWeight.w400,
                                                           letterSpacing: 0.1,
-                                                          fontFamily: 'Poppins',
                                                           color: themeController.isDarkMode?Colors.white:Colors.black,
                                                         ),
+                                                        normalFontSize: 14,
+                                                        emojiFontSize: 24,
                                                       ),
                                                     ),
                                                     subtitle: Padding(

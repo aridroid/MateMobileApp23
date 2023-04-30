@@ -116,7 +116,7 @@ class SoundRecorderWhenLockedDesign extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    SizedBox(width: MediaQuery.of(context).size.width*0.16,),
+                    SizedBox(width: MediaQuery.of(context).size.width*0.15,),
                     Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
                     Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
                     Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),

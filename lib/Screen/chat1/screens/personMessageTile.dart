@@ -21,6 +21,7 @@ import '../../../Widget/custom_swipe_to.dart';
 import '../../../Widget/mediaViewer.dart';
 import '../../../asset/Colors/MateColors.dart';
 import '../../../asset/Reactions/reactionsContants.dart';
+import '../../../constant.dart';
 import '../../../groupChat/services/database_service.dart';
 import '../../Profile/ProfileScreen.dart';
 import '../../Profile/UserProfileScreen.dart';
@@ -862,6 +863,20 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                           widget.isImage ? _chatImage(widget.message, context) :
                           widget.isFile ? _chatFile(widget.message, context) :
                           widget.isAudio?_chatAudio(widget.message, context):
+                          REGEX_EMOJI.allMatches(widget.message.trim()).isNotEmpty?
+                          buildEmojiAndText(
+                            content: widget.message.trim(),
+                            textStyle: TextStyle(
+                              fontFamily: "Poppins",
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: 0.1,
+                              color: widget.sentByMe?
+                              themeController.isDarkMode? MateColors.blackTextColor: Colors.black:
+                              themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                            ),
+                            normalFontSize: 14,
+                            emojiFontSize: 24,
+                          ):
                           Linkify(
                             onOpen: (link) async {
                               print("Clicked ${link.url}!");

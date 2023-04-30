@@ -161,8 +161,9 @@ class _ChatMergedSearchState extends State<ChatMergedSearch> {
                           physics: ScrollPhysics(),
                           scrollDirection: Axis.vertical,
                           itemBuilder: (context, indexMain) {
+                            print(chatProvider.messageList[indexMain].author);
                             return Visibility(
-                              visible: searchedName!="" && chatProvider.messageList[indexMain].name.toString().toLowerCase().contains(searchedName.toLowerCase()),
+                              visible: searchedName!="" && (chatProvider.messageList[indexMain].name.toString().toLowerCase().contains(searchedName.toLowerCase()) || chatProvider.messageList[indexMain].author.toString().toLowerCase().contains(searchedName.toLowerCase())),
                               child: chatProvider.messageList[indexMain].type=="group" && widget.onlyGroupSearch?
                               GroupTile(
                                 userName: _user.displayName,

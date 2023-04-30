@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:mate_app/Providers/FeedProvider.dart';
@@ -11,8 +13,10 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import '../../../Model/FeedItem.dart';
+import 'package:record/record.dart';
+import 'package:sizer/sizer.dart';
 import '../../../Widget/video_thumbnail.dart';
 import '../../../constant.dart';
 import '../../../controller/theme_controller.dart';
@@ -478,23 +482,7 @@ class _EditFeedPostState extends State<EditFeedPost> {
                                   children: [
                                     GestureDetector(
                                       onTap: ()async{
-                                        final pickedFile = await picker.getImage(source: ImageSource.gallery,imageQuality: 70);
-                                        if (pickedFile != null) {
-                                          _image = File(pickedFile.path);
-                                          var img = _image.readAsBytesSync();
-                                          _base64encodedImage = base64Encode(img);
-                                          _imageUrl = "";
-                                          _video = null;
-                                          _videoUrl = "";
-                                          _base64encodedVideo = null;
-                                          _audio = null;
-                                          _audioUrl = "";
-                                          _base64encodedAudio = null;
-                                          setState(() {});
-                                          print('image selected:: ${_base64encodedImage.toString()}');
-                                        } else {
-                                          print('No image selected.');
-                                        }
+                                        modalSheetForImage();
                                       },
                                       child: Container(
                                         margin: EdgeInsets.only(top: 20),
@@ -517,23 +505,7 @@ class _EditFeedPostState extends State<EditFeedPost> {
                                     ),
                                     GestureDetector(
                                       onTap: ()async{
-                                        final pickedFile = await picker.getVideo(source: ImageSource.gallery,);
-                                        if (pickedFile != null) {
-                                          _video = File(pickedFile.path);
-                                          var video = _video.readAsBytesSync();
-                                          _base64encodedVideo = base64Encode(video);
-                                          _videoUrl = "";
-                                          _image = null;
-                                          _imageUrl = "";
-                                          _base64encodedImage = null;
-                                          _audio = null;
-                                          _audioUrl = "";
-                                          _base64encodedAudio = null;
-                                          setState(() {});
-                                          print('video selected:: ${_base64encodedVideo.toString()}');
-                                        } else {
-                                          print('No video selected.');
-                                        }
+                                       modalSheetForVideo();
                                       },
                                       child: Container(
                                         margin: EdgeInsets.only(top: 20),
@@ -555,27 +527,7 @@ class _EditFeedPostState extends State<EditFeedPost> {
                                     ),
                                     GestureDetector(
                                       onTap: ()async{
-                                        final pickedFile = await FilePicker.platform.pickFiles(type: FileType.audio);
-                                        if (pickedFile != null) {
-                                          _audio = File(pickedFile.paths.first);
-                                          var audio = _audio.readAsBytesSync();
-                                          _base64encodedAudio = base64Encode(audio);
-                                          _audioUrl = "";
-                                          _image = null;
-                                          _imageUrl = "";
-                                          _base64encodedImage = null;
-                                          _video = null;
-                                          _videoUrl = "";
-                                          _base64encodedVideo = null;
-                                          isPausedRecording = false;
-                                          isPlaying = false;
-                                          _audioPlayer.stop();
-                                          currentDuration = null;
-                                          setState(() {});
-                                          print('Audio selected:: ${_base64encodedAudio.toString()}');
-                                        } else {
-                                          print('No audio selected.');
-                                        }
+                                       modalSheetForAudio();
                                       },
                                       child: Container(
                                         margin: EdgeInsets.only(top: 20),
@@ -598,6 +550,92 @@ class _EditFeedPostState extends State<EditFeedPost> {
                                     ),
                                   ],
                                 ),
+                                if(isRecordingAudioFromMic)
+                                  Container(
+                                    height: 100,
+                                    margin: EdgeInsets.only(top: 20),
+                                    padding: EdgeInsets.only(left: 16,right: 16),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(14),
+                                      color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        SizedBox(height: 16,),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Text(minute.toString().padLeft(2,'0') +":"+ second.toString().padLeft(2,"0"),
+                                                  style: TextStyle(
+                                                    fontFamily: 'Poppins',
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 15,
+                                                    color: themeController.isDarkMode ? Colors.white:Colors.black,
+                                                  ),
+                                                ),
+                                                SizedBox(width: 16,),
+                                                Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                                Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                                Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                                Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                                Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                                Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                                Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                                Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(bottom: 10,right: 10,top: 10),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              InkWell(
+                                                onTap: (){
+                                                  deleteRecording();
+                                                },
+                                                child: Image.asset("lib/asset/iconsNewDesign/delete.png",
+                                                  width: 20,
+                                                  height: 20,
+                                                  color: themeController.isDarkMode?Colors.white:Colors.black,
+                                                ),
+                                              ),
+                                              InkWell(
+                                                onTap: (){
+                                                  isRecordingPaused ? resumeRecording(): pauseRecordingAudio();
+                                                },
+                                                child: Icon(!isRecordingPaused ? Icons.pause_circle_outline: Icons.play_circle,
+                                                  size: 30,
+                                                  color: themeController.isDarkMode?Colors.white:Colors.black,
+                                                ),
+                                              ),
+                                              GestureDetector(
+                                                onTap: (){
+                                                  stopRecording();
+                                                },
+                                                child: Container(
+                                                  height: 34,
+                                                  width: 34,
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: themeController.isDarkMode?Color(0xFF67AE8C):MateColors.appThemeDark,
+                                                  ),
+                                                  alignment: Alignment.center,
+                                                  child: Icon(Icons.send,
+                                                    size: 18,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 _audio!=null || _audioUrl!=""?
                                 Container(
                                   height: showDeleteIcon?118:60,
@@ -1228,4 +1266,438 @@ class _EditFeedPostState extends State<EditFeedPost> {
       ),
     );
   }
+
+  modalSheetForImage() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(15.0),
+        ),
+      ),
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  Center(
+                    child: Text(
+                      "Select image source",
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 40.0,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      InkWell(
+                        onTap: () =>  _getImage(0),
+                        child: Column(
+                          children: [
+                            Image.asset(
+                              "lib/asset/icons/cameraNew.png",
+                              height: 25,
+                              width: 25,
+                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Text(
+                              "Camera",
+                              style: TextStyle(fontSize: 11.7.sp, fontWeight: FontWeight.w500, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
+                            )
+                          ],
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () =>  _getImage(1),
+                        child: Column(
+                          children: [
+                            Image.asset(
+                              "lib/asset/icons/galleryNew.png",
+                              height: 25,
+                              width: 25,
+                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Text(
+                              "Gallery",
+                              style: TextStyle(fontSize: 11.7.sp, fontWeight: FontWeight.w500, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
+                            )
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 15.0,
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future _getImage(int option) async {
+    final pickedFile = await picker.getImage(source: option == 0?ImageSource.camera:ImageSource.gallery,imageQuality: 70);
+    if (pickedFile != null) {
+      _image = File(pickedFile.path);
+      var img = _image.readAsBytesSync();
+      _base64encodedImage = base64Encode(img);
+      _video = null;
+      _base64encodedVideo = null;
+      _audio = null;
+      _base64encodedAudio = null;
+      setState(() {});
+      print('image selected:: ${_base64encodedImage.toString()}');
+    } else {
+      print('No image selected.');
+    }
+    Navigator.of(context).pop();
+  }
+
+  modalSheetForVideo() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(15.0),
+        ),
+      ),
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  Center(
+                    child: Text(
+                      "Select video source",
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 40.0,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      InkWell(
+                        onTap: () =>  _getVideo(0),
+                        child: Column(
+                          children: [
+                            Image.asset(
+                              "lib/asset/icons/cameraNew.png",
+                              height: 25,
+                              width: 25,
+                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Text(
+                              "Camera",
+                              style: TextStyle(fontSize: 11.7.sp, fontWeight: FontWeight.w500, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
+                            )
+                          ],
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () =>  _getVideo(1),
+                        child: Column(
+                          children: [
+                            Image.asset(
+                              "lib/asset/icons/galleryNew.png",
+                              height: 25,
+                              width: 25,
+                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Text(
+                              "Gallery",
+                              style: TextStyle(fontSize: 11.7.sp, fontWeight: FontWeight.w500, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
+                            )
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 15.0,
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future _getVideo(int option) async {
+    final pickedFile = await picker.getVideo(source: option==0?ImageSource.camera:ImageSource.gallery,);
+    if (pickedFile != null) {
+      _video = File(pickedFile.path);
+      var video = _video.readAsBytesSync();
+      _base64encodedVideo = base64Encode(video);
+      _image = null;
+      _base64encodedImage = null;
+      _audio = null;
+      _base64encodedAudio = null;
+      setState(() {});
+      print('video selected:: ${_base64encodedVideo.toString()}');
+    } else {
+      print('No video selected.');
+    }
+    Navigator.of(context).pop();
+  }
+
+  modalSheetForAudio() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(15.0),
+        ),
+      ),
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  Center(
+                    child: Text(
+                      "Select audio source",
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 40.0,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      InkWell(
+                        onTap: () =>  _getAudio(0),
+                        child: Column(
+                          children: [
+                            Image.asset(
+                              "lib/asset/iconsNewDesign/mic2.png",
+                              height: 25,
+                              width: 25,
+                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Text(
+                              "Record",
+                              style: TextStyle(fontSize: 11.7.sp, fontWeight: FontWeight.w500, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
+                            )
+                          ],
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () =>  _getAudio(1),
+                        child: Column(
+                          children: [
+                            Image.asset(
+                              "lib/asset/iconsNewDesign/directory.png",
+                              height: 25,
+                              width: 25,
+                              color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Text(
+                              "File",
+                              style: TextStyle(fontSize: 11.7.sp, fontWeight: FontWeight.w500, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor),
+                            )
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 15.0,
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future _getAudio(int option) async {
+    if(option==0){
+      startRecording();
+    }else{
+      final pickedFile = await FilePicker.platform.pickFiles(type: FileType.audio);
+      if (pickedFile != null) {
+        _audio = File(pickedFile.paths.first);
+        var audio = _audio.readAsBytesSync();
+        _base64encodedAudio = base64Encode(audio);
+        _image = null;
+        _base64encodedImage = null;
+        _video = null;
+        _base64encodedVideo = null;
+        isPausedRecording = false;
+        isPlaying = false;
+        _audioPlayer.stop();
+        currentDuration = null;
+        setState(() {});
+        print('Audio selected:: ${_base64encodedAudio.toString()}');
+      } else {
+        print('No audio selected.');
+      }
+    }
+    Navigator.of(context).pop();
+  }
+
+  Record recordMp3 = Record();
+  bool _isAcceptedPermission = false;
+  Timer _timer;
+  int second = 0;
+  int minute = 0;
+  bool isRecordingPaused = false;
+  bool isRecordingAudioFromMic = false;
+
+  voidInitialSound() async {
+    if (Platform.isIOS) _isAcceptedPermission = true;
+    final status = await Permission.microphone.status;
+    if (status.isGranted) {
+      final result = await Permission.storage.request();
+      if (result.isGranted) {
+        _isAcceptedPermission = true;
+      }
+    }
+  }
+
+  startRecording() async {
+    if (!_isAcceptedPermission) {
+      await Permission.microphone.request();
+      await Permission.manageExternalStorage.request();
+      await Permission.storage.request();
+      _isAcceptedPermission = true;
+    }else{
+      String recordFilePath = await getFilePath();
+      recordMp3.start(path: recordFilePath);
+      isRecordingAudioFromMic = true;
+      _mapCounterGenerator();
+      setState(() {});
+    }
+    setState(() {});
+  }
+
+  Future<String> getFilePath() async {
+    User _user = FirebaseAuth.instance.currentUser;
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    String appDocPath = appDocDir.path + "/" + _user.uid + ".m4a";
+    if(File(appDocPath).existsSync()){
+      print("Deleted");
+      await File(appDocPath).delete();
+    }
+    return appDocPath;
+  }
+
+  void _mapCounterGenerator() {
+    _timer = Timer(const Duration(seconds: 1), () {
+      second = second + 1;
+      if (second == 60) {
+        second = 0;
+        minute = minute + 1;
+      }
+      setState(() {});
+      _mapCounterGenerator();
+    });
+  }
+
+  pauseRecordingAudio()async{
+    if(second > 0 || minute > 0){
+      _timer?.cancel();
+      await recordMp3.pause();
+      isRecordingPaused = true;
+      setState(() {});
+    }
+  }
+
+  resumeRecording()async{
+    _mapCounterGenerator();
+    if(isRecordingPaused){
+      await recordMp3.resume();
+    }
+    isRecordingPaused = false;
+    setState(() {});
+  }
+
+  stopRecording()async{
+    isRecordingAudioFromMic = false;
+    second = 0;
+    minute = 0;
+    _timer.cancel();
+
+    String pickedFile = await recordMp3.stop();
+    if (pickedFile != null) {
+      _audio = File(pickedFile);
+      var audio = _audio.readAsBytesSync();
+      _base64encodedAudio = base64Encode(audio);
+      _image = null;
+      _base64encodedImage = null;
+      _video = null;
+      _base64encodedVideo = null;
+      isPausedRecording = false;
+      isPlaying = false;
+      _audioPlayer.stop();
+      currentDuration = null;
+      setState(() {});
+      print('Audio selected:: ${_base64encodedAudio.toString()}');
+    } else {
+      print('No audio selected.');
+    }
+  }
+
+  deleteRecording()async{
+    isRecordingAudioFromMic = false;
+    second = 0;
+    minute = 0;
+    _timer.cancel();
+    setState(() {});
+  }
+
 }

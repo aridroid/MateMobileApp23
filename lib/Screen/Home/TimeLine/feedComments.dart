@@ -142,15 +142,16 @@ class _CampusLivePostCommentsState extends State<FeedComments> {
                                         ),
                                         title: Padding(
                                           padding: const EdgeInsets.only(top: 10),
-                                          child: Text(
-                                            feedProvider.commentFetchData.data.result[index].content,
-                                            style: TextStyle(
-                                              fontSize: 14,
+                                          child: buildEmojiAndText(
+                                            content:  feedProvider.commentFetchData.data.result[index].content,
+                                            textStyle: TextStyle(
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w400,
                                               letterSpacing: 0.1,
                                               color: themeController.isDarkMode?Colors.white:Colors.black,
                                             ),
+                                            normalFontSize: 14,
+                                            emojiFontSize: 24,
                                           ),
                                         ),
                                         subtitle: Padding(
@@ -300,15 +301,16 @@ class _CampusLivePostCommentsState extends State<FeedComments> {
                                               ),
                                               title: Padding(
                                                 padding: const EdgeInsets.only(top: 10),
-                                                child: Text(
-                                                  feedProvider.commentFetchData.data.result[index].replies.last.content,
-                                                  style:  TextStyle(
-                                                    fontSize: 14,
+                                                child: buildEmojiAndText(
+                                                  content: feedProvider.commentFetchData.data.result[index].replies.last.content,
+                                                  textStyle: TextStyle(
+                                                    fontFamily: 'Poppins',
                                                     fontWeight: FontWeight.w400,
                                                     letterSpacing: 0.1,
-                                                    fontFamily: 'Poppins',
                                                     color: themeController.isDarkMode?Colors.white:Colors.black,
                                                   ),
+                                                  normalFontSize: 14,
+                                                  emojiFontSize: 24,
                                                 ),
                                               ),
                                               subtitle: Padding(

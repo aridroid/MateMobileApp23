@@ -14,11 +14,11 @@ import 'package:mate_app/Screen/marketPlace/marketPlaceDashboard.dart';
 import 'package:mate_app/Widget/Loaders/Shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mate_app/constant.dart';
 import 'package:mate_app/controller/theme_controller.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
 import '../../../Model/universityListingModel.dart';
 import '../../../Services/AuthUserService.dart';
@@ -70,6 +70,15 @@ class _TimeLineState extends State<TimeLine> with TickerProviderStateMixin{
     });
     _pageMyCampus =1;
     _scrollController = new ScrollController()..addListener(_scrollListener);
+    checkEula();
+  }
+
+  checkEula()async{
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    bool val = preferences.getBool('home')??false;
+    if(val==false){
+      showEulaPopup(context, "home");
+    }
   }
 
   String token;
@@ -431,21 +440,23 @@ class _TimeLineState extends State<TimeLine> with TickerProviderStateMixin{
                     padding: const EdgeInsets.only(left: 16,top: 12),
                     child: Row(
                       children: [
-                        Selector<AuthUserProvider, String>(
-                          selector: (ctx, authUserProvider) =>
-                          authUserProvider.authUser.displayName,
-                          builder: (ctx, data, _) {
-                            return Text(
-                                "Hello $data! ☺️",
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 28,
-                                  fontFamily: "Poppins",
-                                  fontWeight: FontWeight.w600,
+                        Expanded(
+                          child: Selector<AuthUserProvider, String>(
+                            selector: (ctx, authUserProvider) =>
+                            authUserProvider.authUser.displayName,
+                            builder: (ctx, data, _) {
+                              return Text(
+                                  "Hello $data! ☺️",
                                   overflow: TextOverflow.ellipsis,
-                                  color: themeController.isDarkMode?Colors.white:Colors.black,
-                                ));
-                          },
+                                  style: TextStyle(
+                                    fontSize: 28,
+                                    fontFamily: "Poppins",
+                                    fontWeight: FontWeight.w600,
+                                    overflow: TextOverflow.ellipsis,
+                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                  ));
+                            },
+                          ),
                         ),
                       ],
                     ),

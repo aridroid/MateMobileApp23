@@ -15,7 +15,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:mate_app/constant.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
@@ -29,6 +31,7 @@ import '../../Screen/Home/TimeLine/editFeed.dart';
 import '../../Screen/Home/TimeLine/feed_search.dart';
 import '../../Services/FeedService.dart';
 import '../../controller/theme_controller.dart';
+import '../../groupChat/services/dynamicLinkService.dart';
 import '../mediaViewer.dart';
 import 'package:http/http.dart'as http;
 
@@ -271,6 +274,16 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                     videoUrl: widget.mediaOther.isNotEmpty? widget.mediaOther[0].url.contains(".mp4")?widget.mediaOther[0].url:"":"",
                     audioUrl: widget.mediaOther.isNotEmpty? !widget.mediaOther[0].url.contains(".mp4")?widget.mediaOther[0].url:"":"",
                   ),));
+                }else if (index == 7) {
+                  // Map<String, dynamic> body;
+                  // Provider.of<ExternalShareProvider>(context,listen: false).externalSharePost(body);
+                  // modalSheetToShare();
+                  String response  = await DynamicLinkService.buildDynamicLinkFeed(
+                    id: widget.feedId.toString(),
+                  );
+                  if(response!=null){
+                    Share.share(response);
+                  }
                 }
               },
               itemBuilder: (context) => [
@@ -376,6 +389,20 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                   child: SizedBox(
                     height: 0,
                     width: 0,
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 7,
+                  height: 40,
+                  child: Text(
+                    "Share",
+                    textAlign: TextAlign.start,
+                    style: TextStyle(
+                      color: themeController.isDarkMode?Colors.white:Colors.black,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Poppins',
+                      fontSize: 14,
+                    ),
                   ),
                 ),
               ],
@@ -484,14 +511,15 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
               children: [
                 Padding(
                   padding: EdgeInsets.only(left: 16,top: 20),
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 16,
+                  child: buildEmojiAndText(
+                    content: title,
+                    textStyle: TextStyle(
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.w700,
                       color: themeController.isDarkMode?Colors.white:Colors.black,
                     ),
+                    normalFontSize: 16,
+                    emojiFontSize: 26,
                   ),
                 ),
               ],
@@ -499,7 +527,19 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
           ),
           Padding(
             padding: EdgeInsets.only(left: 16,top: 10,right: 10),
-            child: Linkify(
+            child: REGEX_EMOJI.allMatches(description).isNotEmpty?
+            buildEmojiAndText(
+              content: description,
+              textStyle: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w400,
+                letterSpacing: 0.1,
+                color: themeController.isDarkMode?Colors.white:Colors.black,
+              ),
+              normalFontSize: 14,
+              emojiFontSize: 24,
+            ):
+            Linkify(
               onOpen: (link) async {
                 print("Clicked ${link.url}!");
                 if (await canLaunch(link.url))
@@ -1659,7 +1699,18 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                             builder: (context) => Chat(peerUuid: user.id, currentUserId: _currentUser.uid, peerId: user.firebaseUid, peerAvatar: user.photoUrl, peerName: user.name)));
                   } else if (index == 2) {
                     _showFollowAlertDialog(feedId: widget.feedId, indexVal: widget.indexVal);
-                  } else if (index == 4) {
+                  } else if (index == 3) {
+                    // Map<String, dynamic> body;
+                    // Provider.of<ExternalShareProvider>(context,listen: false).externalSharePost(body);
+                    // modalSheetToShare();
+                    String response  = await DynamicLinkService.buildDynamicLinkFeed(
+                      id: widget.feedId.toString(),
+                    );
+                    if(response!=null){
+                      Share.share(response);
+                    }
+                  }
+                  else if (index == 4) {
                     _showDeleteAlertDialog(feedId: widget.feedId, indexVal: widget.indexVal);
                   } else if (index == 5) {
                     Navigator.push(
@@ -1706,6 +1757,20 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                     height: 40,
                     child: Text(
                       widget.isFollowed?"Unfollow Post":"Follow Post",
+                      textAlign: TextAlign.start,
+                      style: TextStyle(
+                        color: themeController.isDarkMode?Colors.white:Colors.black,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Poppins',
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 3,
+                    height: 40,
+                    child: Text(
+                      "Share",
                       textAlign: TextAlign.start,
                       style: TextStyle(
                         color: themeController.isDarkMode?Colors.white:Colors.black,
@@ -1764,21 +1829,34 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
             children: [
               Padding(
                 padding: EdgeInsets.only(left: 16,top: 20),
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 16,
+                child: buildEmojiAndText(
+                  content: title,
+                  textStyle: TextStyle(
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.w700,
                     color: themeController.isDarkMode?Colors.white:Colors.black,
                   ),
+                  normalFontSize: 16,
+                  emojiFontSize: 26,
                 ),
               ),
             ],
           ),
           Padding(
             padding: EdgeInsets.only(left: 16,top: 10,right: 10),
-            child: Linkify(
+            child: REGEX_EMOJI.allMatches(description).isNotEmpty?
+            buildEmojiAndText(
+              content: description,
+              textStyle: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w400,
+                letterSpacing: 0.1,
+                color: themeController.isDarkMode?Colors.white:Colors.black,
+              ),
+              normalFontSize: 14,
+              emojiFontSize: 24,
+            ):
+            Linkify(
               onOpen: (link) async {
                 print("Clicked ${link.url}!");
                 if (await canLaunch(link.url))

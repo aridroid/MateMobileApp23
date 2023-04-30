@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:mate_app/asset/Colors/MateColors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:mate_app/constant.dart';
 import 'package:mate_app/groupChat/pages/chat_page.dart';
 import 'package:mate_app/groupChat/services/database_service.dart';
 import 'package:provider/provider.dart';
@@ -20,7 +21,8 @@ class GroupTile extends StatelessWidget {
   final bool isPinned;
   final Function loadData;
   final int index;
-  GroupTile({this.userName, this.groupId, this.photoURL, this.currentUserUid, this.unreadMessages, this.isMuted, this.loadData, this.isPinned, this.index});
+  final bool showColor;
+  GroupTile({this.userName, this.groupId, this.photoURL, this.currentUserUid, this.unreadMessages, this.isMuted, this.loadData, this.isPinned, this.index,this.showColor=false});
 
   ThemeController themeController = Get.find<ThemeController>();
 
@@ -32,9 +34,14 @@ class GroupTile extends StatelessWidget {
           stream: DatabaseService().getLastChatMessage(groupId),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              Provider.of<ChatProvider>(context,listen: false).messageList[index].name=snapshot.data['groupName'];
+              Provider.of<ChatProvider>(context,listen: false).messageList[index].name = snapshot.data['groupName'];
+              Provider.of<ChatProvider>(context,listen: false).messageList[index].author = snapshot.data["admin"];
               return Container(
                 margin: EdgeInsets.only(left: 5),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: showColor?themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight:Colors.transparent,
+                ),
                 child: ListTile(
                   onTap: ()async{
                     await Navigator.push(context, MaterialPageRoute(
@@ -66,13 +73,15 @@ class GroupTile extends StatelessWidget {
                     child: Row(
                       children: [
                         Flexible(
-                          child: Text(snapshot.data['groupName'],
-                            style: TextStyle(
-                              fontSize: 15,
+                          child: buildEmojiAndText(
+                            content: snapshot.data['groupName'],
+                            textStyle: TextStyle(
                               fontFamily: "Poppins",
                               fontWeight: FontWeight.w600,
                               color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
                             ),
+                            normalFontSize: 15,
+                            emojiFontSize: 25,
                           ),
                         ),
                         isPinned?

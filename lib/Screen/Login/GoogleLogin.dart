@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:get/get.dart';
 import 'package:mate_app/Providers/AuthUserProvider.dart';
 import 'package:mate_app/Screen/Home/HomeScreen.dart';
@@ -41,7 +43,7 @@ class _GoogleLoginState extends State<GoogleLogin> {
             child: Column(
               children: <Widget>[
                 SizedBox(
-                  height: scH*0.3,
+                  height: scH*0.25,
                 ),
                 SizedBox(
                   width: scW,
@@ -53,7 +55,7 @@ class _GoogleLoginState extends State<GoogleLogin> {
                         left: 0,
                         right: 0,
                         child: Container(
-                          height: scH*0.55,
+                          height: scH*0.65,
                           margin: EdgeInsets.only(left: scW*0.035,right: scW*0.035,bottom: scH*0.06),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(14),
@@ -108,7 +110,7 @@ class _GoogleLoginState extends State<GoogleLogin> {
                                 ),
                               ),
                               Padding(
-                                padding: EdgeInsets.symmetric(horizontal: scW*0.05,vertical: scH*0.04),
+                                padding: EdgeInsets.symmetric(horizontal: scW*0.05,vertical: scH*0.02),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
@@ -157,33 +159,58 @@ class _GoogleLoginState extends State<GoogleLogin> {
                                         ),
                                       ),
                                     ),
-                                    // Container(
-                                    //   height: 56,
-                                    //   width: 147,
-                                    //   decoration: BoxDecoration(
-                                    //     borderRadius: BorderRadius.circular(28),
-                                    //     color: themeController.isDarkMode?MateColors.drawerTileColor:MateColors.lightButtonBackground,
-                                    //   ),
-                                    //   child: Row(
-                                    //     mainAxisAlignment: MainAxisAlignment.center,
-                                    //     children: [
-                                    //       Image.asset("lib/asset/appleLogo.png",width: 20,
-                                    //         color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                                    //       ),
-                                    //       SizedBox(width: 5,),
-                                    //       Text("Apple",
-                                    //         style: TextStyle(
-                                    //           fontSize: 17,
-                                    //           fontWeight: FontWeight.w700,
-                                    //           color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
-                                    //         ),
-                                    //       ),
-                                    //     ],
-                                    //   ),
-                                    // ),
                                   ],
                                 ),
                               ),
+                              if(Platform.isIOS)
+                              InkWell(
+                                onTap: ()async{
+                                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                                  Provider.of<AuthUserProvider>(context, listen: false).appleLogin().then((loginSuccess) {
+                                    if(loginSuccess){
+                                      prefs.setBool('login_app', true);
+                                      if(Provider.of<AuthUserProvider>(context, listen: false).authUser.universityId==null){
+                                        Get.off(UpdateProfile(
+                                          fullName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName,
+                                          about: "",
+                                          uuid: Provider.of<AuthUserProvider>(context, listen: false).authUser.id,
+                                          universityId: Provider.of<AuthUserProvider>(context, listen: false).authUser.universityId,
+                                          photoUrl: Provider.of<AuthUserProvider>(context, listen: false).authUser.photoUrl,
+                                          coverPhotoUrl: Provider.of<AuthUserProvider>(context, listen: false).authUser.coverPhotoUrl,
+                                          isGoToHome: true,
+                                        ));
+                                      }else{
+                                        Navigator.of(context).pushReplacementNamed(HomeScreen.homeScreenRoute);
+                                      }
+                                    }
+                                  });
+                                },
+                                child: Container(
+                                  height: 56,
+                                  width: MediaQuery.of(context).size.width/1.21,
+                                  decoration: BoxDecoration(
+                                    color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.asset("lib/asset/appleLogo.png",width: 20,
+                                        color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
+                                      ),
+                                      SizedBox(width: 5,),
+                                      Text("Apple",
+                                        style: TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w700,
+                                          color: themeController.isDarkMode?Colors.white:Colors.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 12,),
                               InkWell(
                                 onTap: (){
                                   Provider.of<AuthUserProvider>(context, listen: false).error = "";

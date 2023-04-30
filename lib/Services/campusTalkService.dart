@@ -333,6 +333,23 @@ class CampusTalkService {
     }
   }
 
+  Future hideACampusTalk(int postId) async {
+    Uri uri = _backEndAPIRoutes.hideACampusTalk(postId);
+
+    try {
+      final response = await _apiService.post(uri: uri);
+
+      //print('amr type: ${json.decode(response.body)['data']['feeds'].toString()} and url is: ${uri.toString()}');
+
+      return json.decode(response.body);
+    } on SocketException catch (error) {
+      throw Exception('NO INTERNET :: $error');
+    } catch (error) {
+      print('error occurred fetching from ${uri.toString()} :: $error');
+      throw Exception('$error');
+    }
+  }
+
   Future<List<campusTalkTypeModel.Data>> getType({String token})async{
     List<campusTalkTypeModel.Data> list = [];
     debugPrint("https://api.mateapp.us/api/discussion/posts/types");

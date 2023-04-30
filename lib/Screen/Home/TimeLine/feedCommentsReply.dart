@@ -141,15 +141,16 @@ class _FeedCommentsReplyState extends State<FeedCommentsReply> {
                                       ),
                                       title: Padding(
                                         padding: const EdgeInsets.only(top: 10),
-                                        child: Text(
-                                          result.content,
-                                          style: TextStyle(
-                                            fontSize: 14,
+                                        child: buildEmojiAndText(
+                                          content:  result.content,
+                                          textStyle: TextStyle(
                                             fontFamily: 'Poppins',
                                             fontWeight: FontWeight.w400,
                                             letterSpacing: 0.1,
                                             color: themeController.isDarkMode?Colors.white:Colors.black,
                                           ),
+                                          normalFontSize: 14,
+                                          emojiFontSize: 24,
                                         ),
                                       ),
                                       subtitle: Padding(
@@ -237,15 +238,16 @@ class _FeedCommentsReplyState extends State<FeedCommentsReply> {
                                                 ),
                                                 title: Padding(
                                                   padding: const EdgeInsets.only(top: 10),
-                                                  child: Text(
-                                                    result.replies[index].content,
-                                                    style:  TextStyle(
-                                                      fontSize: 14,
+                                                  child: buildEmojiAndText(
+                                                    content:  result.replies[index].content,
+                                                    textStyle: TextStyle(
+                                                      fontFamily: 'Poppins',
                                                       fontWeight: FontWeight.w400,
                                                       letterSpacing: 0.1,
-                                                      fontFamily: 'Poppins',
                                                       color: themeController.isDarkMode?Colors.white:Colors.black,
                                                     ),
+                                                    normalFontSize: 14,
+                                                    emojiFontSize: 24,
                                                   ),
                                                 ),
                                                 subtitle: Padding(

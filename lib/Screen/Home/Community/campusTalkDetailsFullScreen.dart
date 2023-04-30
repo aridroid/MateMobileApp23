@@ -9,12 +9,15 @@ import 'package:mate_app/Model/campusTalkPostsModel.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:share/share.dart';
 import '../../../Providers/AuthUserProvider.dart';
 import '../../../Providers/campusTalkProvider.dart';
 import '../../../Widget/mediaViewer.dart';
 import '../../../Widget/video_thumbnail.dart';
 import '../../../asset/Colors/MateColors.dart';
+import '../../../constant.dart';
 import '../../../controller/theme_controller.dart';
+import '../../../groupChat/services/dynamicLinkService.dart';
 import '../../Profile/ProfileScreen.dart';
 import '../../Report/reportPage.dart';
 import 'campusTalkComments.dart';
@@ -331,7 +334,7 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreen>{
                           ),
                         ],
                       ),
-                      horizontalTitleGap: widget.isAnonymous == 0?10:-40,
+                      horizontalTitleGap: widget.isAnonymous == 0?10:0,
                       title: InkWell(
                           onTap: () {
                             if (widget.isAnonymous == 0) {
@@ -397,6 +400,12 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreen>{
                             // Map<String, dynamic> body;
                             // Provider.of<ExternalShareProvider>(context,listen: false).externalSharePost(body);
                             // modalSheetToShare();
+                            String response  = await DynamicLinkService.buildDynamicLinkCampusTalk(
+                              id: widget.talkId.toString(),
+                            );
+                            if(response!=null){
+                              Share.share(response);
+                            }
                           } else if (index == 1) {
                             _showDeleteAlertDialog(postId: widget.talkId, rowIndex: widget.rowIndex);
                           } else if (index == 2) {
@@ -411,6 +420,20 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreen>{
                           }
                         },
                         itemBuilder: (context) => [
+                          PopupMenuItem(
+                            value: 0,
+                            height: 40,
+                            child: Text(
+                              "Share",
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                color: themeController.isDarkMode?Colors.white:Colors.black,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'Poppins',
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
                           (widget.user.uuid != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user.uuid)) ?
                           PopupMenuItem(
                             value: 1,
@@ -464,13 +487,15 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreen>{
                       child: InkWell(
                           splashColor: Colors.transparent,
                           highlightColor: Colors.transparent,
-                          child: Text(widget.title, textAlign: TextAlign.left,
-                            style: TextStyle(
-                              fontSize: 16,
+                          child: buildEmojiAndText(
+                            content: widget.title,
+                            textStyle: TextStyle(
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.w700,
                               color: themeController.isDarkMode?Colors.white:Colors.black,
                             ),
+                            normalFontSize: 16,
+                            emojiFontSize: 26,
                           ),
                       ),
                     ),
@@ -484,15 +509,17 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreen>{
                           child: widget.description != null ?
                           Padding(
                             padding: EdgeInsets.fromLTRB(0, 0, 14, 0),
-                            child: Text(
-                              widget.description,
-                              style: TextStyle(
+                            child: buildEmojiAndText(
+                              content: widget.description,
+                              textStyle: TextStyle(
                                 fontSize: 14,
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.w400,
                                 letterSpacing: 0.1,
                                 color: themeController.isDarkMode?Colors.white:Colors.black,
                               ),
+                              normalFontSize: 14,
+                              emojiFontSize: 24,
                             ),
                           ) : SizedBox(),
                         ),
