@@ -15,7 +15,8 @@ import 'package:mate_app/Screen/Home/events/memberList.dart';
 import 'package:mate_app/Services/eventService.dart';
 import 'package:mate_app/Widget/video_thumbnail.dart';
 import 'package:provider/provider.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
+//import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 

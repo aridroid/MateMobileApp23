@@ -279,7 +279,7 @@ class _TimeLineState extends State<TimeLine> with TickerProviderStateMixin{
                     height: scH*0.06,
                   ),
                   Container(
-                    margin: EdgeInsets.only(right: 16,top: 5,left: 16),
+                    margin: EdgeInsets.only(right: 16,top: 4,left: 16),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [

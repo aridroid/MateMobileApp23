@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>237545926078-99q5c35ugs0b49spmhf1ru0ghie7opnp.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.237545926078-99q5c35ugs0b49spmhf1ru0ghie7opnp</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>237545926078-9biln72s9c5h9vot53l84me39unhhnbf.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCMx2PadTpAZJRbM__hxk-cGjE9KPIGeQY</string>
+	<key>GCM_SENDER_ID</key>
+	<string>237545926078</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.mate.apps</string>
+	<key>PROJECT_ID</key>
+	<string>mate-app-b5fe6</string>
+	<key>STORAGE_BUCKET</key>
+	<string>mate-app-b5fe6.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:237545926078:ios:2322fa30338a50e2f41def</string>
+	<key>DATABASE_URL</key>
+	<string>https://mate-app-b5fe6.firebaseio.com</string>
+</dict>
+</plist>

@@ -199,8 +199,8 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
       },
       child: AnimatedContainer(
         duration: Duration(milliseconds: soundRecordNotifier.isShow ? 0 : 300),
-        height: 60,//50,
-        width: (soundRecordNotifier.isShow) ? MediaQuery.of(context).size.width : 50,
+        height: 70,//50,
+        width: (soundRecordNotifier.isShow) ? MediaQuery.of(context).size.width-5 : 60,
         child: Stack(
           children: [
             Padding(
@@ -208,10 +208,10 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: soundRecordNotifier.isShow
-                      ? BorderRadius.circular(25)
+                      ? BorderRadius.circular(35)
                       : widget.radius != null && !soundRecordNotifier.isShow
                           ? widget.radius
-                          : BorderRadius.circular(25),
+                          : BorderRadius.circular(35),
                   color: widget.backGroundColor ?? Colors.grey.shade100,
                 ),
                 child: Stack(

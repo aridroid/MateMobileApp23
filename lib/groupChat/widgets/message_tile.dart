@@ -1,8 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:focused_menu/focused_menu.dart';
-import 'package:focused_menu/modals.dart';
 import 'package:get/get.dart';
 import 'package:mate_app/Screen/chatDashboard/forwardMessagePage.dart';
 import 'package:mate_app/Services/community_tab_services.dart';
@@ -22,6 +20,8 @@ import '../../Screen/Profile/ProfileScreen.dart';
 import '../../Screen/Profile/UserProfileScreen.dart';
 import '../../Widget/Loaders/Shimmer.dart';
 import '../../Widget/custom_swipe_to.dart';
+import '../../Widget/focused_menu/focused_menu.dart';
+import '../../Widget/focused_menu/modals.dart';
 import '../../asset/Colors/MateColors.dart';
 import '../../asset/Reactions/reactionsContants.dart';
 import '../../constant.dart';
@@ -193,85 +193,126 @@ class _MessageTileState extends State<MessageTile> {
       children: [
         widget.index == 0?
         Padding(
-          padding: const EdgeInsets.only(left: 16,right: 16,top: 35,bottom: 16),
-          child: Row(
-            children: [
-              Expanded(
-                child: Container(
-                  height: 1,
+          padding: const EdgeInsets.only(left: 35,right: 35,top: 20,bottom: 5),
+          child: Align(
+            alignment: widget.message.contains("This is missed call@#%")?Alignment.center:widget.sentByMe? Alignment.topRight: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 20,right: 20),
+              child: Text(
+                widget.date[widget.index],
+                textAlign: TextAlign.end,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: "Poppins",
                   color: themeController.isDarkMode?
                   Colors.white.withOpacity(0.5):
                   Colors.black.withOpacity(0.5),
+                  // color: widget.sentByMe?
+                  // themeController.isDarkMode? MateColors.subTitleTextDark: MateColors.subTitleTextLight:
+                  // themeController.isDarkMode? MateColors.subTitleTextDark: MateColors.subTitleTextLight,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 20,right: 20),
-                child: Text(
-                  widget.date[widget.index],
-                  textAlign: TextAlign.end,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontFamily: "Poppins",
-                    color: themeController.isDarkMode?
-                    Colors.white.withOpacity(0.5):
-                    Colors.black.withOpacity(0.5),
-                    // color: widget.sentByMe?
-                    // themeController.isDarkMode? MateColors.subTitleTextDark: MateColors.subTitleTextLight:
-                    // themeController.isDarkMode? MateColors.subTitleTextDark: MateColors.subTitleTextLight,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  height: 1,
-                  color: themeController.isDarkMode?
-                  Colors.white.withOpacity(0.5):
-                  Colors.black.withOpacity(0.5),
-                ),
-              ),
-            ],
+            ),
           ),
+
+          // Row(
+          //   children: [
+          //     Expanded(
+          //       child: Container(
+          //         height: 1,
+          //         color: themeController.isDarkMode?
+          //         Colors.white.withOpacity(0.5):
+          //         Colors.black.withOpacity(0.5),
+          //       ),
+          //     ),
+          //     Padding(
+          //       padding: const EdgeInsets.only(left: 20,right: 20),
+          //       child: Text(
+          //         widget.date[widget.index],
+          //         textAlign: TextAlign.end,
+          //         style: TextStyle(
+          //           fontSize: 12,
+          //           fontFamily: "Poppins",
+          //           color: themeController.isDarkMode?
+          //           Colors.white.withOpacity(0.5):
+          //           Colors.black.withOpacity(0.5),
+          //           // color: widget.sentByMe?
+          //           // themeController.isDarkMode? MateColors.subTitleTextDark: MateColors.subTitleTextLight:
+          //           // themeController.isDarkMode? MateColors.subTitleTextDark: MateColors.subTitleTextLight,
+          //         ),
+          //       ),
+          //     ),
+          //     Expanded(
+          //       child: Container(
+          //         height: 1,
+          //         color: themeController.isDarkMode?
+          //         Colors.white.withOpacity(0.5):
+          //         Colors.black.withOpacity(0.5),
+          //       ),
+          //     ),
+          //   ],
+          // ),
         ):
         widget.date[widget.index] != widget.date[widget.index-1]?
         Padding(
-          padding: const EdgeInsets.only(left: 16,right: 16,top: 35,bottom: 16),
-          child: Row(
-            children: [
-              Expanded(
-                child: Container(
-                  height: 1,
+          padding: const EdgeInsets.only(left: 35,right: 35,top: 20,bottom: 5),
+          child: Align(
+            alignment: widget.message.contains("This is missed call@#%")?Alignment.center:widget.sentByMe? Alignment.topRight: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 20,right: 20),
+              child: Text(
+                widget.date[widget.index],
+                textAlign: TextAlign.end,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: "Poppins",
                   color: themeController.isDarkMode?
                   Colors.white.withOpacity(0.5):
                   Colors.black.withOpacity(0.5),
+                  // color: widget.sentByMe?
+                  // themeController.isDarkMode? MateColors.subTitleTextDark: MateColors.subTitleTextLight:
+                  // themeController.isDarkMode? MateColors.subTitleTextDark: MateColors.subTitleTextLight,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 20,right: 20),
-                child: Text(
-                  widget.date[widget.index],
-                  textAlign: TextAlign.end,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontFamily: "Poppins",
-                    color: themeController.isDarkMode?
-                    Colors.white.withOpacity(0.5):
-                    Colors.black.withOpacity(0.5),
-                    // color: widget.sentByMe?
-                    // themeController.isDarkMode? MateColors.subTitleTextDark: MateColors.subTitleTextLight:
-                    // themeController.isDarkMode? MateColors.subTitleTextDark: MateColors.subTitleTextLight,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  height: 1,
-                  color: themeController.isDarkMode?
-                  Colors.white.withOpacity(0.5):
-                  Colors.black.withOpacity(0.5),
-                ),
-              ),
-            ],
+            ),
           ),
+          // Row(
+          //   children: [
+          //     Expanded(
+          //       child: Container(
+          //         height: 1,
+          //         color: themeController.isDarkMode?
+          //         Colors.white.withOpacity(0.5):
+          //         Colors.black.withOpacity(0.5),
+          //       ),
+          //     ),
+          //     Padding(
+          //       padding: const EdgeInsets.only(left: 20,right: 20),
+          //       child: Text(
+          //         widget.date[widget.index],
+          //         textAlign: TextAlign.end,
+          //         style: TextStyle(
+          //           fontSize: 12,
+          //           fontFamily: "Poppins",
+          //           color: themeController.isDarkMode?
+          //           Colors.white.withOpacity(0.5):
+          //           Colors.black.withOpacity(0.5),
+          //           // color: widget.sentByMe?
+          //           // themeController.isDarkMode? MateColors.subTitleTextDark: MateColors.subTitleTextLight:
+          //           // themeController.isDarkMode? MateColors.subTitleTextDark: MateColors.subTitleTextLight,
+          //         ),
+          //       ),
+          //     ),
+          //     Expanded(
+          //       child: Container(
+          //         height: 1,
+          //         color: themeController.isDarkMode?
+          //         Colors.white.withOpacity(0.5):
+          //         Colors.black.withOpacity(0.5),
+          //       ),
+          //     ),
+          //   ],
+          // ),
         ):Offstage(),
         
         widget.message.contains("This is missed call@#%")?
@@ -317,9 +358,12 @@ class _MessageTileState extends State<MessageTile> {
           child: Padding(
             padding: EdgeInsets.only(top: 4, bottom: 4, left: widget.sentByMe ? 0 : 14, right: widget.sentByMe ? 14 : 0),
             child: FocusedMenuHolder(
-              menuWidth: MediaQuery.of(context).size.width*0.83,
+              menuWidth: MediaQuery.of(context).size.width*0.94,
               blurSize: 5.0,
               menuItemExtent: 45,
+              isChatPage: true,
+              isLeftPadding: !widget.sentByMe,
+              isRightPadding: widget.sentByMe,
               menuBoxDecoration: BoxDecoration(
                 color: Colors.transparent,
                 borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -540,20 +584,26 @@ class _MessageTileState extends State<MessageTile> {
                           modalSheetGroupIconChange();
                         },
                         child: Container(
-                          height: 30,
-                          width: 30,
-                          margin: EdgeInsets.only(left: 8),
+                          height: 50,
+                          width: 50,
+                          margin: EdgeInsets.only(left: 12),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: themeController.isDarkMode?MateColors.subTitleTextLight:MateColors.subTitleTextDark,
+                            color: themeController.isDarkMode?Colors.white.withOpacity(0.3):Colors.white.withOpacity(0.7),
                           ),
-                          child: Center(child: Icon(Icons.add,color: themeController.isDarkMode?Colors.black:Colors.white,)),
+                          child: Center(child: Icon(Icons.add,color: themeController.isDarkMode?Colors.white:Colors.black,size: 30,)),
                         ),
                       ),
                     ],
                   ),
                   backgroundColor: Colors.white.withOpacity(0.15),
                   onPressed: (){},
+                ),
+                FocusedMenuItem(
+                  onPressed: (){},
+                  backgroundColor: Colors.transparent,
+                  title: Text("This item will not display"),
+                  trailingIcon: Icon(Icons.add),
                 ),
                 if(widget.sentByMe)
                 FocusedMenuItem(

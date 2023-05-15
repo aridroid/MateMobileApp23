@@ -152,11 +152,15 @@ class _ChatPageState extends State<ChatPage> {
               DateTime dateFormat = new DateTime.fromMillisecondsSinceEpoch(int.parse(snapshot.data.docs[i].data()["time"].toString()));
               String dateFormatted = DateFormat('dd MMMM yyyy').format(dateFormat);
               if(dateFormatted == dateFormattedToday){
-                date.add("Today");
+                String formattedTime = DateFormat.jm().format(dateFormat);
+                date.add("Today"+", "+formattedTime);
               }else if(dateFormatted == dateFormattedYesterday){
-                date.add("Yesterday");
+                String formattedTime = DateFormat.jm().format(dateFormat);
+                date.add("Yesterday"+", "+formattedTime);
               }else{
-                date.add(dateFormatted);
+                String formattedTime = DateFormat.jm().format(dateFormat);
+                String dateNew = getFormattedDate(dateFormatted);
+                date.add(dateNew+", "+formattedTime);
               }
               String formattedTime = DateFormat.jm().format(dateFormat);
               time.add(formattedTime);
@@ -634,7 +638,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget _messageSendWidget() {
     return Padding(
-      padding: EdgeInsets.only(top: 20),
+      padding: EdgeInsets.only(top: 20,bottom: Platform.isIOS?16:0),
       child: isUserMember?
       Column(
         crossAxisAlignment: CrossAxisAlignment.end,

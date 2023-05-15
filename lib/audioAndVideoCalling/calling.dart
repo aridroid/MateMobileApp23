@@ -264,14 +264,53 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
               children: [
                 Padding(
                   padding: EdgeInsets.only(top: scH*0.07),
-                  child: Text(
-                    "End to end encrypted",
-                    style: TextStyle(
-                      color: themeController.isDarkMode?Colors.white:MateColors.blackText,
-                      fontWeight: FontWeight.w300,
-                      fontSize: 16.0,
-                      fontFamily: 'Poppins',
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.only(left: scW*0.05),
+                            child: Text(
+                              "End to end encrypted",
+                              style: TextStyle(
+                                color: themeController.isDarkMode?Colors.white:MateColors.blackText,
+                                fontWeight: FontWeight.w300,
+                                fontSize: 16.0,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: (){
+                          Get.to(()=>AddParticipantsToCallScreen(
+                            channelName: widget.channelName,
+                            isGroupCall: widget.isGroupCall,
+                            image: widget.image,
+                            name: widget.name,
+                            callType: widget.callType,
+                            token: widget.token,
+                          ));
+                        },
+                        child: Container(
+                          height: 45,
+                          width: 45,
+                          margin: EdgeInsets.only(right: 16),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                          ),
+                          alignment: Alignment.center,
+                          child: Image.asset('lib/asset/iconsNewDesign/addPeople.png',
+                            color: themeController.isDarkMode?Colors.white:Colors.black,
+                            height: 22,
+                            width: 22,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 SizedBox(
@@ -431,15 +470,19 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
                             });
                             _engine.enableLocalVideo(!disableVideo);
                           },
-                          child: Icon(
-                            disableVideo ? Icons.videocam_off : Icons.videocam,
-                            color: themeController.isDarkMode?Colors.white:Colors.black,
-                            size: 30.0,
+                          child: Image.asset(
+                            disableVideo ? 'lib/asset/iconsNewDesign/videoOff.png':'lib/asset/iconsNewDesign/video.png',
+                            color: disableVideo? Colors.red:
+                            themeController.isDarkMode?Colors.white:Colors.black,
+                            width: 25,
+                            height: 25,
                           ),
                           shape: CircleBorder(),
                           elevation: 0.0,
-                          fillColor: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
-                          padding: const EdgeInsets.all(12.0),
+                          fillColor: disableVideo?
+                          Colors.white:
+                          themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                          padding: const EdgeInsets.all(18.0),
                         ),
                       if(widget.callType=="Audio Calling")
                         RawMaterialButton(
@@ -449,15 +492,20 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
                             });
                             _engine.setEnableSpeakerphone(speakerOn);
                           },
-                          child: Icon(
-                            speakerOn ? Icons.volume_up : Icons.volume_off,
-                            color: themeController.isDarkMode?Colors.white:Colors.black,
-                            size: 30.0,
+                          child: Image.asset(
+                            speakerOn ? 'lib/asset/iconsNewDesign/speakerOn.png': 'lib/asset/iconsNewDesign/speakerOff.png',
+                            color: speakerOn? themeController.isDarkMode?Colors.black:Colors.black:
+                            themeController.isDarkMode?Colors.white:Colors.black,
+                            width: 20,
+                            height: 20,
                           ),
                           shape: CircleBorder(),
                           elevation: 0.0,
-                          fillColor: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
-                          padding: const EdgeInsets.all(12.0),
+                          fillColor:
+                          speakerOn?
+                          Colors.white:
+                          themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                          padding: const EdgeInsets.all(20.0),
                         ),
                       RawMaterialButton(
                         onPressed: (){
@@ -466,40 +514,46 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
                           });
                           _engine.muteLocalAudioStream(muted);
                         },
-                        child: Icon(
-                          muted ? Icons.mic_off : Icons.mic,
-                          color: themeController.isDarkMode?Colors.white:Colors.black,
-                          size: 30.0,
+                        child: Image.asset(
+                          muted ? 'lib/asset/iconsNewDesign/micOff.png': 'lib/asset/iconsNewDesign/mic2.png',
+                          color: muted? Colors.red:
+                          themeController.isDarkMode?Colors.white:Colors.black,
+                          width: 20,
+                          height: 20,
                         ),
                         shape: CircleBorder(),
                         elevation: 0.0,
-                        fillColor: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
-                        padding: const EdgeInsets.all(12.0),
+                        fillColor: muted?
+                        Colors.white:
+                        themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                        padding: const EdgeInsets.all(20.0),
                       ),
                       if(widget.callType == "Video Calling")
                         RawMaterialButton(
                           onPressed: _onSwitchCamera,
-                          child: Icon(
-                            Icons.switch_camera,
+                          child: Image.asset(
+                            'lib/asset/iconsNewDesign/switchCamera.png',
                             color: themeController.isDarkMode?Colors.white:Colors.black,
-                            size: 30.0,
+                            width: 50,
+                            height: 50,
                           ),
                           shape: CircleBorder(),
                           elevation: 0.0,
                           fillColor: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
-                          padding: const EdgeInsets.all(12.0),
+                          padding: const EdgeInsets.all(5.0),
                         ),
                       RawMaterialButton(
                         onPressed: () => _onCallEnd(context),
-                        child: Icon(
-                          Icons.call_end,
+                        child: Image.asset(
+                          'lib/asset/iconsNewDesign/phone.png',
                           color: Colors.white,
-                          size: 25.0,
+                          width: 20,
+                          height: 20,
                         ),
                         shape: CircleBorder(),
                         elevation: 0.0,
                         fillColor: Color(0xFFF23324),
-                        padding: const EdgeInsets.all(15.0),
+                        padding: const EdgeInsets.all(20.0),
                       ),
                     ],
                   ),
@@ -531,7 +585,12 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
                             shape: BoxShape.circle,
                             color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
                           ),
-                          child: Icon(Icons.person_add, color: themeController.isDarkMode?Colors.white:Colors.black, size: 25.0,),
+                          alignment: Alignment.center,
+                          child: Image.asset('lib/asset/iconsNewDesign/addPeople.png',
+                            color: themeController.isDarkMode?Colors.white:Colors.black,
+                            height: 22,
+                            width: 22,
+                          ),
                         ),
                         title: Text(
                           "Add Participants",
@@ -623,7 +682,9 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
       height: radius,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.blue.withOpacity(1 - _controller.value),
+        color: themeController.isDarkMode?
+        Colors.grey.withOpacity(1 - _controller.value):
+        Colors.white30.withOpacity(1 - _controller.value),
       ),
     );
   }

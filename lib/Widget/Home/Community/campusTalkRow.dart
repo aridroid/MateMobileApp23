@@ -18,7 +18,8 @@ import 'package:flutter_share_me/flutter_share_me.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mate_app/constant.dart';
 import 'package:provider/provider.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
+//import 'package:share/share.dart';
 
 import '../../../controller/theme_controller.dart';
 import '../../../groupChat/services/dynamicLinkService.dart';

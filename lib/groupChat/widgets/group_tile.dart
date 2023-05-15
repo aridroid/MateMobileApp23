@@ -81,7 +81,7 @@ class GroupTile extends StatelessWidget {
                               color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
                             ),
                             normalFontSize: 15,
-                            emojiFontSize: 25,
+                            emojiFontSize: 18,
                           ),
                         ),
                         isPinned?

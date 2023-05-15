@@ -291,6 +291,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
                         onTap: (){
                           setState(() {
                             _currentIndex = 0;
+                            onTabTapped(0);
                           });
                         },
                         child: Column(
@@ -479,7 +480,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
       _currentIndex = index;
       if(_currentIndex==0){
         Provider.of<FeedProvider>(context, listen: false).fetchFeedListMyCampus(page: 1);
-        Provider.of<FeedProvider>(context, listen: false).fetchFeedList(page: 1);
+        //Provider.of<FeedProvider>(context, listen: false).fetchFeedList(page: 1);
       }else if(_currentIndex==2){
         print("Event");
       }else if(_currentIndex==4){

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:mate_app/Model/conncetionListingModel.dart';
 import 'package:mate_app/Services/chatService.dart';
 import 'package:mate_app/Services/connection_service.dart';
@@ -363,8 +364,13 @@ Widget buildEmojiAndText({String content,TextStyle textStyle,double normalFontSi
           children: [
         for (var t in content.characters)
           TextSpan(
-              text: t,
-              style: textStyle.copyWith(fontSize: REGEX_EMOJI.allMatches(t).isNotEmpty ? emojiFontSize : normalFontSize),
+              text: t == '’'? "'" : t,
+              style: textStyle.copyWith(fontSize: REGEX_EMOJI.allMatches(t).isNotEmpty && t != '’'? emojiFontSize : normalFontSize),
           ),
       ]));
+}
+
+String getFormattedDate(String date){
+  final dateName = DateFormat('EEEE').format(DateFormat("DD MMMM yyyy").parse(date));
+  return dateName.substring(0,3) + ", " + date.split(' ')[1].substring(0,3) + " " + date.split(' ').first;
 }

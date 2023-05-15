@@ -47,14 +47,14 @@ class ShowMicWithText extends StatelessWidget {
           children: [
             Transform.scale(
               key: soundRecorderState.key,
-              scale: soundRecorderState.buttonPressed ? 1.2 : 1,
+              scale: soundRecorderState.buttonPressed ? 1.4 : 1,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(600),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeIn,
-                  width: soundRecorderState.buttonPressed ? 50 : 50,
-                  height: soundRecorderState.buttonPressed ? 50 : 50,
+                  width: soundRecorderState.buttonPressed ? 60 : 60,
+                  height: soundRecorderState.buttonPressed ? 60 : 60,
                   child: Container(
                     color: (soundRecorderState.buttonPressed)
                         ? backGroundColor ??
@@ -65,7 +65,7 @@ class ShowMicWithText extends StatelessWidget {
                       child: recordIcon ??
                           Icon(
                             Icons.mic,
-                            size: 20,
+                            size: 25,
                             color: Colors.black,
                             // (soundRecorderState.buttonPressed)
                             //     ? Colors.grey.shade200

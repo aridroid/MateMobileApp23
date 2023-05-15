@@ -3,8 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:focused_menu/focused_menu.dart';
-import 'package:focused_menu/modals.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +10,8 @@ import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../Providers/chatProvider.dart';
 import '../../Services/community_tab_services.dart';
+import '../../Widget/focused_menu/focused_menu.dart';
+import '../../Widget/focused_menu/modals.dart';
 import '../../asset/Colors/MateColors.dart';
 import '../../controller/theme_controller.dart';
 import '../../groupChat/services/database_service.dart';

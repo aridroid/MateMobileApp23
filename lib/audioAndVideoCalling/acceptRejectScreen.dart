@@ -200,7 +200,9 @@ class _AcceptRejectScreenState extends State<AcceptRejectScreen> with SingleTick
       height: radius,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.blue.withOpacity(1 - _controller.value),
+        color: themeController.isDarkMode?
+        Colors.grey.withOpacity(1 - _controller.value):
+        Colors.white30.withOpacity(1 - _controller.value),
       ),
     );
   }
