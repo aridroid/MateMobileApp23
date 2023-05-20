@@ -657,6 +657,13 @@ class DatabaseService {
     }
   }
 
+  changeCallType({String channelName,String callType}) async {
+    callCollection.doc(channelName).set(
+      {'callType': callType,},
+      SetOptions(merge: true),
+    );
+  }
+
   updateCallHistory({String channelName,String uid}) async {
     callCollection.doc(channelName).set(
       {'memberWhoseCallHistoryAddedToChat': FieldValue.arrayUnion([uid])},

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 
 import '../../../Utility/Utility.dart';
+import '../../../asset/Colors/MateColors.dart';
 import '../../Loaders/Shimmer.dart';
 import '../provider/sound_record_notifier.dart';
 
@@ -40,17 +41,11 @@ class SoundRecorderWhenLockedDesign extends StatelessWidget {
     return Container(
       width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
-        // color: cancelTextBackGroundColor ?? Colors.grey.shade100,
-        color: themeController.isDarkMode ? Colors.white: backgroundColor,
-        borderRadius: const BorderRadius.only(
-          // bottomRight: Radius.circular(24),
-          // topRight: Radius.circular(24),
-        ),
+        borderRadius: BorderRadius.circular(14),
+        color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
       ),
       child: InkWell(
-        onTap: () {
-
-        },
+        onTap: () {},
         child: Column(
           children: [
             SizedBox(height: 10,),
@@ -117,22 +112,22 @@ class SoundRecorderWhenLockedDesign extends StatelessWidget {
                 Row(
                   children: [
                     SizedBox(width: MediaQuery.of(context).size.width*0.15,),
-                    Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                    Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                    Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                    Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                    Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                    Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                    Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                    Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                    Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
-                    Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                    Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                    Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                    Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                    Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                    Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                    Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                    Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                    Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                    Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
+                    Icon(Icons.multitrack_audio_sharp,color: themeController.isDarkMode ? Colors.white:Colors.black,),
                   ],
                 ),
                 SizedBox(width: 10,),
                 Text("${soundRecordNotifier.second.toString().padLeft(2, '0').toString().padLeft(2,'0')} : ${soundRecordNotifier.minute.toString().padLeft(2,'0')}",
                   style: TextStyle(
-                    color: themeController.isDarkMode ? Colors.black:Colors.white,
+                    color: themeController.isDarkMode ? Colors.white:Colors.black,
                   ),
                 ),
                 SizedBox(width: 10,),
@@ -158,7 +153,20 @@ class SoundRecorderWhenLockedDesign extends StatelessWidget {
                         soundRecordNotifier.resetEdgePadding();
                         soundRecordNotifier.isPausedRecording = false;
                       },
-                      child: Icon(Icons.send,textDirection: TextDirection.ltr,size: 26,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                      child: Container(
+                        height: 34,
+                        width: 34,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: themeController.isDarkMode?Color(0xFF67AE8C):MateColors.appThemeDark,
+                        ),
+                        alignment: Alignment.center,
+                        child: Icon(Icons.send,
+                          textDirection: TextDirection.ltr,
+                          size: 18,
+                          color: Colors.black,
+                        ),
+                      ),
                     ),
                   ),
                   InkWell(
@@ -169,16 +177,23 @@ class SoundRecorderWhenLockedDesign extends StatelessWidget {
                         soundRecordNotifier.pauseRecording();
                       }
                     },
-                    child: Icon(soundRecordNotifier.isPausedRecording? Icons.mic:Icons.pause_circle_outline,size: 30,color: Colors.red,),
+                    child: Icon(soundRecordNotifier.isPausedRecording?
+                    Icons.play_circle:Icons.pause_circle_outline,
+                      size: 30,
+                      color: themeController.isDarkMode?Colors.white:Colors.black,
+                    ),
                   ),
                   InkWell(
                     onTap: (){
                       soundRecordNotifier.isShow = false;
                       soundRecordNotifier.resetEdgePadding();
                     },
-                    child: Icon(Icons.delete,size: 30,color: themeController.isDarkMode ? Colors.black:Colors.white,),
+                    child: Image.asset("lib/asset/iconsNewDesign/delete.png",
+                      width: 20,
+                      height: 20,
+                      color: themeController.isDarkMode?Colors.white:Colors.black,
+                    ),
                   ),
-                  //SizedBox(width: 0,),
                 ],
               ),
             ),

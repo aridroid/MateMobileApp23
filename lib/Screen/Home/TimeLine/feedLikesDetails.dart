@@ -3,7 +3,7 @@ import 'package:mate_app/Providers/FeedProvider.dart';
 import 'package:mate_app/Screen/Profile/UserProfileScreen.dart';
 import 'package:mate_app/Widget/Loaders/Shimmer.dart';
 import 'package:mate_app/asset/Colors/MateColors.dart';
-import 'package:mate_app/asset/Reactions/reactionsContants.dart';
+import 'package:mate_app/reactionsContants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

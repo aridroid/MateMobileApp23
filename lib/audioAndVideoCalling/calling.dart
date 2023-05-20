@@ -3,7 +3,9 @@ import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mate_app/audioAndVideoCalling/addParticipantsScreen.dart';
@@ -39,6 +41,7 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
   int second = 0;
   int minute = 0;
   Timer _timerCounter;
+  String callType;
 
   void _mapCounterGenerater() {
     _timerCounter = Timer(const Duration(seconds: 1), () {
@@ -53,7 +56,7 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
       second = 0;
       minute = minute + 1;
     }
-    if(_draggableScrollableController.pixels<400){
+    if(_draggableScrollableController.isAttached && _draggableScrollableController.pixels<400){
       setState(() {});
     }
   }
@@ -83,9 +86,23 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
     DatabaseService().joinCall(channelName: widget.channelName,uid: _user.uid);
   }
 
+  listenStreamBuilder()async{
+    DocumentReference reference = FirebaseFirestore.instance.collection('call-details').doc(widget.channelName);
+    reference.snapshots().listen((querySnapshot)async{
+      if(callType == "Audio Calling" && querySnapshot.get("callType") == "Video Calling"){
+        print('----------changing audio to video call----------');
+        _showCallChangeRequestDialog();
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    listenStreamBuilder();
+    setState(() {
+      callType = widget.callType;
+    });
     _mapCounterGenerater();
     addUserToFirebase();
     // initialize agora sdk
@@ -120,7 +137,7 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
   Future<void> _initAgoraRtcEngine() async {
     _engine = await RtcEngine.create(APP_ID);
     await _engine.enableVideo();
-    if(widget.callType=="Video Calling"){
+    if(callType=="Video Calling"){
       print("Video calling started");
       await _engine.enableVideo();
     }else{
@@ -237,9 +254,9 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
     final scH = MediaQuery.of(context).size.height;
     final scW = MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: widget.callType=="Video Calling"?Colors.white:Colors.grey.shade900,
+      backgroundColor: callType=="Video Calling"?Colors.white:Colors.grey.shade900,
       body:
-      widget.callType=="Video Calling"?
+      callType=="Video Calling"?
       Center(
         child: Stack(
           children: <Widget>[
@@ -428,7 +445,7 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
           },
           child: Container(
             decoration: BoxDecoration(
-              color: widget.callType == "Video Calling"?
+              color: callType == "Video Calling"?
               themeController.isDarkMode?Colors.black.withOpacity(0.7):Colors.white.withOpacity(0.7):
               themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
             ),
@@ -462,7 +479,7 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      if(widget.callType=="Video Calling")
+                      if(callType=="Video Calling")
                         RawMaterialButton(
                           onPressed: (){
                             setState(() {
@@ -484,7 +501,7 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
                           themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
                           padding: const EdgeInsets.all(18.0),
                         ),
-                      if(widget.callType=="Audio Calling")
+                      if(callType=="Audio Calling")
                         RawMaterialButton(
                           onPressed: (){
                             setState(() {
@@ -493,8 +510,9 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
                             _engine.setEnableSpeakerphone(speakerOn);
                           },
                           child: Image.asset(
-                            speakerOn ? 'lib/asset/iconsNewDesign/speakerOn.png': 'lib/asset/iconsNewDesign/speakerOff.png',
-                            color: speakerOn? themeController.isDarkMode?Colors.black:Colors.black:
+                            'lib/asset/iconsNewDesign/speakerOn.png',
+                            //speakerOn ? 'lib/asset/iconsNewDesign/speakerOn.png': 'lib/asset/iconsNewDesign/speakerOff.png',
+                            color: speakerOn? themeController.isDarkMode?Colors.black:Colors.white:
                             themeController.isDarkMode?Colors.white:Colors.black,
                             width: 20,
                             height: 20,
@@ -503,9 +521,25 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
                           elevation: 0.0,
                           fillColor:
                           speakerOn?
-                          Colors.white:
+                          themeController.isDarkMode?Colors.white:Colors.black.withOpacity(0.3):
                           themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
                           padding: const EdgeInsets.all(20.0),
+                        ),
+                      if(callType=="Audio Calling")
+                        RawMaterialButton(
+                          onPressed: ()async{
+                            _showCallChangeDialog();
+                          },
+                          child: Image.asset(
+                            'lib/asset/iconsNewDesign/video.png',
+                            color: themeController.isDarkMode?Colors.white:Colors.black,
+                            width: 25,
+                            height: 25,
+                          ),
+                          shape: CircleBorder(),
+                          elevation: 0.0,
+                          fillColor: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                          padding: const EdgeInsets.all(18.0),
                         ),
                       RawMaterialButton(
                         onPressed: (){
@@ -528,7 +562,7 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
                         themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
                         padding: const EdgeInsets.all(20.0),
                       ),
-                      if(widget.callType == "Video Calling")
+                      if(callType == "Video Calling")
                         RawMaterialButton(
                           onPressed: _onSwitchCamera,
                           child: Image.asset(
@@ -574,7 +608,7 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
                             isGroupCall: widget.isGroupCall,
                             image: widget.image,
                             name: widget.name,
-                            callType: widget.callType,
+                            callType: callType,
                             token: widget.token,
                           ));
                         },
@@ -1024,5 +1058,74 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
   //     barrierColor: Colors.transparent,
   //   );
   // }
+
+  _showCallChangeDialog()async{
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: new Text("Are you sure?"),
+          content: new Text("You want to switch to video call?"),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              child: Text("Switch"),
+              onPressed: ()async{
+                await _engine.enableVideo();
+                callType = "Video Calling";
+                _draggableScrollableController.dispose();
+                _draggableScrollableController = DraggableScrollableController();
+                DatabaseService().changeCallType(channelName: widget.channelName,callType: callType);
+                setState(() {});
+                Navigator.of(context).pop();
+              },
+            ),
+            CupertinoDialogAction(
+              child: Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  _showCallChangeRequestDialog()async{
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: new Text("Video call"),
+          content: !widget.isGroupCall?
+          Text("${widget.name} requesting you to switch to video call"):
+          Text("Switch to video call"),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              child: Text("Switch"),
+              onPressed: ()async{
+                await _engine.enableVideo();
+                callType = "Video Calling";
+                _draggableScrollableController.dispose();
+                _draggableScrollableController = DraggableScrollableController();
+                setState(() {});
+                Navigator.of(context).pop();
+              },
+            ),
+            CupertinoDialogAction(
+              child: Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
 }

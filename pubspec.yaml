@@ -111,6 +111,7 @@ dependencies:
   stacked_firebase_auth: ^2.19.1
   flutter_slidable: ^2.0.0
   visibility_detector: ^0.4.0+2
+  emoji_picker_flutter: ^1.5.4
 
 dev_dependencies:
   flutter_test:
@@ -139,7 +140,6 @@ flutter:
   assets:
     - lib/asset/Reactions/
     - lib/asset/ChatReactionImage/
-    - lib/asset/chatReactionImageIos/
     - lib/asset/logo.png
     - lib/asset/demo.png
     - lib/asset/glogo.png

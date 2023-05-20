@@ -739,4 +739,28 @@ class FeedProvider with ChangeNotifier {
     }
     notifyListeners();
   }
+
+
+
+  FeedItem _feedItemDetails;
+  bool _isLoadingFeedDetails = false;
+
+  FeedItem get feedItemDetails => _feedItemDetails;
+  bool get isLoadingFeedDetails => _isLoadingFeedDetails;
+
+  Future fetchFeedDetail(int feedId) async {
+    _isLoadingFeedDetails = true;
+    notifyListeners();
+
+    try {
+      var data = await _feedService.fetchFeedDetails(feedId);
+      _feedItemDetails = data;
+    } catch (err) {
+      _setError(err);
+    } finally {
+      _isLoadingFeedDetails = false;
+      notifyListeners();
+    }
+  }
+
 }

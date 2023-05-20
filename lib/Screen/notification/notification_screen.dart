@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mate_app/Screen/notification/feedDetailsScreenViaNotification.dart';
 
 import '../../asset/Colors/MateColors.dart';
 import '../../controller/theme_controller.dart';
@@ -99,70 +100,75 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     physics: ScrollPhysics(),
                     itemCount: 1,
                     itemBuilder: (context,index){
-                      return Container(
-                        margin: EdgeInsets.symmetric(horizontal: 16,vertical: 16),
-                        padding: EdgeInsets.only(bottom: 16),
-                        decoration: BoxDecoration(
-                          color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ListTile(
-                              horizontalTitleGap: 15,
-                              leading: Container(
-                                height: 45,
-                                width: 45,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: MateColors.activeIcons,
+                      return GestureDetector(
+                        onTap: (){
+                          Get.to(()=>FeedDetailsViaNotification(feedId: 722,));
+                        },
+                        child: Container(
+                          margin: EdgeInsets.symmetric(horizontal: 16,vertical: 16),
+                          padding: EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ListTile(
+                                horizontalTitleGap: 15,
+                                leading: Container(
+                                  height: 45,
+                                  width: 45,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: MateColors.activeIcons,
+                                  ),
+                                  child: Center(
+                                    child: Image.asset("lib/asset/icons/crossIcon.png",height: 13,),
+                                  ),
                                 ),
-                                child: Center(
-                                  child: Image.asset("lib/asset/icons/crossIcon.png",height: 13,),
+                                title: Text("Mate App",
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontFamily: "Poppins",
+                                    fontWeight: FontWeight.w600,
+                                    color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                                  ),
                                 ),
-                              ),
-                              title: Text("Mate App",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontFamily: "Poppins",
-                                  fontWeight: FontWeight.w600,
-                                  color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
-                                ),
-                              ),
-                              subtitle: Text("Yesterday",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 10,left: 16),
-                              child: Text(
-                                "Lorem Ipsum Dolor Sit Amet",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w700,
-                                  color: themeController.isDarkMode?Colors.white:Colors.black,
+                                subtitle: Text("Yesterday",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
+                                  ),
                                 ),
                               ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: 16,top: 10,right: 10),
-                              child: Text(
-                                "Diam diam diam vitae quis. Donec tincidunt cursus tristique gravida quis platea blandit risus in. Vulputate leo sit nisl interdum.",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w400,
-                                  letterSpacing: 0.1,
-                                  color: themeController.isDarkMode?Colors.white:Colors.black,
+                              Padding(
+                                padding: EdgeInsets.only(top: 10,left: 16),
+                                child: Text(
+                                  "Lorem Ipsum Dolor Sit Amet",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w700,
+                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                              Padding(
+                                padding: EdgeInsets.only(left: 16,top: 10,right: 10),
+                                child: Text(
+                                  "Diam diam diam vitae quis. Donec tincidunt cursus tristique gravida quis platea blandit risus in. Vulputate leo sit nisl interdum.",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w400,
+                                    letterSpacing: 0.1,
+                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },

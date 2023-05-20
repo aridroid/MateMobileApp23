@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -27,7 +28,7 @@ import '../../../constant.dart';
 import '../../../controller/theme_controller.dart';
 import '../../../groupChat/services/database_service.dart';
 import '../constForChat.dart';
-import 'package:sizer/sizer.dart';
+import 'package:flutter/foundation.dart' as foundation;
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:http/http.dart'as http;
 
@@ -686,7 +687,13 @@ class _ChatScreenState extends State<_ChatScreen> {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: null,
+      onTap: (){
+        setState(() {
+          if(emojiShowing){
+            emojiShowing = false;
+          }
+        });
+      },
       onPanUpdate: (details) {
         if (details.delta.dy > 0){
           FocusScope.of(context).requestFocus(FocusNode());
@@ -841,6 +848,8 @@ class _ChatScreenState extends State<_ChatScreen> {
                               editMessage: editMessage,
                               showDate: showDate,
                               showDateToggle: showDateToggle,
+                              onEmojiKeyboardToggle: onEmojiKeyboardToggle,
+                              onPlusIconCall: onPlusIconCall,
                             );
                           },
                           // ChatWidget.widgetChatBuildItem(context, listMessage, widget.currentUserId, index, snapshot.data.documents[index], peerAvatar),
@@ -853,12 +862,9 @@ class _ChatScreenState extends State<_ChatScreen> {
                 ),
                     ),
               ),
-              // Input content
               buildInput(),
             ],
           ),
-
-          // Loading
           buildLoading()
         ],
       ),
@@ -876,6 +882,20 @@ class _ChatScreenState extends State<_ChatScreen> {
             )
           : Container(),
     );
+  }
+
+  bool emojiShowing = false;
+  onEmojiKeyboardToggle(){
+    setState(() {
+      emojiShowing = true;
+    });
+  }
+
+  String messageId;
+  List<dynamic> messageReaction;
+  onPlusIconCall(String messageIdFromBack ,List<dynamic> messageReactionFromBack){
+    messageId = messageIdFromBack;
+    messageReaction = messageReactionFromBack;
   }
 
   Widget buildInput() {
@@ -946,7 +966,7 @@ class _ChatScreenState extends State<_ChatScreen> {
               ),
             ),
           ),
-           Consumer<SoundRecordNotifier>(
+          Consumer<SoundRecordNotifier>(
              builder: (cnt,state,child){
                return Row(
                  mainAxisSize: MainAxisSize.min,
@@ -1095,6 +1115,65 @@ class _ChatScreenState extends State<_ChatScreen> {
                );
              },
            ),
+          Offstage(
+            offstage: !emojiShowing,
+            child: SizedBox(
+                height: 350,
+                child: EmojiPicker(
+                  onEmojiSelected: (cat,emoji)async{
+                    print(cat);
+                    print(emoji.emoji);
+                    setState(() {
+                      emojiShowing = false;
+                    });
+                    String previousValue = "";
+                    bool add = true;
+                    if(messageId!=""){
+                      for(int i=0; i< messageReaction.length ;i++){
+                        if(messageReaction[i].contains(_user.uid)){
+                          add = false;
+                          previousValue = messageReaction[i];
+                          await DatabaseService(uid: _user.uid).updateMessageReactionOneToOne(personChatId, messageId,previousValue);
+                          await DatabaseService(uid: _user.uid).setMessageReactionOneToOne(personChatId, messageId, emoji.emoji,_user.displayName,_user.photoURL);
+                          break;
+                        }
+                      }
+                      if(add){
+                        DatabaseService(uid: _user.uid).setMessageReactionOneToOne(personChatId, messageId, emoji.emoji,_user.displayName,_user.photoURL);
+                      }
+                    }
+                  },
+                  config: Config(
+                    columns: 7,
+                    emojiSizeMax: 32 * (foundation.defaultTargetPlatform == TargetPlatform.iOS ? 1.30 : 1.0),
+                    verticalSpacing: 0,
+                    horizontalSpacing: 0,
+                    gridPadding: EdgeInsets.zero,
+                    initCategory: Category.RECENT,
+                    bgColor: const Color(0xFFF2F2F2),
+                    indicatorColor: Colors.blue,
+                    iconColor: Colors.grey,
+                    iconColorSelected: Colors.blue,
+                    backspaceColor: Colors.blue,
+                    skinToneDialogBgColor: Colors.white,
+                    skinToneIndicatorColor: Colors.grey,
+                    enableSkinTones: true,
+                    showRecentsTab: true,
+                    recentsLimit: 28,
+                    replaceEmojiOnLimitExceed: false,
+                    noRecents: const Text(
+                      'No Recents',
+                      style: TextStyle(fontSize: 20, color: Colors.black26),
+                      textAlign: TextAlign.center,
+                    ),
+                    loadingIndicator: const SizedBox.shrink(),
+                    tabIndicatorAnimDuration: kTabScrollDuration,
+                    categoryIcons: const CategoryIcons(),
+                    buttonMode: ButtonMode.MATERIAL,
+                    checkPlatformCompatibility: true,
+                  ),
+                )),
+          ),
         ],
       ),
     );
