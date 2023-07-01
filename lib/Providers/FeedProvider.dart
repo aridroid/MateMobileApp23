@@ -365,6 +365,19 @@ class FeedProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future bookmarkAFeedSingle(int feedId) async {
+    error = '';
+    var data;
+    try {
+      data = await _feedService.bookmarkAFeed(feedId);
+      _feedItemsBookmarkData = data;
+    } catch (err) {
+      _setError(err);
+    } finally {
+    }
+    notifyListeners();
+  }
+
   Future allBookmarkedFeed() async {
     error = '';
     _allBookmarkedFeedLoader = true;

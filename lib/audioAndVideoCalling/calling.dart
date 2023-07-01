@@ -86,20 +86,20 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
     DatabaseService().joinCall(channelName: widget.channelName,uid: _user.uid);
   }
 
-  listenStreamBuilder()async{
-    DocumentReference reference = FirebaseFirestore.instance.collection('call-details').doc(widget.channelName);
-    reference.snapshots().listen((querySnapshot)async{
-      if(callType == "Audio Calling" && querySnapshot.get("callType") == "Video Calling"){
-        print('----------changing audio to video call----------');
-        _showCallChangeRequestDialog();
-      }
-    });
-  }
+  // listenStreamBuilder()async{
+  //   DocumentReference reference = FirebaseFirestore.instance.collection('call-details').doc(widget.channelName);
+  //   reference.snapshots().listen((querySnapshot)async{
+  //     if(callType == "Audio Calling" && querySnapshot.get("callType") == "Video Calling"){
+  //       print('----------changing audio to video call----------');
+  //       _showCallChangeRequestDialog();
+  //     }
+  //   });
+  // }
 
   @override
   void initState() {
     super.initState();
-    listenStreamBuilder();
+    //listenStreamBuilder();
     setState(() {
       callType = widget.callType;
     });
@@ -525,22 +525,22 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
                           themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
                           padding: const EdgeInsets.all(20.0),
                         ),
-                      if(callType=="Audio Calling")
-                        RawMaterialButton(
-                          onPressed: ()async{
-                            _showCallChangeDialog();
-                          },
-                          child: Image.asset(
-                            'lib/asset/iconsNewDesign/video.png',
-                            color: themeController.isDarkMode?Colors.white:Colors.black,
-                            width: 25,
-                            height: 25,
-                          ),
-                          shape: CircleBorder(),
-                          elevation: 0.0,
-                          fillColor: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
-                          padding: const EdgeInsets.all(18.0),
-                        ),
+                      // if(callType=="Audio Calling")
+                      //   RawMaterialButton(
+                      //     onPressed: ()async{
+                      //       _showCallChangeDialog();
+                      //     },
+                      //     child: Image.asset(
+                      //       'lib/asset/iconsNewDesign/video.png',
+                      //       color: themeController.isDarkMode?Colors.white:Colors.black,
+                      //       width: 25,
+                      //       height: 25,
+                      //     ),
+                      //     shape: CircleBorder(),
+                      //     elevation: 0.0,
+                      //     fillColor: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                      //     padding: const EdgeInsets.all(18.0),
+                      //   ),
                       RawMaterialButton(
                         onPressed: (){
                           setState(() {

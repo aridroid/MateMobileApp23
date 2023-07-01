@@ -1,19 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mate_app/Screen/notification/feedDetailsScreenViaNotification.dart';
+import 'package:mate_app/Services/notificationService.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../Model/notificationData.dart';
 import '../../asset/Colors/MateColors.dart';
 import '../../controller/theme_controller.dart';
+import '../Profile/UserProfileScreen.dart';
+import 'beAMateScreenViaNotification.dart';
+import 'campusTalkDetailsScreenViaNotification.dart';
+import 'eventDetailsScreenViaNotification.dart';
+import 'findAMateScreenViaNotification.dart';
 
 class NotificationScreen extends StatefulWidget {
   static final String routeName = '/notificationScreen';
 
   @override
-  _NotificationScreenState createState() => _NotificationScreenState();
+  State<NotificationScreen> createState() => _NotificationScreenState();
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
   ThemeController themeController = Get.find<ThemeController>();
+  NotificationService _notificationService = NotificationService();
+  String token = "";
+  List<NotificationData> notificationData = [];
+  List<NotificationData> notificationDataUnread = [];
+  List<NotificationData> notificationDataRead = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    getStoredValue();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  getStoredValue() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    token = preferences.getString("token");
+    notificationData = await _notificationService.getNotificationListing(token: token);
+    notificationDataUnread = notificationData.where((element) => !element.isRead).toList();
+    notificationDataRead = notificationData.where((element) => element.isRead).toList();
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +99,30 @@ class _NotificationScreenState extends State<NotificationScreen> {
               ),
             ),
             Expanded(
-              child: ListView(
+              child: isLoading?
+              Container(
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: MateColors.activeIcons,
+                  ),
+                ),
+              ):
+              notificationData.isEmpty?
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 30),
+                alignment: Alignment.center,
+                height: MediaQuery.of(context).size.height/1.5,
+                child: Text("You don't have any notification",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'Poppins',
+                    fontSize: 15,
+                  ),
+                ),
+              ):
+              ListView(
                 padding: EdgeInsets.only(top: 10),
                 scrollDirection: Axis.vertical,
                 shrinkWrap: true,
@@ -98,17 +157,51 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     scrollDirection: Axis.vertical,
                     shrinkWrap: true,
                     physics: ScrollPhysics(),
-                    itemCount: 1,
+                    itemCount: notificationDataUnread.length,
                     itemBuilder: (context,index){
+                      NotificationData notification = notificationDataUnread[index];
                       return GestureDetector(
-                        onTap: (){
-                          Get.to(()=>FeedDetailsViaNotification(feedId: 722,));
+                        onTap: ()async{
+                          if(notification.postType == "Feed"){
+                            Get.to(()=>FeedDetailsViaNotification(feedId: notification.postId,));
+                          }else if(notification.postType == "Event"){
+                            Get.to(()=> EventDetailsScreenViaNotification(
+                              eventId: notification.postId,
+                            ));
+                          }else if(notification.postType == "CampusTalk"){
+                            Get.to(()=> CampusTalkDetailsScreenViaNotification(
+                              campusId: notification.postId,//notification.postId,
+                            ));
+                          }else if(notification.postType == "BeMate"){
+                            Get.to(()=> BeAMateScreenViaNotification(
+                              id: notification.postId,
+                            ));
+                          }else if(notification.postType == "FindMate"){
+                            Get.to(()=> FindAMateViaNotification(
+                              id: notification.postId,//notification.postId,
+                            ));
+                          }else if(notification.postType == "Connection"){
+                            Navigator.of(context).pushNamed(UserProfileScreen.routeName,
+                                arguments: {
+                                  "id": notification.sender.id,
+                                  "name": notification.sender.name,
+                                  "photoUrl": notification.sender.photoUrl,
+                                  "firebaseUid": notification.sender.firebaseUid,
+                                });
+                          }
+                          bool res = await _notificationService.changeStatus(token: token,id: notification.id);
+                          if(res){
+                            setState(() {
+                              notificationDataUnread.removeAt(index);
+                              notificationDataRead.add(notification);
+                            });
+                          }
                         },
                         child: Container(
                           margin: EdgeInsets.symmetric(horizontal: 16,vertical: 16),
                           padding: EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
-                            color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                            color: themeController.isDarkMode?Color(0xFF75F3E7):Color(0xFF17F3DE),
                             borderRadius: BorderRadius.circular(14),
                           ),
                           child: Column(
@@ -122,48 +215,49 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: MateColors.activeIcons,
-                                  ),
-                                  child: Center(
-                                    child: Image.asset("lib/asset/icons/crossIcon.png",height: 13,),
+                                    image: DecorationImage(
+                                      image: NetworkImage(notification.sender.photoUrl),
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
-                                title: Text("Mate App",
+                                title: Text(notification.sender.name,
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontFamily: "Poppins",
                                     fontWeight: FontWeight.w600,
-                                    color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                                    color: MateColors.blackTextColor,
                                   ),
                                 ),
-                                subtitle: Text("Yesterday",
+                                subtitle: Text(notification.created,
                                   style: TextStyle(
                                     fontSize: 14,
-                                    color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
+                                    color: Colors.black.withOpacity(0.72),
                                   ),
                                 ),
                               ),
                               Padding(
                                 padding: EdgeInsets.only(top: 10,left: 16),
                                 child: Text(
-                                  "Lorem Ipsum Dolor Sit Amet",
+                                  notification.title,
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontFamily: 'Poppins',
                                     fontWeight: FontWeight.w700,
-                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                    color: Colors.black,
                                   ),
                                 ),
                               ),
                               Padding(
                                 padding: EdgeInsets.only(left: 16,top: 10,right: 10),
                                 child: Text(
-                                  "Diam diam diam vitae quis. Donec tincidunt cursus tristique gravida quis platea blandit risus in. Vulputate leo sit nisl interdum.",
+                                  notification.description??"",
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontFamily: 'Poppins',
                                     fontWeight: FontWeight.w400,
                                     letterSpacing: 0.1,
-                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                    color: Colors.black,
                                   ),
                                 ),
                               ),
@@ -204,72 +298,105 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     scrollDirection: Axis.vertical,
                     shrinkWrap: true,
                     physics: ScrollPhysics(),
-                    itemCount: 2,
+                    itemCount: notificationDataRead.length,
                     itemBuilder: (context,index){
-                      return Container(
-                        margin: EdgeInsets.symmetric(horizontal: 16,vertical: 16),
-                        padding: EdgeInsets.only(bottom: 16),
-                        decoration: BoxDecoration(
-                          color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ListTile(
-                              horizontalTitleGap: 15,
-                              leading: Container(
-                                height: 45,
-                                width: 45,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: MateColors.activeIcons,
+                      NotificationData notification = notificationDataRead[index];
+                      return GestureDetector(
+                        onTap: (){
+                          if(notification.postType == "Feed"){
+                            Get.to(()=>FeedDetailsViaNotification(feedId: notification.postId,));
+                          }else if(notification.postType == "Event"){
+                            Get.to(()=> EventDetailsScreenViaNotification(
+                              eventId: notification.postId,
+                            ));
+                          }else if(notification.postType == "CampusTalk"){
+                            Get.to(()=> CampusTalkDetailsScreenViaNotification(
+                              campusId: notification.postId,//notification.postId,
+                            ));
+                          }else if(notification.postType == "BeMate"){
+                            Get.to(()=> BeAMateScreenViaNotification(
+                              id: notification.postId,
+                            ));
+                          }else if(notification.postType == "FindMate"){
+                            Get.to(()=> FindAMateViaNotification(
+                              id: notification.postId,//notification.postId,
+                            ));
+                          }else if(notification.postType == "Connection"){
+                            Navigator.of(context).pushNamed(UserProfileScreen.routeName,
+                                arguments: {
+                                  "id": notification.sender.id,
+                                  "name": notification.sender.name,
+                                  "photoUrl": notification.sender.photoUrl,
+                                  "firebaseUid": notification.sender.firebaseUid,
+                                });
+                          }
+                        },
+                        child: Container(
+                          margin: EdgeInsets.symmetric(horizontal: 16,vertical: 16),
+                          padding: EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ListTile(
+                                horizontalTitleGap: 15,
+                                leading: Container(
+                                  height: 45,
+                                  width: 45,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: MateColors.activeIcons,
+                                    image: DecorationImage(
+                                      image: NetworkImage(notification.sender.photoUrl),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
                                 ),
-                                child: Center(
-                                  child: Image.asset("lib/asset/icons/crossIcon.png",height: 13,),
+                                title: Text(notification.sender.name,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontFamily: "Poppins",
+                                    fontWeight: FontWeight.w600,
+                                    color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                                  ),
+                                ),
+                                subtitle: Text(notification.created,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
+                                  ),
                                 ),
                               ),
-                              title: Text("Mate App",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontFamily: "Poppins",
-                                  fontWeight: FontWeight.w600,
-                                  color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                              Padding(
+                                padding: EdgeInsets.only(top: 10,left: 16),
+                                child: Text(
+                                  notification.title,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w700,
+                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                  ),
                                 ),
                               ),
-                              subtitle: Text("Yesterday",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
+                              Padding(
+                                padding: EdgeInsets.only(left: 16,top: 10,right: 10),
+                                child: Text(
+                                  notification.description??"",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w400,
+                                    letterSpacing: 0.1,
+                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 10,left: 16),
-                              child: Text(
-                                "Lorem Ipsum Dolor Sit Amet",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w700,
-                                  color: themeController.isDarkMode?Colors.white:Colors.black,
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: 16,top: 10,right: 10),
-                              child: Text(
-                                "Diam diam diam vitae quis. Donec tincidunt cursus tristique gravida quis platea blandit risus in. Vulputate leo sit nisl interdum.",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w400,
-                                  letterSpacing: 0.1,
-                                  color: themeController.isDarkMode?Colors.white:Colors.black,
-                                ),
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       );
                     },

@@ -735,6 +735,19 @@ class CampusTalkProvider extends ChangeNotifier{
     return true;
   }
 
+  Future<bool> downVoteAPostSingle(int postId) async {
+    var data;
+    try {
+      data = await _campusTalkService.downVoteAPost(postId);
+      _upVotePostData = data;
+    } catch (err) {
+      _setError(err);
+      return false;
+    }
+    notifyListeners();
+    return true;
+  }
+
 
   Future<bool> upVoteAPostComment({int commentId, int index, bool isReply=false, int replyIndex}) async {
     error = '';
@@ -754,6 +767,19 @@ class CampusTalkProvider extends ChangeNotifier{
       !isReply?
       commentFetchData.data.result[index].upVoteLoader=false:
       commentFetchData.data.result[index].replies[replyIndex].upVoteLoader=false;
+    }
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> upVoteAPostCommentSingle({int commentId}) async {
+    var data;
+    try {
+      data = await _campusTalkService.upVoteAPostComment(commentId);
+      _upVotePostCommentData = data;
+    } catch (err) {
+      _setError(err);
+      return false;
     }
     notifyListeners();
     return true;
@@ -805,6 +831,18 @@ class CampusTalkProvider extends ChangeNotifier{
     return true;
   }
 
+  Future<bool> bookmarkAPostSingle(int postId) async {
+    var data;
+    try {
+      data = await _campusTalkService.bookmarkAPost(postId);
+      _bookmarkPostData = data;
+    } catch (err) {
+      _setError(err);
+      return false;
+    }
+    notifyListeners();
+    return true;
+  }
 
   Future fetchCommentsOfACampusTalkById(int commentId) async {
     error = '';

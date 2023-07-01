@@ -849,7 +849,7 @@ class _ChatScreenState extends State<_ChatScreen> {
                               showDate: showDate,
                               showDateToggle: showDateToggle,
                               onEmojiKeyboardToggle: onEmojiKeyboardToggle,
-                              onPlusIconCall: onPlusIconCall,
+                              //onPlusIconCall: onPlusIconCall,
                             );
                           },
                           // ChatWidget.widgetChatBuildItem(context, listMessage, widget.currentUserId, index, snapshot.data.documents[index], peerAvatar),
@@ -1115,65 +1115,65 @@ class _ChatScreenState extends State<_ChatScreen> {
                );
              },
            ),
-          Offstage(
-            offstage: !emojiShowing,
-            child: SizedBox(
-                height: 350,
-                child: EmojiPicker(
-                  onEmojiSelected: (cat,emoji)async{
-                    print(cat);
-                    print(emoji.emoji);
-                    setState(() {
-                      emojiShowing = false;
-                    });
-                    String previousValue = "";
-                    bool add = true;
-                    if(messageId!=""){
-                      for(int i=0; i< messageReaction.length ;i++){
-                        if(messageReaction[i].contains(_user.uid)){
-                          add = false;
-                          previousValue = messageReaction[i];
-                          await DatabaseService(uid: _user.uid).updateMessageReactionOneToOne(personChatId, messageId,previousValue);
-                          await DatabaseService(uid: _user.uid).setMessageReactionOneToOne(personChatId, messageId, emoji.emoji,_user.displayName,_user.photoURL);
-                          break;
-                        }
-                      }
-                      if(add){
-                        DatabaseService(uid: _user.uid).setMessageReactionOneToOne(personChatId, messageId, emoji.emoji,_user.displayName,_user.photoURL);
-                      }
-                    }
-                  },
-                  config: Config(
-                    columns: 7,
-                    emojiSizeMax: 32 * (foundation.defaultTargetPlatform == TargetPlatform.iOS ? 1.30 : 1.0),
-                    verticalSpacing: 0,
-                    horizontalSpacing: 0,
-                    gridPadding: EdgeInsets.zero,
-                    initCategory: Category.RECENT,
-                    bgColor: const Color(0xFFF2F2F2),
-                    indicatorColor: Colors.blue,
-                    iconColor: Colors.grey,
-                    iconColorSelected: Colors.blue,
-                    backspaceColor: Colors.blue,
-                    skinToneDialogBgColor: Colors.white,
-                    skinToneIndicatorColor: Colors.grey,
-                    enableSkinTones: true,
-                    showRecentsTab: true,
-                    recentsLimit: 28,
-                    replaceEmojiOnLimitExceed: false,
-                    noRecents: const Text(
-                      'No Recents',
-                      style: TextStyle(fontSize: 20, color: Colors.black26),
-                      textAlign: TextAlign.center,
-                    ),
-                    loadingIndicator: const SizedBox.shrink(),
-                    tabIndicatorAnimDuration: kTabScrollDuration,
-                    categoryIcons: const CategoryIcons(),
-                    buttonMode: ButtonMode.MATERIAL,
-                    checkPlatformCompatibility: true,
-                  ),
-                )),
-          ),
+          // Offstage(
+          //   offstage: !emojiShowing,
+          //   child: SizedBox(
+          //       height: 350,
+          //       child: EmojiPicker(
+          //         onEmojiSelected: (cat,emoji)async{
+          //           print(cat);
+          //           print(emoji.emoji);
+          //           setState(() {
+          //             emojiShowing = false;
+          //           });
+          //           String previousValue = "";
+          //           bool add = true;
+          //           if(messageId!=""){
+          //             for(int i=0; i< messageReaction.length ;i++){
+          //               if(messageReaction[i].contains(_user.uid)){
+          //                 add = false;
+          //                 previousValue = messageReaction[i];
+          //                 await DatabaseService(uid: _user.uid).updateMessageReactionOneToOne(personChatId, messageId,previousValue);
+          //                 await DatabaseService(uid: _user.uid).setMessageReactionOneToOne(personChatId, messageId, emoji.emoji,_user.displayName,_user.photoURL);
+          //                 break;
+          //               }
+          //             }
+          //             if(add){
+          //               DatabaseService(uid: _user.uid).setMessageReactionOneToOne(personChatId, messageId, emoji.emoji,_user.displayName,_user.photoURL);
+          //             }
+          //           }
+          //         },
+          //         config: Config(
+          //           columns: 7,
+          //           emojiSizeMax: 32 * (foundation.defaultTargetPlatform == TargetPlatform.iOS ? 1.30 : 1.0),
+          //           verticalSpacing: 0,
+          //           horizontalSpacing: 0,
+          //           gridPadding: EdgeInsets.zero,
+          //           initCategory: Category.RECENT,
+          //           bgColor: const Color(0xFFF2F2F2),
+          //           indicatorColor: Colors.blue,
+          //           iconColor: Colors.grey,
+          //           iconColorSelected: Colors.blue,
+          //           backspaceColor: Colors.blue,
+          //           skinToneDialogBgColor: Colors.white,
+          //           skinToneIndicatorColor: Colors.grey,
+          //           enableSkinTones: true,
+          //           showRecentsTab: true,
+          //           recentsLimit: 28,
+          //           replaceEmojiOnLimitExceed: false,
+          //           noRecents: const Text(
+          //             'No Recents',
+          //             style: TextStyle(fontSize: 20, color: Colors.black26),
+          //             textAlign: TextAlign.center,
+          //           ),
+          //           loadingIndicator: const SizedBox.shrink(),
+          //           tabIndicatorAnimDuration: kTabScrollDuration,
+          //           categoryIcons: const CategoryIcons(),
+          //           buttonMode: ButtonMode.MATERIAL,
+          //           checkPlatformCompatibility: true,
+          //         ),
+          //       )),
+          // ),
         ],
       ),
     );
