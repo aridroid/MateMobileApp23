@@ -11,7 +11,7 @@ import '../../../controller/theme_controller.dart';
 import '../../../groupChat/services/database_service.dart';
 
 class AddPersonWhileCreatingGroupSearch extends StatefulWidget {
-  const AddPersonWhileCreatingGroupSearch({Key key}) : super(key: key);
+  const AddPersonWhileCreatingGroupSearch({Key? key}) : super(key: key);
 
   @override
   State<AddPersonWhileCreatingGroupSearch> createState() => _AddPersonWhileCreatingGroupSearchState();
@@ -20,9 +20,9 @@ class AddPersonWhileCreatingGroupSearch extends StatefulWidget {
 class _AddPersonWhileCreatingGroupSearchState extends State<AddPersonWhileCreatingGroupSearch> {
   ThemeController themeController = Get.find<ThemeController>();
   final AddUserController _addUserController = Get.find<AddUserController>();
-  QuerySnapshot searchResultSnapshot;
+  late QuerySnapshot searchResultSnapshot;
   bool isLoading = true;
-  User _user = FirebaseAuth.instance.currentUser;
+  User _user = FirebaseAuth.instance.currentUser!;
   List<UserListModel> personList = [];
   String searchedName="";
   FocusNode focusNode = FocusNode();
@@ -58,7 +58,7 @@ class _AddPersonWhileCreatingGroupSearchState extends State<AddPersonWhileCreati
         }
       }
       personList.sort((a, b) {
-        return a.displayName.toLowerCase().compareTo(b.displayName.toLowerCase());
+        return a.displayName!.toLowerCase().compareTo(b.displayName!.toLowerCase());
       });
       setState(() {
         isLoading = false;
@@ -161,12 +161,12 @@ class _AddPersonWhileCreatingGroupSearchState extends State<AddPersonWhileCreati
                       physics: NeverScrollableScrollPhysics(),
                       itemCount: personList.length,
                       itemBuilder: (context, index) {
-                        return FutureBuilder(
-                            future: DatabaseService().getUsersDetails(personList[index].uid),
+                        return FutureBuilder<DocumentSnapshot>(
+                            future: DatabaseService().getUsersDetails(personList[index].uid!),
                             builder: (context, snapshot1) {
                               if(snapshot1.hasData){
                                 return Visibility(
-                                  visible: searchedName!="" && snapshot1.data.data()['displayName'].toString().toLowerCase().contains(searchedName.toLowerCase()),
+                                  visible: searchedName!="" && snapshot1.data!.get('displayName').toString().toLowerCase().contains(searchedName.toLowerCase()),
                                   child: Padding(
                                     padding: const EdgeInsets.only(bottom: 35),
                                     child: InkWell(
@@ -181,31 +181,31 @@ class _AddPersonWhileCreatingGroupSearchState extends State<AddPersonWhileCreati
                                         if(_addUserController.addConnectionUid.contains(personList[index].uid)){
                                           _addUserController.addConnectionUid.remove(personList[index].uid);
                                         }else{
-                                          _addUserController.addConnectionUid.add(personList[index].uid);
+                                          _addUserController.addConnectionUid.add(personList[index].uid!);
                                         }
                                         if(_addUserController.addConnectionDisplayName.contains(personList[index].displayName)){
                                           _addUserController.addConnectionDisplayName.remove(personList[index].displayName);
                                         }else{
-                                          _addUserController.addConnectionDisplayName.add(personList[index].displayName);
+                                          _addUserController.addConnectionDisplayName.add(personList[index].displayName!);
                                         }
                                         print(_addUserController.addConnectionUid);
                                         print(_addUserController.addConnectionDisplayName);
                                       },
                                       child: ListTile(
-                                        leading: snapshot1.data.data()['photoURL']!=null?
+                                        leading: snapshot1.data!.get('photoURL')!=null?
                                         CircleAvatar(
                                           radius: 30,
                                           backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
                                           backgroundImage: NetworkImage(
-                                            snapshot1.data.data()['photoURL'],
+                                            snapshot1.data!.get('photoURL'),
                                           ),
                                         ):
                                         CircleAvatar(
                                           radius: 30,
                                           backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
-                                          child: Text(snapshot1.data.data()['displayName'].substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
+                                          child: Text(snapshot1.data!.get('displayName').substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
                                         ),
-                                        title: Text(snapshot1.data.data()['displayName'],
+                                        title: Text(snapshot1.data!.get('displayName'),
                                           style: TextStyle(
                                             fontSize: 15,
                                             fontFamily: "Poppins",

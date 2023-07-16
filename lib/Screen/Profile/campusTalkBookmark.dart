@@ -15,14 +15,14 @@ import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
 class CampusTalkBookmark extends StatefulWidget {
-  const CampusTalkBookmark({Key key}) : super(key: key);
+  const CampusTalkBookmark({Key? key}) : super(key: key);
 
   @override
   _CampusTalkBookmarkState createState() => _CampusTalkBookmarkState();
 }
 
 class _CampusTalkBookmarkState extends State<CampusTalkBookmark> {
-  CampusTalkProvider campusTalkProvider;
+  late CampusTalkProvider campusTalkProvider;
 
   @override
   void initState() {
@@ -36,21 +36,21 @@ class _CampusTalkBookmarkState extends State<CampusTalkBookmark> {
   Future<void> startAudio(String url,int index) async {
     print(url);
     print(index);
-    print(campusTalkProvider.campusTalkPostsBookmarkData.data.result[index].isPaused);
-    if(campusTalkProvider.campusTalkPostsBookmarkData.data.result[index].isPaused==true){
-      for(int i=0;i<campusTalkProvider.campusTalkPostsBookmarkData.data.result.length;i++){
-        campusTalkProvider.campusTalkPostsBookmarkData.data.result[i].isPlaying = false;
+    print(campusTalkProvider.campusTalkPostsBookmarkData.data!.result![index].isPaused);
+    if(campusTalkProvider.campusTalkPostsBookmarkData.data!.result![index].isPaused==true){
+      for(int i=0;i<campusTalkProvider.campusTalkPostsBookmarkData.data!.result!.length;i++){
+        campusTalkProvider.campusTalkPostsBookmarkData.data!.result![i].isPlaying = false;
       }
-      campusTalkProvider.campusTalkPostsBookmarkData.data.result[index].isPaused = false;
+      campusTalkProvider.campusTalkPostsBookmarkData.data!.result![index].isPaused = false;
       audioPlayer.play();
       setState(() {
-        campusTalkProvider.campusTalkPostsBookmarkData.data.result[index].isPlaying = true;
+        campusTalkProvider.campusTalkPostsBookmarkData.data!.result![index].isPlaying = true;
       });
       audioPlayer.playerStateStream.listen((state) {
         if (state.processingState == ProcessingState.completed) {
           setState(() {
-            campusTalkProvider.campusTalkPostsBookmarkData.data.result[index].isPlaying = false;
-            campusTalkProvider.campusTalkPostsBookmarkData.data.result[index].isPaused = false;
+            campusTalkProvider.campusTalkPostsBookmarkData.data!.result![index].isPlaying = false;
+            campusTalkProvider.campusTalkPostsBookmarkData.data!.result![index].isPaused = false;
           });
         }
       });
@@ -66,8 +66,8 @@ class _CampusTalkBookmarkState extends State<CampusTalkBookmark> {
         audioPlayer.playerStateStream.listen((state) {
           if (state.processingState == ProcessingState.completed) {
             setState(() {
-              campusTalkProvider.campusTalkPostsBookmarkData.data.result[index].isPlaying = false;
-              campusTalkProvider.campusTalkPostsBookmarkData.data.result[index].isPaused = false;
+              campusTalkProvider.campusTalkPostsBookmarkData.data!.result![index].isPlaying = false;
+              campusTalkProvider.campusTalkPostsBookmarkData.data!.result![index].isPaused = false;
             });
           }
         });
@@ -79,8 +79,8 @@ class _CampusTalkBookmarkState extends State<CampusTalkBookmark> {
         });
 
         audioPlayer.stop();
-        for(int i=0;i<campusTalkProvider.campusTalkPostsBookmarkData.data.result.length;i++){
-          campusTalkProvider.campusTalkPostsBookmarkData.data.result[i].isPlaying = false;
+        for(int i=0;i<campusTalkProvider.campusTalkPostsBookmarkData.data!.result!.length;i++){
+          campusTalkProvider.campusTalkPostsBookmarkData.data!.result![i].isPlaying = false;
         }
         setState(() {});
 
@@ -92,24 +92,24 @@ class _CampusTalkBookmarkState extends State<CampusTalkBookmark> {
           await audioPlayer.setFilePath(filePathAndName);
           audioPlayer.play();
           setState(() {
-            campusTalkProvider.campusTalkPostsBookmarkData.data.result[index].isPlaying = true;
+            campusTalkProvider.campusTalkPostsBookmarkData.data!.result![index].isPlaying = true;
           });
         }else{
           setState(() {
-            campusTalkProvider.campusTalkPostsBookmarkData.data.result[index].isLoadingAudio = true;
+            campusTalkProvider.campusTalkPostsBookmarkData.data!.result![index].isLoadingAudio = true;
           });
 
           String path = await downloadAudio(url);
 
           setState(() {
-            campusTalkProvider.campusTalkPostsBookmarkData.data.result[index].isLoadingAudio = false;
+            campusTalkProvider.campusTalkPostsBookmarkData.data!.result![index].isLoadingAudio = false;
           });
 
           if(path !=""){
             await audioPlayer.setFilePath(path);
             audioPlayer.play();
             setState(() {
-              campusTalkProvider.campusTalkPostsBookmarkData.data.result[index].isPlaying = true;
+              campusTalkProvider.campusTalkPostsBookmarkData.data!.result![index].isPlaying = true;
             });
           }else{
             Fluttertoast.showToast(msg: "Something went wrong while playing audio please try again!", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
@@ -125,8 +125,8 @@ class _CampusTalkBookmarkState extends State<CampusTalkBookmark> {
   void pauseAudio(int index)async{
     audioPlayer.pause();
     setState(() {
-      campusTalkProvider.campusTalkPostsBookmarkData.data.result[index].isPlaying = false;
-      campusTalkProvider.campusTalkPostsBookmarkData.data.result[index].isPaused = true;
+      campusTalkProvider.campusTalkPostsBookmarkData.data!.result![index].isPlaying = false;
+      campusTalkProvider.campusTalkPostsBookmarkData.data!.result![index].isPaused = true;
     });
   }
 
@@ -159,9 +159,9 @@ class _CampusTalkBookmarkState extends State<CampusTalkBookmark> {
           return ListView.builder(
               shrinkWrap: true,
               padding: EdgeInsets.only(top: 10),
-              itemCount: campusTalkProvider.campusTalkPostsBookmarkData.data.result.length,
+              itemCount: campusTalkProvider.campusTalkPostsBookmarkData.data!.result!.length,
               itemBuilder: (context, index) {
-                Result campusTalkData = campusTalkProvider.campusTalkPostsBookmarkData.data.result[index];
+                Result campusTalkData = campusTalkProvider.campusTalkPostsBookmarkData.data!.result![index];
                 return CampusTalkRow(
                   isBookmarkedPage: true,
                   talkId: campusTalkData.id,
@@ -171,7 +171,7 @@ class _CampusTalkBookmarkState extends State<CampusTalkBookmark> {
                   isAnonymous: campusTalkData.isAnonymous,
                   anonymousUser: campusTalkData.anonymousUser,
                   url: campusTalkData.url,
-                  createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(campusTalkData.createdAt, true))}",
+                  createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(campusTalkData.createdAt!, true))}",
                   rowIndex: index,
                   isBookmarked: campusTalkData.isBookmarked,
                   isLiked: campusTalkData.isLiked,

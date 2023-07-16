@@ -42,37 +42,38 @@ import 'package:flutter/foundation.dart' as foundation;
 class ChatPage extends StatefulWidget {
   final String groupId;
   final String userName;
-  final String totalParticipant;
+  final String? totalParticipant;
   final String groupName;
   final String photoURL;
   final List<dynamic> memberList;
-  ChatPage({this.groupId, this.userName, this.groupName, this.photoURL = "",this.totalParticipant, this.memberList});
+  ChatPage({required this.groupId, required this.userName, required this.groupName, this.photoURL = "", this.totalParticipant, required this.memberList});
 
   @override
   _ChatPageState createState() => _ChatPageState();
 }
 
 class _ChatPageState extends State<ChatPage> {
-  Stream<QuerySnapshot> _chats;
-  User _user;
+  Stream<QuerySnapshot>? _chats;
+  User? _user;
   TextEditingController messageEditingController = new TextEditingController();
   final ScrollController listScrollController = new ScrollController();
-  PickedFile imageFile;
-  File file;
+  PickedFile? imageFile;
+  File? file;
   String fileExtension = "";
   String fileName = "";
   int fileSize = 0;
   bool isLoading = false;
-  bool isShowSticker;
-  String imageUrl;
-  String fileUrl;
+  bool? isShowSticker;
+  String? imageUrl;
+  String? fileUrl;
   bool readMessageUpdate = true;
   int messageLength = 0;
-  User currentUser = FirebaseAuth.instance.currentUser;
-  String _gifPath;
+  User currentUser = FirebaseAuth.instance.currentUser!;
+  String? _gifPath;
   String selectedMessage = "";
   String sender = "";
   bool showSelected = false;
+  bool isAudioPreviousMessage = false;
   bool showDate = false;
   bool isUserMember = true;
 
@@ -83,8 +84,8 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   bool isEditing = false;
-  String editGroupId;
-  String editMessageId;
+  String? editGroupId;
+  String? editMessageId;
   void editMessage(String groupId,String messageId,String previousMessage)async{
     setState(() {
       isEditing = true;
@@ -102,11 +103,11 @@ class _ChatPageState extends State<ChatPage> {
       onHorizontalDragEnd: (val){
         showDateToggle();
       },
-      child: StreamBuilder(
+      child: StreamBuilder<QuerySnapshot>(
         stream: _chats,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            messageLength = snapshot.data.docs.length;
+            messageLength = snapshot.data!.docs.length;
             if(messageLength!=isPlaying.length){
               if(messageLength>isPlaying.length && messageLength<isPlaying.length+2){
                 isPlaying.add(false);
@@ -127,10 +128,10 @@ class _ChatPageState extends State<ChatPage> {
               print(isLoadingAudio.length);
             }
             if (readMessageUpdate) {
-              Map<String, dynamic> body = {"group_id": widget.groupId, "read_by": _user.uid, "messages_read": messageLength};
+              Map<String, dynamic> body = {"group_id": widget.groupId, "read_by": _user!.uid, "messages_read": messageLength};
               Future.delayed(Duration.zero, () {
                 Provider.of<ChatProvider>(context, listen: false).groupChatMessageReadUpdate(body);
-                Provider.of<ChatProvider>(context, listen: false).groupChatDataFetch(_user.uid);
+                Provider.of<ChatProvider>(context, listen: false).groupChatDataFetch(_user!.uid);
               });
               readMessageUpdate = false;
             }
@@ -149,8 +150,8 @@ class _ChatPageState extends State<ChatPage> {
             DateTime dateParsedYesterday = DateTime.parse(splitYesterday[0]);
             String dateFormattedYesterday = DateFormat('dd MMMM yyyy').format(dateParsedYesterday);
 
-            for(int i=0; i<snapshot.data.docs.length; i++){
-              DateTime dateFormat = new DateTime.fromMillisecondsSinceEpoch(int.parse(snapshot.data.docs[i].data()["time"].toString()));
+            for(int i=0; i<snapshot.data!.docs.length; i++){
+              DateTime dateFormat = new DateTime.fromMillisecondsSinceEpoch(int.parse(snapshot.data!.docs[i].get('time').toString()));
               String dateFormatted = DateFormat('dd MMMM yyyy').format(dateFormat);
               if(dateFormatted == dateFormattedToday){
                 String formattedTime = DateFormat.jm().format(dateFormat);
@@ -172,52 +173,66 @@ class _ChatPageState extends State<ChatPage> {
 
             return ListView.builder(
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                itemCount: snapshot.data.docs.length,
+                itemCount: snapshot.data!.docs.length,
                 reverse: true,
                 controller: listScrollController,
                 itemBuilder: (context, index) {
                   double size = 0;
                   String unit = "";
-                  if (snapshot.data.docs[index].data()["fileSize"] != null) {
-                    if (snapshot.data.docs[index].data()["fileSize"] < 100000) {
-                      size = snapshot.data.docs[index].data()["fileSize"] / 1000;
+                  if (snapshot.data!.docs[index].data().toString().contains('fileSize')) {
+                    if (snapshot.data!.docs[index].get('fileSize') < 100000) {
+                      size = snapshot.data!.docs[index].get('fileSize') / 1000;
                       unit = "KB";
-                    } else if (snapshot.data.docs[index].data()["fileSize"] > 100000) {
-                      size = snapshot.data.docs[index].data()["fileSize"] / 1000000;
+                    } else if (snapshot.data!.docs[index].get('fileSize') > 100000) {
+                      size = snapshot.data!.docs[index].get('fileSize') / 1000000;
                       unit = "MB";
                     }
                   }
-                  int itemCount = snapshot.data.docs.length ?? 0;
+                  int itemCount = snapshot.data?.docs.length ?? 0;
                   int reversedIndex = itemCount - 1 - index;
+                  //print(snapshot.data?.docs[index].get('messageId'));
                   return MessageTile(
-                    messageId: snapshot.data.docs[index].data()["messageId"]??"",
-                    messageReaction: snapshot.data.docs[index].data()["messageReaction"]??[],
+                    messageId: snapshot.data!.docs[index].data().toString().contains('messageId')?
+                    snapshot.data?.docs[index].get('messageId'):"",
+                    messageReaction: snapshot.data!.docs[index].data().toString().contains('messageReaction')?
+                    snapshot.data?.docs[index].get('messageReaction'):[],
                     groupId: widget.groupId,
-                    message: snapshot.data.docs[index].data()["message"],
-                    sender: snapshot.data.docs[index].data()["sender"],
-                    senderImage: snapshot.data.docs[index].data()["senderImage"]??"",
-                    sentByMe: _user.uid == snapshot.data.docs[index].data()["senderId"],
-                    messageTime: snapshot.data.docs[index].data()["time"].toString(),
-                    isImage: snapshot.data.docs[index].data()["isImage"] ?? false,
-                    isFile: snapshot.data.docs[index].data()["isFile"] ?? false,
-                    isGif: snapshot.data.docs[index].data()["isGif"] ?? false,
-                    fileExtension: snapshot.data.docs[index].data()["fileExtension"] ?? "",
-                    fileName: snapshot.data.docs[index].data()["fileName"] ?? "",
+                    message: snapshot.data!.docs[index].get('message'),
+                    sender: snapshot.data!.docs[index].get('sender'),
+                    senderImage: snapshot.data!.docs[index].data().toString().contains('senderImage')?
+                    snapshot.data!.docs[index].get('senderImage'):"",
+                    sentByMe: _user?.uid == snapshot.data!.docs[index].get('senderId'),
+                    messageTime: snapshot.data!.docs[index].get('time').toString(),
+                    isImage: snapshot.data!.docs[index].data().toString().contains('isImage')?
+                    snapshot.data!.docs[index].get('isImage') : false,
+                    isFile: snapshot.data!.docs[index].data().toString().contains('isFile')?
+                    snapshot.data!.docs[index].get('isFile') : false,
+                    isGif: snapshot.data!.docs[index].data().toString().contains('isGif')?
+                    snapshot.data!.docs[index].get('isGif') : false,
+                    fileExtension: snapshot.data!.docs[index].data().toString().contains('fileExtension')?
+                    snapshot.data!.docs[index].get('fileExtension') : "",
+                    fileName: snapshot.data!.docs[index].data().toString().contains('fileName')?
+                    snapshot.data!.docs[index].get('fileName') : "",
                     fileSize: size.toStringAsPrecision(2),
                     fileSizeUnit: unit,
-                    userId: _user.uid,
-                    displayName: _user.displayName,
-                    photo: _user.photoURL,
+                    userId: _user!.uid,
+                    displayName: _user!.displayName!,
+                    photo: _user!.photoURL!,
                     index: reversedIndex,
                     date: dateReversed,
                     time: timeReversed,
-                    fileSizeFull: snapshot.data.docs[index].data()["fileSize"]??0,
-                    isForwarded: snapshot.data.docs[index].data()["isForwarded"]!=null?true:false,
-                    senderId: snapshot.data.docs[index].data()["senderId"],
+                    fileSizeFull: snapshot.data!.docs[index].data().toString().contains('fileSize')?
+                    snapshot.data!.docs[index].get('fileSize'):0,
+                    isForwarded: snapshot.data!.docs[index].data().toString().contains('isForwarded')?
+                    snapshot.data!.docs[index].get('isForwarded'):false,
+                    senderId: snapshot.data!.docs[index].get('senderId'),
                     selectMessage: selectedMessageFunc,
-                    previousMessage: snapshot.data.docs[index].data()["previousMessage"]??"",
-                    previousSender: snapshot.data.docs[index].data()["previousSender"]??"",
-                    isAudio: snapshot.data.docs[index].data()["isAudio"] ?? false,
+                    previousMessage: snapshot.data!.docs[index].data().toString().contains('previousMessage')?
+                    snapshot.data!.docs[index].get('previousMessage'):"",
+                    previousSender: snapshot.data!.docs[index].data().toString().contains('previousSender')?
+                    snapshot.data!.docs[index].get('previousSender'):"",
+                    isAudio: snapshot.data!.docs[index].data().toString().contains('isAudio')?
+                    snapshot.data!.docs[index].get('isAudio') : false,
                     isPlaying: isPlaying[reversedIndex],
                     isPaused: isPaused[reversedIndex],
                     isLoadingAudio: isLoadingAudio[reversedIndex],
@@ -245,8 +260,8 @@ class _ChatPageState extends State<ChatPage> {
   List<bool> isPlaying = [];
   List<bool> isPaused = [];
   List<bool> isLoadingAudio = [];
-  Duration duration;
-  Duration currentDuration;
+  Duration? duration;
+  Duration? currentDuration;
 
   Future<void> startAudio(String url,int index) async {
     if(isPaused[index]==true){
@@ -361,98 +376,97 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  Widget _members() {
-    return StreamBuilder<DocumentSnapshot>(
-        stream: DatabaseService().getGroupDetails(widget.groupId),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            print(snapshot.data['createdAt']);
-            return ListView(
-              shrinkWrap: true,
-              padding: EdgeInsets.only(top: 25, left: 5),
-              children: [
-                Padding(
-                  padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
-                  child: Text("${snapshot.data['members'].length} ${snapshot.data['members'].length < 2 ? "participant" : "participants"}",
-                      style: TextStyle(fontSize: 12.5.sp, fontWeight: FontWeight.w500, color: Colors.white)),
-                ),
-                ListView.builder(
-                    padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
-                    shrinkWrap: true,
-                    physics: ScrollPhysics(),
-                    itemCount: snapshot.data['members'].length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: EdgeInsets.symmetric(vertical: 2.0),
-                        child: FutureBuilder(
-                            future: DatabaseService().getUsersDetails(snapshot.data['members'][index].split("_")[0]),
-                            builder: (context, snapshot1) {
-                              if (snapshot1.hasData) {
-                                return ListTile(
-                                  onTap: () {
-                                    if (snapshot1.data.data()['uuid'] != null) {
-                                      if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
-                                        Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
-                                      } else {
-                                        Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                          "id": snapshot1.data.data()['uuid'],
-                                          "name": snapshot1.data.data()['displayName'],
-                                          "photoUrl": snapshot1.data.data()['photoURL'],
-                                          "firebaseUid": snapshot1.data.data()['uid']
-                                        });
-                                      }
-                                    }
-                                  },
-                                  leading: snapshot1.data.data()['photoURL'] != null
-                                      ? CircleAvatar(
-                                          radius: 20,
-                                          backgroundColor: MateColors.activeIcons,
-                                          backgroundImage: NetworkImage(
-                                            snapshot1.data.data()['photoURL'],
-                                          ),
-                                        )
-                                      : CircleAvatar(
-                                          radius: 20,
-                                          backgroundColor: MateColors.activeIcons,
-                                          child: Text(
-                                            snapshot.data['members'][index].split('_')[1].substring(0, 1),
-                                            style: TextStyle(color: Colors.white),
-                                          ),
-                                        ),
-                                  contentPadding: EdgeInsets.only(top: 5),
-                                  title: Text(currentUser.uid == snapshot1.data.data()['uid'] ? "You" : snapshot1.data.data()['displayName'],
-                                      style: TextStyle(fontSize: 13.0.sp, fontWeight: FontWeight.w500, color: Colors.white)),
-                                );
-                              } else if (snapshot1.connectionState == ConnectionState.waiting) {
-                                return SizedBox(
-                                  height: 50,
-                                  child: Center(
-                                    child: LinearProgressIndicator(
-                                      color: Colors.white,
-                                      backgroundColor: myHexColor,
-                                      // strokeWidth: 1.2,
-                                      minHeight: 3,
-                                    ),
-                                  ),
-                                );
-                              }
-                              return SizedBox();
-                            }),
-                      );
-                    }),
-              ],
-            );
-          } else
-            return Center(child: Text("Oops! Something went wrong! \nplease trey again..", style: TextStyle(fontSize: 10.9.sp)));
-        });
-  }
+  // Widget _members() {
+  //   return StreamBuilder<DocumentSnapshot>(
+  //       stream: DatabaseService().getGroupDetails(widget.groupId),
+  //       builder: (context, snapshot) {
+  //         if (snapshot.hasData) {
+  //           return ListView(
+  //             shrinkWrap: true,
+  //             padding: EdgeInsets.only(top: 25, left: 5),
+  //             children: [
+  //               Padding(
+  //                 padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
+  //                 child: Text("${snapshot.data['members'].length} ${snapshot.data['members'].length < 2 ? "participant" : "participants"}",
+  //                     style: TextStyle(fontSize: 12.5.sp, fontWeight: FontWeight.w500, color: Colors.white)),
+  //               ),
+  //               ListView.builder(
+  //                   padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
+  //                   shrinkWrap: true,
+  //                   physics: ScrollPhysics(),
+  //                   itemCount: snapshot.data['members'].length,
+  //                   itemBuilder: (context, index) {
+  //                     return Padding(
+  //                       padding: EdgeInsets.symmetric(vertical: 2.0),
+  //                       child: FutureBuilder(
+  //                           future: DatabaseService().getUsersDetails(snapshot.data['members'][index].split("_")[0]),
+  //                           builder: (context, snapshot1) {
+  //                             if (snapshot1.hasData) {
+  //                               return ListTile(
+  //                                 onTap: () {
+  //                                   if (snapshot1.data.data()['uuid'] != null) {
+  //                                     if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+  //                                       Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
+  //                                     } else {
+  //                                       Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
+  //                                         "id": snapshot1.data.data()['uuid'],
+  //                                         "name": snapshot1.data.data()['displayName'],
+  //                                         "photoUrl": snapshot1.data.data()['photoURL'],
+  //                                         "firebaseUid": snapshot1.data.data()['uid']
+  //                                       });
+  //                                     }
+  //                                   }
+  //                                 },
+  //                                 leading: snapshot1.data.data()['photoURL'] != null
+  //                                     ? CircleAvatar(
+  //                                         radius: 20,
+  //                                         backgroundColor: MateColors.activeIcons,
+  //                                         backgroundImage: NetworkImage(
+  //                                           snapshot1.data.data()['photoURL'],
+  //                                         ),
+  //                                       )
+  //                                     : CircleAvatar(
+  //                                         radius: 20,
+  //                                         backgroundColor: MateColors.activeIcons,
+  //                                         child: Text(
+  //                                           snapshot.data['members'][index].split('_')[1].substring(0, 1),
+  //                                           style: TextStyle(color: Colors.white),
+  //                                         ),
+  //                                       ),
+  //                                 contentPadding: EdgeInsets.only(top: 5),
+  //                                 title: Text(currentUser.uid == snapshot1.data.data()['uid'] ? "You" : snapshot1.data.data()['displayName'],
+  //                                     style: TextStyle(fontSize: 13.0.sp, fontWeight: FontWeight.w500, color: Colors.white)),
+  //                               );
+  //                             } else if (snapshot1.connectionState == ConnectionState.waiting) {
+  //                               return SizedBox(
+  //                                 height: 50,
+  //                                 child: Center(
+  //                                   child: LinearProgressIndicator(
+  //                                     color: Colors.white,
+  //                                     backgroundColor: myHexColor,
+  //                                     // strokeWidth: 1.2,
+  //                                     minHeight: 3,
+  //                                   ),
+  //                                 ),
+  //                               );
+  //                             }
+  //                             return SizedBox();
+  //                           }),
+  //                     );
+  //                   }),
+  //             ],
+  //           );
+  //         } else
+  //           return Center(child: Text("Oops! Something went wrong! \nplease trey again..", style: TextStyle(fontSize: 10.9.sp)));
+  //       });
+  // }
 
   _sendMessage(String message, {bool isImage = false, bool isFile = false, bool isGif = false,bool isAudio=false}) {
     if (message.isNotEmpty) {
       Map<String, dynamic> chatMessageMap = {
         "message": message.trim(),
         "sender": widget.userName,
-        'senderId': _user.uid,
+        'senderId': _user!.uid,
         'time': DateTime.now().millisecondsSinceEpoch,
         'isImage': isImage,
         'isFile': isFile,
@@ -474,14 +488,14 @@ class _ChatPageState extends State<ChatPage> {
         chatMessageMap['previousMessage'] = selectedMessage;
       }
 
-      DatabaseService().sendMessage(widget.groupId, chatMessageMap,_user.photoURL);
+      DatabaseService().sendMessage(widget.groupId, chatMessageMap,_user!.photoURL!);
       listScrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.easeOut);
       setState(() {
         messageEditingController.text = "";
         showSelected = false;
       });
 
-      Map<String, dynamic> body1 = {"group_id": widget.groupId, "read_by": _user.uid, "messages_read": messageLength + 1};
+      Map<String, dynamic> body1 = {"group_id": widget.groupId, "read_by": _user!.uid, "messages_read": messageLength + 1};
       Map<String, dynamic> body2 = {"group_id": widget.groupId, "total_messages": messageLength + 1};
 
       Future.delayed(Duration.zero, () {
@@ -511,9 +525,9 @@ class _ChatPageState extends State<ChatPage> {
         ),
       ),
     ).then((value) {
-      _gifPath = value.images.downsized.url;
+      _gifPath = value?.images.downsized?.url;
       if (_gifPath != null) {
-        _sendMessage(_gifPath, isGif: true);
+        _sendMessage(_gifPath!, isGif: true);
       }else{
         Fluttertoast.showToast(msg: 'Something went wrong.\nPlease try again');
       }
@@ -523,11 +537,11 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future _getFile() async {
-    FilePickerResult result = await FilePicker.platform.pickFiles(allowCompression: true);
+    FilePickerResult? result = await FilePicker.platform.pickFiles(allowCompression: true);
 
     if (result != null) {
-      file = File(result.files.single.path);
-      fileExtension = result.files.single.extension;
+      file = File(result.files.single.path!);
+      fileExtension = result.files.single.extension!;
       fileName = result.files.single.name;
       fileSize = result.files.single.size;
 
@@ -561,7 +575,7 @@ class _ChatPageState extends State<ChatPage> {
     String fileName = DateTime.now().millisecondsSinceEpoch.toString();
     Reference reference = FirebaseStorage.instance.ref().child(fileName);
 
-    File compressedFile = await FlutterNativeImage.compressImage(imageFile.path, quality: 80, percentage: 90);
+    File compressedFile = await FlutterNativeImage.compressImage(imageFile!.path, quality: 80, percentage: 90);
 
     UploadTask uploadTask = reference.putFile(compressedFile);
     TaskSnapshot storageTaskSnapshot = await uploadTask.whenComplete(() {});
@@ -569,7 +583,7 @@ class _ChatPageState extends State<ChatPage> {
       imageUrl = downloadUrl;
       setState(() {
         isLoading = false;
-        _sendMessage(imageUrl, isImage: true);
+        _sendMessage(imageUrl!, isImage: true);
       });
     }, onError: (err) {
       setState(() {
@@ -583,13 +597,13 @@ class _ChatPageState extends State<ChatPage> {
     String fileName = DateTime.now().millisecondsSinceEpoch.toString();
     Reference reference = FirebaseStorage.instance.ref().child(fileName);
 
-    UploadTask uploadTask = reference.putFile(file);
+    UploadTask uploadTask = reference.putFile(file!);
     TaskSnapshot storageTaskSnapshot = await uploadTask.whenComplete(() {});
     storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
       fileUrl = downloadUrl;
       setState(() {
         isLoading = false;
-        _sendMessage(fileUrl, isFile: true);
+        _sendMessage(fileUrl!, isFile: true);
       });
     }, onError: (err) {
       setState(() {
@@ -603,13 +617,13 @@ class _ChatPageState extends State<ChatPage> {
     String fileName = DateTime.now().millisecondsSinceEpoch.toString();
     Reference reference = FirebaseStorage.instance.ref().child(fileName);
 
-    UploadTask uploadTask = reference.putFile(file);
+    UploadTask uploadTask = reference.putFile(file!);
     TaskSnapshot storageTaskSnapshot = await uploadTask.whenComplete(() {});
     storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
       fileUrl = downloadUrl;
       setState(() {
         isLoading = false;
-        _sendMessage(fileUrl, isAudio: true);
+        _sendMessage(fileUrl!, isAudio: true);
       });
     }, onError: (err) {
       setState(() {
@@ -632,10 +646,11 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  selectedMessageFunc(String message,String senderName,bool selected)async{
+  selectedMessageFunc(String message,String senderName,bool selected,bool isAudio)async{
     selectedMessage = message;
     showSelected = selected;
     sender = senderName;
+    isAudioPreviousMessage = isAudio;
     setState(() {});
   }
 
@@ -646,8 +661,8 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-  String messageId;
-  List<dynamic> messageReaction;
+  String? messageId;
+  List<dynamic>? messageReaction;
   onPlusIconCall(String messageIdFromBack ,List<dynamic> messageReactionFromBack){
     messageId = messageIdFromBack;
     messageReaction = messageReactionFromBack;
@@ -708,6 +723,30 @@ class _ChatPageState extends State<ChatPage> {
                   SizedBox(
                     height: 4,
                   ),
+                  isAudioPreviousMessage?
+                  Row(
+                    children: [
+                      Image.asset('lib/asset/iconsNewDesign/mic.png',
+                        color: themeController.isDarkMode?Colors.white:MateColors.blackText,
+                        height: 20,
+                        width: 20,
+                      ),
+                      SizedBox(
+                        width: 4,
+                      ),
+                      Text(
+                        "Voice Message",
+                        style: TextStyle(
+                          fontFamily: "Poppins",
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: 0.1,
+                          color: themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                        ),
+                        textAlign: TextAlign.start,
+                      ),
+                    ],
+                  ):
                   Text(
                     selectedMessage,
                     style: TextStyle(
@@ -817,7 +856,7 @@ class _ChatPageState extends State<ChatPage> {
                                 onPressed: ()async{
                                   if(isEditing){
                                     if(messageEditingController.text.isNotEmpty)
-                                      await DatabaseService().editMessage(editGroupId, editMessageId, messageEditingController.text.trim());
+                                      await DatabaseService().editMessage(editGroupId!, editMessageId!, messageEditingController.text.trim());
                                     setState(() {
                                       isEditing = false;
                                       messageEditingController.text = "";
@@ -986,10 +1025,10 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-  DocumentSnapshot documentSnapshot;
+  DocumentSnapshot? documentSnapshot;
   getGroupDetails()async{
     documentSnapshot =  await DatabaseService().getGroupDetailsOnce(widget.groupId);
-    isUserMember = documentSnapshot['members'].contains(_user.uid + '_' + _user.displayName);
+    isUserMember = documentSnapshot!['members'].contains(_user!.uid + '_' + _user!.displayName!);
     setState(() {});
   }
 
@@ -1003,7 +1042,7 @@ class _ChatPageState extends State<ChatPage> {
 
   bool isPressed = false;
   int _recordDuration = 0;
-  Timer _timer;
+  Timer? _timer;
   final _audioRecorder = Record();
   bool sendAudio = false;
   bool showCancelLock = false;
@@ -1014,7 +1053,7 @@ class _ChatPageState extends State<ChatPage> {
     try {
       if (await _audioRecorder.hasPermission()) {
         Directory appDocDir = await getApplicationDocumentsDirectory();
-        String appDocPath = appDocDir.path + "/" + _user.uid + ".m4a";
+        String appDocPath = appDocDir.path + "/" + _user!.uid + ".m4a";
         if(File(appDocPath).existsSync()){
           print("Deleted");
           await File(appDocPath).delete();
@@ -1148,7 +1187,7 @@ class _ChatPageState extends State<ChatPage> {
                                     normalFontSize: 15,
                                     emojiFontSize: 25,
                                   ),
-                                  Text(widget.totalParticipant + " members",
+                                  Text(widget.totalParticipant! + " members",
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontFamily: "Poppins",

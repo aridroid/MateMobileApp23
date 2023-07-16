@@ -12,7 +12,7 @@ import '../chat1/screens/chat.dart';
 
 class NewMessage extends StatefulWidget {
   static final String routeName = '/newMessage';
-  const NewMessage({Key key}) : super(key: key);
+  const NewMessage({Key? key}) : super(key: key);
 
   @override
   _NewMessageState createState() => _NewMessageState();
@@ -20,10 +20,10 @@ class NewMessage extends StatefulWidget {
 
 class _NewMessageState extends State<NewMessage> {
   ThemeController themeController = Get.find<ThemeController>();
-  QuerySnapshot searchResultSnapshot;
+  late QuerySnapshot searchResultSnapshot;
   bool isLoading = true;
   bool hasUserSearched = false;
-  User _user = FirebaseAuth.instance.currentUser;
+  User _user = FirebaseAuth.instance.currentUser!;
   String searchedName="";
   List<UserListModel> userList = [];
 
@@ -285,5 +285,5 @@ class UserListModel {
   String displayName;
   String photoURL;
   String email;
-  UserListModel({this.uuid, this.uid, this.displayName,this.photoURL,this.email});
+  UserListModel({required this.uuid, required this.uid, required this.displayName,required this.photoURL,required this.email});
 }

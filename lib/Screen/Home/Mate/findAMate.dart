@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class FindAMateScreen extends StatefulWidget {
-  const FindAMateScreen({Key key}) : super(key: key);
+  const FindAMateScreen({Key? key}) : super(key: key);
 
   @override
   _FindAMateScreenState createState() => _FindAMateScreenState();
@@ -26,15 +26,15 @@ class _FindAMateScreenState extends State<FindAMateScreen> {
 }
 
 class FindAMate extends StatefulWidget {
-  const FindAMate({Key key}) : super(key: key);
+  const FindAMate({Key? key}) : super(key: key);
 
   @override
   _FindAMateState createState() => _FindAMateState();
 }
 
 class _FindAMateState extends State<FindAMate> {
-  ScrollController _scrollController;
-  int _page;
+  late ScrollController _scrollController;
+  late int _page;
 
   void _scrollListener() {
     if (_scrollController.position.atEdge) {
@@ -128,7 +128,7 @@ class _FindAMateState extends State<FindAMate> {
                 hyperlinkText: findAMateData.hyperLinkText,
                 hyperlink: findAMateData.hyperLink,
                 user: findAMateData.user,
-                createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(findAMateData.createdAt, true))}",
+                createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(findAMateData.createdAt!, true))}",
                 rowIndex: index,
                 isActive: findAMateData.isActive,
               );

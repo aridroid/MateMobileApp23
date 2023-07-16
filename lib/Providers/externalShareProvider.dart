@@ -9,7 +9,7 @@ class ExternalShareProvider extends ChangeNotifier{
 
   /// initialization
 
-  ExternalShareService _externalShareService;
+  ExternalShareService _externalShareService = ExternalShareService();
   String _apiError = "";
   Map<String, dynamic> _validationErrors = Map();
 
@@ -19,9 +19,9 @@ class ExternalShareProvider extends ChangeNotifier{
 
 
   ///constructor
-  ExternalShareProvider() {
-    _externalShareService = ExternalShareService();
-  }
+  // ExternalShareProvider() {
+  //   _externalShareService = ExternalShareService();
+  // }
 
 
   ///getters

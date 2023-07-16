@@ -18,14 +18,14 @@ import 'package:http/http.dart'as http;
 import '../../Model/FeedItem.dart' as feedItem;
 
 class BookmarkScreen extends StatefulWidget {
-  const BookmarkScreen({Key key}) : super(key: key);
+  const BookmarkScreen({Key? key}) : super(key: key);
   @override
   _BookmarkScreenState createState() => _BookmarkScreenState();
 }
 
 class _BookmarkScreenState extends State<BookmarkScreen> with TickerProviderStateMixin{
   //FeedProvider feedProvider;
-  PageController _pageController;
+  late PageController _pageController;
   int _selectedIndex = 0;
 
   @override

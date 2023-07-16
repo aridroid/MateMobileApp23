@@ -11,7 +11,7 @@ import '../../controller/theme_controller.dart';
 import '../../groupChat/services/database_service.dart';
 
 class CallHistory extends StatefulWidget {
-  const CallHistory({Key key}) : super(key: key);
+  const CallHistory({Key? key}) : super(key: key);
 
   @override
   State<CallHistory> createState() => _CallHistoryState();
@@ -20,8 +20,8 @@ class CallHistory extends StatefulWidget {
 class _CallHistoryState extends State<CallHistory> {
   ThemeController themeController = Get.find<ThemeController>();
   List<CallHistoryModel> callHistoryList = [];
-  String token;
-  User _user = FirebaseAuth.instance.currentUser;
+  late String token;
+  User _user = FirebaseAuth.instance.currentUser!;
   bool isLoading = true;
 
   @override
@@ -33,7 +33,7 @@ class _CallHistoryState extends State<CallHistory> {
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
   }
 
   void getCallHistory()async{
@@ -99,7 +99,7 @@ class _CallHistoryState extends State<CallHistory> {
       'isAudio':isAudio,
     };
 
-    DatabaseService().sendMessage(data['groupIdORPeerId'], chatMessageMap,_user.photoURL);
+    DatabaseService().sendMessage(data['groupIdORPeerId'], chatMessageMap,_user.photoURL!);
     DatabaseService().updateCallHistory(channelName: data['channelName'],uid: _user.uid);
   }
 
@@ -222,30 +222,30 @@ class _CallHistoryState extends State<CallHistory> {
                   }
 
                   return callHistoryList[index].isPersonalCall?
-                  FutureBuilder(
+                  FutureBuilder<DocumentSnapshot>(
                       future: DatabaseService().getUsersDetails(callHistoryList[index].callSymbol == 'called'? callHistoryList[index].receiverId : callHistoryList[index].callerId),
                       builder: (context, snapshot1) {
                         if(snapshot1.hasData){
                           return Padding(
                             padding: EdgeInsets.only(top: index==0?16:10),
                             child: ListTile(
-                              leading: snapshot1.data.data()['photoURL']!=null?
+                              leading: snapshot1.data!.get('photoURL')!=null?
                               CircleAvatar(
                                 radius: 30,
                                 backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
                                 backgroundImage: NetworkImage(
-                                  snapshot1.data.data()['photoURL'],
+                                  snapshot1.data!.get('photoURL'),
                                 ),
                               ):
                               CircleAvatar(
                                 radius: 30,
                                 backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
-                                child: Text(snapshot1.data.data()['displayName']!=null?
-                                snapshot1.data.data()['displayName'].substring(0,1):'',style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
+                                child: Text(snapshot1.data!.get('displayName')!=null?
+                                snapshot1.data!.get('displayName').substring(0,1):'',style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
                               ),
                               title: Text(
-                                snapshot1.data.data()['displayName']!=null?
-                                snapshot1.data.data()['displayName']:"",
+                                snapshot1.data!.get('displayName')!=null?
+                                snapshot1.data!.get('displayName'):"",
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontFamily: "Poppins",
@@ -297,6 +297,7 @@ class _CallHistoryState extends State<CallHistory> {
                               child: LinearProgressIndicator(
                                 color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                                 minHeight: 3,
+                                backgroundColor: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                               ),
                             ),
                           );
@@ -304,29 +305,29 @@ class _CallHistoryState extends State<CallHistory> {
                         return SizedBox();
                       }
                   ):
-                  FutureBuilder(
+                  FutureBuilder<DocumentSnapshot>(
                       future: DatabaseService().getGroupDetailsOnce(callHistoryList[index].callerId),
                       builder: (context, snapshot1) {
                         if(snapshot1.hasData){
                           return Padding(
                             padding: EdgeInsets.only(top: index==0?16:10),
                             child: ListTile(
-                              leading: snapshot1.data.data()['groupIcon']!=null?
+                              leading: snapshot1.data!.get('groupIcon')!=null?
                               CircleAvatar(
                                 radius: 30,
                                 backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
                                 backgroundImage: NetworkImage(
-                                  snapshot1.data.data()['groupIcon'],
+                                  snapshot1.data!.get('groupIcon'),
                                 ),
                               ):
                               CircleAvatar(
                                 radius: 30,
                                 backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
-                                child: Text(snapshot1.data.data()['groupName']!=null ?
-                                snapshot1.data.data()['groupName'].substring(0,1):'',style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
+                                child: Text(snapshot1.data!.get('groupName')!=null ?
+                                snapshot1.data!.get('groupName').substring(0,1):'',style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
                               ),
-                              title: Text(snapshot1.data.data()['groupName']!=null?
-                              snapshot1.data.data()['groupName']:"",
+                              title: Text(snapshot1.data!.get('groupName')!=null?
+                              snapshot1.data!.get('groupName'):"",
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontFamily: "Poppins",
@@ -378,6 +379,7 @@ class _CallHistoryState extends State<CallHistory> {
                               child: LinearProgressIndicator(
                                 color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                                 minHeight: 3,
+                                backgroundColor: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                               ),
                             ),
                           );

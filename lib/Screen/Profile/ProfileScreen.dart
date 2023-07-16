@@ -29,17 +29,17 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   String imageSource = "Camera";
   final picker = ImagePicker();
-  ScrollController _scrollController;
-  int _page;
-  String userId;
-  AuthUserProvider authUserProvider;
-  FeedProvider feedProvider;
+  late ScrollController _scrollController;
+  late int _page;
+  late String userId;
+  late AuthUserProvider authUserProvider;
+  late FeedProvider feedProvider;
 
   @override
   void initState() {
     feedProvider = Provider.of<FeedProvider>(context, listen: false);
     authUserProvider = Provider.of<AuthUserProvider>(context, listen: false);
-    userId = Provider.of<AuthUserProvider>(context, listen: false).authUser.id;
+    userId = Provider.of<AuthUserProvider>(context, listen: false).authUser.id!;
     Future.delayed(Duration(milliseconds: 600), (){
       Provider.of<FeedProvider>(context, listen: false).fetchFeedList(page: 1,userId: userId);
     });
@@ -104,9 +104,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         borderRadius: BorderRadius.circular(14),
                         image: DecorationImage(
                           image:
-                          (provider.authUser.coverPhotoUrl != null && provider.authUser.coverPhotoUrl != "")
-                              ? NetworkImage(provider.authUser.coverPhotoUrl) :
-                          AssetImage("lib/asset/icons/profile-cover-new.png"),
+                          (provider.authUser.coverPhotoUrl != null && provider.authUser.coverPhotoUrl! != "")
+                              ? NetworkImage(provider.authUser.coverPhotoUrl!) :
+                          AssetImage("lib/asset/icons/profile-cover-new.png") as ImageProvider,
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -122,7 +122,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           radius: 60,
                           child: CircleAvatar(
                             radius: 54,
-                            backgroundImage: NetworkImage(provider.authUser.photoUrl),
+                            backgroundImage: NetworkImage(provider.authUser.photoUrl!),
                             child: Visibility(
                               visible: provider.photoUpdateLoaderStatus,
                               child: CircularProgressIndicator(
@@ -135,7 +135,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 150,left: 170),
-                      child: Text(provider.authUser.displayName,
+                      child: Text(provider.authUser.displayName!,
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
@@ -156,7 +156,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             width: 3,
                           ),
                           Expanded(
-                            child: Text(provider.authUser.university,
+                            child: Text(provider.authUser.university!,
                               style: TextStyle(
                                 overflow: TextOverflow.ellipsis,
                                 color: Colors.white.withOpacity(0.7),
@@ -188,12 +188,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: InkWell(
                         onTap: (){
                           Get.to(UpdateProfile(
-                            fullName: provider.authUser.displayName,
-                            about: provider.userAboutData.data.about,
-                            uuid: provider.authUser.id,
-                            universityId: provider.authUser.universityId,
-                            photoUrl: provider.authUser.photoUrl,
-                            coverPhotoUrl: provider.authUser.coverPhotoUrl,
+                            fullName: provider.authUser.displayName!,
+                            about: provider.userAboutData!.data!.about!,
+                            uuid: provider.authUser.id!,
+                            universityId: provider.authUser.universityId!,
+                            photoUrl: provider.authUser.photoUrl!,
+                            coverPhotoUrl: provider.authUser.coverPhotoUrl!,
                           ));
                          // modalSheetForCoverPic();
                         },
@@ -208,7 +208,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       top: 22,
                       child: InkWell(
                         onTap: (){
-                          _showDeleteDialog(uuid: provider.authUser.id);
+                          _showDeleteDialog(uuid: provider.authUser.id!);
                         },
                         child: Image.asset(
                           "lib/asset/icons/trashNew.png",
@@ -224,16 +224,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             Consumer<AuthUserProvider>(
               builder: (context, userProvider, _){
-                if(!userProvider.userAboutDataLoader && userProvider.userAboutData != null && userProvider.userAboutData.data.about!=""){
+                if(!userProvider.userAboutDataLoader && userProvider.userAboutData != null && userProvider.userAboutData!.data!.about!=""){
                   return Center(
                     child: Padding(
                       padding: EdgeInsets.only(top: 16,left: 16,right: 16),
                       child: InkWell(
                         onTap: (){
-                          Get.to(BioDetailsPage(bio: userProvider.userAboutData.data.about??"",));
+                          Get.to(BioDetailsPage(bio: userProvider.userAboutData!.data!.about??"",));
                         },
                         child: Text(
-                          userProvider.userAboutData.data.about??"",
+                          userProvider.userAboutData!.data!.about??"",
                           //"hello world just loke other hope value of the text just like hope that is nothing to do with person on the planet hope you are doing well but sould know the value of the person that is very improtant in the field of biology",
                           //textAlign: TextAlign.center,
                           maxLines: 2,
@@ -313,7 +313,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Future<void> _showDeleteDialog({@required String uuid}) async {
+  Future<void> _showDeleteDialog({required String uuid}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -327,7 +327,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Text("Yes"),
               onPressed: ()async{
                 SharedPreferences preferences = await SharedPreferences.getInstance();
-                String token = preferences.getString("token");
+                String token = preferences.getString("tokenApp")!;
                 bool res = await AuthUserService().deleteUser(token: token, uuid: uuid);
                 if(res){
                   authUserProvider.logout();

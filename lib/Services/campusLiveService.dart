@@ -12,8 +12,8 @@ import '../Services/APIService.dart';
 import '../Services/BackEndAPIRoutes.dart';
 
 class CampusLiveService {
-  APIService _apiService;
-  BackEndAPIRoutes _backEndAPIRoutes;
+  late APIService _apiService;
+  late BackEndAPIRoutes _backEndAPIRoutes;
 
   CampusLiveService() {
     _apiService = APIService();

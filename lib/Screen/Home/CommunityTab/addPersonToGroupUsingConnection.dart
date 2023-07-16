@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mate_app/Screen/Home/CommunityTab/addPersonToGroupUsingConnectionSearch.dart';
@@ -9,7 +10,7 @@ import '../../../controller/theme_controller.dart';
 import '../../../groupChat/services/database_service.dart';
 
 class AddPersonToGroupUsingConnection extends StatefulWidget {
-  const AddPersonToGroupUsingConnection({Key key}) : super(key: key);
+  const AddPersonToGroupUsingConnection({Key? key}) : super(key: key);
 
   @override
   State<AddPersonToGroupUsingConnection> createState() => _AddPersonToGroupUsingConnectionState();
@@ -99,8 +100,8 @@ class _AddPersonToGroupUsingConnectionState extends State<AddPersonToGroupUsingC
               physics: NeverScrollableScrollPhysics(),
               itemCount: connectionGlobalList.length,
               itemBuilder: (context, index) {
-                return FutureBuilder(
-                    future: DatabaseService().getUsersDetails(connectionGlobalList[index].uid),
+                return FutureBuilder<DocumentSnapshot>(
+                    future: DatabaseService().getUsersDetails(connectionGlobalList[index].uid!),
                     builder: (context, snapshot1) {
                       if(snapshot1.hasData){
                         return Padding(
@@ -117,31 +118,31 @@ class _AddPersonToGroupUsingConnectionState extends State<AddPersonToGroupUsingC
                               if(_addUserController.addConnectionUid.contains(connectionGlobalList[index].uid)){
                                 _addUserController.addConnectionUid.remove(connectionGlobalList[index].uid);
                               }else{
-                                _addUserController.addConnectionUid.add(connectionGlobalList[index].uid);
+                                _addUserController.addConnectionUid.add(connectionGlobalList[index].uid!);
                               }
                               if(_addUserController.addConnectionDisplayName.contains(connectionGlobalList[index].name)){
                                 _addUserController.addConnectionDisplayName.remove(connectionGlobalList[index].name);
                               }else{
-                                _addUserController.addConnectionDisplayName.add(connectionGlobalList[index].name);
+                                _addUserController.addConnectionDisplayName.add(connectionGlobalList[index].name!);
                               }
                               print(_addUserController.addConnectionUid);
                               print(_addUserController.addConnectionDisplayName);
                             },
                             child: ListTile(
-                              leading: snapshot1.data.data()['photoURL']!=null?
+                              leading: snapshot1.data!.get('photoURL')!=null?
                               CircleAvatar(
                                 radius: 28,
                                 backgroundColor: MateColors.activeIcons,
                                 backgroundImage: NetworkImage(
-                                  snapshot1.data.data()['photoURL'],
+                                  snapshot1.data!.get('photoURL'),
                                 ),
                               ):
                               CircleAvatar(
                                 radius: 28,
                                 backgroundColor: MateColors.activeIcons,
-                                child: Text(snapshot1.data.data()['displayName'].substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
+                                child: Text(snapshot1.data!.get('displayName').substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
                               ),
-                              title: Text(snapshot1.data.data()['displayName'],
+                              title: Text(snapshot1.data!.get('displayName'),
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w500,
@@ -163,6 +164,7 @@ class _AddPersonToGroupUsingConnectionState extends State<AddPersonToGroupUsingC
                             child: LinearProgressIndicator(
                               color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                               minHeight: 3,
+                              backgroundColor: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                             ),
                           ),
                         );

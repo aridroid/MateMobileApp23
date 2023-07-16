@@ -4,14 +4,14 @@ import 'package:video_player/video_player.dart';
 
 class VideoPlayerView extends StatefulWidget {
   final String videoUrl;
-  const VideoPlayerView({Key key, this.videoUrl}) : super(key: key);
+  const VideoPlayerView({Key? key, required this.videoUrl}) : super(key: key);
 
   @override
   _VideoPlayerViewState createState() => _VideoPlayerViewState();
 }
 
 class _VideoPlayerViewState extends State<VideoPlayerView> {
-  VideoPlayerController _controller;
+  late VideoPlayerController _controller;
   bool _onTouch = false;
 
   @override

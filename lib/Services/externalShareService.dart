@@ -7,8 +7,8 @@ import 'APIService.dart';
 import 'BackEndAPIRoutes.dart';
 
 class ExternalShareService {
-  APIService _apiService;
-  BackEndAPIRoutes _backEndAPIRoutes;
+  late APIService _apiService;
+  late BackEndAPIRoutes _backEndAPIRoutes;
 
   ExternalShareService() {
     _apiService = APIService();

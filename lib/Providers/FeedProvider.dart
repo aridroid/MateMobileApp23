@@ -17,7 +17,7 @@ import 'package:flutter/material.dart';
 
 class FeedProvider with ChangeNotifier {
   /// initialization
-  FeedService _feedService;
+  FeedService _feedService =  FeedService();
   List<feedType.FeedType> _feedTypes = [];
   List<FeedItem> _feedItemList = [];
   List<FeedItem> _feedItemListMyCampus = [];
@@ -27,13 +27,13 @@ class FeedProvider with ChangeNotifier {
   // FeedItem _feedDetails;
   String _apiError = "";
   Map<String, dynamic> _validationErrors = Map();
-  FeedItemsLikeModel _feedItemsLikeData;
-  FeedItemsBookmarkModel _feedItemsBookmarkData;
-  BookmarkByUserModel _bookmarkByUserData;
-  BookmarkByUserModel _bookmarkByUserDataMyCampus;
-  FeedsCommentFetchModel _commentFetchData;
-  List<storiesModel.Result> getStoryList = [];
-  FeedLikesDetailsModel _likeDetailsFetchData;
+  late FeedItemsLikeModel _feedItemsLikeData;
+  FeedItemsBookmarkModel? _feedItemsBookmarkData;
+  BookmarkByUserModel? _bookmarkByUserData;
+  late BookmarkByUserModel _bookmarkByUserDataMyCampus;
+  FeedsCommentFetchModel? _commentFetchData;
+  late List<storiesModel.Result> getStoryList = [];
+  FeedLikesDetailsModel? _likeDetailsFetchData;
 
   /// initializing loader status
   bool _feedTypeLoader = false;
@@ -55,9 +55,9 @@ class FeedProvider with ChangeNotifier {
   // bool isFindAMate = true;
 
   ///constructor
-  FeedProvider() {
-    _feedService = FeedService();
-  }
+  // FeedProvider() {
+  //   _feedService = FeedService();
+  // }
 
   ///getters
   List<feedType.FeedType> get feedTypeList => _feedTypes;
@@ -72,14 +72,14 @@ class FeedProvider with ChangeNotifier {
 
   FeedItemsLikeModel get feedItemsLikeData => _feedItemsLikeData;
 
-  FeedItemsBookmarkModel get feedItemsBookmarkData => _feedItemsBookmarkData;
+  FeedItemsBookmarkModel? get feedItemsBookmarkData => _feedItemsBookmarkData;
 
-  BookmarkByUserModel get bookmarkByUserData => _bookmarkByUserData;
+  BookmarkByUserModel? get bookmarkByUserData => _bookmarkByUserData;
   BookmarkByUserModel get bookmarkByUserDataMycampus => _bookmarkByUserDataMyCampus;
 
-  FeedsCommentFetchModel get commentFetchData => _commentFetchData;
+  FeedsCommentFetchModel? get commentFetchData => _commentFetchData;
 
-  FeedLikesDetailsModel get likeDetailsFetchData => _likeDetailsFetchData;
+  FeedLikesDetailsModel? get likeDetailsFetchData => _likeDetailsFetchData;
 
   bool get feedTypeLoader => _feedTypeLoader;
 
@@ -198,7 +198,7 @@ class FeedProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchFeedList({@required int page, String feedId, bool paginationCheck = false, bool isFollowingFeeds, String userId}) async {
+  Future<void> fetchFeedList({required int page, String? feedId, bool paginationCheck = false, bool? isFollowingFeeds, String? userId}) async {
     error = '';
     feedLoaderStatus = true;
 
@@ -255,7 +255,7 @@ class FeedProvider with ChangeNotifier {
   }
 
 
-  Future<void> fetchFeedListMyCampus({@required int page, String feedId, bool paginationCheck = false, bool isFollowingFeeds, String userId}) async {
+  Future<void> fetchFeedListMyCampus({required int page, String? feedId, bool paginationCheck = false, bool? isFollowingFeeds, String? userId}) async {
     error = '';
     feedLoaderStatus = true;
 
@@ -409,18 +409,18 @@ class FeedProvider with ChangeNotifier {
   }
 
   Future<bool> postFeed(
-      {@required List<String> id,
-        @required String title,
-        @required String description,
-        @required location,
-        String hyperlinkText,
-        String hyperlink,
-        String feedTypeOther,
-        String startDate,
-        String endDate,
-        String image,
-        String audio,
-        String video,
+      {List<String>? id,
+        required String title,
+        required String description,
+        required location,
+        String? hyperlinkText,
+        String? hyperlink,
+        String? feedTypeOther,
+        String? startDate,
+        String? endDate,
+        String? image,
+        String? audio,
+        String? video,
       }) async {
     error = "";
     feedPostLoaderStatus = true;
@@ -486,20 +486,20 @@ class FeedProvider with ChangeNotifier {
   }
 
   Future<bool> updateFeed(
-      {@required List<String> id,
-        @required String title,
-        @required String description,
-        @required location,
-        @required int feedId,
-        String hyperlinkText,
-        String hyperlink,
-        String feedTypeOther,
-        String startDate,
-        String endDate,
-        String image,
-        bool mediaDeleted,
-        String audio,
-        String video,
+      {List<String>? id,
+        required String title,
+        required String description,
+        required location,
+        required int feedId,
+        String? hyperlinkText,
+        String? hyperlink,
+        String? feedTypeOther,
+        String? startDate,
+        String? endDate,
+        String? image,
+        bool? mediaDeleted,
+        String? audio,
+        String? video,
       }) async {
     error = "";
     feedPostLoaderStatus = true;
@@ -527,7 +527,7 @@ class FeedProvider with ChangeNotifier {
       userInput["end"] = endDate;
     }
 
-    if (mediaDeleted) {
+    if (mediaDeleted!) {
       userInput["delete_media"] = true;
     }
 
@@ -568,7 +568,7 @@ class FeedProvider with ChangeNotifier {
     return true;
   }
 
-  Future<bool> postStory({String text, File imageFile}) async {
+  Future<bool> postStory({required String text, required File imageFile}) async {
     error = "";
 
     FormData formData;
@@ -649,12 +649,12 @@ class FeedProvider with ChangeNotifier {
     return (data != null) ? true : false;
   }
 
-  Future deleteCommentsOfAFeed(int commentId, int index, {bool isReply = false, int replyIndex}) async {
+  Future deleteCommentsOfAFeed(int commentId, int index, {bool isReply = false, int? replyIndex}) async {
     error = '';
     if (isReply) {
-      _commentFetchData.data.result[index].replies[replyIndex].isDeleting = true;
+      _commentFetchData!.data?.result![index].replies![replyIndex!].isDeleting = true;
     } else {
-      _commentFetchData.data.result[index].isDeleting = true;
+      _commentFetchData!.data?.result![index].isDeleting = true;
     }
     var data;
     try {
@@ -664,10 +664,10 @@ class FeedProvider with ChangeNotifier {
       return false;
     } finally {
       if (isReply) {
-        _commentFetchData.data.result[index].replies[replyIndex].isDeleting = true;
+        _commentFetchData!.data?.result![index].replies![replyIndex!].isDeleting = true;
       } else {
-        _commentFetchData.data.result[index].isDeleting = true;
-        _commentFetchData.data.result.any;
+        _commentFetchData!.data?.result![index].isDeleting = true;
+        _commentFetchData!.data?.result!.any;
       }
     }
     return true;
@@ -755,7 +755,7 @@ class FeedProvider with ChangeNotifier {
 
 
 
-  FeedItem _feedItemDetails;
+  late FeedItem _feedItemDetails;
   bool _isLoadingFeedDetails = false;
 
   FeedItem get feedItemDetails => _feedItemDetails;

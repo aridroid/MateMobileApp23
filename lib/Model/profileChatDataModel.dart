@@ -1,7 +1,7 @@
 class PersonalChatDataModel {
-  bool success;
-  List<Data> data;
-  String message;
+  bool? success;
+  List<Data>? data;
+  String? message;
 
   PersonalChatDataModel({this.success, this.data, this.message});
 
@@ -10,7 +10,7 @@ class PersonalChatDataModel {
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
-        data.add(new Data.fromJson(v));
+        data?.add(new Data.fromJson(v));
       });
     }
     message = json['message'];
@@ -20,7 +20,7 @@ class PersonalChatDataModel {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['success'] = this.success;
     if (this.data != null) {
-      data['data'] = this.data.map((v) => v.toJson()).toList();
+      data['data'] = this.data?.map((v) => v.toJson()).toList();
     }
     data['message'] = this.message;
     return data;
@@ -28,11 +28,11 @@ class PersonalChatDataModel {
 }
 
 class Data {
-  String roomId;
-  int totalMessages;
-  String updatedAt;
-  String receiverUid;
-  int unreadMessages;
+  String? roomId;
+  int? totalMessages;
+  String? updatedAt;
+  String? receiverUid;
+  int? unreadMessages;
 
   Data(
       {this.roomId,

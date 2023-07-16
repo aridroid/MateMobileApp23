@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -12,7 +13,7 @@ import '../../Profile/UserProfileScreen.dart';
 
 class MemberSearch extends StatefulWidget {
   final List<GoingList> list;
-  const MemberSearch({Key key, this.list}) : super(key: key);
+  const MemberSearch({Key? key, required this.list}) : super(key: key);
 
   @override
   _MemberSearchState createState() => _MemberSearchState();
@@ -99,43 +100,43 @@ class _MemberSearchState extends State<MemberSearch> {
                 physics: ScrollPhysics(),
                 itemCount: widget.list.length,
                 itemBuilder: (context, index) {
-                  return FutureBuilder(
-                      future: DatabaseService().getUsersDetails(widget.list[index].firebaseUid),
+                  return FutureBuilder<DocumentSnapshot>(
+                      future: DatabaseService().getUsersDetails(widget.list[index].firebaseUid!),
                       builder: (context, snapshot1) {
                         if(snapshot1.hasData){
                           return Visibility(
-                            visible: searchedName==""?true:searchedName!="" && snapshot1.data.data()['displayName'].toString().toLowerCase().contains(searchedName.toLowerCase()),
+                            visible: searchedName==""?true:searchedName!="" && snapshot1.data!.get('displayName').toString().toLowerCase().contains(searchedName.toLowerCase()),
                             child: InkWell(
                               onTap: (){
-                                if(snapshot1.data.data()['uuid']!=null){
-                                  if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                if(snapshot1.data!.get('uuid')!=null){
+                                  if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                     Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                   } else {
                                     Navigator.of(context).pushNamed(UserProfileScreen.routeName,
-                                        arguments: {"id": snapshot1.data.data()['uuid'],
-                                          "name": snapshot1.data.data()['displayName'],
-                                          "photoUrl": snapshot1.data.data()['photoURL'],
-                                          "firebaseUid": snapshot1.data.data()['uid']
+                                        arguments: {"id": snapshot1.data!.get('uuid'),
+                                          "name": snapshot1.data!.get('displayName'),
+                                          "photoUrl": snapshot1.data!.get('photoURL'),
+                                          "firebaseUid": snapshot1.data!.get('uid')
                                         });
                                   }
                                 }
                               },
                               child: ListTile(
-                                leading:  snapshot1.data.data()['photoURL']!=null?
+                                leading:  snapshot1.data!.get('photoURL')!=null?
                                 CircleAvatar(
                                   radius: 20,
                                   backgroundColor: MateColors.activeIcons,
                                   backgroundImage: NetworkImage(
-                                    snapshot1.data.data()['photoURL'],
+                                    snapshot1.data!.get('photoURL'),
                                   ),
                                 ):
                                 CircleAvatar(
                                   radius: 20,
                                   backgroundColor: MateColors.activeIcons,
-                                  child: Text(snapshot1.data.data()['displayName'].substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
+                                  child: Text(snapshot1.data!.get('displayName').substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
                                 ),
                                 title: Text(
-                                  snapshot1.data.data()['displayName'],
+                                  snapshot1.data!.get('displayName'),
                                   style: TextStyle(
                                     fontFamily: "Poppins",
                                     fontSize: 15.0,
@@ -156,6 +157,7 @@ class _MemberSearchState extends State<MemberSearch> {
                               child: LinearProgressIndicator(
                                 color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                                 minHeight: 3,
+                                backgroundColor: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                               ),
                             ),
                           );

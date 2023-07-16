@@ -12,7 +12,7 @@ import '../../controller/theme_controller.dart';
 
 class BeAMateScreenViaNotification extends StatefulWidget {
   final int id;
-  const BeAMateScreenViaNotification({Key key,this.id}) : super(key: key);
+  const BeAMateScreenViaNotification({Key? key,required this.id}) : super(key: key);
 
   @override
   State<BeAMateScreenViaNotification> createState() => _BeAMateScreenViaNotificationState();
@@ -21,7 +21,7 @@ class BeAMateScreenViaNotification extends StatefulWidget {
 class _BeAMateScreenViaNotificationState extends State<BeAMateScreenViaNotification> {
   ThemeController themeController = Get.find<ThemeController>();
   bool isLoading = true;
-  Result beAMateData;
+  late Result? beAMateData;
   String token = "";
   NotificationService _notificationService = NotificationService();
 
@@ -33,7 +33,7 @@ class _BeAMateScreenViaNotificationState extends State<BeAMateScreenViaNotificat
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
     beAMateData = await _notificationService.getBeAMateDetails(token: token,id: widget.id);
     setState(() {
       isLoading = false;
@@ -95,20 +95,20 @@ class _BeAMateScreenViaNotificationState extends State<BeAMateScreenViaNotificat
               ):
               beAMateData!=null?
               BeAMateRow(
-                beAMateId: beAMateData.id,
-                description: beAMateData.description,
-                title: beAMateData.title,
-                portfolioLink: beAMateData.portfolioLink,
-                fromDate: beAMateData.fromDate,
-                toDate: beAMateData.toDate,
-                fromTime: beAMateData.timeFrom,
-                toTime: beAMateData.timeTo,
-                user: beAMateData.user,
-                hyperlinkText: beAMateData.hyperLinkText,
-                hyperlink: beAMateData.hyperLink,
-                createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(beAMateData.createdAt, true))}",
+                beAMateId: beAMateData!.id!,
+                description: beAMateData!.description!,
+                title: beAMateData!.title!,
+                portfolioLink: beAMateData!.portfolioLink!,
+                fromDate: beAMateData!.fromDate!,
+                toDate: beAMateData!.toDate!,
+                fromTime: beAMateData!.timeFrom!,
+                toTime: beAMateData!.timeTo!,
+                user: beAMateData!.user!,
+                hyperlinkText: beAMateData!.hyperLinkText!,
+                hyperlink: beAMateData!.hyperLink!,
+                createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(beAMateData!.createdAt!, true))}",
                 //rowIndex: index,
-                isActive: beAMateData.isActive,
+                isActive: beAMateData!.isActive!,
               ):
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 30),

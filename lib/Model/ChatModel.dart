@@ -1,7 +1,7 @@
 class ChatModel {
-  String msg;
-  String user;
-  String date;
+  String? msg;
+  String? user;
+  String? date;
 
   ChatModel({this.msg, this.user, this.date});
 

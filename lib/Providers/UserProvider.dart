@@ -6,37 +6,37 @@ import '../Services/UserService.dart';
 import '../Model/User.dart' as FullUser;
 
 class UserProvider with ChangeNotifier {
-  UserService _userService;
+  UserService _userService = UserService();
 
-  UserProvider() {
-    _userService = UserService();
-  }
+  // UserProvider() {
+  //   _userService = UserService();
+  // }
 
   List<User> _users = [];
   bool _userSearchLoader = false;
   String _error = "";
-  Map<String, dynamic> _validationError;
+  late Map<String, dynamic> _validationError;
   bool _followUserLoader = false;
   bool _unFollowUserLoader = false;
 
-  FullUser.User _user; //aliased
+  FullUser.User? _user; //aliased
   bool _userDetailLoader = false;
 
-  get users => _users;
-  get userSearchLoaderStatus => _userSearchLoader;
-  get error => _error;
-  get validationErrors => _validationError;
-  FullUser.User get fullUserDetail => _user;
+  List<User> get users => _users;
+  bool get userSearchLoaderStatus => _userSearchLoader;
+  String get error => _error;
+  Map<String, dynamic> get validationErrors => _validationError;
+  FullUser.User? get fullUserDetail => _user;
   bool get userDetailLoader => _userDetailLoader;
-  get followUserLoaderStatus => _followUserLoader;
-  get unFollowUserLoaderStatus => _unFollowUserLoader;
+  bool get followUserLoaderStatus => _followUserLoader;
+  bool get unFollowUserLoaderStatus => _unFollowUserLoader;
 
   set error(String val) {
     _error = val;
     notifyListeners();
   }
 
-  set fullUserDetail(FullUser.User user) {
+  set fullUserDetail(FullUser.User? user) {
     _user = user;
     notifyListeners();
   }
@@ -92,7 +92,7 @@ class UserProvider with ChangeNotifier {
     }
   }
 
-  Future<void> findUserById({@required String id}) async {
+  Future<void> findUserById({required String id}) async {
     error = "";
     userDetailLoader = true;
 
@@ -109,7 +109,7 @@ class UserProvider with ChangeNotifier {
     }
   }
 
-  Future followUser({@required String followingId}) async {
+  Future followUser({required String followingId}) async {
     error = '';
     followUserLoaderStatus = true;
 
@@ -124,7 +124,7 @@ class UserProvider with ChangeNotifier {
     }
   }
 
-  Future unFollowUser({@required String followingId}) async {
+  Future unFollowUser({required String followingId}) async {
     error = '';
     unFollowUserLoaderStatus = true;
 

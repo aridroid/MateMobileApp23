@@ -7,8 +7,8 @@ import 'package:http/http.dart'as http;
 
 class CommunityTabService{
 
-  Future<CommunityTabModel> getChat({String token,String category,String uid})async{
-    CommunityTabModel communityTabModel;
+  Future<CommunityTabModel> getChat({required String token,required String category,required String uid})async{
+    late CommunityTabModel communityTabModel;
     debugPrint("https://api.mateapp.us/api/chat/get-all-group-chat-rooms/$uid?category=${category}");
     debugPrint(token);
     try {
@@ -31,7 +31,7 @@ class CommunityTabService{
   }
 
 
-  Future<void> createGroup({String token,String category,String type,String groupId})async{
+  Future<void> createGroup({required String token,required String category,required String type,required String groupId})async{
     debugPrint("https://api.mateapp.us/api/chat/save-group-chat-data");
     debugPrint(token);
     Map data = {
@@ -59,7 +59,7 @@ class CommunityTabService{
   }
 
 
-  Future<void> exitGroup({String token,String uid,String groupId})async{
+  Future<void> exitGroup({required String token,required String uid,required String groupId})async{
     debugPrint("https://api.mateapp.us/api/chat/leave-user-from-group");
     debugPrint(token);
     Map data = {
@@ -86,7 +86,7 @@ class CommunityTabService{
   }
 
 
-  Future<void> joinGroup({String token,String uid,String groupId})async{
+  Future<void> joinGroup({required String token,required String uid,required String groupId})async{
     debugPrint("https://api.mateapp.us/api/chat/join-user-to-group");
     debugPrint(token);
     Map data = {
@@ -113,7 +113,7 @@ class CommunityTabService{
   }
 
 
-  Future<void> toggleMute({String token,String uid,String groupId})async{
+  Future<void> toggleMute({required String token,required String uid,required String groupId})async{
     debugPrint("https://api.mateapp.us/api/chat/mute-group-notification");
     debugPrint(token);
     Map data = {
@@ -140,7 +140,7 @@ class CommunityTabService{
   }
 
 
-  Future<void> toggleTopToPin({String token,String uid,String groupId})async{
+  Future<void> toggleTopToPin({required String token,required String uid,required String groupId})async{
     debugPrint("https://api.mateapp.us/api/chat/pin-group-to-top");
     debugPrint(token);
     Map data = {
@@ -167,7 +167,7 @@ class CommunityTabService{
   }
 
 
-  Future<bool> reportGroupMessage({String token,String uid,String groupId,String messageId})async{
+  Future<bool> reportGroupMessage({required String token,required String uid,required String groupId,required String messageId})async{
     bool result = false;
     debugPrint("https://api.mateapp.us/api/chat/report-group-message");
     debugPrint(token);
@@ -197,7 +197,7 @@ class CommunityTabService{
     return result;
   }
 
-  Future<void> toggleMutePersonalChat({String token,String uid,String roomId})async{
+  Future<void> toggleMutePersonalChat({required String token,required String uid,required String roomId})async{
     debugPrint("https://api.mateapp.us/api/chat/mute-personal-chat-notification");
     debugPrint(token);
     Map data = {
@@ -223,7 +223,7 @@ class CommunityTabService{
     }
   }
 
-  Future<bool> reportPersonalMessage({String token,String uid,String roomId,String messageId})async{
+  Future<bool> reportPersonalMessage({required String token,required String uid,required String roomId,required String messageId})async{
     bool result = false;
     debugPrint("https://api.mateapp.us/api/chat/report-personal-message");
     debugPrint(token);
@@ -254,7 +254,7 @@ class CommunityTabService{
   }
 
 
-  Future<void> toggleArchive({String token,String uid,String roomId})async{
+  Future<void> toggleArchive({required String token,required String uid,required String roomId})async{
     debugPrint("https://api.mateapp.us/api/chat/archive-chat-room");
     debugPrint(token);
     Map data = {

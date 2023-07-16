@@ -24,7 +24,7 @@ import 'package:mate_app/Model/campusTalkTypeModel.dart' as campusTalkTypeModel;
 
 class CampusTalkSearch extends StatefulWidget {
   final String searchType;
-  const CampusTalkSearch({Key key, this.searchType}) : super(key: key);
+  const CampusTalkSearch({Key? key, required this.searchType}) : super(key: key);
 
   @override
   State<CampusTalkSearch> createState() => _CampusTalkSearchState();
@@ -37,15 +37,15 @@ class _CampusTalkSearchState extends State<CampusTalkSearch> {
   int page = 1;
   bool enterFutureBuilder = false;
   bool doingPagination = false;
-  ScrollController _scrollController;
-  CampusTalkProvider campusTalkProvider;
+  late ScrollController _scrollController;
+  late CampusTalkProvider campusTalkProvider;
   List<campusTalkTypeModel.Data> type = [];
   CampusTalkService _campusTalkService = CampusTalkService();
   bool isLoadingType = true;
   List<bool> selected = [];
   String typeKey = "";
 
-  Timer _throttle;
+  Timer? _throttle;
   _onSearchChanged() {
     if (_throttle?.isActive??false) _throttle?.cancel();
     _throttle = Timer(const Duration(milliseconds: 200), () {
@@ -104,7 +104,7 @@ class _CampusTalkSearchState extends State<CampusTalkSearch> {
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
     type = await _campusTalkService.getType(token: token);
     for(int i=0;i<type.length;i++){
       selected.add(false);
@@ -336,7 +336,7 @@ class _CampusTalkSearchState extends State<CampusTalkSearch> {
                             selected[i] = false;
                           }
                         }
-                        typeKey = type[index].name;
+                        typeKey = type[index].name!;
                         _textEditingController.clear();
                         setState(() {});
                         fetchData();
@@ -400,7 +400,7 @@ class _CampusTalkSearchState extends State<CampusTalkSearch> {
                               isAnonymous: campusTalkData.isAnonymous,
                               anonymousUser: campusTalkData.anonymousUser,
                               url: campusTalkData.url,
-                              createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(campusTalkData.createdAt, true))}",
+                              createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(campusTalkData.createdAt!, true))}",
                               rowIndex: index,
                               isBookmarked: campusTalkData.isBookmarked,
                               isLiked: campusTalkData.isLiked,

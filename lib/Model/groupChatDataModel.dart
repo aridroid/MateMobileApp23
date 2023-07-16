@@ -1,7 +1,7 @@
 class GroupChatDataModel {
-  bool success;
-  List<Data> data;
-  String message;
+  bool? success;
+  List<Data>? data;
+  String? message;
 
   GroupChatDataModel({this.success, this.data, this.message});
 
@@ -10,7 +10,7 @@ class GroupChatDataModel {
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
-        data.add(new Data.fromJson(v));
+        data?.add(new Data.fromJson(v));
       });
     }
     message = json['message'];
@@ -20,7 +20,7 @@ class GroupChatDataModel {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['success'] = this.success;
     if (this.data != null) {
-      data['data'] = this.data.map((v) => v.toJson()).toList();
+      data['data'] = this.data?.map((v) => v.toJson()).toList();
     }
     data['message'] = this.message;
     return data;
@@ -28,12 +28,12 @@ class GroupChatDataModel {
 }
 
 class Data {
-  String groupId;
-  int totalMessages;
-  String updatedAt;
-  int unreadMessages;
-  bool isMuted;
-  int isPinned;
+  String? groupId;
+  int? totalMessages;
+  String? updatedAt;
+  int? unreadMessages;
+  bool? isMuted;
+  int? isPinned;
 
   Data({this.groupId, this.totalMessages, this.updatedAt, this.unreadMessages,this.isMuted,this.isPinned});
 

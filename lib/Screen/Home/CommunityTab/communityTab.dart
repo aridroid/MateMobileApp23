@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:mate_app/Model/communityTabModel.dart';
 import 'package:mate_app/Screen/Home/CommunityTab/addPersonWhileCreatingGroup.dart';
 import 'package:mate_app/Services/community_tab_services.dart';
@@ -25,7 +26,7 @@ import '../../chatDashboard/search_group.dart';
 import 'addPersonToGroupUsingConnection.dart';
 
 class CommunityTab extends StatefulWidget {
-  const CommunityTab({Key key}) : super(key: key);
+  const CommunityTab({Key? key}) : super(key: key);
 
   @override
   _CommunityTabState createState() => _CommunityTabState();
@@ -35,19 +36,19 @@ class _CommunityTabState extends State<CommunityTab> with TickerProviderStateMix
   final GlobalKey<ScaffoldState> _key = GlobalKey();
   ThemeController themeController = Get.find<ThemeController>();
   final AddUserController _addUserController = Get.put(AddUserController());
-  TabController _tabController;
-  User _user;
+  late TabController _tabController;
+  late User _user;
   String token = "";
   CommunityTabService _communityTabService = CommunityTabService();
 
-  Future<CommunityTabModel> futureUcBerkley;
-  Future<CommunityTabModel> futureAll;
+  late Future<CommunityTabModel> futureUcBerkley;
+  late Future<CommunityTabModel> futureAll;
   bool ucBerkleySchool = false;
   bool ucBerkleyClass = false;
   bool allSchool = false;
   bool allClass = false;
   int universityId = 0;
-  String university;
+  late String university;
 
   @override
   void initState(){
@@ -65,16 +66,16 @@ class _CommunityTabState extends State<CommunityTab> with TickerProviderStateMix
     super.dispose();
   }
 
-  String displayName;
+  late String displayName;
   getStoredValue()async{
-    _user = await FirebaseAuth.instance.currentUser;
+    _user = await FirebaseAuth.instance.currentUser!;
     print(_user.uid);
     print(_user.displayName);
     print(_user.email);
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
     log(token);
-    displayName = Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName;
+    displayName = Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName!;
 
     futureUcBerkley = _communityTabService.getChat(token: token,uid: _user.uid,category: universityId==2?"Stanford":universityId==3?"UC Berkeley":university);
     futureUcBerkley.then((value){
@@ -177,7 +178,7 @@ class _CommunityTabState extends State<CommunityTab> with TickerProviderStateMix
                     future: futureUcBerkley,
                     builder: (context,snapshotMain){
                       if(snapshotMain.hasData){
-                        if(snapshotMain.data.success==true){
+                        if(snapshotMain.data!.success==true){
                           return Column(
                             children: [
                               Padding(
@@ -236,14 +237,14 @@ class _CommunityTabState extends State<CommunityTab> with TickerProviderStateMix
                                   scrollDirection: Axis.vertical,
                                   shrinkWrap: true,
                                   physics: ScrollPhysics(),
-                                  itemCount: snapshotMain.data.data.length,
+                                  itemCount: snapshotMain.data!.data!.length,
                                   itemBuilder: (context, index) {
                                     return Visibility(
                                       visible: ucBerkleySchool || ucBerkleyClass ?
-                                      ucBerkleySchool && snapshotMain.data.data[index].group == "School" ? true : ucBerkleyClass && snapshotMain.data.data[index].group =="Class" ? true : false:
+                                      ucBerkleySchool && snapshotMain.data!.data![index].group == "School" ? true : ucBerkleyClass && snapshotMain.data!.data![index].group =="Class" ? true : false:
                                       true,
                                       child: StreamBuilder<DocumentSnapshot>(
-                                        stream: DatabaseService().getLastChatMessage(snapshotMain.data.data[index].groupId),
+                                        stream: DatabaseService().getLastChatMessage(snapshotMain.data!.data![index].groupId!),
                                         builder: (context, snapshot) {
                                           if(snapshot.hasData){
                                             // if(snapshot.data.data()["members"].contains(_user.uid + '_' + _user.displayName)){
@@ -254,62 +255,62 @@ class _CommunityTabState extends State<CommunityTab> with TickerProviderStateMix
                                               margin: EdgeInsets.only(bottom: 25),
                                               child: ListTile(
                                                 dense: true,
-                                                leading: snapshot.data['groupIcon'] != ""?
+                                                leading: snapshot.data!['groupIcon'] != ""?
                                                 CircleAvatar(
                                                   radius: 24,
                                                   backgroundColor: MateColors.activeIcons,
-                                                  backgroundImage: NetworkImage(snapshot.data['groupIcon']),
+                                                  backgroundImage: NetworkImage(snapshot.data!['groupIcon']),
                                                 ):
                                                 CircleAvatar(
                                                   radius: 24,
                                                   backgroundColor: MateColors.activeIcons,
                                                   child: Text(
-                                                    snapshot.data['groupName'].substring(0, 1).toUpperCase(),
+                                                    snapshot.data!['groupName'].substring(0, 1).toUpperCase(),
                                                     textAlign: TextAlign.center,
                                                     style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white, fontSize: 12.5.sp, fontWeight: FontWeight.bold),
                                                   ),
                                                 ),
-                                                title: Text(snapshot.data['groupName'],style: TextStyle(fontFamily: "Poppins",fontSize: 15.0, fontWeight: FontWeight.w500, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor)),
+                                                title: Text(snapshot.data!['groupName'],style: TextStyle(fontFamily: "Poppins",fontSize: 15.0, fontWeight: FontWeight.w500, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor)),
                                                 subtitle: Padding(
                                                   padding: const EdgeInsets.only(top: 3),
                                                   child: Column(
                                                     crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: [
-                                                      Text(snapshot.data["admin"],style: TextStyle(fontFamily: "Poppins",fontSize: 14.0, fontWeight: FontWeight.w400, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor)),
-                                                      Text("${snapshot.data["members"].length} people",style: TextStyle(fontFamily: "Poppins",fontSize: 14.0, fontWeight: FontWeight.w400, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor)),
+                                                      Text(snapshot.data!["admin"],style: TextStyle(fontFamily: "Poppins",fontSize: 14.0, fontWeight: FontWeight.w400, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor)),
+                                                      Text("${snapshot.data!["members"].length} people",style: TextStyle(fontFamily: "Poppins",fontSize: 14.0, fontWeight: FontWeight.w400, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor)),
                                                     ],
                                                   ),
                                                 ),
                                                 trailing: InkWell(
                                                   onTap: () async {
                                                     print(_user.uid);
-                                                    if(snapshot.data["members"].contains(_user.uid + '_' + _user.displayName)){
+                                                    if(snapshot.data!["members"].contains(_user.uid + '_' + _user.displayName!)){
                                                       Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(
-                                                          groupId: snapshot.data["groupId"],
-                                                          userName:  _user.displayName,
-                                                          totalParticipant: snapshot.data["members"].length.toString(),
-                                                          photoURL: snapshot.data['groupIcon'],
-                                                          groupName: snapshot.data["groupName"].toString(),
-                                                          memberList: snapshot.data["members"],
+                                                          groupId: snapshot.data!["groupId"],
+                                                          userName:  _user.displayName!,
+                                                          totalParticipant: snapshot.data!["members"].length.toString(),
+                                                          photoURL: snapshot.data!['groupIcon'],
+                                                          groupName: snapshot.data!["groupName"].toString(),
+                                                          memberList: snapshot.data!["members"],
                                                       )));
                                                     }
                                                     //else if(snapshot.data.data()["maxParticipantNumber"] != null ? snapshot.data.data()["members"].length < snapshot.data.data()["maxParticipantNumber"] : true)
                                                     else{
-                                                      await DatabaseService(uid: _user.uid).togglingGroupJoin(snapshot.data["groupId"], snapshot.data["groupName"].toString(), _user.displayName);
-                                                      _showScaffold('Successfully joined the group "${snapshot.data["groupName"].toString()}"');
+                                                      await DatabaseService(uid: _user.uid).togglingGroupJoin(snapshot.data!["groupId"], snapshot.data!["groupName"].toString(), _user.displayName!);
+                                                      _showScaffold('Successfully joined the group "${snapshot.data!["groupName"].toString()}"');
                                                       Future.delayed(Duration(milliseconds: 100), () {
                                                         Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(
-                                                            groupId: snapshot.data["groupId"],
-                                                            userName: _user.displayName,
-                                                            totalParticipant: snapshot.data["members"].length.toString(),
-                                                            photoURL: snapshot.data['groupIcon'],
-                                                            groupName: snapshot.data["groupName"].toString(),
-                                                            memberList: snapshot.data["members"],
+                                                            groupId: snapshot.data!["groupId"],
+                                                            userName: _user.displayName!,
+                                                            totalParticipant: snapshot.data!["members"].length.toString(),
+                                                            photoURL: snapshot.data!['groupIcon'],
+                                                            groupName: snapshot.data!["groupName"].toString(),
+                                                            memberList: snapshot.data!["members"],
                                                         )));
                                                       });
                                                     }
                                                   },
-                                                  child: snapshot.data["members"].contains(_user.uid + '_' + _user.displayName)?
+                                                  child: snapshot.data!["members"].contains(_user.uid + '_' + _user.displayName!)?
                                                   Container(
                                                     decoration: BoxDecoration(borderRadius: BorderRadius.circular(10.0), border: Border.all(color: MateColors.activeIcons, width: 0.6)),
                                                     padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
@@ -374,7 +375,7 @@ class _CommunityTabState extends State<CommunityTab> with TickerProviderStateMix
                   future: futureAll,
                   builder: (context,snapshot){
                     if(snapshot.hasData){
-                      if(snapshot.data.success==true){
+                      if(snapshot.data!.success==true){
                         return Column(
                           children: [
                             Padding(
@@ -433,14 +434,14 @@ class _CommunityTabState extends State<CommunityTab> with TickerProviderStateMix
                                 scrollDirection: Axis.vertical,
                                 shrinkWrap: true,
                                 physics: ScrollPhysics(),
-                                itemCount: snapshot.data.data.length,
+                                itemCount: snapshot.data!.data!.length,
                                 itemBuilder: (context, index) {
                                   return Visibility(
                                     visible: allSchool || allClass ?
-                                    allSchool && snapshot.data.data[index].group == "School" ? true : allClass && snapshot.data.data[index].group =="Class" ? true : false:
+                                    allSchool && snapshot.data!.data![index].group == "School" ? true : allClass && snapshot.data!.data![index].group =="Class" ? true : false:
                                     true,
                                     child: StreamBuilder<DocumentSnapshot>(
-                                      stream: DatabaseService().getLastChatMessage(snapshot.data.data[index].groupId),
+                                      stream: DatabaseService().getLastChatMessage(snapshot.data!.data![index].groupId!),
                                       builder: (context, snapshot) {
                                         if(snapshot.hasData){
                                           // if(snapshot.data.data()["members"].contains(_user.uid + '_' + _user.displayName)){
@@ -451,63 +452,63 @@ class _CommunityTabState extends State<CommunityTab> with TickerProviderStateMix
                                             margin: EdgeInsets.only(bottom: 25),
                                             child: ListTile(
                                               dense: true,
-                                              leading: snapshot.data['groupIcon'] != ""?
+                                              leading: snapshot.data!['groupIcon'] != ""?
                                               CircleAvatar(
                                                 radius: 24,
                                                 backgroundColor: MateColors.activeIcons,
-                                                backgroundImage: NetworkImage(snapshot.data['groupIcon']),
+                                                backgroundImage: NetworkImage(snapshot.data!['groupIcon']),
                                               ):
                                               CircleAvatar(
                                                 radius: 24,
                                                 backgroundColor: MateColors.activeIcons,
                                                 child: Text(
-                                                  snapshot.data['groupName'].substring(0, 1).toUpperCase(),
+                                                  snapshot.data!['groupName'].substring(0, 1).toUpperCase(),
                                                   textAlign: TextAlign.center,
                                                   style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white, fontSize: 12.5.sp, fontWeight: FontWeight.bold),
                                                 ),
                                               ),
-                                              title: Text(snapshot.data['groupName'],style: TextStyle(fontFamily: "Poppins",fontSize: 15.0, fontWeight: FontWeight.w500, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor)),
+                                              title: Text(snapshot.data!['groupName'],style: TextStyle(fontFamily: "Poppins",fontSize: 15.0, fontWeight: FontWeight.w500, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor)),
                                               subtitle: Padding(
                                                 padding: const EdgeInsets.only(top: 3),
                                                 child: Column(
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
-                                                    Text(snapshot.data["admin"],style: TextStyle(fontFamily: "Poppins",fontSize: 14.0, fontWeight: FontWeight.w400, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor)),
-                                                    Text("${snapshot.data["members"].length} people",style: TextStyle(fontFamily: "Poppins",fontSize: 14.0, fontWeight: FontWeight.w400, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor)),
+                                                    Text(snapshot.data!["admin"],style: TextStyle(fontFamily: "Poppins",fontSize: 14.0, fontWeight: FontWeight.w400, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor)),
+                                                    Text("${snapshot.data!["members"].length} people",style: TextStyle(fontFamily: "Poppins",fontSize: 14.0, fontWeight: FontWeight.w400, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor)),
                                                   ],
                                                 ),
                                               ),
                                               trailing: InkWell(
                                                 onTap: () async {
-                                                  if(snapshot.data["members"].contains(_user.uid + '_' + _user.displayName)){
+                                                  if(snapshot.data!["members"].contains(_user.uid + '_' + _user.displayName!)){
                                                     Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(
-                                                        groupId: snapshot.data["groupId"],
-                                                        userName: _user.displayName,
-                                                        totalParticipant: snapshot.data["members"].length.toString(),
-                                                        photoURL: snapshot.data['groupIcon'],
-                                                        groupName: snapshot.data["groupName"].toString(),
-                                                        memberList: snapshot.data["members"],
+                                                        groupId: snapshot.data!["groupId"],
+                                                        userName: _user.displayName!,
+                                                        totalParticipant: snapshot.data!["members"].length.toString(),
+                                                        photoURL: snapshot.data!['groupIcon'],
+                                                        groupName: snapshot.data!["groupName"].toString(),
+                                                        memberList: snapshot.data!["members"],
                                                     )));
                                                     //Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(groupId: snapshot.data.data()["groupId"], userName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName, groupName: snapshot.data.data()["groupName"].toString())));
                                                   }
                                                   //else if (snapshot.data.data()["maxParticipantNumber"] != null ? snapshot.data.data()["members"].length < snapshot.data.data()["maxParticipantNumber"] : true)
                                                   else{
-                                                    await DatabaseService(uid: _user.uid).togglingGroupJoin(snapshot.data["groupId"], snapshot.data["groupName"].toString(), _user.displayName);
-                                                    _showScaffold('Successfully joined the group "${snapshot.data["groupName"].toString()}"');
+                                                    await DatabaseService(uid: _user.uid).togglingGroupJoin(snapshot.data!["groupId"], snapshot.data!["groupName"].toString(), _user.displayName!);
+                                                    _showScaffold('Successfully joined the group "${snapshot.data!["groupName"].toString()}"');
                                                     Future.delayed(Duration(milliseconds: 100), () {
                                                       Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(
-                                                          groupId: snapshot.data["groupId"],
-                                                          userName: _user.displayName,
-                                                          totalParticipant: snapshot.data["members"].length.toString(),
-                                                          photoURL: snapshot.data['groupIcon'],
-                                                          groupName: snapshot.data["groupName"].toString(),
-                                                          memberList: snapshot.data["members"],
+                                                          groupId: snapshot.data!["groupId"],
+                                                          userName: _user.displayName!,
+                                                          totalParticipant: snapshot.data!["members"].length.toString(),
+                                                          photoURL: snapshot.data!['groupIcon'],
+                                                          groupName: snapshot.data!["groupName"].toString(),
+                                                          memberList: snapshot.data!["members"],
                                                       )));
                                                      // Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(groupId: snapshot.data.data()["groupId"], userName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName, groupName: snapshot.data.data()["groupName"].toString())));
                                                     });
                                                   }
                                                 },
-                                                child: snapshot.data["members"].contains(_user.uid + '_' + _user.displayName)?
+                                                child: snapshot.data!["members"].contains(_user.uid + '_' + _user.displayName!)?
                                                 Container(
                                                   decoration: BoxDecoration(borderRadius: BorderRadius.circular(10.0), border: Border.all(color: MateColors.activeIcons, width: 0.6)),
                                                   padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
@@ -583,7 +584,7 @@ class _CommunityTabState extends State<CommunityTab> with TickerProviderStateMix
       builder: (ctx, data, _) {
         return InkWell(
           onTap: () {
-            _key.currentState.openDrawer();
+            _key.currentState!.openDrawer();
           },
           child: CircleAvatar(
             backgroundColor: Colors.transparent,
@@ -633,19 +634,19 @@ class MyDialog extends StatefulWidget {
   final int universityId;
   final String university;
 
-  const MyDialog({Key key, this.user,this.displayName,this.universityId, this.university}) : super(key: key);
+  const MyDialog({Key? key, required this.user,required this.displayName,required this.universityId, required this.university}) : super(key: key);
 
   @override
   State createState() => new MyDialogState();
 }
 
 class MyDialogState extends State<MyDialog> {
-  String _groupName;
+  late String _groupName;
   int _groupMaxMember = 50;
   bool isPrivate = false;
   ThemeController themeController = Get.find<ThemeController>();
   final AddUserController _addUserController = Get.find<AddUserController>();
-  List<String> category;
+  late List<String> category;
   String categoryValue = "";
   List<String> type = ["Campus","Class"];// Campus = School
   String typeValue = "";
@@ -669,7 +670,7 @@ class MyDialogState extends State<MyDialog> {
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
     log(token);
     setState(() {});
   }
@@ -838,7 +839,7 @@ class MyDialogState extends State<MyDialog> {
                     }).toList(),
                     onChanged: (value){
                       setState(() {
-                        categoryValue = value;
+                        categoryValue = value!;
                         print(categoryValue);
                       });
                     },
@@ -890,7 +891,7 @@ class MyDialogState extends State<MyDialog> {
                     }).toList(),
                     onChanged: (value){
                       setState(() {
-                        typeValue = value;
+                        typeValue = value!;
                       });
                     },
                     icon: Icon(Icons.keyboard_arrow_down_sharp,size: 20),
@@ -909,7 +910,7 @@ class MyDialogState extends State<MyDialog> {
               data: ThemeData(
                 unselectedWidgetColor: MateColors.inActiveIcons,
               ),
-              child: RadioListTile(
+              child: RadioListTile<bool>(
                 activeColor: MateColors.activeIcons,
                 contentPadding: EdgeInsets.symmetric(horizontal: 0.0),
                 title: Text(
@@ -924,7 +925,7 @@ class MyDialogState extends State<MyDialog> {
                 groupValue: isPrivate,
                 onChanged: (value) {
                   setState(() {
-                    isPrivate = value;
+                    isPrivate = value!;
                     print(isPrivate);
                   });
                 },
@@ -934,7 +935,7 @@ class MyDialogState extends State<MyDialog> {
               data: ThemeData(
                 unselectedWidgetColor: MateColors.inActiveIcons, // Your color
               ),
-              child: RadioListTile(
+              child: RadioListTile<bool>(
                 activeColor: MateColors.activeIcons,
                 contentPadding: EdgeInsets.symmetric(horizontal: 0.0),
                 title: Text(
@@ -949,7 +950,7 @@ class MyDialogState extends State<MyDialog> {
                 groupValue: isPrivate,
                 onChanged: (value) {
                   setState(() {
-                    isPrivate = value;
+                    isPrivate = value!;
                     print(isPrivate);
                   });
                 },

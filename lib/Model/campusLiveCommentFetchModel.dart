@@ -1,7 +1,7 @@
 class CampusLiveCommentFetchModel {
-  bool success;
-  Data data;
-  String message;
+  bool? success;
+  Data? data;
+  String? message;
 
   CampusLiveCommentFetchModel({this.success, this.data, this.message});
 
@@ -15,7 +15,7 @@ class CampusLiveCommentFetchModel {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['success'] = this.success;
     if (this.data != null) {
-      data['data'] = this.data.toJson();
+      data['data'] = this.data?.toJson();
     }
     data['message'] = this.message;
     return data;
@@ -23,17 +23,17 @@ class CampusLiveCommentFetchModel {
 }
 
 class Data {
-  List<Result> result;
-  Pagination pagination;
-  int commentsCount;
+  List<Result>? result;
+  Pagination? pagination;
+  int? commentsCount;
 
   Data({this.result, this.pagination, this.commentsCount});
 
   Data.fromJson(Map<String, dynamic> json) {
     if (json['result'] != null) {
-      result = new List<Result>();
+      result = [];
       json['result'].forEach((v) {
-        result.add(new Result.fromJson(v));
+        result?.add(new Result.fromJson(v));
       });
     }
     pagination = json['pagination'] != null
@@ -45,10 +45,10 @@ class Data {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     if (this.result != null) {
-      data['result'] = this.result.map((v) => v.toJson()).toList();
+      data['result'] = this.result?.map((v) => v.toJson()).toList();
     }
     if (this.pagination != null) {
-      data['pagination'] = this.pagination.toJson();
+      data['pagination'] = this.pagination?.toJson();
     }
     data['comments_count'] = this.commentsCount;
     return data;
@@ -56,20 +56,20 @@ class Data {
 }
 
 class Result {
-  int id;
-  int parentId;
-  int postId;
-  int userId;
-  String content;
-  String createdAt;
-  String updatedAt;
-  int repliesCount;
-  int likesCount;
-  bool isLikedBool;
-  User user;
-  List<Replies> replies;
+  int? id;
+  int? parentId;
+  int? postId;
+  int? userId;
+  String? content;
+  String? createdAt;
+  String? updatedAt;
+  int? repliesCount;
+  int? likesCount;
+  bool? isLikedBool;
+  User? user;
+  List<Replies>? replies;
   dynamic isLiked;
-  bool isDeleting = false;
+  bool? isDeleting = false;
 
   Result(
       {this.id,
@@ -100,9 +100,9 @@ class Result {
     isLikedBool = json['is_liked_bool'];
     user = json['user'] != null ? new User.fromJson(json['user']) : null;
     if (json['replies'] != null) {
-      replies = new List<Replies>();
+      replies = [];
       json['replies'].forEach((v) {
-        replies.add(new Replies.fromJson(v));
+        replies?.add(new Replies.fromJson(v));
       });
     }
     isLiked = json['is_liked'];
@@ -121,10 +121,10 @@ class Result {
     data['likes_count'] = this.likesCount;
     data['is_liked_bool'] = this.isLikedBool;
     if (this.user != null) {
-      data['user'] = this.user.toJson();
+      data['user'] = this.user?.toJson();
     }
     if (this.replies != null) {
-      data['replies'] = this.replies.map((v) => v.toJson()).toList();
+      data['replies'] = this.replies?.map((v) => v.toJson()).toList();
     }
     data['is_liked'] = this.isLiked;
     return data;
@@ -132,12 +132,12 @@ class Result {
 }
 
 class User {
-  String uuid;
-  String firstName;
-  String lastName;
-  String displayName;
-  String firebaseUid;
-  String profilePhoto;
+  String? uuid;
+  String? firstName;
+  String? lastName;
+  String? displayName;
+  String? firebaseUid;
+  String? profilePhoto;
 
   User(
       {this.uuid,
@@ -169,17 +169,17 @@ class User {
 }
 
 class Replies {
-  int id;
-  int parentId;
-  int postId;
-  int userId;
-  String content;
-  String createdAt;
-  String updatedAt;
-  bool isLikedBool;
-  User user;
+  int? id;
+  int? parentId;
+  int? postId;
+  int? userId;
+  String? content;
+  String? createdAt;
+  String? updatedAt;
+  bool? isLikedBool;
+  User? user;
   dynamic isLiked;
-  bool isDeleting = false;
+  bool? isDeleting = false;
 
   Replies(
       {this.id,
@@ -219,7 +219,7 @@ class Replies {
     data['updated_at'] = this.updatedAt;
     data['is_liked_bool'] = this.isLikedBool;
     if (this.user != null) {
-      data['user'] = this.user.toJson();
+      data['user'] = this.user?.toJson();
     }
     data['is_liked'] = this.isLiked;
     return data;
@@ -227,12 +227,12 @@ class Replies {
 }
 
 class Pagination {
-  int total;
-  int count;
-  int perPage;
-  int currentPage;
-  int totalPages;
-  bool morePages;
+  int? total;
+  int? count;
+  int? perPage;
+  int? currentPage;
+  int? totalPages;
+  bool? morePages;
 
   Pagination(
       {this.total,

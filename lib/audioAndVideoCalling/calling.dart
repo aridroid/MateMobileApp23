@@ -23,7 +23,7 @@ class Calling extends StatefulWidget {
   final String image;
   final String name;
   final bool isGroupCall;
-  const Calling({Key key, this.channelName, this.token, this.callType, this.image, this.name, this.isGroupCall}) : super(key: key);
+  const Calling({Key? key, required this.channelName, required this.token, required this.callType, required this.image, required this.name, required this.isGroupCall}) : super(key: key);
 
   @override
   State<Calling> createState() => _CallingState();
@@ -35,13 +35,13 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
   bool muted = false;
   bool disableVideo = false;
   bool speakerOn = false;
-  RtcEngine _engine;
+  late RtcEngine _engine;
   ThemeController themeController = Get.find<ThemeController>();
-  AnimationController _controller;
+  late AnimationController _controller;
   int second = 0;
   int minute = 0;
-  Timer _timerCounter;
-  String callType;
+  late Timer _timerCounter;
+  late String callType;
 
   void _mapCounterGenerater() {
     _timerCounter = Timer(const Duration(seconds: 1), () {
@@ -80,9 +80,9 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
     print(preferences.getBool("isCallOngoing"));
   }
 
-  User _user;
+  late User _user;
   addUserToFirebase()async{
-    _user = FirebaseAuth.instance.currentUser;
+    _user = FirebaseAuth.instance.currentUser!;
     DatabaseService().joinCall(channelName: widget.channelName,uid: _user.uid);
   }
 
@@ -637,40 +637,40 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
                         ),
                       ),
                     ),
-                  StreamBuilder(
+                  StreamBuilder<DocumentSnapshot>(
                       stream: DatabaseService().getCallDetailByChannelName(widget.channelName),
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           return ListView.builder(
                               shrinkWrap: true,
-                              itemCount: snapshot.data['memberWhoIsOnCall'].length,
+                              itemCount: snapshot.data!['memberWhoIsOnCall'].length,
                               physics: ScrollPhysics(),
                               padding: EdgeInsets.only(top: widget.isGroupCall?20:0),
                               itemBuilder: (context, index) {
-                                return FutureBuilder(
-                                    future: DatabaseService().getUsersDetails(snapshot.data['memberWhoIsOnCall'][index]),
+                                return FutureBuilder<DocumentSnapshot>(
+                                    future: DatabaseService().getUsersDetails(snapshot.data!['memberWhoIsOnCall'][index]),
                                     builder: (context, snapshot1) {
                                       if(snapshot1.hasData){
                                         return Padding(
                                           padding: const EdgeInsets.only(bottom: 3),
                                           child: ListTile(
-                                            leading: snapshot1.data.data()['photoURL']!=null?
+                                            leading: snapshot1.data?.get('photoURL')!=null?
                                             CircleAvatar(
                                               radius: 20,
                                               backgroundColor: MateColors.activeIcons,
                                               backgroundImage: NetworkImage(
-                                                snapshot1.data.data()['photoURL'],
+                                                snapshot1.data!.get('photoURL'),
                                               ),
                                             ):
                                             CircleAvatar(
                                               radius: 20,
                                               backgroundColor: MateColors.activeIcons,
-                                              child: Text(snapshot1.data.data()['displayName'].substring(0,1),style: TextStyle(color: Colors.black),),
+                                              child: Text(snapshot1.data!.get('displayName').substring(0,1),style: TextStyle(color: Colors.black),),
                                             ),
                                             title: Text(
-                                              snapshot.data['memberWhoIsOnCall'][index] == _user.uid?
+                                              snapshot.data!['memberWhoIsOnCall'][index] == _user.uid?
                                                   "You":
-                                              snapshot1.data.data()['displayName'],
+                                              snapshot1.data!.get('displayName'),
                                               style: TextStyle(
                                                 fontSize: 15,
                                                 fontWeight: FontWeight.w500,
@@ -689,6 +689,7 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
                                             child: LinearProgressIndicator(
                                               color: Colors.white,
                                               minHeight: 3,
+                                              backgroundColor: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                                             ),
                                           ),
                                         );
@@ -728,7 +729,7 @@ class _CallingState extends State<Calling> with SingleTickerProviderStateMixin{
   List<Widget> _getRenderViews() {
     final List<StatefulWidget> list = [];
     list.add(RtcLocalView.SurfaceView());
-    _users.forEach((int uid) => list.add(RtcRemoteView.SurfaceView(uid: uid,)));
+    _users.forEach((int uid) => list.add(RtcRemoteView.SurfaceView(uid: uid,channelId: "",)));
     return list;
   }
 

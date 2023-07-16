@@ -17,7 +17,7 @@ class ChatRow extends StatelessWidget {
             padding: EdgeInsets.all(8.0),
             // color: Colors.grey.withOpacity(0.5),
             decoration: BoxDecoration(
-              color: Colors.grey[800].withOpacity(0.5),
+              color: Colors.grey[800]!.withOpacity(0.5),
               borderRadius: BorderRadius.circular(25),
             ),
             child: Column(
@@ -25,13 +25,13 @@ class ChatRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  chatModelObject.user,
+                  chatModelObject.user!,
                   style: TextStyle(
                       fontSize: 14.0,
                       fontWeight: FontWeight.w500,
                       color: MateColors.activeIcons),
                 ),
-                Text(chatModelObject.msg,
+                Text(chatModelObject.msg!,
                     style: TextStyle(
                         fontSize: 12.0,
                         fontWeight: FontWeight.w100,
@@ -39,7 +39,7 @@ class ChatRow extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.only(right: 10),
                   width: double.infinity,
-                  child: Text(chatModelObject.date,
+                  child: Text(chatModelObject.date!,
                       textAlign: TextAlign.end,
                       style: TextStyle(
                           fontSize: 10.0,

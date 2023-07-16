@@ -12,18 +12,18 @@ class ShowMicWithText extends StatelessWidget {
   final bool shouldShowText;
   final String slideToCancelText;
   final SoundRecordNotifier soundRecorderState;
-  final TextStyle slideToCancelTextStyle;
+  final TextStyle? slideToCancelTextStyle;
   final Color backGroundColor;
-  final Widget recordIcon;
-  final Color counterBackGroundColor;
+  final Widget? recordIcon;
+  final Color? counterBackGroundColor;
   // ignore: sort_constructors_first
   ShowMicWithText({
-    this.backGroundColor,
-    Key key,
-    this.shouldShowText,
-    this.soundRecorderState,
+    required this.backGroundColor,
+    Key? key,
+    required this.shouldShowText,
+    required this.soundRecorderState,
     this.slideToCancelTextStyle,
-    this.slideToCancelText,
+    required this.slideToCancelText,
     this.recordIcon,
     this.counterBackGroundColor,
   }) : super(key: key);

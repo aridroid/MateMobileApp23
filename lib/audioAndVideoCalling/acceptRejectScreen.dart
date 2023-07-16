@@ -13,8 +13,8 @@ class AcceptRejectScreen extends StatefulWidget {
   final String callType;
   final String callerImage;
   final String callerName;
-  final bool isGroupCall;
-  const AcceptRejectScreen({Key key, this.channelName, this.token, this.callType, this.callerImage, this.callerName, this.isGroupCall}) : super(key: key);
+  final bool? isGroupCall;
+  const AcceptRejectScreen({Key? key, required this.channelName, required this.token, required this.callType, required this.callerImage, required this.callerName, this.isGroupCall}) : super(key: key);
 
   @override
   State<AcceptRejectScreen> createState() => _AcceptRejectScreenState();
@@ -22,7 +22,7 @@ class AcceptRejectScreen extends StatefulWidget {
 
 class _AcceptRejectScreenState extends State<AcceptRejectScreen> with SingleTickerProviderStateMixin{
   ThemeController themeController = Get.find<ThemeController>();
-  AnimationController _controller;
+  late AnimationController _controller;
 
   @override
   void dispose() {
@@ -164,7 +164,7 @@ class _AcceptRejectScreenState extends State<AcceptRejectScreen> with SingleTick
                           callType: widget.callType,
                           name: widget.callerName,
                           image: widget.callerImage,
-                          isGroupCall: widget.isGroupCall,
+                          isGroupCall: widget.isGroupCall!,
                         )));
                       },
                       child: Container(

@@ -19,15 +19,15 @@ class CampusTalkProvider extends ChangeNotifier{
 
   /// initialization
 
-  CampusTalkService _campusTalkService;
+  CampusTalkService _campusTalkService = CampusTalkService();
   String _apiError = "";
   Map<String, dynamic> _validationErrors = Map();
-  ctpm.CampusTalkPostsModel _campusTalkPostsModelDataTrending;
-  ctpm.CampusTalkPostsModel _campusTalkPostsModelDataLatest;
-  ctpm.CampusTalkPostsModel _campusTalkPostsModelDataForums;
-  ctpm.CampusTalkPostsModel _campusTalkPostsModelDataYourCampus;
-  ctpm.CampusTalkPostsModel _campusTalkPostsModelDataSearch;
-  ctpm.CampusTalkPostsModel _campusTalkPostsModelDataCard;
+  late ctpm.CampusTalkPostsModel _campusTalkPostsModelDataTrending;
+  late ctpm.CampusTalkPostsModel _campusTalkPostsModelDataLatest;
+  late ctpm.CampusTalkPostsModel _campusTalkPostsModelDataForums;
+  late ctpm.CampusTalkPostsModel _campusTalkPostsModelDataYourCampus;
+  late ctpm.CampusTalkPostsModel _campusTalkPostsModelDataSearch;
+  late ctpm.CampusTalkPostsModel _campusTalkPostsModelDataCard;
   List<ctpm.Result> _campusTalkPostsResultsTrendingList = [];
   List<ctpm.Result> _campusTalkPostsResultsLatestList = [];
   List<ctpm.Result> _campusTalkPostsResultsForumsList = [];
@@ -35,12 +35,12 @@ class CampusTalkProvider extends ChangeNotifier{
   List<ctpm.Result> _campusTalkPostsResultsListCard = [];
   List<ctpm.Result> _campusTalkByUserPostsResultsList = [];
   List<ctpm.Result> _campusTalkBySearchList = [];
-  ctpm.CampusTalkPostsModel campusTalkPostsBookmarkData;
+  late ctpm.CampusTalkPostsModel campusTalkPostsBookmarkData;
   //CampusTalkPostsModel campusTalkByAuthUserData;
-  CampusTalkPostsUpVoteModel _upVotePostData;
-  CampusTalkPostCommentUpVoteModel _upVotePostCommentData;
-  CampusTalkPostBookmarkModel _bookmarkPostData;
-  CampusTalkCommentFetchModel _commentFetchData;
+  late CampusTalkPostsUpVoteModel _upVotePostData;
+  late CampusTalkPostCommentUpVoteModel _upVotePostCommentData;
+  late CampusTalkPostBookmarkModel _bookmarkPostData;
+  CampusTalkCommentFetchModel? _commentFetchData;
 
   /// initializing loader status
   bool _talkPostTrendingLoader = false;
@@ -60,9 +60,9 @@ class CampusTalkProvider extends ChangeNotifier{
 
 
   ///constructor
-  CampusTalkProvider() {
-    _campusTalkService = CampusTalkService();
-  }
+  // CampusTalkProvider() {
+  //   _campusTalkService = CampusTalkService();
+  // }
 
 
   ///getters
@@ -96,7 +96,7 @@ class CampusTalkProvider extends ChangeNotifier{
   CampusTalkPostsUpVoteModel get upVotePostData => _upVotePostData;
   CampusTalkPostCommentUpVoteModel get upVotePostCommentData => _upVotePostCommentData;
   CampusTalkPostBookmarkModel get bookmarkPostData => _bookmarkPostData;
-  CampusTalkCommentFetchModel get commentFetchData => _commentFetchData;
+  CampusTalkCommentFetchModel? get commentFetchData => _commentFetchData;
 
   String get error => _apiError;
 
@@ -165,7 +165,7 @@ class CampusTalkProvider extends ChangeNotifier{
 
   /// methods
 
-  Future<void> fetchCampusTalkPostTendingList({int page, bool paginationCheck=false,}) async {
+  Future<void> fetchCampusTalkPostTendingList({int? page, bool paginationCheck=false,}) async {
     error = '';
     _talkPostTrendingLoader = true;
 
@@ -181,8 +181,8 @@ class CampusTalkProvider extends ChangeNotifier{
       _campusTalkPostsModelDataTrending = data;
 
       List<ctpm.Result> rawFeedList = [];
-      for (int i = 0; i < _campusTalkPostsModelDataTrending.data.result.length; i++) {
-        rawFeedList.add(_campusTalkPostsModelDataTrending.data.result[i]);
+      for (int i = 0; i < _campusTalkPostsModelDataTrending.data!.result!.length; i++) {
+        rawFeedList.add(_campusTalkPostsModelDataTrending.data!.result![i]);
       }
 
 
@@ -204,7 +204,7 @@ class CampusTalkProvider extends ChangeNotifier{
     }
   }
 
-  Future<void> fetchCampusTalkPostTLatestList({int page, bool paginationCheck=false,}) async {
+  Future<void> fetchCampusTalkPostTLatestList({int? page, bool paginationCheck=false,}) async {
     error = '';
     _talkPostLatestLoader = true;
 
@@ -220,8 +220,8 @@ class CampusTalkProvider extends ChangeNotifier{
       _campusTalkPostsModelDataLatest = data;
 
       List<ctpm.Result> rawFeedList = [];
-      for (int i = 0; i < _campusTalkPostsModelDataLatest.data.result.length; i++) {
-        rawFeedList.add(_campusTalkPostsModelDataLatest.data.result[i]);
+      for (int i = 0; i < _campusTalkPostsModelDataLatest.data!.result!.length; i++) {
+        rawFeedList.add(_campusTalkPostsModelDataLatest.data!.result![i]);
       }
 
 
@@ -243,7 +243,7 @@ class CampusTalkProvider extends ChangeNotifier{
     }
   }
 
-  Future<void> fetchCampusTalkPostForumsList({int page, bool paginationCheck=false,String typeKey}) async {
+  Future<void> fetchCampusTalkPostForumsList({int? page, bool paginationCheck=false,String? typeKey}) async {
     error = '';
     _talkPostForumsLoader = true;
 
@@ -263,8 +263,8 @@ class CampusTalkProvider extends ChangeNotifier{
       _campusTalkPostsModelDataForums = data;
 
       List<ctpm.Result> rawFeedList = [];
-      for (int i = 0; i < _campusTalkPostsModelDataForums.data.result.length; i++) {
-        rawFeedList.add(_campusTalkPostsModelDataForums.data.result[i]);
+      for (int i = 0; i < _campusTalkPostsModelDataForums.data!.result!.length; i++) {
+        rawFeedList.add(_campusTalkPostsModelDataForums.data!.result![i]);
       }
 
 
@@ -286,7 +286,7 @@ class CampusTalkProvider extends ChangeNotifier{
     }
   }
 
-  Future<void> fetchCampusTalkPostYourCampusList({int page, bool paginationCheck=false,}) async {
+  Future<void> fetchCampusTalkPostYourCampusList({int? page, bool paginationCheck=false,}) async {
     error = '';
     _talkPostYourCampusLoader = true;
 
@@ -302,8 +302,8 @@ class CampusTalkProvider extends ChangeNotifier{
       _campusTalkPostsModelDataYourCampus = data;
 
       List<ctpm.Result> rawFeedList = [];
-      for (int i = 0; i < _campusTalkPostsModelDataYourCampus.data.result.length; i++) {
-        rawFeedList.add(_campusTalkPostsModelDataYourCampus.data.result[i]);
+      for (int i = 0; i < _campusTalkPostsModelDataYourCampus.data!.result!.length; i++) {
+        rawFeedList.add(_campusTalkPostsModelDataYourCampus.data!.result![i]);
       }
 
 
@@ -326,11 +326,11 @@ class CampusTalkProvider extends ChangeNotifier{
   }
 
   Future<void> fetchCampusTalkPostSearchList({
-    int page,
+    int? page,
     bool paginationCheck=false,
-    String searchType,
-    String text,
-    String typeKey,
+    String? searchType,
+    String? text,
+    String? typeKey,
   }) async {
     error = '';
     _searchLoader = true;
@@ -364,8 +364,8 @@ class CampusTalkProvider extends ChangeNotifier{
       _campusTalkPostsModelDataSearch = data;
 
       List<ctpm.Result> rawFeedList = [];
-      for (int i = 0; i < _campusTalkPostsModelDataSearch.data.result.length; i++) {
-        rawFeedList.add(_campusTalkPostsModelDataSearch.data.result[i]);
+      for (int i = 0; i < _campusTalkPostsModelDataSearch.data!.result!.length; i++) {
+        rawFeedList.add(_campusTalkPostsModelDataSearch.data!.result![i]);
       }
 
 
@@ -395,8 +395,8 @@ class CampusTalkProvider extends ChangeNotifier{
       var data = await _campusTalkService.fetchCampusTalkPostList(queryParams);
       _campusTalkPostsModelDataCard = data;
       List<ctpm.Result> rawFeedList = [];
-      for (int i = 0; i < _campusTalkPostsModelDataCard.data.result.length; i++) {
-        rawFeedList.add(_campusTalkPostsModelDataCard.data.result[i]);
+      for (int i = 0; i < _campusTalkPostsModelDataCard.data!.result!.length; i++) {
+        rawFeedList.add(_campusTalkPostsModelDataCard.data!.result![i]);
       }
       _campusTalkPostsResultsListCard.addAll(rawFeedList);
       print(_campusTalkPostsResultsListCard);
@@ -445,7 +445,7 @@ class CampusTalkProvider extends ChangeNotifier{
     }
   }
 
-  Future<void> fetchCampusTalkByAuthUser(String uuid, {int page, bool paginationCheck=false,}) async {
+  Future<void> fetchCampusTalkByAuthUser(String uuid, {int? page, bool paginationCheck=false,}) async {
     error = '';
     _talkPostByUserLoader = true;
 
@@ -468,8 +468,8 @@ class CampusTalkProvider extends ChangeNotifier{
         _campusTalkPostsModelDataTrending = data;
 
         List<ctpm.Result> rawFeedList = [];
-        for (int i = 0; i < _campusTalkPostsModelDataTrending.data.result.length; i++) {
-          rawFeedList.add(_campusTalkPostsModelDataTrending.data.result[i]);
+        for (int i = 0; i < _campusTalkPostsModelDataTrending.data!.result!.length; i++) {
+          rawFeedList.add(_campusTalkPostsModelDataTrending.data!.result![i]);
         }
 
 
@@ -496,12 +496,12 @@ class CampusTalkProvider extends ChangeNotifier{
 
 
 
-  Future<bool> uploadACampusTalkPost(String title, String description, bool isAnonymous,List<String> uuid,String photo,String video,String audio) async {
+  Future<bool> uploadACampusTalkPost(String title, String description, bool isAnonymous,List<String> uuid,String? photo,String? video,String? audio) async {
     error = '';
     _uploadPostLoader = true;
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String token =  prefs.getString('token');
+    String token =  prefs.getString('tokenApp')!;
 
     Map<String, String> headers = { "Authorization": "Bearer " + token,'Content-Type': 'application/json','accept': 'application/json'};
     final request = new http.MultipartRequest('POST', Uri.parse("https://api.mateapp.us/api/discussion/post"));
@@ -559,15 +559,15 @@ class CampusTalkProvider extends ChangeNotifier{
 
   Future<bool> updateACampusTalkPost(
       int id,String title, String description,
-      bool isAnonymous,String anonymousUser,List<String> uuid,
-      String photo,String video,String audio,
+      bool isAnonymous,String? anonymousUser,List<String> uuid,
+      String? photo,String? video,String? audio,
       bool isImageDeleted, bool isVideoDeleted, bool isAudioDeleted,
       ) async {
     error = '';
     _uploadPostLoader = true;
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String token =  prefs.getString('token');
+    String token =  prefs.getString('tokenApp')!;
 
     Map<String, String> headers = { "Authorization": "Bearer " + token,'Content-Type': 'application/json','accept': 'application/json'};
     final request = new http.MultipartRequest('POST', Uri.parse("https://api.mateapp.us/api/discussion/post/$id/update"));
@@ -656,7 +656,7 @@ class CampusTalkProvider extends ChangeNotifier{
     error = '';
     _likeAPostLoader = true;
     isUserProfile?_campusTalkByUserPostsResultsList[index].upVoteLoader=true:
-    isBookmarkedPage?campusTalkPostsBookmarkData.data.result[index].upVoteLoader=true:
+    isBookmarkedPage?campusTalkPostsBookmarkData.data!.result![index].upVoteLoader=true:
     isTrending? _campusTalkPostsResultsTrendingList[index].upVoteLoader=true:
     isLatest? _campusTalkPostsResultsLatestList[index].upVoteLoader=true:
     isForums? _campusTalkPostsResultsForumsList[index].upVoteLoader=true:
@@ -674,7 +674,7 @@ class CampusTalkProvider extends ChangeNotifier{
     } finally {
       _likeAPostLoader = false;
       isUserProfile?_campusTalkByUserPostsResultsList[index].upVoteLoader=false:
-      isBookmarkedPage?campusTalkPostsBookmarkData.data.result[index].upVoteLoader=false :
+      isBookmarkedPage?campusTalkPostsBookmarkData.data!.result![index].upVoteLoader=false :
       isTrending? _campusTalkPostsResultsTrendingList[index].upVoteLoader=false:
       isLatest? _campusTalkPostsResultsLatestList[index].upVoteLoader=false:
       isForums? _campusTalkPostsResultsForumsList[index].upVoteLoader=false:
@@ -704,7 +704,7 @@ class CampusTalkProvider extends ChangeNotifier{
     error = '';
     _likeAPostLoader = true;
     isUserProfile?_campusTalkByUserPostsResultsList[index].upVoteLoader=true:
-    isBookmarkedPage?campusTalkPostsBookmarkData.data.result[index].upVoteLoader=true:
+    isBookmarkedPage?campusTalkPostsBookmarkData.data!.result![index].upVoteLoader=true:
     isTrending? _campusTalkPostsResultsTrendingList[index].upVoteLoader=true:
     isLatest? _campusTalkPostsResultsLatestList[index].upVoteLoader=true:
     isForums? _campusTalkPostsResultsForumsList[index].upVoteLoader=true:
@@ -722,7 +722,7 @@ class CampusTalkProvider extends ChangeNotifier{
     } finally {
       _likeAPostLoader = false;
       isUserProfile?_campusTalkByUserPostsResultsList[index].upVoteLoader=false:
-      isBookmarkedPage?campusTalkPostsBookmarkData.data.result[index].upVoteLoader=false :
+      isBookmarkedPage?campusTalkPostsBookmarkData.data!.result![index].upVoteLoader=false :
       isTrending? _campusTalkPostsResultsTrendingList[index].upVoteLoader=false:
       isLatest? _campusTalkPostsResultsLatestList[index].upVoteLoader=false:
       isForums? _campusTalkPostsResultsForumsList[index].upVoteLoader=false:
@@ -749,15 +749,15 @@ class CampusTalkProvider extends ChangeNotifier{
   }
 
 
-  Future<bool> upVoteAPostComment({int commentId, int index, bool isReply=false, int replyIndex}) async {
+  Future<bool> upVoteAPostComment({int? commentId, required int index, bool isReply=false, required int replyIndex}) async {
     error = '';
     _likeAPostLoader = true;
     !isReply?
-    commentFetchData.data.result[index].upVoteLoader=true:
-    commentFetchData.data.result[index].replies[replyIndex].upVoteLoader=true;
+    commentFetchData!.data!.result![index].upVoteLoader=true:
+    commentFetchData!.data!.result![index].replies![replyIndex].upVoteLoader=true;
     var data;
     try {
-      data = await _campusTalkService.upVoteAPostComment(commentId);
+      data = await _campusTalkService.upVoteAPostComment(commentId!);
       _upVotePostCommentData = data;
     } catch (err) {
       _setError(err);
@@ -765,17 +765,17 @@ class CampusTalkProvider extends ChangeNotifier{
     } finally {
       _likeAPostLoader = false;
       !isReply?
-      commentFetchData.data.result[index].upVoteLoader=false:
-      commentFetchData.data.result[index].replies[replyIndex].upVoteLoader=false;
+      commentFetchData!.data!.result![index].upVoteLoader=false:
+      commentFetchData!.data!.result![index].replies![replyIndex].upVoteLoader=false;
     }
     notifyListeners();
     return true;
   }
 
-  Future<bool> upVoteAPostCommentSingle({int commentId}) async {
+  Future<bool> upVoteAPostCommentSingle({int? commentId}) async {
     var data;
     try {
-      data = await _campusTalkService.upVoteAPostComment(commentId);
+      data = await _campusTalkService.upVoteAPostComment(commentId!);
       _upVotePostCommentData = data;
     } catch (err) {
       _setError(err);
@@ -799,7 +799,7 @@ class CampusTalkProvider extends ChangeNotifier{
     error = '';
     _bookmarkAPostLoader = true;
     isUserProfile?_campusTalkByUserPostsResultsList[index].bookmarkLoader=true:
-    isBookmarkedPage?campusTalkPostsBookmarkData.data.result[index].bookmarkLoader=true :
+    isBookmarkedPage?campusTalkPostsBookmarkData.data!.result![index].bookmarkLoader=true :
     isTrending? _campusTalkPostsResultsTrendingList[index].bookmarkLoader=true:
     isLatest? _campusTalkPostsResultsLatestList[index].bookmarkLoader=true:
     isForums? _campusTalkPostsResultsForumsList[index].bookmarkLoader=true:
@@ -818,7 +818,7 @@ class CampusTalkProvider extends ChangeNotifier{
       _bookmarkAPostLoader = false;
 
       isUserProfile?_campusTalkByUserPostsResultsList[index].bookmarkLoader=false:
-      isBookmarkedPage?campusTalkPostsBookmarkData.data.result[index].bookmarkLoader=false :
+      isBookmarkedPage?campusTalkPostsBookmarkData.data!.result![index].bookmarkLoader=false :
       isTrending? _campusTalkPostsResultsTrendingList[index].bookmarkLoader=false:
       isLatest? _campusTalkPostsResultsLatestList[index].bookmarkLoader=false:
       isForums? _campusTalkPostsResultsForumsList[index].bookmarkLoader=false:
@@ -876,7 +876,7 @@ class CampusTalkProvider extends ChangeNotifier{
 
 
 
-  Future<bool> commentACampusTalk({int postId, XFile imageFile, String content, String isAnonymous, int parentId}) async {
+  Future<bool> commentACampusTalk({required int postId, XFile? imageFile, required String content, required String isAnonymous, int? parentId}) async {
     error = '';
     _postCommentsLoader = true;
     var data;
@@ -945,12 +945,12 @@ class CampusTalkProvider extends ChangeNotifier{
 
 
 
-  Future deleteCommentsOfACampusTalk(int commentId, int index, {bool isReply=false, int replyIndex}) async {
+  Future deleteCommentsOfACampusTalk(int commentId, int index, {bool isReply=false, int? replyIndex}) async {
     error = '';
     if(isReply){
-      _commentFetchData.data.result[index].replies[replyIndex].isDeleting=true;
+      _commentFetchData!.data!.result![index].replies![replyIndex!].isDeleting=true;
     }else{
-      _commentFetchData.data.result[index].isDeleting=true;
+      _commentFetchData!.data!.result![index].isDeleting=true;
     }
     var data;
     try {
@@ -960,9 +960,9 @@ class CampusTalkProvider extends ChangeNotifier{
       return false;
     } finally {
       if(isReply){
-        _commentFetchData.data.result[index].replies[replyIndex].isDeleting=true;
+        _commentFetchData!.data!.result![index].replies![replyIndex!].isDeleting=true;
       }else{
-        _commentFetchData.data.result[index].isDeleting=true;
+        _commentFetchData!.data!.result![index].isDeleting=true;
       }
     }
     return true;

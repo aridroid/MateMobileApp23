@@ -19,7 +19,7 @@ import '../../../controller/theme_controller.dart';
 import 'campusTalkSearch.dart';
 
 class CampusTalkScreenYourCampus extends StatefulWidget {
-  const CampusTalkScreenYourCampus({Key key}) : super(key: key);
+  const CampusTalkScreenYourCampus({Key? key}) : super(key: key);
 
   @override
   _CampusTalkScreenYourCampusState createState() => _CampusTalkScreenYourCampusState();
@@ -161,16 +161,16 @@ class _CampusTalkScreenYourCampusState extends State<CampusTalkScreenYourCampus>
 }
 
 class CampusTalk extends StatefulWidget {
-  const CampusTalk({Key key}) : super(key: key);
+  const CampusTalk({Key? key}) : super(key: key);
 
   @override
   _CampusTalkState createState() => _CampusTalkState();
 }
 
 class _CampusTalkState extends State<CampusTalk> {
-  ScrollController _scrollController;
-  int _page;
-  CampusTalkProvider campusTalkProvider;
+  late ScrollController _scrollController;
+  late int _page;
+  late CampusTalkProvider campusTalkProvider;
 
   void _scrollListener() {
     if (_scrollController.position.atEdge) {
@@ -382,7 +382,7 @@ class _CampusTalkState extends State<CampusTalk> {
                 isAnonymous: campusTalkData.isAnonymous,
                 anonymousUser: campusTalkData.anonymousUser,
                 url: campusTalkData.url,
-                createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(campusTalkData.createdAt, true))}",
+                createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(campusTalkData.createdAt!, true))}",
                 rowIndex: index,
                 isBookmarked: campusTalkData.isBookmarked,
                 isLiked: campusTalkData.isLiked,

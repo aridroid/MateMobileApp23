@@ -12,7 +12,7 @@ import '../../controller/theme_controller.dart';
 class ReportPage extends StatefulWidget {
   final int moduleId;
   final String moduleType;
-  const ReportPage({Key key, @required this.moduleId, @required this.moduleType}) : super(key: key);
+  const ReportPage({Key? key, required this.moduleId, required this.moduleType}) : super(key: key);
 
   @override
   _ReportPageState createState() => _ReportPageState();
@@ -25,7 +25,7 @@ class _ReportPageState extends State<ReportPage> {
   ThemeController themeController = Get.find<ThemeController>();
   int titleLength = 0;
   int descriptionLength = 0;
-  ReportProvider reportProvider;
+  late ReportProvider reportProvider;
   bool loading = false;
 
   @override
@@ -133,7 +133,7 @@ class _ReportPageState extends State<ReportPage> {
                             setState(() {});
                           },
                           validator: (value) {
-                            return value.isEmpty ? "*title is required" : null; //returning null means no error occurred. if there are any error then simply return a string
+                            return value!.isEmpty ? "*title is required" : null; //returning null means no error occurred. if there are any error then simply return a string
                           },
                         ),
                         Padding(
@@ -178,7 +178,7 @@ class _ReportPageState extends State<ReportPage> {
                           textInputAction: TextInputAction.done,
                           controller: _description,
                           validator: (value) {
-                            return value.isEmpty ? "*description is required" : null; //returning null means no error occurred. if there are any error then simply return a string
+                            return value!.isEmpty ? "*description is required" : null; //returning null means no error occurred. if there are any error then simply return a string
                           },
                         ),
                         SizedBox(
@@ -193,7 +193,7 @@ class _ReportPageState extends State<ReportPage> {
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                             ),
                             onPressed: ()async{
-                              if(_formKey.currentState.validate()){
+                              if(_formKey.currentState!.validate()){
                                 Map<String, dynamic> body = {
                                   "module_id": widget.moduleId,
                                   "title": _title.text.trim(),
@@ -285,7 +285,7 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   _showDeleteAlertDialog({
-    @required Map<String, dynamic> body,
+    required Map<String, dynamic> body,
   }) async {
     return showDialog<void>(
       context: context,
@@ -323,7 +323,7 @@ class _ReportPageState extends State<ReportPage> {
     );
   }
 
-  InputDecoration _customInputDecoration({@required String labelText, IconData icon}) {
+  InputDecoration _customInputDecoration({required String labelText, IconData? icon}) {
     return InputDecoration(
       hintStyle: TextStyle(
         fontSize: 16,

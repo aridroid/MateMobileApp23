@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 class CommentFullImage extends StatelessWidget {
-  final String imageNetworkPath;
-  final File imageFilePath;
+  final String? imageNetworkPath;
+  final File? imageFilePath;
 
-  const CommentFullImage({Key key, this.imageNetworkPath, this.imageFilePath}) : super(key: key);
+  const CommentFullImage({Key? key, this.imageNetworkPath, this.imageFilePath}) : super(key: key);
 
 
   @override
@@ -19,12 +19,12 @@ class CommentFullImage extends StatelessWidget {
           height: double.infinity,
           child: imageNetworkPath!=null?
           Image.network(
-            imageNetworkPath,
+            imageNetworkPath!,
             fit: BoxFit.contain,
             // height: 300,
             // width: 400,
           ):Image.file(
-            imageFilePath,
+            imageFilePath!,
             fit: BoxFit.contain,
             // height: 300,
             // width: 400,

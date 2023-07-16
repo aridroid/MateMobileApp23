@@ -16,10 +16,10 @@ class ChatMergedModel {
     this.message,
   });
 
-  bool success;
-  List<Datum> data;
-  List<Datum> archived;
-  String message;
+  bool? success;
+  List<Datum>? data;
+  List<Datum>? archived;
+  String? message;
 
   factory ChatMergedModel.fromJson(Map<String, dynamic> json) => ChatMergedModel(
     success: json["success"],
@@ -30,8 +30,8 @@ class ChatMergedModel {
 
   Map<String, dynamic> toJson() => {
     "success": success,
-    "data": List<dynamic>.from(data.map((x) => x.toJson())),
-    "archived": List<dynamic>.from(archived.map((x) => x.toJson())),
+    "data": List<dynamic>.from(data!.map((x) => x.toJson())),
+    "archived": List<dynamic>.from(archived!.map((x) => x.toJson())),
     "message": message,
   };
 }
@@ -50,16 +50,16 @@ class Datum {
     this.isVisible = false,
   });
 
-  String roomId;
-  int totalMessages;
-  String type;
-  DateTime createdAt;
-  DateTime updatedAt;
-  int unreadMessages;
-  bool isMuted;
-  int isPinned;
-  String receiverUid;
-  bool isVisible;
+  String? roomId;
+  int? totalMessages;
+  String? type;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+  int? unreadMessages;
+  bool? isMuted;
+  int? isPinned;
+  String? receiverUid;
+  bool? isVisible;
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
     roomId: json["room_id"],
@@ -77,8 +77,8 @@ class Datum {
     "room_id": roomId,
     "total_messages": totalMessages,
     "type": type,
-    "created_at": createdAt.toIso8601String(),
-    "updated_at": updatedAt.toIso8601String(),
+    "created_at": createdAt?.toIso8601String(),
+    "updated_at": updatedAt?.toIso8601String(),
     "unread_messages": unreadMessages,
     "is_muted": isMuted,
     "is_pinned": isPinned,
@@ -103,16 +103,16 @@ class CustomDataForChatList{
     this.isVisible = false,
   });
 
-  String name;
-  String author;
-  String roomId;
-  int totalMessages;
-  String type;
-  DateTime createdAt;
-  DateTime updatedAt;
-  int unreadMessages;
-  bool isMuted;
-  int isPinned;
-  String receiverUid;
-  bool isVisible;
+  String? name;
+  String? author;
+  String? roomId;
+  int? totalMessages;
+  String? type;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+  int? unreadMessages;
+  bool? isMuted;
+  int? isPinned;
+  String? receiverUid;
+  bool? isVisible;
 }

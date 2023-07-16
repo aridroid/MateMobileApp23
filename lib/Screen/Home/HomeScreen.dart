@@ -29,9 +29,9 @@ class HomeScreen extends StatefulWidget {
   static final String homeScreenRoute = "/home";
   final int index;
   final String feedTypeName;
-  final String groupId;
+  final String? groupId;
 
-  const HomeScreen({Key key, this.index = 0, this.feedTypeName="", this.groupId}) : super(key: key);
+  const HomeScreen({Key? key, this.index = 0, this.feedTypeName="", this.groupId}) : super(key: key);
   @override
   _HomeScreenState createState() => _HomeScreenState(index);
 }
@@ -41,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
   _HomeScreenState(this._currentIndex);
   String _projectVersion='';
   bool appCheckFirstTime=true;
-  ReportProvider _reportProvider;
+  ReportProvider? _reportProvider;
 
   @override
   void dispose() {
@@ -57,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
     }
     if (state == AppLifecycleState.resumed){
       print("come back from  background");
-      User _user =  FirebaseAuth.instance.currentUser;
+      User _user =  FirebaseAuth.instance.currentUser!;
       final CollectionReference collection = FirebaseFirestore.instance.collection('calling');
       DocumentSnapshot documentSnapshot = await collection.doc(_user.uid).get();
       print(documentSnapshot.data());
@@ -107,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
     SharedPreferences preferences = await SharedPreferences.getInstance();
     preferences.setBool("isCallOngoing",false);
     print("--------Checking call has or not----------------");
-    User _user =  FirebaseAuth.instance.currentUser;
+    User _user =  FirebaseAuth.instance.currentUser!;
     final CollectionReference collection = FirebaseFirestore.instance.collection('calling');
     DocumentSnapshot documentSnapshot = await collection.doc(_user.uid).get();
     print(documentSnapshot.data());
@@ -188,9 +188,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
                           var platform = Theme.of(context).platform;
                           int appVersion=getExtendedVersionNumber(_projectVersion);
                           if(platform == TargetPlatform.android){
-                            storeVersion=getExtendedVersionNumber(reportProvider.appUpdateModelData.data.androidVersion);
+                            storeVersion=getExtendedVersionNumber(reportProvider.appUpdateModelData!.data!.androidVersion!);
                           }else if(platform == TargetPlatform.iOS){
-                            storeVersion=getExtendedVersionNumber(reportProvider.appUpdateModelData.data.iosVersion);
+                            storeVersion=getExtendedVersionNumber(reportProvider.appUpdateModelData!.data!.iosVersion!);
                           }
                           if(storeVersion>appVersion){
                             Future.delayed(Duration.zero, (){
@@ -207,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
                                           actions: <Widget>[
                                             CupertinoDialogAction(
                                               isDefaultAction: true,
-                                              child: _reportProvider.postReportLoader?
+                                              child: _reportProvider!.postReportLoader?
                                               Center(
                                                 child: CircularProgressIndicator(
                                                   color: Colors.white,

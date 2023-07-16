@@ -6,8 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class GoogleSignInService {
-  FirebaseAuth _auth;
-  GoogleSignIn googleSignIn;
+  late FirebaseAuth _auth;
+  late GoogleSignIn googleSignIn;
 
   GoogleSignInService() {
     _auth = FirebaseAuth.instance;
@@ -17,8 +17,8 @@ class GoogleSignInService {
   Future<List<dynamic>> signInWithGoogle() async {
     await Firebase.initializeApp();
 
-    final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
-    final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
+    final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
+    final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount!.authentication;
 
     final AuthCredential credential = GoogleAuthProvider.credential(
       accessToken: googleSignInAuthentication.accessToken,
@@ -26,10 +26,10 @@ class GoogleSignInService {
     );
 
     final UserCredential authResult = await _auth.signInWithCredential(credential);
-    final User user = authResult.user; // <= the user from firebase
+    final User user = authResult.user!; // <= the user from firebase
 
 
-    String token = await user.getIdToken(true); // <= this is how you get the firebase auth token
+    String? token = await user.getIdToken(true); // <= this is how you get the firebase auth token
 
     print('firebase token::$token');
 

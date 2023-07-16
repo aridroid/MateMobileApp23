@@ -1,7 +1,7 @@
 class CampusLivePostsModel {
-  bool success;
-  Data data;
-  String message;
+  bool? success;
+  Data? data;
+  String? message;
 
   CampusLivePostsModel({this.success, this.data, this.message});
 
@@ -15,7 +15,7 @@ class CampusLivePostsModel {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['success'] = this.success;
     if (this.data != null) {
-      data['data'] = this.data.toJson();
+      data['data'] = this.data?.toJson();
     }
     data['message'] = this.message;
     return data;
@@ -23,16 +23,16 @@ class CampusLivePostsModel {
 }
 
 class Data {
-  List<Result> result;
-  Pagination pagination;
+  List<Result>? result;
+  Pagination? pagination;
 
   Data({this.result, this.pagination});
 
   Data.fromJson(Map<String, dynamic> json) {
     if (json['result'] != null) {
-      result = new List<Result>();
+      result = [];
       json['result'].forEach((v) {
-        result.add(new Result.fromJson(v));
+        result?.add(new Result.fromJson(v));
       });
     }
     pagination = json['pagination'] != null
@@ -43,40 +43,40 @@ class Data {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     if (this.result != null) {
-      data['result'] = this.result.map((v) => v.toJson()).toList();
+      data['result'] = this.result?.map((v) => v.toJson()).toList();
     }
     if (this.pagination != null) {
-      data['pagination'] = this.pagination.toJson();
+      data['pagination'] = this.pagination?.toJson();
     }
     return data;
   }
 }
 
 class Result {
-  int id;
-  int userId;
-  int audioId;
-  String url;
-  String subject;
-  String description;
-  String createdAt;
-  String updatedAt;
-  String thumbnailUrl;
-  String featured;
-  int viewCount;
-  int commentsCount;
-  int likesCount;
-  int sharesCount;
-  Credit credit;
-  User user;
-  String creditUrl;
-  IsLiked isLiked;
-  IsBookmarked isBookmarked;
-  bool isFollowed;
-  bool likeLoader=false;
-  bool bookmarkLoader=false;
-  bool deleteLoader=false;
-  IsShared isShared;
+  int? id;
+  int? userId;
+  int? audioId;
+  String? url;
+  String? subject;
+  String? description;
+  String? createdAt;
+  String? updatedAt;
+  String? thumbnailUrl;
+  String? featured;
+  int? viewCount;
+  int? commentsCount;
+  late int likesCount;
+  int? sharesCount;
+  Credit? credit;
+  User? user;
+  String? creditUrl;
+  IsLiked? isLiked;
+  IsBookmarked? isBookmarked;
+  bool? isFollowed;
+  bool? likeLoader=false;
+  bool? bookmarkLoader=false;
+  bool? deleteLoader=false;
+  IsShared? isShared;
 
   Result(
       {this.id,
@@ -91,7 +91,7 @@ class Result {
         this.featured,
         this.viewCount,
         this.commentsCount,
-        this.likesCount,
+        required this.likesCount,
         this.sharesCount,
         this.user,
         this.creditUrl,
@@ -153,20 +153,20 @@ class Result {
     data['shares_count'] = this.sharesCount;
     data['is_followed'] = this.isFollowed;
     if (this.credit != null) {
-      data['credit'] = this.credit.toJson();
+      data['credit'] = this.credit?.toJson();
     }
     if (this.user != null) {
-      data['user'] = this.user.toJson();
+      data['user'] = this.user?.toJson();
     }
     data['credit_url'] = this.creditUrl;
     if (this.isLiked != null) {
-      data['is_liked'] = this.isLiked.toJson();
+      data['is_liked'] = this.isLiked?.toJson();
     }
     if (this.isBookmarked != null) {
-      data['is_bookmarked'] = this.isBookmarked.toJson();
+      data['is_bookmarked'] = this.isBookmarked?.toJson();
     }
     if (this.isShared != null) {
-      data['is_shared'] = this.isShared.toJson();
+      data['is_shared'] = this.isShared?.toJson();
     }
 
     return data;
@@ -174,23 +174,23 @@ class Result {
 }
 
 class IsShared {
-  int id;
-  int userId;
-  String audioId;
-  String url;
-  String subject;
-  String description;
-  String createdAt;
-  String updatedAt;
-  String thumbnailUrl;
-  String featured;
-  int viewCount;
-  int parentId;
-  int commentsCount;
-  int likesCount;
-  int sharesCount;
-  User user;
-  SuperCharge superCharge;
+  int? id;
+  int? userId;
+  String? audioId;
+  String? url;
+  String? subject;
+  String? description;
+  String? createdAt;
+  String? updatedAt;
+  String? thumbnailUrl;
+  String? featured;
+  int? viewCount;
+  int? parentId;
+  int? commentsCount;
+  int? likesCount;
+  int? sharesCount;
+  User? user;
+  SuperCharge? superCharge;
 
   IsShared(
       {this.id,
@@ -252,10 +252,10 @@ class IsShared {
     data['likes_count'] = this.likesCount;
     data['shares_count'] = this.sharesCount;
     if (this.user != null) {
-      data['user'] = this.user.toJson();
+      data['user'] = this.user?.toJson();
     }
     if (this.superCharge != null) {
-      data['super_charge'] = this.superCharge.toJson();
+      data['super_charge'] = this.superCharge?.toJson();
     }
 
     return data;
@@ -263,18 +263,18 @@ class IsShared {
 }
 
 class SuperCharge {
-  int id;
-  int userId;
-  int audioId;
-  String url;
-  String subject;
-  String description;
-  String createdAt;
-  String updatedAt;
-  String thumbnailUrl;
-  String featured;
-  int viewCount;
-  int parentId;
+  int? id;
+  int? userId;
+  int? audioId;
+  String? url;
+  String? subject;
+  String? description;
+  String? createdAt;
+  String? updatedAt;
+  String? thumbnailUrl;
+  String? featured;
+  int? viewCount;
+  int? parentId;
 
   SuperCharge(
       {this.id,
@@ -325,10 +325,10 @@ class SuperCharge {
 
 
 class Credit {
-  String firstName;
-  String lastName;
-  String displayName;
-  String username;
+  String? firstName;
+  String? lastName;
+  String? displayName;
+  String? username;
 
   Credit({this.firstName, this.lastName, this.displayName, this.username});
 
@@ -349,12 +349,12 @@ class Credit {
 }
 
 class User {
-  String uuid;
-  String firstName;
-  String lastName;
-  String displayName;
-  String firebaseUid;
-  String profilePhoto;
+  String? uuid;
+  String? firstName;
+  String? lastName;
+  String? displayName;
+  String? firebaseUid;
+  String? profilePhoto;
 
   User({this.uuid, this.firstName, this.lastName, this.displayName, this.firebaseUid, this.profilePhoto});
 
@@ -380,11 +380,11 @@ class User {
 }
 
 class IsLiked {
-  int id;
-  int postId;
-  int userId;
-  String createdAt;
-  String updatedAt;
+  int? id;
+  int? postId;
+  int? userId;
+  String? createdAt;
+  String? updatedAt;
 
   IsLiked({this.id, this.postId, this.userId, this.createdAt, this.updatedAt});
 
@@ -408,11 +408,11 @@ class IsLiked {
 }
 
 class IsBookmarked {
-  int id;
-  int postId;
-  int userId;
-  String createdAt;
-  String updatedAt;
+  int? id;
+  int? postId;
+  int? userId;
+  String? createdAt;
+  String? updatedAt;
 
   IsBookmarked({this.id, this.postId, this.userId, this.createdAt, this.updatedAt});
 
@@ -436,12 +436,12 @@ class IsBookmarked {
 }
 
 class Pagination {
-  int total;
-  int count;
-  int perPage;
-  int currentPage;
-  int totalPages;
-  bool morePages;
+  int? total;
+  int? count;
+  int? perPage;
+  int? currentPage;
+  int? totalPages;
+  bool? morePages;
 
   Pagination(
       {this.total,

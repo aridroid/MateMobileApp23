@@ -1,7 +1,7 @@
 class UserClass {
-  int id;
-  String identifier;
-  String title;
+  int? id;
+  String? identifier;
+  String? title;
 
   UserClass({this.id, this.identifier, this.title});
 

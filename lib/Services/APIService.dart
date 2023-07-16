@@ -10,13 +10,13 @@ class APIService {
 
   final Dio _dio = Dio();
 
-  Future<String> _getToken() async {
+  Future<String?> _getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
+    return prefs.getString('tokenApp');
   }
 
-  Future<http.Response> get({@required Uri uri}) async {
-    String token = await _getToken();
+  Future<http.Response> get({required Uri uri}) async {
+    String? token = await _getToken();
 
     print('bakend_token = $token');
 
@@ -34,13 +34,13 @@ class APIService {
   }
 
   Future<http.Response> post(
-      {@required Uri uri, Map<String, dynamic> data}) async {
+      {required Uri uri, Map<String, dynamic>? data}) async {
     Map<String, String> headers = {
       'accept': 'application/json',
       'content-type': 'application/json'
     };
 
-    String token = await _getToken();
+    String? token = await _getToken();
     if (token != null) {
       headers["Authorization"] = "Bearer $token";
     }
@@ -59,13 +59,13 @@ class APIService {
 
 
   Future<Response> postWithFormData(
-      {@required Uri uri, FormData formData}) async {
+      {required Uri uri, FormData? formData}) async {
     Map<String, String> headers = {
       'accept': 'application/json',
       'content-type': 'application/json'
     };
 
-    String token = await _getToken();
+    String? token = await _getToken();
     if (token != null) {
       headers["Authorization"] = "Bearer $token";
     }
@@ -79,7 +79,7 @@ class APIService {
     print(uri.toString());
     Response response = await _dio.post(uri.toString(),
         data: formData,
-        options: Options(headers: {"Authorization": "Bearer " + token}));
+        options: Options(headers: {"Authorization": "Bearer " + token!}));
     print(response.data);
     // print(
     //     "$uri API HTTP Status::  ${response.statusCode}, data:: ${json.decode(response.data).toString()}");

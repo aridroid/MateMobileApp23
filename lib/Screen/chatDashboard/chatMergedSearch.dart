@@ -14,7 +14,7 @@ import '../chat1/screens/chat.dart';
 
 class ChatMergedSearch extends StatefulWidget {
   final bool onlyGroupSearch;
-  const ChatMergedSearch({Key key, this.onlyGroupSearch}) : super(key: key);
+  const ChatMergedSearch({Key? key, required this.onlyGroupSearch}) : super(key: key);
 
   @override
   State<ChatMergedSearch> createState() => _ChatMergedSearchState();
@@ -26,8 +26,8 @@ class _ChatMergedSearchState extends State<ChatMergedSearch> {
   ThemeController themeController = Get.find<ThemeController>();
   FocusNode focusNode= FocusNode();
   bool hasUserSearched = false;
-  User _user = FirebaseAuth.instance.currentUser;
-  String personChatId;
+  User _user = FirebaseAuth.instance.currentUser!;
+  late String personChatId;
   String searchedName="";
 
   @override
@@ -161,56 +161,55 @@ class _ChatMergedSearchState extends State<ChatMergedSearch> {
                           physics: ScrollPhysics(),
                           scrollDirection: Axis.vertical,
                           itemBuilder: (context, indexMain) {
-                            print(chatProvider.messageList[indexMain].author);
                             return Visibility(
                               visible: searchedName!="" && (chatProvider.messageList[indexMain].name.toString().toLowerCase().contains(searchedName.toLowerCase()) || chatProvider.messageList[indexMain].author.toString().toLowerCase().contains(searchedName.toLowerCase())),
                               child: chatProvider.messageList[indexMain].type=="group" && widget.onlyGroupSearch?
                               GroupTile(
-                                userName: _user.displayName,
-                                groupId: chatProvider.messageList[indexMain].roomId,
-                                unreadMessages: chatProvider.messageList[indexMain].unreadMessages,
+                                userName: _user.displayName!,
+                                groupId: chatProvider.messageList[indexMain].roomId!,
+                                unreadMessages: chatProvider.messageList[indexMain].unreadMessages!,
                                 currentUserUid: _user.uid,
                                 loadData: loadData,
-                                isMuted: chatProvider.messageList[indexMain].isMuted,
+                                isMuted: chatProvider.messageList[indexMain].isMuted!,
                                 isPinned: chatProvider.messageList[indexMain].isPinned==0?false:true,
                                 index: indexMain,
                               ):
-                              StreamBuilder(
-                                  stream: DatabaseService().getPeerChatUserDetail(chatProvider.messageList[indexMain].receiverUid),
+                              StreamBuilder<QuerySnapshot>(
+                                  stream: DatabaseService().getPeerChatUserDetail(chatProvider.messageList[indexMain].receiverUid??""),
                                   builder: (context, snapshot) {
                                     if (snapshot.hasData) {
                                       return ListView.builder(
                                           shrinkWrap: true,
-                                          itemCount: snapshot.data.docs.length,
+                                          itemCount: snapshot.data!.docs.length,
                                           padding: EdgeInsets.zero,
                                           physics: ScrollPhysics(),
                                           itemBuilder: (context, index) {
                                             if (_user.uid.hashCode <=
                                                 {
-                                                  snapshot.data.docs[index].data()["uid"]
+                                                  snapshot.data!.docs[index].get('uid')
                                                 }.hashCode) {
-                                              personChatId = '${_user.uid}-${snapshot.data.docs[index].data()["uid"]}';
+                                              personChatId = '${_user.uid}-${snapshot.data!.docs[index].get('uid')}';
                                             } else {
-                                              personChatId = '${snapshot.data.docs[index].data()["uid"]}-${_user.uid}';
+                                              personChatId = '${snapshot.data!.docs[index].get('uid')}-${_user.uid}';
                                             }
-                                            chatProvider.messageList[indexMain].name = snapshot.data.docs[index].data()["displayName"];
+                                            chatProvider.messageList[indexMain].name = snapshot.data!.docs[index].get('displayName');
                                             return Padding(
                                               padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 2.0),
                                               child: ListTile(
                                                 onTap: () => Get.to(() => Chat(
-                                                  peerUuid: snapshot.data.docs[index].data()["uuid"],
+                                                  peerUuid: snapshot.data!.docs[index].get('uuid'),
                                                   currentUserId: _user.uid,
-                                                  peerId: snapshot.data.docs[index].data()["uid"],
-                                                  peerName: snapshot.data.docs[index].data()["displayName"],
-                                                  peerAvatar: snapshot.data.docs[index].data()["photoURL"],
+                                                  peerId: snapshot.data!.docs[index].get('uid'),
+                                                  peerName: snapshot.data!.docs[index].get('displayName'),
+                                                  peerAvatar: snapshot.data!.docs[index].get('photoURL'),
                                                 )),
                                                 leading: CircleAvatar(
                                                   radius: 30,
                                                   backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
-                                                  backgroundImage: NetworkImage(snapshot.data.docs[index].data()["photoURL"]),
+                                                  backgroundImage: NetworkImage(snapshot.data!.docs[index].get('photoURL')),
                                                 ),
                                                 title: Text(
-                                                  snapshot.data.docs[index].data()["displayName"],
+                                                  snapshot.data!.docs[index].get('displayName'),
                                                   style: TextStyle(
                                                     fontSize: 15,
                                                     fontFamily: "Poppins",
@@ -218,26 +217,26 @@ class _ChatMergedSearchState extends State<ChatMergedSearch> {
                                                     color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
                                                   ),
                                                 ),
-                                                subtitle: StreamBuilder(
+                                                subtitle: StreamBuilder<QuerySnapshot>(
                                                     stream: FirebaseFirestore.instance.collection('messages').doc(personChatId).collection(personChatId).orderBy('timestamp', descending: true).limit(1).snapshots(),
                                                     builder: (context, snapshot) {
                                                       if (snapshot.hasData) {
-                                                        print(snapshot.data.docs);
-                                                        if (snapshot.data.docs.length > 0) {
+                                                        if (snapshot.data!.docs.length > 0) {
                                                           return Text(
-                                                            snapshot.data.docs[0].data()['type'] == 0 ?
-                                                            "${snapshot.data.docs[0].data()['content']}" : snapshot.data.docs[0].data()['type'] == 1 ?
+                                                            snapshot.data!.docs[0].get('type') == 0 ?
+                                                            "${snapshot.data!.docs[0].get('content')}" : snapshot.data!.docs[0].get('type') == 1 ?
                                                             "🖼️ Image" :
-                                                            snapshot.data.docs[0].data()['fileName']??"${snapshot.data.docs[0].data()['content']}",
+                                                            snapshot.data!.docs.toString().contains('fileName')?
+                                                            snapshot.data!.docs[0].get('fileName'):"${snapshot.data!.docs[0].get('content')}",
                                                             style: TextStyle(
                                                               fontFamily: "Poppins",
                                                               fontSize: 14.0,
                                                               letterSpacing: 0.1,
                                                               fontWeight: FontWeight.w400,
                                                               color: themeController.isDarkMode?
-                                                              chatProvider.messageList[indexMain].unreadMessages >0?
+                                                              chatProvider.messageList[indexMain].unreadMessages! >0?
                                                               Colors.white: Colors.white.withOpacity(0.5):
-                                                              chatProvider.messageList[indexMain].unreadMessages >0?
+                                                              chatProvider.messageList[indexMain].unreadMessages! >0?
                                                               Colors.black: Colors.black.withOpacity(0.5),
                                                             ),
                                                             overflow: TextOverflow.ellipsis,
@@ -265,7 +264,7 @@ class _ChatMergedSearchState extends State<ChatMergedSearch> {
                                                           overflow: TextOverflow.ellipsis,
                                                         );
                                                     }),
-                                                trailing: chatProvider.messageList[indexMain].unreadMessages >0?
+                                                trailing: chatProvider.messageList[indexMain].unreadMessages! >0?
                                                 Container(
                                                   height: 20,
                                                   width: 20,

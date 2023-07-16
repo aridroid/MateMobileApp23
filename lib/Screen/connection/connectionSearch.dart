@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -12,7 +13,7 @@ import '../Profile/UserProfileScreen.dart';
 
 
 class ConnectionSearch extends StatefulWidget {
-  const ConnectionSearch({Key key}) : super(key: key);
+  const ConnectionSearch({Key? key}) : super(key: key);
 
   @override
   _ConnectionSearchState createState() => _ConnectionSearchState();
@@ -134,44 +135,44 @@ class _ConnectionSearchState extends State<ConnectionSearch> {
                         physics: NeverScrollableScrollPhysics(),
                         itemCount: connectionGlobalList.length,
                         itemBuilder: (context, index) {
-                          return FutureBuilder(
-                              future: DatabaseService().getUsersDetails(connectionGlobalList[index].uid),
+                          return FutureBuilder<DocumentSnapshot>(
+                              future: DatabaseService().getUsersDetails(connectionGlobalList[index].uid!),
                               builder: (context, snapshot1) {
                                 if(snapshot1.hasData){
                                   return Visibility(
-                                    visible: searchedName!="" && snapshot1.data.data()['displayName'].toString().toLowerCase().contains(searchedName.toLowerCase()),
+                                    visible: searchedName!="" && snapshot1.data!.get('displayName').toString().toLowerCase().contains(searchedName.toLowerCase()),
                                     child: Padding(
                                       padding: const EdgeInsets.only(bottom: 35),
                                       child: InkWell(
                                         onTap: (){
-                                          if(snapshot1.data.data()['uuid']!=null){
-                                            if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                          if(snapshot1.data!.get('uuid')!=null){
+                                            if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                               Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                             } else {
                                               Navigator.of(context).pushNamed(UserProfileScreen.routeName,
-                                                  arguments: {"id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                  arguments: {"id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                             }
                                           }
                                         },
                                         child: ListTile(
-                                          leading: snapshot1.data.data()['photoURL']!=null?
+                                          leading: snapshot1.data!.get('photoURL')!=null?
                                           CircleAvatar(
                                             radius: 30,
                                             backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
                                             backgroundImage: NetworkImage(
-                                              snapshot1.data.data()['photoURL'],
+                                              snapshot1.data!.get('photoURL'),
                                             ),
                                           ):
                                           CircleAvatar(
                                             radius: 30,
                                             backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
-                                            child: Text(snapshot1.data.data()['displayName'].substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
+                                            child: Text(snapshot1.data!.get('displayName').substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
                                           ),
-                                          title: Text(snapshot1.data.data()['displayName'],
+                                          title: Text(snapshot1.data!.get('displayName'),
                                             style: TextStyle(
                                               fontSize: 15,
                                               fontFamily: "Poppins",

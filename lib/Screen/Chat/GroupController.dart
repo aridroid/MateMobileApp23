@@ -10,8 +10,8 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
 class GroupController extends GetxController {
-  FirebaseFirestore _firestore;
-  GetStorage _storage;
+  late FirebaseFirestore _firestore;
+  late GetStorage _storage;
 
   @override
   void onInit() {
@@ -42,9 +42,9 @@ class GroupController extends GetxController {
         .doc(studyGroup.id)
         .get()
         .then((documentSnap) {
-      StudyGroup group = StudyGroup.fromJson(documentSnap.data());
+      StudyGroup group = StudyGroup.fromJson(documentSnap.data()!);
 
-      group.members.forEach((item) {
+      group.members!.forEach((item) {
         if (item.id == userData.id) {
           isIamMember = true;
         }
@@ -56,10 +56,10 @@ class GroupController extends GetxController {
           confirm: ElevatedButton(
             onPressed: () async {
               Members member = Members(
-                  id: userData.id,
-                  name: userData.displayName,
-                  photoUrl: userData.photoUrl);
-              group.members.add(member);
+                  id: userData.id!,
+                  name: userData.displayName!,
+                  photoUrl: userData.photoUrl!);
+              group.members!.add(member);
               await _firestore
                   .collection("groups")
                   .doc(studyGroup.id)

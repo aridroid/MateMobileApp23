@@ -5,15 +5,15 @@ import 'package:mate_app/Services/APIService.dart';
 import 'package:mate_app/Services/BackEndAPIRoutes.dart';
 
 class StudyGroupService {
-  APIService _apiService;
-  BackEndAPIRoutes _backEndAPIRoutes;
+  late APIService _apiService;
+  late BackEndAPIRoutes _backEndAPIRoutes;
 
   StudyGroupService() {
     _apiService = APIService();
     _backEndAPIRoutes = BackEndAPIRoutes();
   }
 
-  Future fetchStudyGroups([Map<String, dynamic> queryParams]) async {
+  Future fetchStudyGroups([Map<String, dynamic>? queryParams]) async {
     try {
       final response = await _apiService.get(
           uri: _backEndAPIRoutes.studyGroups(queryParams));

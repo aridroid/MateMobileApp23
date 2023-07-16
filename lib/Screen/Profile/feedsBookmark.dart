@@ -14,7 +14,7 @@ import 'package:http/http.dart'as http;
 import '../../asset/Colors/MateColors.dart';
 
 class FeedsBookmark extends StatefulWidget {
-  const FeedsBookmark({Key key}) : super(key: key);
+  const FeedsBookmark({Key? key}) : super(key: key);
 
   @override
   _FeedsBookmarkState createState() => _FeedsBookmarkState();
@@ -22,28 +22,28 @@ class FeedsBookmark extends StatefulWidget {
 
 class _FeedsBookmarkState extends State<FeedsBookmark> {
 
-  FeedProvider feedProvider;
+  late FeedProvider feedProvider;
 
   final audioPlayer = AudioPlayer();
 
   Future<void> startAudio(String url,int index) async {
     print(url);
     print(index);
-    print(feedProvider.bookmarkByUserData.data.feeds[index].isPaused);
-    if(feedProvider.bookmarkByUserData.data.feeds[index].isPaused==true){
-      for(int i=0;i<feedProvider.bookmarkByUserData.data.feeds.length;i++){
-        feedProvider.bookmarkByUserData.data.feeds[i].isPlaying = false;
+    print(feedProvider.bookmarkByUserData!.data!.feeds![index].isPaused);
+    if(feedProvider.bookmarkByUserData!.data!.feeds![index].isPaused==true){
+      for(int i=0;i<feedProvider.bookmarkByUserData!.data!.feeds!.length;i++){
+        feedProvider.bookmarkByUserData!.data!.feeds![i].isPlaying = false;
       }
-      feedProvider.bookmarkByUserData.data.feeds[index].isPaused = false;
+      feedProvider.bookmarkByUserData!.data!.feeds![index].isPaused = false;
       audioPlayer.play();
       setState(() {
-        feedProvider.bookmarkByUserData.data.feeds[index].isPlaying = true;
+        feedProvider.bookmarkByUserData!.data!.feeds![index].isPlaying = true;
       });
       audioPlayer.playerStateStream.listen((state) {
         if (state.processingState == ProcessingState.completed) {
           setState(() {
-            feedProvider.bookmarkByUserData.data.feeds[index].isPlaying = false;
-            feedProvider.bookmarkByUserData.data.feeds[index].isPaused = false;
+            feedProvider.bookmarkByUserData!.data!.feeds![index].isPlaying = false;
+            feedProvider.bookmarkByUserData!.data!.feeds![index].isPaused = false;
           });
         }
       });
@@ -59,8 +59,8 @@ class _FeedsBookmarkState extends State<FeedsBookmark> {
         audioPlayer.playerStateStream.listen((state) {
           if (state.processingState == ProcessingState.completed) {
             setState(() {
-              feedProvider.bookmarkByUserData.data.feeds[index].isPlaying = false;
-              feedProvider.bookmarkByUserData.data.feeds[index].isPaused = false;
+              feedProvider.bookmarkByUserData!.data!.feeds![index].isPlaying = false;
+              feedProvider.bookmarkByUserData!.data!.feeds![index].isPaused = false;
             });
           }
         });
@@ -72,8 +72,8 @@ class _FeedsBookmarkState extends State<FeedsBookmark> {
         });
 
         audioPlayer.stop();
-        for(int i=0;i<feedProvider.bookmarkByUserData.data.feeds.length;i++){
-          feedProvider.bookmarkByUserData.data.feeds[i].isPlaying = false;
+        for(int i=0;i<feedProvider.bookmarkByUserData!.data!.feeds!.length;i++){
+          feedProvider.bookmarkByUserData!.data!.feeds![i].isPlaying = false;
         }
         setState(() {});
 
@@ -85,24 +85,24 @@ class _FeedsBookmarkState extends State<FeedsBookmark> {
           await audioPlayer.setFilePath(filePathAndName);
           audioPlayer.play();
           setState(() {
-            feedProvider.bookmarkByUserData.data.feeds[index].isPlaying = true;
+            feedProvider.bookmarkByUserData!.data!.feeds![index].isPlaying = true;
           });
         }else{
           setState(() {
-            feedProvider.bookmarkByUserData.data.feeds[index].isLoadingAudio = true;
+            feedProvider.bookmarkByUserData!.data!.feeds![index].isLoadingAudio = true;
           });
 
           String path = await downloadAudio(url);
 
           setState(() {
-            feedProvider.bookmarkByUserData.data.feeds[index].isLoadingAudio = false;
+            feedProvider.bookmarkByUserData!.data!.feeds![index].isLoadingAudio = false;
           });
 
           if(path !=""){
             await audioPlayer.setFilePath(path);
             audioPlayer.play();
             setState(() {
-              feedProvider.bookmarkByUserData.data.feeds[index].isPlaying = true;
+              feedProvider.bookmarkByUserData!.data!.feeds![index].isPlaying = true;
             });
           }else{
             Fluttertoast.showToast(msg: "Something went wrong while playing audio please try again!", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
@@ -118,8 +118,8 @@ class _FeedsBookmarkState extends State<FeedsBookmark> {
   void pauseAudio(int index)async{
     audioPlayer.pause();
     setState(() {
-      feedProvider.bookmarkByUserData.data.feeds[index].isPlaying = false;
-      feedProvider.bookmarkByUserData.data.feeds[index].isPaused = true;
+      feedProvider.bookmarkByUserData!.data!.feeds![index].isPlaying = false;
+      feedProvider.bookmarkByUserData!.data!.feeds![index].isPaused = true;
     });
   }
 
@@ -155,12 +155,12 @@ class _FeedsBookmarkState extends State<FeedsBookmark> {
     final scW = MediaQuery.of(context).size.width;
     return Consumer<FeedProvider>(
       builder: (context, value, child) {
-        if(!value.allbookmarkedFeedLoader && value.bookmarkByUserData!=null && value.bookmarkByUserData.data.feeds!=null){
+        if(!value.allbookmarkedFeedLoader && value.bookmarkByUserData!=null && value.bookmarkByUserData!.data!.feeds!=null){
           return ListView.builder(
-            itemCount: value.bookmarkByUserData.data.feeds.length,
+            itemCount: value.bookmarkByUserData!.data!.feeds!.length,
             padding: EdgeInsets.only(top: 10,left: 16,right: 16,bottom: 16),
             itemBuilder: (context, index) {
-              Feeds feeds= value.bookmarkByUserData.data.feeds[index];
+              Feeds feeds= value.bookmarkByUserData!.data!.feeds![index];
               return HomeRow(
                 id: feeds.id,
                 feedId: feeds.feedId,

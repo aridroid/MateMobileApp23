@@ -15,13 +15,13 @@ class SearchScreen extends StatefulWidget {
   static final String searchScreenRoute = '/search';
   final String feedTypeName;
 
-  const SearchScreen({Key key, this.feedTypeName = ""}) : super(key: key);
+  const SearchScreen({Key? key, this.feedTypeName = ""}) : super(key: key);
   @override
   _SearchScreenState createState() => _SearchScreenState();
 }
 
 class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMixin {
-  TabController _tabController;
+  late TabController _tabController;
 
   List<Widget> _containers = [];
   List<Tab> _tabList = [];
@@ -46,7 +46,7 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
           _tabList.add(Tab(
             text: fp.feedTypeList[i].name,
           ));
-          _containers.add(_tabBarViewWithSearch(id: fp.feedTypeList[i].id));
+          _containers.add(_tabBarViewWithSearch(id: fp.feedTypeList[i].id!));
         }
 
         setState(() { _isFetching = !_isFetching;
@@ -116,7 +116,7 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
     }
   }
 
-  Widget _tabBarViewWithSearch({String id, bool isFollowingFeeds}){
+  Widget _tabBarViewWithSearch({String? id, bool? isFollowingFeeds}){
     return Column(
       children: [
         Padding(
@@ -162,7 +162,7 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
           ),
         ),
         Expanded(
-          child: TimeLine(id: id, isFollowingFeeds: isFollowingFeeds,),
+          child: TimeLine(id: id!, isFollowingFeeds: isFollowingFeeds!,),
         ),
       ],
     );

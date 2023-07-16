@@ -5,7 +5,7 @@ import '../../../asset/Colors/MateColors.dart';
 import '../../../controller/theme_controller.dart';
 
 class Explore extends StatefulWidget {
-  const Explore({Key key}) : super(key: key);
+  const Explore({Key? key}) : super(key: key);
 
   @override
   State<Explore> createState() => _ExploreState();

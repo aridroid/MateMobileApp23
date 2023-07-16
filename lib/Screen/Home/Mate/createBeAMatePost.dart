@@ -13,7 +13,7 @@ import '../../../constant.dart';
 import '../../../controller/theme_controller.dart';
 
 class CreateBeAMatePost extends StatefulWidget {
-  const CreateBeAMatePost({Key key}) : super(key: key);
+  const CreateBeAMatePost({Key? key}) : super(key: key);
 
   @override
   _CreateBeAMatePostState createState() => _CreateBeAMatePostState();
@@ -22,15 +22,19 @@ class CreateBeAMatePost extends StatefulWidget {
 class _CreateBeAMatePostState extends State<CreateBeAMatePost> {
   final _formKey = GlobalKey<FormState>();
   FocusNode focusNode= FocusNode();
-  String _title;
-  String _portfolio;
-  String _description;
-  String _fromDate;
-  String _toDate;
-  String _fromTime;
-  String _toTime;
-  String _linkText;
-  String _link;
+  TextEditingController _fromDateController = TextEditingController();
+  TextEditingController _toDateController = TextEditingController();
+  TextEditingController _fromTimeController = TextEditingController();
+  TextEditingController _toTimeController = TextEditingController();
+  String? _title;
+  String? _portfolio;
+  String? _description;
+  String? _fromDate;
+  String? _toDate;
+  String? _fromTime;
+  String? _toTime;
+  String? _linkText;
+  String? _link;
   final dateFormat = DateFormat("MM-dd-yyyy");
   final timeFormat = DateFormat("HH:mm");
   ThemeController themeController = Get.find<ThemeController>();
@@ -38,10 +42,10 @@ class _CreateBeAMatePostState extends State<CreateBeAMatePost> {
   int descriptionLength= 0;
   int linkLength= 0;
   int linkTextLength= 0;
-  File _image;
-  String _base64encodedImage;
-  File _video;
-  String _base64encodedVideo;
+  File? _image;
+  String? _base64encodedImage;
+  File? _video;
+  String? _base64encodedVideo;
   final picker = ImagePicker();
   bool isLoading = false;
 
@@ -157,7 +161,7 @@ class _CreateBeAMatePostState extends State<CreateBeAMatePost> {
                                 _title = value;
                               },
                               validator: (value) {
-                                if(value.isEmpty){
+                                if(value!.isEmpty){
                                   return "Please Enter Title";
                                 }else
                                   return null;
@@ -197,7 +201,7 @@ class _CreateBeAMatePostState extends State<CreateBeAMatePost> {
                                 _description = value;
                               },
                               validator: (value) {
-                                if(value.isEmpty){
+                                if(value!.isEmpty){
                                   return "Please Type Description";
                                 }else
                                   return null;
@@ -370,33 +374,17 @@ class _CreateBeAMatePostState extends State<CreateBeAMatePost> {
                               ),
                             ),
                             SizedBox(height: 10,),
-                            DateTimeField(
-                              format: dateFormat,
-                              decoration: _customInputDecoration(labelText: 'Available From', icon: Icons.perm_identity),
-                              cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
-                              style:  TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 0.1,
-                                color: themeController.isDarkMode?Colors.white:Colors.black,
-                              ),
-                              textInputAction: TextInputAction.done,
-                              onShowPicker: (context, currentValue) {
-                                return showDatePicker(
-                                    context: context,
-                                    firstDate: DateTime(1900),
-                                    initialDate: currentValue ?? DateTime.now(),
-                                    lastDate: DateTime(2100));
-                              },
-                              onSaved: (value) {
-                                print('onSaved fromDate = $value');
+                            TextFormField(
+                              controller: _fromDateController,
+                              onTap: ()async{
+                                DateTime ? value = await getDate(context:context);
                                 _fromDate = value!=null?value.toString():null;
+                                if(value!=null){
+                                  _fromDateController.text = value.toString();
+                                }
                               },
-                            ),
-                            SizedBox(height: 10,),
-                            DateTimeField(
-                              format: dateFormat,
-                              decoration: _customInputDecoration(labelText: 'Available To', icon: Icons.perm_identity),
+                              readOnly: true,
+                              decoration: _customInputDecoration(labelText: 'Available From', icon: Icons.calendar_today_outlined,isSuffix: true),
                               cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
                               style:  TextStyle(
                                 fontSize: 14,
@@ -405,18 +393,88 @@ class _CreateBeAMatePostState extends State<CreateBeAMatePost> {
                                 color: themeController.isDarkMode?Colors.white:Colors.black,
                               ),
                               textInputAction: TextInputAction.done,
-                              onShowPicker: (context, currentValue) {
-                                return showDatePicker(
-                                    context: context,
-                                    firstDate: DateTime(1900),
-                                    initialDate: currentValue ?? DateTime.now(),
-                                    lastDate: DateTime(2100));
-                              },
-                              onSaved: (value) {
-                                print('onSaved toDate = $value');
-                                _toDate = value!=null?value.toString():null;
+                              maxLength: 50,
+                              validator: (value) {
+                                if(value!.isEmpty){
+                                  return "This field is required";
+                                }
+                                return null;
                               },
                             ),
+                            // DateTimeField(
+                            //   format: dateFormat,
+                            //   decoration: _customInputDecoration(labelText: 'Available From', icon: Icons.perm_identity),
+                            //   cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                            //   style:  TextStyle(
+                            //     fontSize: 14,
+                            //     fontWeight: FontWeight.w500,
+                            //     letterSpacing: 0.1,
+                            //     color: themeController.isDarkMode?Colors.white:Colors.black,
+                            //   ),
+                            //   textInputAction: TextInputAction.done,
+                            //   onShowPicker: (context, currentValue) {
+                            //     return showDatePicker(
+                            //         context: context,
+                            //         firstDate: DateTime(1900),
+                            //         initialDate: currentValue ?? DateTime.now(),
+                            //         lastDate: DateTime(2100));
+                            //   },
+                            //   onSaved: (value) {
+                            //     print('onSaved fromDate = $value');
+                            //     _fromDate = value!=null?value.toString():null;
+                            //   },
+                            // ),
+                            SizedBox(height: 10,),
+                            TextFormField(
+                              controller: _toDateController,
+                              onTap: ()async{
+                                DateTime ? value = await getDate(context:context);
+                                _toDate = value!=null?value.toString():null;
+                                if(value!=null){
+                                  _toDateController.text = value.toString();
+                                }
+                              },
+                              readOnly: true,
+                              decoration: _customInputDecoration(labelText: 'Available To', icon: Icons.calendar_today_outlined,isSuffix: true),
+                              cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                              style:  TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 0.1,
+                                color: themeController.isDarkMode?Colors.white:Colors.black,
+                              ),
+                              textInputAction: TextInputAction.done,
+                              maxLength: 50,
+                              validator: (value) {
+                                if(value!.isEmpty){
+                                  return "This field is required";
+                                }
+                                return null;
+                              },
+                            ),
+                            // DateTimeField(
+                            //   format: dateFormat,
+                            //   decoration: _customInputDecoration(labelText: 'Available To', icon: Icons.perm_identity),
+                            //   cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                            //   style:  TextStyle(
+                            //     fontSize: 14,
+                            //     fontWeight: FontWeight.w500,
+                            //     letterSpacing: 0.1,
+                            //     color: themeController.isDarkMode?Colors.white:Colors.black,
+                            //   ),
+                            //   textInputAction: TextInputAction.done,
+                            //   onShowPicker: (context, currentValue) {
+                            //     return showDatePicker(
+                            //         context: context,
+                            //         firstDate: DateTime(1900),
+                            //         initialDate: currentValue ?? DateTime.now(),
+                            //         lastDate: DateTime(2100));
+                            //   },
+                            //   onSaved: (value) {
+                            //     print('onSaved toDate = $value');
+                            //     _toDate = value!=null?value.toString():null;
+                            //   },
+                            // ),
                             SizedBox(height: 30,),
                             Padding(
                               padding: const EdgeInsets.only(left: 2,right: 2),
@@ -431,33 +489,17 @@ class _CreateBeAMatePostState extends State<CreateBeAMatePost> {
                               ),
                             ),
                             SizedBox(height: 10,),
-                            DateTimeField(
-                              format: timeFormat,
-                              decoration: _customInputDecoration(labelText: 'Available From', icon: Icons.perm_identity),
-                              cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
-                              style:  TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 0.1,
-                                color: themeController.isDarkMode?Colors.white:Colors.black,
-                              ),
-                              textInputAction: TextInputAction.done,
-                              onShowPicker: (context, currentValue) async {
-                                final time = await showTimePicker(
-                                  context: context,
-                                  initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
-                                );
-                                return DateTimeField.convert(time);
-                              },
-                              onSaved: (value) {
-                                print('onSaved fromTime = $value');
+                            TextFormField(
+                              onTap: ()async{
+                                TimeOfDay? value = await selectTime(context);
                                 _fromTime = value!=null?value.toString():null;
+                                if(value!=null){
+                                  _fromTimeController.text = value.toString();
+                                }
                               },
-                            ),
-                            SizedBox(height: 10,),
-                            DateTimeField(
-                              format: timeFormat,
-                              decoration: _customInputDecoration(labelText: 'Available To', icon: Icons.perm_identity),
+                              controller: _fromTimeController,
+                              readOnly: true,
+                              decoration: _customInputDecoration(labelText: 'Available From', icon: Icons.access_time,isSuffix: true),
                               cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
                               style:  TextStyle(
                                 fontSize: 14,
@@ -466,18 +508,88 @@ class _CreateBeAMatePostState extends State<CreateBeAMatePost> {
                                 color: themeController.isDarkMode?Colors.white:Colors.black,
                               ),
                               textInputAction: TextInputAction.done,
-                              onShowPicker: (context, currentValue) async {
-                                final time = await showTimePicker(
-                                  context: context,
-                                  initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
-                                );
-                                return DateTimeField.convert(time);
-                              },
-                              onSaved: (value) {
-                                print('onSaved toTime = $value');
-                                _toTime = value!=null?value.toString():null;
+                              maxLength: 50,
+                              validator: (value) {
+                                if(value!.isEmpty){
+                                  return "This field is required";
+                                }
+                                return null;
                               },
                             ),
+                            // DateTimeField(
+                            //   format: timeFormat,
+                            //   decoration: _customInputDecoration(labelText: 'Available From', icon: Icons.perm_identity),
+                            //   cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                            //   style:  TextStyle(
+                            //     fontSize: 14,
+                            //     fontWeight: FontWeight.w500,
+                            //     letterSpacing: 0.1,
+                            //     color: themeController.isDarkMode?Colors.white:Colors.black,
+                            //   ),
+                            //   textInputAction: TextInputAction.done,
+                            //   onShowPicker: (context, currentValue) async {
+                            //     final time = await showTimePicker(
+                            //       context: context,
+                            //       initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
+                            //     );
+                            //     return DateTimeField.convert(time!);
+                            //   },
+                            //   onSaved: (value) {
+                            //     print('onSaved fromTime = $value');
+                            //     _fromTime = value!=null?value.toString():null;
+                            //   },
+                            // ),
+                            SizedBox(height: 10,),
+                            TextFormField(
+                              onTap: ()async{
+                                TimeOfDay? value = await selectTime(context);
+                                _toTime = value!=null?value.toString():null;
+                                if(value!=null){
+                                  _toTimeController.text = value.toString();
+                                }
+                              },
+                              controller: _toTimeController,
+                              readOnly: true,
+                              decoration: _customInputDecoration(labelText: 'Available To', icon: Icons.access_time,isSuffix: true),
+                              cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                              style:  TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 0.1,
+                                color: themeController.isDarkMode?Colors.white:Colors.black,
+                              ),
+                              textInputAction: TextInputAction.done,
+                              maxLength: 50,
+                              validator: (value) {
+                                if(value!.isEmpty){
+                                  return "This field is required";
+                                }
+                                return null;
+                              },
+                            ),
+                            // DateTimeField(
+                            //   format: timeFormat,
+                            //   decoration: _customInputDecoration(labelText: 'Available To', icon: Icons.perm_identity),
+                            //   cursorColor: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+                            //   style:  TextStyle(
+                            //     fontSize: 14,
+                            //     fontWeight: FontWeight.w500,
+                            //     letterSpacing: 0.1,
+                            //     color: themeController.isDarkMode?Colors.white:Colors.black,
+                            //   ),
+                            //   textInputAction: TextInputAction.done,
+                            //   onShowPicker: (context, currentValue) async {
+                            //     final time = await showTimePicker(
+                            //       context: context,
+                            //       initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
+                            //     );
+                            //     return DateTimeField.convert(time!);
+                            //   },
+                            //   onSaved: (value) {
+                            //     print('onSaved toTime = $value');
+                            //     _toTime = value!=null?value.toString():null;
+                            //   },
+                            // ),
                             _imageSelectionButton(),
                           ],
                         ),
@@ -530,7 +642,7 @@ class _CreateBeAMatePostState extends State<CreateBeAMatePost> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               ),
               onPressed: (){
-                if(_formKey.currentState.validate()) _submitForm(context);
+                if(_formKey.currentState!.validate()) _submitForm(context);
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -560,11 +672,11 @@ class _CreateBeAMatePostState extends State<CreateBeAMatePost> {
 
   void _submitForm(BuildContext context) async {
     FocusScope.of(context).unfocus();
-    bool validated = _formKey.currentState.validate();
+    bool validated = _formKey.currentState!.validate();
     if (validated) {
-      _formKey.currentState.save();
+      _formKey.currentState!.save();
       Map<String, dynamic> body={"title":_title, "description": _description};
-      if(_portfolio!=null && _portfolio.isNotEmpty){
+      if(_portfolio!=null && _portfolio!.isNotEmpty){
         body['portfolio_link']=_portfolio;
       }
       if(_fromDate!=null){
@@ -595,7 +707,73 @@ class _CreateBeAMatePostState extends State<CreateBeAMatePost> {
     }
   }
 
-  InputDecoration _customInputDecoration({@required String labelText, IconData icon}) {
+  Future<DateTime?> getDate({required BuildContext context}) async {
+    DateTime? value = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2050),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light(),
+          child: child!,
+        );
+      },
+    );
+    return value;
+    // if(dateLocal!=null){
+    //   dateValue = dateLocal.toString();
+    //   print(dateValue);
+    //   List<String> split = dateLocal.toString().split(" ");
+    //   DateTime dateParsed = DateTime.parse(split[0]);
+    //   String dateFormatted = DateFormat('yyyy-MM-dd').format(dateParsed);
+    //   _date.text = dateFormatted;
+    // }
+  }
+
+  Future<TimeOfDay?> selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+          child: child!,
+        );
+      },
+    );
+    return picked;
+    // if (picked != null) {
+    //   final now = new DateTime.now();
+    //   final timeStart = DateTime(now.year, now.month, now.day, picked.hour, picked.minute);
+    //   String minute = picked.minute.toString().padLeft(2,'0');
+    //   String timeFormatted = picked.hour.toString() + ":" + minute;
+    //   timeValue = timeStart.toString();
+    //   print(timeValue);
+    //   _time.text = timeFormatted;
+    // }
+  }
+
+  // InputDecoration _customInputDecoration({required String labelText, IconData? icon}) {
+  //   return InputDecoration(
+  //     hintStyle: TextStyle(
+  //       fontSize: 16,
+  //       fontFamily: 'Poppins',
+  //       fontWeight: FontWeight.w400,
+  //       color: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+  //     ),
+  //     hintText: labelText,
+  //     counterText: "",
+  //     fillColor: themeController.isDarkMode ? MateColors.containerDark : MateColors.containerLight,
+  //     filled: true,
+  //     focusedBorder: commonBorder,
+  //     enabledBorder: commonBorder,
+  //     disabledBorder: commonBorder,
+  //     errorBorder: commonBorder,
+  //     focusedErrorBorder: commonBorder,
+  //   );
+  // }
+  InputDecoration _customInputDecoration({required String labelText, IconData? icon,bool isSuffix=false}) {
     return InputDecoration(
       hintStyle: TextStyle(
         fontSize: 16,
@@ -604,6 +782,11 @@ class _CreateBeAMatePostState extends State<CreateBeAMatePost> {
         color: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
       ),
       hintText: labelText,
+      suffixIcon: isSuffix?Icon(
+        icon,
+        size: 20,
+        color: themeController.isDarkMode?MateColors.helpingTextDark:MateColors.helpingTextLight,
+      ):Offstage(),
       counterText: "",
       fillColor: themeController.isDarkMode ? MateColors.containerDark : MateColors.containerLight,
       filled: true,
@@ -614,5 +797,6 @@ class _CreateBeAMatePostState extends State<CreateBeAMatePost> {
       focusedErrorBorder: commonBorder,
     );
   }
+
 
 }

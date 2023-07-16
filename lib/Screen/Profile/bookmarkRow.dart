@@ -21,7 +21,7 @@ class BookmarkRow extends StatefulWidget {
   List<Media> media;
 
 
-  BookmarkRow({this.id, this.feedId, this.title, this.description, this.created, this.user, this.location, this.media});
+  BookmarkRow({required this.id, required this.feedId, required this.title, required this.description, required this.created, required this.user, required this.location, required this.media});
 
   @override
   _HomeRowState createState() => _HomeRowState(this.id, this.feedId, this.title,this.description, this.created, this.user, this.location, this.media);
@@ -38,7 +38,7 @@ class _HomeRowState extends State<BookmarkRow> {
   final String location;
   final List<Media> media;
 
-  auth.User _currentUser = auth.FirebaseAuth.instance.currentUser;
+  auth.User _currentUser = auth.FirebaseAuth.instance.currentUser!;
 
   _HomeRowState(this.id, this.feedId, this.title, this.description, this.created, this.user, this.location, this.media);
 
@@ -59,7 +59,7 @@ class _HomeRowState extends State<BookmarkRow> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12.0),
             child: Image.network(
-              media[i].url,
+              media[i].url!,
               fit: BoxFit.cover,
             ),
           ),
@@ -79,18 +79,18 @@ class _HomeRowState extends State<BookmarkRow> {
       children: <Widget>[
         InkWell(
           child: ListTile(
-            leading: user.photoUrl.length == 0
+            leading: user.photoUrl!.length == 0
                 ? CircleAvatar(
               child: Text(
-                user.name[0],
+                user.name![0],
               ),
             )
                 : CircleAvatar(
               backgroundImage: NetworkImage(
-                user.photoUrl,
+                user.photoUrl!,
               ),
             ),
-            title: Text(user.name, style: TextStyle(fontFamily: 'Quicksand', color: MateColors.activeIcons)),
+            title: Text(user.name!, style: TextStyle(fontFamily: 'Quicksand', color: MateColors.activeIcons)),
             subtitle: Text(
               '$created from $location',
               style: TextStyle(color: Colors.white54),

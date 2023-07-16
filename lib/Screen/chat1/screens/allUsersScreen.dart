@@ -17,9 +17,9 @@ class AllUsersScreen extends StatefulWidget {
 
 class _SearchPageState extends State<AllUsersScreen> {
   // data
-  User _user = FirebaseAuth.instance.currentUser;
+  User _user = FirebaseAuth.instance.currentUser!;
   String searchText="";
-  bool contactPermission;
+  bool? contactPermission;
 
   // initState()
   @override
@@ -85,37 +85,37 @@ class _SearchPageState extends State<AllUsersScreen> {
           ),
         ),
         Expanded(
-          child: FutureBuilder(
+          child: FutureBuilder<QuerySnapshot>(
               future: DatabaseService().getAllUserData(_user.uid),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return ListView.builder(
                     shrinkWrap: true,
-                    itemCount: snapshot.data.docs.length,
+                    itemCount: snapshot.data!.docs.length,
                     itemBuilder: (context, index) =>
                         Visibility(
-                          visible: searchText.isNotEmpty?snapshot.data.docs[index].data()["displayName"].toLowerCase().contains(searchText.trim().toLowerCase()): true,
+                          visible: searchText.isNotEmpty?snapshot.data!.docs[index].get('displayName').toLowerCase().contains(searchText.trim().toLowerCase()): true,
                           child: Padding(
                             padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 2.0),
                             child: ListTile(
                               onTap: () =>
                                   Get.to(() =>
                                       Chat(
-                                        peerUuid: snapshot.data.docs[index].data()["uuid"],
+                                        peerUuid: snapshot.data!.docs[index].get('uuid'),
                                         currentUserId: _user.uid,
-                                        peerId: snapshot.data.docs[index].data()["uid"],
-                                        peerName: snapshot.data.docs[index].data()["displayName"],
-                                        peerAvatar: snapshot.data.docs[index].data()["photoURL"],
+                                        peerId: snapshot.data!.docs[index].get('uid'),
+                                        peerName: snapshot.data!.docs[index].get('displayName'),
+                                        peerAvatar: snapshot.data!.docs[index].get('photoURL'),
                                       )),
                               leading: CircleAvatar(
                                 radius: 20,
                                 backgroundColor: MateColors.activeIcons,
                                 backgroundImage: NetworkImage(
-                                  snapshot.data.docs[index].data()["photoURL"]??"",
+                                  snapshot.data!.docs[index].get('photoURL')??"",
                                 ),
 
                               ),
-                              title: Text(snapshot.data.docs[index].data()["displayName"], style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w700, color: MateColors.activeIcons)),
+                              title: Text(snapshot.data!.docs[index].get('displayName'), style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w700, color: MateColors.activeIcons)),
                               subtitle: Text(
                                 "Tap to send message",
                                 style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w100, color: Colors.grey[50]),

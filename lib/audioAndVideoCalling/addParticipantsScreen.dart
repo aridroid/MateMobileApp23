@@ -20,7 +20,7 @@ class AddParticipantsToCallScreen extends StatefulWidget {
   final String image;
   final String name;
   final bool isGroupCall;
-  const AddParticipantsToCallScreen({Key key, this.channelName, this.token, this.callType, this.image, this.name, this.isGroupCall}) : super(key: key);
+  const AddParticipantsToCallScreen({Key? key, required this.channelName, required this.token, required this.callType, required this.image, required this.name, required this.isGroupCall}) : super(key: key);
 
   @override
   State<AddParticipantsToCallScreen> createState() => _AddParticipantsToCallScreenState();
@@ -28,13 +28,13 @@ class AddParticipantsToCallScreen extends StatefulWidget {
 
 class _AddParticipantsToCallScreenState extends State<AddParticipantsToCallScreen> {
   ThemeController themeController = Get.find<ThemeController>();
-  QuerySnapshot searchResultSnapshot;
+  late QuerySnapshot searchResultSnapshot;
   bool isLoading = true;
   bool hasUserSearched = false;
-  User _user = FirebaseAuth.instance.currentUser;
+  User _user = FirebaseAuth.instance.currentUser!;
   String searchedName="";
   List<UserListModel> userList = [];
-  String tokenApi;
+  late String tokenApi;
   final AddParticipantsToCallController _addUserController = Get.put(AddParticipantsToCallController());
 
   @override
@@ -56,7 +56,7 @@ class _AddParticipantsToCallScreenState extends State<AddParticipantsToCallScree
         }
       }
       userList.sort((a, b) {
-        return a.displayName.toLowerCase().compareTo(b.displayName.toLowerCase());
+        return a.displayName!.toLowerCase().compareTo(b.displayName!.toLowerCase());
       });
       setState(() {
         isLoading = false;
@@ -68,7 +68,7 @@ class _AddParticipantsToCallScreenState extends State<AddParticipantsToCallScree
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    tokenApi = preferences.getString("token");
+    tokenApi = preferences.getString("tokenApp")!;
   }
 
   @override
@@ -84,7 +84,7 @@ class _AddParticipantsToCallScreenState extends State<AddParticipantsToCallScree
             channelName: widget.channelName,
             token: widget.token,
             callerImage: widget.isGroupCall ? widget.image!=""?widget.image:"" : _user.photoURL??"",
-            callerName: widget.isGroupCall ? widget.name : _user.displayName,
+            callerName: widget.isGroupCall ? widget.name : _user.displayName!,
             uid: _addUserController.addConnectionUid,
             callType: widget.callType,
             tokenApi: tokenApi,
@@ -194,12 +194,12 @@ class _AddParticipantsToCallScreenState extends State<AddParticipantsToCallScree
         itemBuilder: (context, index) {
           print(userList[index].displayName);
           return groupTile(
-            userList[index].uuid,
-            userList[index].uid,
-            userList[index].displayName,
-            userList[index].photoURL,
-            userList[index].email,
-            index==0? true: userList[index].displayName[0].toLowerCase() != userList[index-1].displayName[0].toLowerCase()? true : false,
+            userList[index].uuid!,
+            userList[index].uid!,
+            userList[index].displayName!,
+            userList[index].photoURL!,
+            userList[index].email!,
+            index==0? true: userList[index].displayName?[0].toLowerCase() != userList[index-1].displayName?[0].toLowerCase()? true : false,
             index,
           );
         }) :
@@ -235,7 +235,7 @@ class _AddParticipantsToCallScreenState extends State<AddParticipantsToCallScree
             if(_addUserController.addConnectionUid.contains(userList[index].uid)){
               _addUserController.addConnectionUid.remove(userList[index].uid);
             }else{
-              _addUserController.addConnectionUid.add(userList[index].uid);
+              _addUserController.addConnectionUid.add(userList[index].uid!);
             }
           },
           contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
@@ -274,7 +274,7 @@ class _AddParticipantsToCallScreenState extends State<AddParticipantsToCallScree
     );
   }
 
-  Future<String> notifyPushNotification({String channelName,String token,String callerName,String callerImage,List<String> uid,String callType,String tokenApi})async{
+  Future<String> notifyPushNotification({required String channelName,required String token,required String callerName,required String callerImage,required List<String> uid,required String callType,required String tokenApi})async{
     String result = "";
     debugPrint("https://api.mateapp.us/api/agora/callPushNotify");
     Map body = {
@@ -314,10 +314,10 @@ class _AddParticipantsToCallScreenState extends State<AddParticipantsToCallScree
 }
 
 class UserListModel {
-  String uuid;
-  String uid;
-  String displayName;
-  String photoURL;
-  String email;
+  String? uuid;
+  String? uid;
+  String? displayName;
+  String? photoURL;
+  String? email;
   UserListModel({this.uuid, this.uid, this.displayName,this.photoURL,this.email});
 }

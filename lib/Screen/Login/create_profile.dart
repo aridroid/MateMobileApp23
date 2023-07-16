@@ -26,7 +26,7 @@ class CreateProfile extends StatefulWidget {
   final String fullName;
   final String email;
   final String password;
-  CreateProfile({this.photoUrl,this.coverPhotoUrl,this.fullName, this.email, this.password});
+  CreateProfile({required this.photoUrl,required this.coverPhotoUrl,required this.fullName, required this.email, required this.password});
   static final String routeName = '/createProfile';
 
   @override
@@ -36,23 +36,23 @@ class CreateProfile extends StatefulWidget {
 
 class _CreateProfileState extends State<CreateProfile> {
   ThemeController themeController = Get.find<ThemeController>();
-  TextEditingController fullNameController;
+  late TextEditingController fullNameController;
   TextEditingController universityController = TextEditingController();
   String imageSource = "Camera";
   final picker = ImagePicker();
   String profileImage ="";
   String coverImage= "";
-  File _profileImage;
-  File _coverImage;
-  String _base64encodedImageForProfilePic;
-  String _base64encodedImageForCoverPIc;
+  File? _profileImage;
+  File? _coverImage;
+  String? _base64encodedImageForProfilePic;
+  String? _base64encodedImageForCoverPIc;
   final formKey = GlobalKey<FormState>();
   AuthUserService authUserService = AuthUserService();
   bool isLoading = false;
-  String universityId;
+  String? universityId;
   List<Datum> universityList = [];
-  String token;
-  FirebaseMessaging _firebaseMessaging;
+  String? token;
+  late FirebaseMessaging _firebaseMessaging;
 
   @override
   void initState(){
@@ -67,13 +67,13 @@ class _CreateProfileState extends State<CreateProfile> {
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp");
     if(token==null){
       SignupController signupController = Get.find<SignupController>();
       token = signupController.token;
     }
-    log(token);
-    universityList = await authUserService.getUniversityList(token: token);
+    log(token!);
+    universityList = await authUserService.getUniversityList(token: token!);
     print(universityList);
     setState(() {});
   }
@@ -280,7 +280,7 @@ class _CreateProfileState extends State<CreateProfile> {
                               },
                               showSearchBox: true,
                               items: universityList,
-                              itemAsString: (Datum u) => u.name,
+                              itemAsString: (Datum? u) => u!.name!,
                               dropdownSearchDecoration: InputDecoration(
                                 hintText: universityController.text.isEmpty?"Pick one":universityController.text,
                                 hintStyle: TextStyle(
@@ -292,7 +292,7 @@ class _CreateProfileState extends State<CreateProfile> {
                                 border: InputBorder.none,
                               ),
                               onChanged: (value){
-                                universityController.text = value.name;
+                                universityController.text = value!.name!;
                                 for(int i=0;i<universityList.length;i++){
                                   if(universityList[i].name == value.name){
                                     universityId = universityList[i].id.toString();
@@ -383,9 +383,9 @@ class _CreateProfileState extends State<CreateProfile> {
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                               ),
                               onPressed: ()async{
-                                if(formKey.currentState.validate()){
+                                if(formKey.currentState!.validate()){
                                   if(universityController.text!=""){
-                                    String firstName,lastName;
+                                    String? firstName,lastName;
                                     var names;
                                     if(fullNameController.text.contains(" ")){
                                       names = fullNameController.text.split(' ');
@@ -410,30 +410,30 @@ class _CreateProfileState extends State<CreateProfile> {
                                     print(fullNameController.text);
                                     if(profileImage!=""){
                                       if(!profileImage.contains("http")){
-                                        authUserService.updatePhotoWhileSignup(imageFile: _base64encodedImageForProfilePic);
+                                        authUserService.updatePhotoWhileSignup(imageFile: _base64encodedImageForProfilePic!);
                                       }
                                     }
                                     if(coverImage!=""){
                                       if(!coverImage.contains("http")){
-                                        authUserService.updateCoverPhotoWhileSignup(imageFile: _base64encodedImageForCoverPIc);
+                                        authUserService.updateCoverPhotoWhileSignup(imageFile: _base64encodedImageForCoverPIc!);
                                       }
                                     }
                                     setState(() {
                                       isLoading = true;
                                     });
                                     String response = await authUserService.createProfile(
-                                      firstName: firstName,
-                                      lastName: lastName,
+                                      firstName: firstName!,
+                                      lastName: lastName!,
                                       displayName: fullNameController.text,
-                                      universityId: universityId,
+                                      universityId: universityId!,
                                     );
                                     if(response=="User profile updated."){
-                                      String deviceId = await _firebaseMessaging.getToken();
+                                      String? deviceId = await _firebaseMessaging.getToken();
                                       print(deviceId);
                                       dynamic response = await authUserService.signInWithEmail(
                                         email: widget.email,
                                         password: widget.password,
-                                        deviceId: deviceId,
+                                        deviceId: deviceId!,
                                       );
                                       if(response == "Invalid user credentials."){
                                         setState(() {
@@ -633,7 +633,7 @@ class _CreateProfileState extends State<CreateProfile> {
   }
 
   Future _getProfileImage(int option) async {
-    PickedFile pickImage;
+    PickedFile? pickImage;
     if (option == 1) {
       pickImage = await picker.getImage(source: ImageSource.gallery, imageQuality: 50);
     } else
@@ -642,12 +642,12 @@ class _CreateProfileState extends State<CreateProfile> {
     if (pickImage != null) {
 
       setState(() {
-        profileImage = pickImage.path;
+        profileImage = pickImage!.path;
       });
 
       _profileImage = File(pickImage.path);
 
-      var img = _profileImage.readAsBytesSync();
+      var img = _profileImage!.readAsBytesSync();
 
       _base64encodedImageForProfilePic = base64Encode(img);
 
@@ -786,7 +786,7 @@ class _CreateProfileState extends State<CreateProfile> {
   }
 
   Future _getCoverImage(int option) async {
-    PickedFile pickImage;
+    PickedFile? pickImage;
     if (option == 1) {
       pickImage = await picker.getImage(source: ImageSource.gallery, imageQuality: 50);
     } else
@@ -794,12 +794,12 @@ class _CreateProfileState extends State<CreateProfile> {
 
     if (pickImage != null) {
       setState(() {
-        coverImage = pickImage.path;
+        coverImage = pickImage!.path;
       });
 
       _coverImage = File(pickImage.path);
 
-      var img = _coverImage.readAsBytesSync();
+      var img = _coverImage!.readAsBytesSync();
 
       _base64encodedImageForCoverPIc = base64Encode(img);
 
@@ -812,8 +812,8 @@ class _CreateProfileState extends State<CreateProfile> {
   }
 
 
-  String validateTextField(String value) {
-    if(value.isEmpty){
+  String? validateTextField(String? value) {
+    if(value!.isEmpty){
       return "This field is required";
     }
     return null;

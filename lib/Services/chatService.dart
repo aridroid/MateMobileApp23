@@ -9,8 +9,8 @@ import 'APIService.dart';
 import 'BackEndAPIRoutes.dart';
 
 class ChatService {
-  APIService _apiService;
-  BackEndAPIRoutes _backEndAPIRoutes;
+  late APIService _apiService;
+  late BackEndAPIRoutes _backEndAPIRoutes;
 
   ChatService() {
     _apiService = APIService();

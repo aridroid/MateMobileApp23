@@ -19,12 +19,12 @@ class _SearchPageState extends State<SearchPage> {
   // data
   TextEditingController searchEditingController = new TextEditingController();
   FocusNode focusNode= FocusNode();
-  QuerySnapshot searchResultSnapshot;
+  QuerySnapshot? searchResultSnapshot;
   bool isLoading = true;
   bool hasUserSearched = false;
   // bool _isJoined = false;
   String _userName = '';
-  User _user;
+  User? _user;
   String searchedName="";
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -56,7 +56,7 @@ class _SearchPageState extends State<SearchPage> {
   // functions
   _getCurrentUserNameAndUid() async {
     await HelperFunctions.getUserNameSharedPreference().then((value) {
-      _userName = value;
+      _userName = value!;
     });
     _user = FirebaseAuth.instance.currentUser;
   }
@@ -86,7 +86,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   _joinValueInGroup(String userName, String groupId, String groupName, String admin) async {
-    bool value = await DatabaseService(uid: _user.uid).isUserJoined(groupId, groupName, userName);
+    bool value = await DatabaseService(uid: _user!.uid).isUserJoined(groupId, groupName, userName);
     setState(() {
       // _isJoined = value;
     });
@@ -97,27 +97,27 @@ class _SearchPageState extends State<SearchPage> {
     return hasUserSearched
         ? ListView.builder(
             shrinkWrap: true,
-            itemCount: searchResultSnapshot.docs.length,
+            itemCount: searchResultSnapshot!.docs.length,
             itemBuilder: (context, index) {
 
-              return searchedName!="" && searchResultSnapshot.docs[index]["groupName"].toString().toLowerCase().contains(searchedName.toLowerCase())?
+              return searchedName!="" && searchResultSnapshot!.docs[index]["groupName"].toString().toLowerCase().contains(searchedName.toLowerCase())?
               Visibility(
-                visible: /*?*/ searchResultSnapshot.docs[index]["isPrivate"] != null
-                    ? searchResultSnapshot.docs[index]["isPrivate"] == true
-                        ? searchResultSnapshot.docs[index]["members"].contains(_user.uid + '_' + _user.displayName)
+                visible: /*?*/ searchResultSnapshot!.docs[index]["isPrivate"] != null
+                    ? searchResultSnapshot!.docs[index]["isPrivate"] == true
+                        ? searchResultSnapshot!.docs[index]["members"].contains(_user!.uid + '_' + _user!.displayName!)
                         : true
                     : true /*: false*/,
                 child: groupTile(
-                  Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName,
-                  searchResultSnapshot.docs[index]["groupId"],
-                  searchResultSnapshot.docs[index]["groupName"].toString(),
-                  searchResultSnapshot.docs[index]["admin"],
-                  searchResultSnapshot.docs[index]["members"].length,
-                  searchResultSnapshot.docs[index]["maxParticipantNumber"],
-                  searchResultSnapshot.docs[index]["isPrivate"],
-                  searchResultSnapshot.docs[index]["members"].contains(_user.uid + '_' + _user.displayName),
-                  searchResultSnapshot.docs[index]["groupIcon"],
-                  searchResultSnapshot.docs[index]["members"],
+                  Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName!,
+                  searchResultSnapshot!.docs[index]["groupId"],
+                  searchResultSnapshot!.docs[index]["groupName"].toString(),
+                  searchResultSnapshot!.docs[index]["admin"],
+                  searchResultSnapshot!.docs[index]["members"].length,
+                  searchResultSnapshot!.docs[index]["maxParticipantNumber"],
+                  searchResultSnapshot!.docs[index]["isPrivate"],
+                  searchResultSnapshot!.docs[index]["members"].contains(_user!.uid + '_' + _user!.displayName!),
+                  searchResultSnapshot!.docs[index]["groupIcon"],
+                  searchResultSnapshot!.docs[index]["members"],
                 ),
               ):SizedBox();
             })
@@ -166,7 +166,7 @@ class _SearchPageState extends State<SearchPage> {
           else if (maxParticipant != null
                   ? totalParticipant < maxParticipant
                   : true) {
-            await DatabaseService(uid: _user.uid).togglingGroupJoin(groupId, groupName, userName);
+            await DatabaseService(uid: _user!.uid).togglingGroupJoin(groupId, groupName, userName);
               // await DatabaseService(uid: _user.uid).userJoinGroup(groupId, groupName, userName);
               _showScaffold('Successfully joined the group "$groupName"');
               Future.delayed(Duration(milliseconds: 100), () {

@@ -23,9 +23,9 @@ import '../controller/signup_controller.dart';
 import '../groupChat/services/database_service.dart';
 
 class AuthUserService {
-  APIService _apiService;
-  BackEndAPIRoutes _backEndAPIRoutes;
-  GetStorage _storage;
+  late APIService _apiService;
+  late BackEndAPIRoutes _backEndAPIRoutes;
+  late GetStorage _storage;
 
   AuthUserService() {
     _apiService = APIService();
@@ -102,7 +102,7 @@ class AuthUserService {
   Future updateAchievements(Map<String, dynamic> data) async {
     try {
       final response = await _apiService.post(
-          uri: _backEndAPIRoutes.updateAchievements(), data: null);
+          uri: _backEndAPIRoutes.updateAchievements(), data: {});
 
       return json.decode(response.body)['message'];
     } on SocketException catch (_) {
@@ -173,7 +173,7 @@ class AuthUserService {
 
   // ignore: todo
   //TODO::work with expire timeouts
-  Future login({@required String googleToken, String deviceId}) async {
+  Future login({required String googleToken, required String deviceId}) async {
     try {
       log({"access_token": googleToken, "device_id":deviceId}.toString());
       final response = await _apiService.post(
@@ -193,7 +193,7 @@ class AuthUserService {
 
       var sp = await SharedPreferences.getInstance();
       sp.setString('googleToken', googleToken);
-      sp.setString('token', extractedData['data']['access_token']); //backend token
+      sp.setString('tokenApp', extractedData['data']['access_token']); //backend token
       sp.setString('authUserId', extractedData['data']['user']['id']);
       sp.setString('authUser', json.encode(authUser.toJson()));
 
@@ -217,7 +217,7 @@ class AuthUserService {
 
   Future<String> getGoogleTokenFromSharedPreference() async {
     var sp = await SharedPreferences.getInstance();
-    return sp.getString('googleToken');
+    return sp.getString('googleToken')!;
   }
 
   Future getAuthUserFromSharedPreference() async {
@@ -292,7 +292,7 @@ class AuthUserService {
   }
 
 
-  Future<String> signupWithEmail({String email,String password,String category})async{
+  Future<String> signupWithEmail({required String email,required String password,required String category})async{
     SignupController signupController = Get.find<SignupController>();
     String result = "";
     Map data = {
@@ -327,7 +327,7 @@ class AuthUserService {
 
 
 
-  Future<dynamic> signInWithEmail({String email,String password,String deviceId})async{
+  Future<dynamic> signInWithEmail({required String email,required String password,required String deviceId})async{
     dynamic result = "result";
     Map data = {
       "email": email,
@@ -358,14 +358,14 @@ class AuthUserService {
 
 
         var _user = await FirebaseAuth.instance.currentUser;
-        await _user.updateProfile(displayName: authUser.displayName,photoURL: authUser.photoUrl);
+        await _user!.updateProfile(displayName: authUser.displayName,photoURL: authUser.photoUrl);
 
         // var authUser = AuthUser.fromJson(extractedData['data']['user']);
         await DatabaseService().updateUserDataLoginWithEmail(authUser);
 
         var sp = await SharedPreferences.getInstance();
         //sp.setString('googleToken', googleToken);
-        sp.setString('token', extractedData['data']['access_token']); //backend token
+        sp.setString('tokenApp', extractedData['data']['access_token']); //backend token
         sp.setString('authUserId', extractedData['data']['user']['id']);
         sp.setString('authUser', json.encode(authUser.toJson()));
 
@@ -389,7 +389,7 @@ class AuthUserService {
 
 
 
-  Future<String> createProfile({String firstName,String lastName,String displayName,String universityId})async{
+  Future<String> createProfile({required String firstName,required String lastName,required String displayName,required String universityId})async{
     SignupController signupController = Get.find<SignupController>();
     String result = "";
     Map data = {
@@ -422,7 +422,7 @@ class AuthUserService {
   }
 
 
-  Future<String> updateUserProfile({String firstName,String lastName,String displayName,String universityId,String token})async{
+  Future<String> updateUserProfile({required String firstName,required String lastName,required String displayName,required String universityId,required String token})async{
     String result = "";
     Map data = {
       "first_name": firstName,
@@ -453,7 +453,7 @@ class AuthUserService {
   }
 
 
-  void updatePhotoWhileSignup({@required String imageFile})async{
+  void updatePhotoWhileSignup({required String imageFile})async{
     SignupController signupController = Get.find<SignupController>();
     Map data = {"photo": imageFile};
     debugPrint("https://api.mateapp.us/api/me/photo");
@@ -478,7 +478,7 @@ class AuthUserService {
     }
   }
 
-  void updateCoverPhotoWhileSignup({@required String imageFile})async{
+  void updateCoverPhotoWhileSignup({required String imageFile})async{
     SignupController signupController = Get.find<SignupController>();
     Map data = {"cover_photo": imageFile};
     debugPrint("https://api.mateapp.us/api/me/coverphoto");
@@ -503,7 +503,7 @@ class AuthUserService {
     }
   }
 
-  Future<List<Datum>> getUniversityList({@required String token})async{
+  Future<List<Datum>> getUniversityList({required String token})async{
     List<Datum> universityList = [];
     debugPrint("https://api.mateapp.us/api/university/list");
     try {
@@ -519,7 +519,7 @@ class AuthUserService {
         var parsed = json.decode(utf8.decode(response.bodyBytes));
         debugPrint(parsed.toString());
         UniversityListingModel universityListingModel = UniversityListingModel.fromJson(parsed);
-        universityList.addAll(universityListingModel.data);
+        universityList.addAll(universityListingModel.data!);
       }else if(response.statusCode==400){
         var parsed = json.decode(utf8.decode(response.bodyBytes));
         debugPrint(parsed.toString());
@@ -532,7 +532,7 @@ class AuthUserService {
 
 
 
-  Future<bool> deleteUser({@required String token,@required String uuid})async{
+  Future<bool> deleteUser({required String token,required String uuid})async{
     bool result = false;
     debugPrint("https://api.mateapp.us/api/users/$uuid/disable");
     try {

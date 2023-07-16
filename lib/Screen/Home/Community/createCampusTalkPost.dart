@@ -25,7 +25,7 @@ import '../../../constant.dart';
 import 'package:mate_app/Model/campusTalkTypeModel.dart' as campusTalkTypeModel;
 
 class CreateCampusTalkPost extends StatefulWidget {
-  const CreateCampusTalkPost({Key key}) : super(key: key);
+  const CreateCampusTalkPost({Key? key}) : super(key: key);
 
   @override
   _CreateCampusTalkPostState createState() => _CreateCampusTalkPostState();
@@ -34,8 +34,8 @@ class CreateCampusTalkPost extends StatefulWidget {
 class _CreateCampusTalkPostState extends State<CreateCampusTalkPost> {
   final _formKey = GlobalKey<FormState>();
   FocusNode focusNode= FocusNode();
-  String _description;
-  String _title;
+  late String _description;
+  late String _title;
   bool isAnonymous=false;
   ThemeController themeController = Get.find<ThemeController>();
   int titleLength = 0;
@@ -46,15 +46,15 @@ class _CreateCampusTalkPostState extends State<CreateCampusTalkPost> {
   List<bool> typeSelected = [];
   CampusTalkService _campusTalkService = CampusTalkService();
   final picker = ImagePicker();
-  File _image;
-  String _base64encodedImage;
-  File _video;
-  String _base64encodedVideo;
-  File _audio;
-  String _base64encodedAudio;
+  File? _image;
+  String? _base64encodedImage;
+  File? _video;
+  String? _base64encodedVideo;
+  File? _audio;
+  String? _base64encodedAudio;
   bool isPausedRecording = false;
   bool isPlaying = false;
-  Duration currentDuration;
+  Duration? currentDuration;
   AudioPlayer _audioPlayer = AudioPlayer();
   bool showDeleteIcon = true;
 
@@ -103,7 +103,7 @@ class _CreateCampusTalkPostState extends State<CreateCampusTalkPost> {
       setState(() {
         isPlaying = false;
       });
-      _audioPlayer.setFilePath(_audio.path);
+      _audioPlayer.setFilePath(_audio!.path);
       _audioPlayer.play();
       isPlaying = true;
       setState(() {});
@@ -119,7 +119,7 @@ class _CreateCampusTalkPostState extends State<CreateCampusTalkPost> {
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
     type = await _campusTalkService.getType(token: token);
     for(int i=0;i<type.length;i++){
       typeSelected.add(false);
@@ -250,10 +250,10 @@ class _CreateCampusTalkPostState extends State<CreateCampusTalkPost> {
                                 },
                                 onSaved: (value) {
                                   print('onSaved Title = $value');
-                                  _title = value;
+                                  _title = value!;
                                 },
                                 validator: (value) {
-                                  if(value.isEmpty){
+                                  if(value!.isEmpty){
                                     return "Please Enter Title";
                                   }else
                                   return null;
@@ -307,10 +307,10 @@ class _CreateCampusTalkPostState extends State<CreateCampusTalkPost> {
                                 },
                                 onSaved: (value) {
                                   print('onSaved lastName = $value');
-                                  _description = value;
+                                  _description = value!;
                                 },
                                 validator: (value) {
-                                  if(value.isEmpty){
+                                  if(value!.isEmpty){
                                     return "Please Type Description";
                                   }else
                                   return null;
@@ -337,7 +337,7 @@ class _CreateCampusTalkPostState extends State<CreateCampusTalkPost> {
                                     ),
                                     value: isAnonymous,
                                     onChanged: (newValue) {
-                                      isAnonymous=newValue;
+                                      isAnonymous=newValue!;
                                       setState(() {});
                                     },
                                     controlAffinity: ListTileControlAffinity.leading, //  <-- leading Checkbox
@@ -521,7 +521,7 @@ class _CreateCampusTalkPostState extends State<CreateCampusTalkPost> {
                                         Row(
                                           children: [
                                             currentDuration!=null?
-                                            Text(currentDuration.inMinutes.toString().padLeft(2,'0') +":"+ currentDuration.inSeconds.toString().padLeft(2,"0"),
+                                            Text(currentDuration!.inMinutes.toString().padLeft(2,'0') +":"+ currentDuration!.inSeconds.toString().padLeft(2,"0"),
                                               style: TextStyle(
                                                 fontFamily: 'Poppins',
                                                 fontWeight: FontWeight.w500,
@@ -658,7 +658,7 @@ class _CreateCampusTalkPostState extends State<CreateCampusTalkPost> {
                                         themeController.isDarkMode? MateColors.appThemeDark:MateColors.appThemeLight:
                                         themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
                                       ),
-                                      child: Text(type[index].name,
+                                      child: Text(type[index].name!,
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontFamily: "Poppins",
@@ -681,7 +681,7 @@ class _CreateCampusTalkPostState extends State<CreateCampusTalkPost> {
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(8.0),
                                       clipBehavior: Clip.hardEdge,
-                                      child: Image.file(_image,fit: BoxFit.fill),
+                                      child: Image.file(_image!,fit: BoxFit.fill),
                                     ),
                                   ),
                                   Positioned(
@@ -714,7 +714,7 @@ class _CreateCampusTalkPostState extends State<CreateCampusTalkPost> {
                                     height: 150,
                                     width: MediaQuery.of(context).size.width,
                                     margin: EdgeInsets.only(top: 30),
-                                    child: VideoThumbnailFile(videoUrl: _video),
+                                    child: VideoThumbnailFile(videoUrl: _video!),
                                   ),
                                   Positioned(
                                     top: 18,
@@ -792,7 +792,7 @@ class _CreateCampusTalkPostState extends State<CreateCampusTalkPost> {
                 ],
               ),
               onPressed: () {
-                if(_formKey.currentState.validate()) _submitForm(context);
+                if(_formKey.currentState!.validate()) _submitForm(context);
               },
             ),
           ),
@@ -803,16 +803,16 @@ class _CreateCampusTalkPostState extends State<CreateCampusTalkPost> {
 
   void _submitForm(BuildContext context) async {
     FocusScope.of(context).unfocus();
-    bool validated = _formKey.currentState.validate();
+    bool validated = _formKey.currentState!.validate();
     if (validated) {
       setState(() {
         isLoading = true;
       });
-      _formKey.currentState.save();
+      _formKey.currentState!.save();
       List<String> uuid = [];
       for(int i=0;i<typeSelected.length;i++){
         if(typeSelected[i]){
-          uuid.add(type[i].uuid);
+          uuid.add(type[i].uuid!);
         }
       }
       bool posted= await Provider.of<CampusTalkProvider>(context, listen: false).uploadACampusTalkPost(
@@ -834,7 +834,7 @@ class _CreateCampusTalkPostState extends State<CreateCampusTalkPost> {
     }
   }
 
-  InputDecoration _customInputDecoration({@required String labelText, IconData icon}) {
+  InputDecoration _customInputDecoration({required String labelText, IconData? icon}) {
     return InputDecoration(
       hintStyle: TextStyle(
         fontSize: 16,
@@ -1147,8 +1147,8 @@ class _CreateCampusTalkPostState extends State<CreateCampusTalkPost> {
     }else{
       final pickedFile = await FilePicker.platform.pickFiles(type: FileType.audio);
       if (pickedFile != null) {
-        _audio = File(pickedFile.paths.first);
-        var audio = _audio.readAsBytesSync();
+        _audio = File(pickedFile.paths.first!);
+        var audio = _audio!.readAsBytesSync();
         _base64encodedAudio = pickedFile.paths.first;
         //_base64encodedAudio = base64Encode(audio);
         isPausedRecording = false;
@@ -1166,7 +1166,7 @@ class _CreateCampusTalkPostState extends State<CreateCampusTalkPost> {
 
   Record recordMp3 = Record();
   bool _isAcceptedPermission = false;
-  Timer _timer;
+  Timer? _timer;
   int second = 0;
   int minute = 0;
   bool isRecordingPaused = false;
@@ -1200,7 +1200,7 @@ class _CreateCampusTalkPostState extends State<CreateCampusTalkPost> {
   }
 
   Future<String> getFilePath() async {
-    User _user = FirebaseAuth.instance.currentUser;
+    User _user = FirebaseAuth.instance.currentUser!;
     Directory appDocDir = await getApplicationDocumentsDirectory();
     String appDocPath = appDocDir.path + "/" + _user.uid + ".m4a";
     if(File(appDocPath).existsSync()){
@@ -1244,12 +1244,12 @@ class _CreateCampusTalkPostState extends State<CreateCampusTalkPost> {
     isRecordingAudioFromMic = false;
     second = 0;
     minute = 0;
-    _timer.cancel();
+    _timer!.cancel();
 
-    String pickedFile = await recordMp3.stop();
+    String? pickedFile = await recordMp3.stop();
     if (pickedFile != null) {
       _audio = File(pickedFile);
-      var audio = _audio.readAsBytesSync();
+      var audio = _audio!.readAsBytesSync();
       _base64encodedAudio = pickedFile;
       //_base64encodedAudio = base64Encode(audio);
       isPausedRecording = false;
@@ -1267,7 +1267,7 @@ class _CreateCampusTalkPostState extends State<CreateCampusTalkPost> {
     isRecordingAudioFromMic = false;
     second = 0;
     minute = 0;
-    _timer.cancel();
+    _timer!.cancel();
     setState(() {});
   }
 

@@ -33,7 +33,7 @@ import 'memberList.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 
 class EventBookmark extends StatefulWidget {
-  const EventBookmark({Key key}) : super(key: key);
+  const EventBookmark({Key? key}) : super(key: key);
 
   @override
   State<EventBookmark> createState() => _EventBookmarkState();
@@ -42,18 +42,18 @@ class EventBookmark extends StatefulWidget {
 class _EventBookmarkState extends State<EventBookmark> {
   ThemeController themeController = Get.find<ThemeController>();
   EventService _eventService = EventService();
-  ScrollController _scrollController;
+  late ScrollController _scrollController;
   List<Result> list = [];
   List<bool> isBookMark = [];
   List<String> reaction = [];
-  Future<EventListingModel> future;
+  Future<EventListingModel?>? future;
   int page = 1;
   bool enableFutureBuilder = false;
   bool doingPagination = false;
   String token = "";
-  FeedProvider feedProvider;
-  auth.User _currentUser = auth.FirebaseAuth.instance.currentUser;
-  ClientId _credentials;
+  late FeedProvider feedProvider;
+  auth.User _currentUser = auth.FirebaseAuth.instance.currentUser!;
+  late ClientId _credentials;
 
   @override
   void initState() {
@@ -86,7 +86,7 @@ class _EventBookmarkState extends State<EventBookmark> {
           });
           print('scrolled to bottom page is now $page');
           future = _eventService.getEventListingBookmark(page: page, token: token);
-          future.then((value) {
+          future!.then((value) {
             setState(() {
               enableFutureBuilder = true;
             });
@@ -98,7 +98,7 @@ class _EventBookmarkState extends State<EventBookmark> {
 
   getStoredValue() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
 
     setState(() {
       doingPagination = false;
@@ -106,7 +106,7 @@ class _EventBookmarkState extends State<EventBookmark> {
     });
 
     future = _eventService.getEventListingBookmark(page: page, token: token);
-    future.then((value) {
+    future!.then((value) {
       setState(() {
         enableFutureBuilder = true;
       });
@@ -125,8 +125,8 @@ class _EventBookmarkState extends State<EventBookmark> {
 
   void changeCommentCount(int index, bool increment) {
     increment ?
-    list[index].commentsCount = list[index].commentsCount + 1 :
-    list[index].commentsCount = list[index].commentsCount - 1;
+    list[index].commentsCount = list[index].commentsCount! + 1 :
+    list[index].commentsCount = list[index].commentsCount! - 1;
     setState(() {});
   }
 
@@ -140,7 +140,7 @@ class _EventBookmarkState extends State<EventBookmark> {
       page = 1;
     });
     future = _eventService.getEventListingBookmark(page: page, token: token);
-    future.then((value) {
+    future!.then((value) {
       setState(() {
         doingPagination = false;
         Future.delayed(Duration.zero, () {
@@ -158,20 +158,20 @@ class _EventBookmarkState extends State<EventBookmark> {
       onRefresh: () {
         return refreshPage();
       },
-      child: FutureBuilder<EventListingModel>(
+      child: FutureBuilder<EventListingModel?>(
         future: future,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            if (snapshot.data.success == true || doingPagination == true) {
+            if (snapshot.data!.success == true || doingPagination == true) {
               if (enableFutureBuilder) {
                 if (doingPagination) {
-                  for (int i = 0; i < snapshot.data.data.result.length; i++) {
-                    list.add(snapshot.data.data.result[i]);
-                    isBookMark.add(snapshot.data.data.result[i].isBookmarked != null ? true : false);
-                    if (snapshot.data.data.result[i].isReacted != null) {
+                  for (int i = 0; i < snapshot.data!.data!.result!.length; i++) {
+                    list.add(snapshot.data!.data!.result![i]);
+                    isBookMark.add(snapshot.data!.data!.result![i].isBookmarked != null ? true : false);
+                    if (snapshot.data!.data!.result![i].isReacted != null) {
                       reaction.add(
-                          snapshot.data.data.result[i].isReacted.status == "Going" ?
-                          "Going" : snapshot.data.data.result[i].isReacted.status == "Interested" ?
+                          snapshot.data!.data!.result![i].isReacted!.status == "Going" ?
+                          "Going" : snapshot.data!.data!.result![i].isReacted!.status == "Interested" ?
                           "Interested" : "none"
                       );
                     } else {
@@ -185,13 +185,13 @@ class _EventBookmarkState extends State<EventBookmark> {
                   list.clear();
                   isBookMark.clear();
                   reaction.clear();
-                  for (int i = 0; i < snapshot.data.data.result.length; i++) {
-                    list.add(snapshot.data.data.result[i]);
-                    isBookMark.add(snapshot.data.data.result[i].isBookmarked != null ? true : false);
-                    if (snapshot.data.data.result[i].isReacted != null) {
+                  for (int i = 0; i < snapshot.data!.data!.result!.length; i++) {
+                    list.add(snapshot.data!.data!.result![i]);
+                    isBookMark.add(snapshot.data!.data!.result![i].isBookmarked != null ? true : false);
+                    if (snapshot.data!.data!.result![i].isReacted != null) {
                       reaction.add(
-                          snapshot.data.data.result[i].isReacted.status == "Going" ?
-                          "Going" : snapshot.data.data.result[i].isReacted.status == "Interested" ?
+                          snapshot.data!.data!.result![i].isReacted!.status == "Going" ?
+                          "Going" : snapshot.data!.data!.result![i].isReacted!.status == "Interested" ?
                           "Interested" : "none"
                       );
                     } else {
@@ -232,26 +232,26 @@ class _EventBookmarkState extends State<EventBookmark> {
                           children: [
                             ListTile(
                               onTap: () {
-                                if (list[index].user.uuid != null) {
-                                  if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == list[index].user.uuid) {
+                                if (list[index].user!.uuid != null) {
+                                  if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == list[index].user!.uuid) {
                                     Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                   } else {
                                     Navigator.of(context).pushNamed(UserProfileScreen.routeName,
                                         arguments: {
-                                          "id": list[index].user.uuid,
-                                          "name": list[index].user.displayName,
-                                          "photoUrl": list[index].user.profilePhoto,
-                                          "firebaseUid": list[index].user.firebaseUid,
+                                          "id": list[index].user!.uuid,
+                                          "name": list[index].user!.displayName,
+                                          "photoUrl": list[index].user!.profilePhoto,
+                                          "firebaseUid": list[index].user!.firebaseUid,
                                         });
                                   }
                                 }
                               },
                               leading: CircleAvatar(
                                 radius: 20,
-                                backgroundImage: NetworkImage(list[index].user.profilePhoto),
+                                backgroundImage: NetworkImage(list[index].user!.profilePhoto!),
                               ),
                               title: Text(
-                                list[index].user.displayName,
+                                list[index].user!.displayName!,
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontFamily: 'Poppins',
@@ -293,17 +293,17 @@ class _EventBookmarkState extends State<EventBookmark> {
                                       insertEvent(event);
                                     } else if (index1 == 1) {
                                       Navigator.push(context, MaterialPageRoute(builder: (context) =>
-                                          Chat(peerUuid: list[index].user.uuid,
+                                          Chat(peerUuid: list[index].user!.uuid!,
                                               currentUserId: _currentUser.uid,
-                                              peerId: list[index].user.firebaseUid,
-                                              peerAvatar: list[index].user.profilePhoto,
-                                              peerName: list[index].user.displayName)));
+                                              peerId: list[index].user!.firebaseUid!,
+                                              peerAvatar: list[index].user!.profilePhoto!,
+                                              peerName: list[index].user!.displayName!)));
                                     } else if (index1 == 2) {
-                                      _showFollowAlertDialog(eventId: list[index].id, indexVal: index, tabIndex: 0, isFollowed: list[index].isFollowed);
+                                      _showFollowAlertDialog(eventId: list[index].id!, indexVal: index, tabIndex: 0, isFollowed: list[index].isFollowed);
                                     } else if (index1 == 3) {
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => ReportPage(moduleId: list[index].id, moduleType: "Event",),));
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => ReportPage(moduleId: list[index].id!, moduleType: "Event",),));
                                     } else if (index1 == 4) {
-                                      _showDeleteAlertDialog(eventId: list[index].id, indexVal: index, tabIndex: 0);
+                                      _showDeleteAlertDialog(eventId: list[index].id!, indexVal: index, tabIndex: 0);
                                     } else if (index1 == 5) {
                                       await Navigator.push(context, MaterialPageRoute(builder: (context) => EditEvent(data: list[index]),));
                                       getStoredValue();
@@ -328,7 +328,7 @@ class _EventBookmarkState extends State<EventBookmark> {
                                       value: 2,
                                       height: 40,
                                       child: Text(
-                                        list[index].isFollowed ? "Unfollow Event" : "Follow Event",
+                                        list[index].isFollowed! ? "Unfollow Event" : "Follow Event",
                                         textAlign: TextAlign.start,
                                         style: TextStyle(
                                           color: themeController.isDarkMode?Colors.white:Colors.black,
@@ -355,7 +355,7 @@ class _EventBookmarkState extends State<EventBookmark> {
                                     ((Provider
                                         .of<AuthUserProvider>(context, listen: false)
                                         .authUser
-                                        .id == list[index].user.uuid)) ?
+                                        .id == list[index].user!.uuid!)) ?
                                     PopupMenuItem(
                                       value: 4,
                                       height: 40,
@@ -381,7 +381,7 @@ class _EventBookmarkState extends State<EventBookmark> {
                                     ((Provider
                                         .of<AuthUserProvider>(context, listen: false)
                                         .authUser
-                                        .id == list[index].user.uuid)) ?
+                                        .id == list[index].user!.uuid!)) ?
                                     PopupMenuItem(
                                       value: 5,
                                       height: 40,
@@ -432,7 +432,7 @@ class _EventBookmarkState extends State<EventBookmark> {
                               child: Padding(
                                 padding: EdgeInsets.only(left: 16, top: 5),
                                 child: buildEmojiAndText(
-                                  content: list[index].title,
+                                  content: list[index].title!,
                                   textStyle: TextStyle(
                                     fontFamily: 'Poppins',
                                     fontWeight: FontWeight.w700,
@@ -461,7 +461,7 @@ class _EventBookmarkState extends State<EventBookmark> {
                               child: Padding(
                                 padding: EdgeInsets.only(left: 16, top: 10, right: 10),
                                 child: buildEmojiAndText(
-                                  content: list[index].description,
+                                  content: list[index].description!,
                                   textStyle: TextStyle(
                                     fontFamily: 'Poppins',
                                     fontWeight: FontWeight.w400,
@@ -478,8 +478,8 @@ class _EventBookmarkState extends State<EventBookmark> {
                               splashColor: Colors.transparent,
                               highlightColor: Colors.transparent,
                               onTap: () async {
-                                if (await canLaunch(list[index].hyperLink))
-                                  await launch(list[index].hyperLink);
+                                if (await canLaunch(list[index].hyperLink!))
+                                  await launch(list[index].hyperLink!);
                                 else
                                   Fluttertoast.showToast(msg: " Could not launch given URL '${list[index].hyperLink}'",
                                       fontSize: 16,
@@ -491,7 +491,7 @@ class _EventBookmarkState extends State<EventBookmark> {
                               child: Padding(
                                 padding: EdgeInsets.only(left: 16, top: 10, right: 10),
                                 child: Text(
-                                  list[index].hyperLinkText,
+                                  list[index].hyperLinkText!,
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontFamily: 'Poppins',
@@ -512,7 +512,7 @@ class _EventBookmarkState extends State<EventBookmark> {
                                   SizedBox(width: 8,),
                                   Expanded(
                                     child: Text(
-                                      list[index].location,
+                                      list[index].location!,
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w400,
@@ -570,7 +570,7 @@ class _EventBookmarkState extends State<EventBookmark> {
                                 ],
                               ),
                             ),
-                            if(list[index].goingList.length > 0)
+                            if(list[index].goingList!.length > 0)
                               Container(
                                 height: 40,
                                 margin: EdgeInsets.only(left: 16, top: 10),
@@ -585,28 +585,28 @@ class _EventBookmarkState extends State<EventBookmark> {
                                         scrollDirection: Axis.horizontal,
                                         shrinkWrap: true,
                                         physics: ScrollPhysics(),
-                                        itemCount: list[index].goingList.length > 6 ? 6 : list[index].goingList.length,
+                                        itemCount: list[index].goingList!.length > 6 ? 6 : list[index].goingList!.length,
                                         itemBuilder: (context, ind) {
                                           return InkWell(
                                             onTap: () {
-                                              Get.to(MemberList(list: list[index].goingList,));
+                                              Get.to(MemberList(list: list[index].goingList!,));
                                             },
                                             child: CircleAvatar(
                                               radius: 12,
                                               backgroundColor: MateColors.activeIcons,
-                                              backgroundImage: NetworkImage(list[index].goingList[ind].profilePhoto),
+                                              backgroundImage: NetworkImage(list[index].goingList![ind].profilePhoto!),
                                             ),
                                           );
                                         }
                                     ),
-                                    list[index].goingList.length > 6 ?
+                                    list[index].goingList!.length > 6 ?
                                     InkWell(
                                       onTap: () {
-                                        Get.to(MemberList(list: list[index].goingList,));
+                                        Get.to(MemberList(list: list[index].goingList!,));
                                       },
                                       child: Padding(
                                         padding: const EdgeInsets.only(left: 5),
-                                        child: Text("+${list[index].goingList.length - 6}",
+                                        child: Text("+${list[index].goingList!.length - 6}",
                                           style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w400,
@@ -641,22 +641,22 @@ class _EventBookmarkState extends State<EventBookmark> {
                                                   .size
                                                   .width / 1.2,
                                               child: InkWell(
-                                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => MediaViewer(url: list[index].photoUrl,))),
+                                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => MediaViewer(url: list[index].photoUrl!,))),
                                                 child: ClipRRect(
                                                   borderRadius: BorderRadius.circular(12.0),
                                                   clipBehavior: Clip.hardEdge,
                                                   child: Image.network(
-                                                    list[index].photoUrl,
+                                                    list[index].photoUrl!,
                                                     fit: BoxFit.cover,
                                                   ),
                                                 ),
                                               ),
                                             ),
                                           ) : list[index].videoUrl != null ?
-                                          VideoThumbnail(videoUrl: list[index].videoUrl, isLeftPadding: false,) : Container();
+                                          VideoThumbnail(videoUrl: list[index].videoUrl!, isLeftPadding: false,) : Container();
                                       } else {
                                         return list[index].videoUrl != null ?
-                                        VideoThumbnail(videoUrl: list[index].videoUrl) : Container();
+                                        VideoThumbnail(videoUrl: list[index].videoUrl!) : Container();
                                       }
                                     }
                                 ),
@@ -673,11 +673,11 @@ class _EventBookmarkState extends State<EventBookmark> {
                                           if (reaction[index] == "Going") {
                                             reaction[index] = "none";
                                             setState(() {});
-                                            _eventService.reaction(id: list[index].id, reaction: "none", token: token);
+                                            _eventService.reaction(id: list[index].id!, reaction: "none", token: token);
                                           } else {
                                             reaction[index] = "Going";
                                             setState(() {});
-                                            _eventService.reaction(id: list[index].id, reaction: "Going", token: token);
+                                            _eventService.reaction(id: list[index].id!, reaction: "Going", token: token);
                                           }
                                         },
                                         child: Container(
@@ -708,11 +708,11 @@ class _EventBookmarkState extends State<EventBookmark> {
                                           if (reaction[index] == "Interested") {
                                             reaction[index] = "none";
                                             setState(() {});
-                                            _eventService.reaction(id: list[index].id, reaction: "none", token: token);
+                                            _eventService.reaction(id: list[index].id!, reaction: "none", token: token);
                                           } else {
                                             reaction[index] = "Interested";
                                             setState(() {});
-                                            _eventService.reaction(id: list[index].id, reaction: "Interested", token: token);
+                                            _eventService.reaction(id: list[index].id!, reaction: "Interested", token: token);
                                           }
                                         },
                                         child: Container(
@@ -793,7 +793,7 @@ class _EventBookmarkState extends State<EventBookmark> {
                                           setState(() {
                                             isBookMark[index] = !isBookMark[index];
                                           });
-                                          await _eventService.bookMark(id: list[index].id, token: token);
+                                          await _eventService.bookMark(id: list[index].id!, token: token);
                                           refreshPage();
                                         },
                                         child: Container(
@@ -1641,7 +1641,7 @@ class _EventBookmarkState extends State<EventBookmark> {
     }
   }
 
-  _showFollowAlertDialog({@required int eventId, @required int indexVal, @required int tabIndex, @required isFollowed}) async {
+  _showFollowAlertDialog({required int eventId, required int indexVal, required int tabIndex, required isFollowed}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -1692,7 +1692,7 @@ class _EventBookmarkState extends State<EventBookmark> {
     );
   }
 
-  _showDeleteAlertDialog({@required int eventId, @required int indexVal, @required tabIndex}) async {
+  _showDeleteAlertDialog({required int eventId, required int indexVal, required tabIndex}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!

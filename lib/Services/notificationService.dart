@@ -10,7 +10,7 @@ import 'package:mate_app/Model/findAMatePostsModel.dart' as findAMate;
 
 class NotificationService{
 
-  Future<List<NotificationData>> getNotificationListing({String token})async{
+  Future<List<NotificationData>> getNotificationListing({required String token})async{
     List<NotificationData> notificationData = [];
     debugPrint("https://api.mateapp.us/api/notification/history");
     debugPrint(token);
@@ -36,8 +36,8 @@ class NotificationService{
     return notificationData;
   }
 
-  Future<listing.Result> getEventDetails({String token,int eventId})async{
-    listing.Result result;
+  Future<listing.Result?> getEventDetails({required String token,required int eventId})async{
+    listing.Result? result;
     debugPrint("https://api.mateapp.us/api/event/$eventId");
     debugPrint(token);
     try {
@@ -58,8 +58,8 @@ class NotificationService{
     return result;
   }
 
-  Future<campusTalk.Result> getCampusDetails({String token,int id})async{
-    campusTalk.Result result;
+  Future<campusTalk.Result?> getCampusDetails({required String token,required int id})async{
+    campusTalk.Result? result;
     debugPrint("https://api.mateapp.us/api/discussion/post/$id");
     debugPrint(token);
     try {
@@ -80,8 +80,8 @@ class NotificationService{
     return result;
   }
 
-  Future<beAMate.Result> getBeAMateDetails({String token,int id})async{
-    beAMate.Result result;
+  Future<beAMate.Result?> getBeAMateDetails({required String token,required int id})async{
+    beAMate.Result? result;
     debugPrint("https://api.mateapp.us/api/bemate/$id");
     debugPrint(token);
     try {
@@ -102,8 +102,8 @@ class NotificationService{
     return result;
   }
 
-  Future<findAMate.Result> getFindAMateDetails({String token,int id})async{
-    findAMate.Result result;
+  Future<findAMate.Result?> getFindAMateDetails({required String token,required int id})async{
+    findAMate.Result? result;
     debugPrint("https://api.mateapp.us/api/findmate/$id");
     debugPrint(token);
     try {
@@ -125,7 +125,7 @@ class NotificationService{
   }
 
 
-  Future<bool> changeStatus({String token,int id})async{
+  Future<bool> changeStatus({required String token,required int id})async{
     bool result = false;
     debugPrint("https://api.mateapp.us/api/notification/$id/update-status");
     debugPrint(token);

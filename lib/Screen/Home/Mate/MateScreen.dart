@@ -16,7 +16,7 @@ class MateScreen extends StatefulWidget {
 }
 
 class _MateScreenState extends State<MateScreen> with TickerProviderStateMixin {
-  PageController _pageController;
+  late PageController _pageController;
   int _selectedIndex = 0;
 
   void initState() {

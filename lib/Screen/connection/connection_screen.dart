@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -27,7 +28,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> with TickerProvider
   ThemeController themeController = Get.find<ThemeController>();
   String token = "";
   bool isLoading = false;
-  PageController _pageController;
+  late PageController _pageController;
   int _selectedIndex = 0;
 
   @override
@@ -45,7 +46,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> with TickerProvider
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
   }
 
   @override
@@ -295,43 +296,43 @@ class _ConnectionScreenState extends State<ConnectionScreen> with TickerProvider
                               physics: NeverScrollableScrollPhysics(),
                               itemCount: connectionGlobalList.length,
                               itemBuilder: (context, index) {
-                                return FutureBuilder(
-                                    future: DatabaseService().getUsersDetails(connectionGlobalList[index].uid),
+                                return FutureBuilder<DocumentSnapshot>(
+                                    future: DatabaseService().getUsersDetails(connectionGlobalList[index].uid!),
                                     builder: (context, snapshot1) {
                                       if(snapshot1.hasData){
                                         return Padding(
                                           padding: const EdgeInsets.only(bottom: 35),
                                           child: InkWell(
                                             onTap: ()async{
-                                              if(snapshot1.data.data()['uuid']!=null){
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if(snapshot1.data!.get('uuid')!=null){
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   await Navigator.of(context).pushNamed(UserProfileScreen.routeName,
-                                                      arguments: {"id": snapshot1.data.data()['uuid'],
-                                                        "name": snapshot1.data.data()['displayName'],
-                                                        "photoUrl": snapshot1.data.data()['photoURL'],
-                                                        "firebaseUid": snapshot1.data.data()['uid']
+                                                      arguments: {"id": snapshot1.data!.get('uuid'),
+                                                        "name": snapshot1.data!.get('displayName'),
+                                                        "photoUrl": snapshot1.data!.get('photoURL'),
+                                                        "firebaseUid": snapshot1.data!.get('uid')
                                                       });
                                                   setState(() {});
                                                 }
                                               }
                                             },
                                             child: ListTile(
-                                              leading: snapshot1.data.data()['photoURL']!=null?
+                                              leading: snapshot1.data!.get('photoURL')!=null?
                                               CircleAvatar(
                                                 radius: 30,
                                                 backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
                                                 backgroundImage: NetworkImage(
-                                                  snapshot1.data.data()['photoURL'],
+                                                  snapshot1.data!.get('photoURL'),
                                                 ),
                                               ):
                                               CircleAvatar(
                                                 radius: 30,
                                                 backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
-                                                child: Text(snapshot1.data.data()['displayName'].substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
+                                                child: Text(snapshot1.data!.get('displayName').substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
                                               ),
-                                              title: Text(snapshot1.data.data()['displayName'],
+                                              title: Text(snapshot1.data!.get('displayName'),
                                                 style: TextStyle(
                                                   fontSize: 15,
                                                   fontFamily: "Poppins",
@@ -351,6 +352,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> with TickerProvider
                                             child: LinearProgressIndicator(
                                               color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                                               minHeight: 3,
+                                              backgroundColor: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                                             ),
                                           ),
                                         );
@@ -389,45 +391,45 @@ class _ConnectionScreenState extends State<ConnectionScreen> with TickerProvider
                               physics: NeverScrollableScrollPhysics(),
                               itemCount: requestGet.length,
                               itemBuilder: (context, index) {
-                                return FutureBuilder(
-                                    future: DatabaseService().getUsersDetails(requestGet[index].senderUid),
+                                return FutureBuilder<DocumentSnapshot>(
+                                    future: DatabaseService().getUsersDetails(requestGet[index].senderUid!),
                                     builder: (context, snapshot1) {
                                       if(snapshot1.hasData){
                                         return Padding(
                                           padding: EdgeInsets.only(bottom: 0,top: index==0?16:8),
                                           child: InkWell(
                                             onTap: ()async{
-                                              if(snapshot1.data.data()['uuid']!=null){
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if(snapshot1.data!.get('uuid')!=null){
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   await Navigator.of(context).pushNamed(UserProfileScreen.routeName,
-                                                      arguments: {"id": snapshot1.data.data()['uuid'],
-                                                        "name": snapshot1.data.data()['displayName'],
-                                                        "photoUrl": snapshot1.data.data()['photoURL'],
-                                                        "firebaseUid": snapshot1.data.data()['uid']
+                                                      arguments: {"id": snapshot1.data!.get('uuid'),
+                                                        "name": snapshot1.data!.get('displayName'),
+                                                        "photoUrl": snapshot1.data!.get('photoURL'),
+                                                        "firebaseUid": snapshot1.data!.get('uid')
                                                       });
                                                   setState(() {});
                                                 }
                                               }
                                             },
                                             child: ListTile(
-                                              leading: snapshot1.data.data()['photoURL']!=null?
+                                              leading: snapshot1.data!.get('photoURL')!=null?
                                               CircleAvatar(
                                                 radius: 30,
                                                 backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
                                                 backgroundImage: NetworkImage(
-                                                  snapshot1.data.data()['photoURL'],
+                                                  snapshot1.data!.get('photoURL'),
                                                 ),
                                               ):
                                               CircleAvatar(
                                                 radius: 30,
                                                 backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
-                                                child: Text(snapshot1.data.data()['displayName'].substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
+                                                child: Text(snapshot1.data!.get('displayName').substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
                                               ),
                                               title: Padding(
                                                 padding: const EdgeInsets.only(top: 5),
-                                                child: Text(snapshot1.data.data()['displayName'],
+                                                child: Text(snapshot1.data!.get('displayName'),
                                                   style: TextStyle(
                                                     fontSize: 15,
                                                     fontFamily: "Poppins",
@@ -450,7 +452,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> with TickerProvider
                                                           });
                                                           await ConnectionService().connectionAcceptReject(
                                                             status: "Accepted",
-                                                            connectionRequestId: requestGet[index].id,
+                                                            connectionRequestId: requestGet[index].id!,
                                                             token: token,
                                                           );
                                                           await getConnection();
@@ -483,7 +485,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> with TickerProvider
                                                           });
                                                           await ConnectionService().connectionAcceptReject(
                                                             status: "Deleted",
-                                                            connectionRequestId: requestGet[index].id,
+                                                            connectionRequestId: requestGet[index].id!,
                                                             token: token,
                                                           );
                                                           await getConnection();
@@ -522,6 +524,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> with TickerProvider
                                             child: LinearProgressIndicator(
                                               color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                                               minHeight: 3,
+                                              backgroundColor: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                                             ),
                                           ),
                                         );
@@ -560,43 +563,43 @@ class _ConnectionScreenState extends State<ConnectionScreen> with TickerProvider
                               physics: NeverScrollableScrollPhysics(),
                               itemCount: requestSent.length,
                               itemBuilder: (context, index) {
-                                return FutureBuilder(
-                                    future: DatabaseService().getUsersDetails(requestSent[index].connUid),
+                                return FutureBuilder<DocumentSnapshot>(
+                                    future: DatabaseService().getUsersDetails(requestSent[index].connUid!),
                                     builder: (context, snapshot1) {
                                       if(snapshot1.hasData){
                                         return Padding(
                                           padding: EdgeInsets.only(top: 16),
                                           child: InkWell(
                                             onTap: ()async{
-                                              if(snapshot1.data.data()['uuid']!=null){
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if(snapshot1.data!.get('uuid')!=null){
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   await Navigator.of(context).pushNamed(UserProfileScreen.routeName,
-                                                      arguments: {"id": snapshot1.data.data()['uuid'],
-                                                        "name": snapshot1.data.data()['displayName'],
-                                                        "photoUrl": snapshot1.data.data()['photoURL'],
-                                                        "firebaseUid": snapshot1.data.data()['uid']
+                                                      arguments: {"id": snapshot1.data!.get('uuid'),
+                                                        "name": snapshot1.data!.get('displayName'),
+                                                        "photoUrl": snapshot1.data!.get('photoURL'),
+                                                        "firebaseUid": snapshot1.data!.get('uid')
                                                       });
                                                   setState(() {});
                                                 }
                                               }
                                             },
                                             child: ListTile(
-                                              leading: snapshot1.data.data()['photoURL']!=null?
+                                              leading: snapshot1.data!.get('photoURL')!=null?
                                               CircleAvatar(
                                                 radius: 30,
                                                 backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
                                                 backgroundImage: NetworkImage(
-                                                  snapshot1.data.data()['photoURL'],
+                                                  snapshot1.data!.get('photoURL'),
                                                 ),
                                               ):
                                               CircleAvatar(
                                                 radius: 30,
                                                 backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
-                                                child: Text(snapshot1.data.data()['displayName'].substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
+                                                child: Text(snapshot1.data!.get('displayName').substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
                                               ),
-                                              title: Text(snapshot1.data.data()['displayName'],
+                                              title: Text(snapshot1.data!.get('displayName'),
                                                 style: TextStyle(
                                                   fontSize: 15,
                                                   fontFamily: "Poppins",
@@ -606,7 +609,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> with TickerProvider
                                               ),
                                               trailing: InkWell(
                                                 onTap: ()async{
-                                                  _showAddConnectionAlertDialog(uid: snapshot1.data.data()['uid'], name: snapshot1.data.data()['displayName'],uuid: snapshot1.data.data()['uuid']);
+                                                  _showAddConnectionAlertDialog(uid: snapshot1.data!.get('uid'), name: snapshot1.data!.get('displayName'),uuid: snapshot1.data!.get('uuid'));
                                                 },
                                                 child: Padding(
                                                   padding: const EdgeInsets.only(right: 4,left: 4),
@@ -632,6 +635,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> with TickerProvider
                                             child: LinearProgressIndicator(
                                               color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                                               minHeight: 3,
+                                              backgroundColor: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                                             ),
                                           ),
                                         );
@@ -657,7 +661,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> with TickerProvider
     );
   }
 
-  _showAddConnectionAlertDialog({@required String uid, @required String name,@required String uuid})async{
+  _showAddConnectionAlertDialog({required String uid, required String name,required String uuid})async{
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!

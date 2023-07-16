@@ -1,23 +1,23 @@
 class User {
-  String id;
-  String email;
-  String firstName;
-  String lastName;
-  String displayName;
-  int universityId;
-  String university;
-  String phoneNumber;
-  String photoUrl;
-  String coverPhotoUrl;
-  String about;
-  String societies;
-  String achievements;
-  int totalFollowers;
-  int totalFollowings;
-  bool isFollowing;
-  String firebaseUid;
-  int totalFeeds;
-  int totalFeedComments;
+  String? id;
+  String? email;
+  String? firstName;
+  String? lastName;
+  String? displayName;
+  int? universityId;
+  String? university;
+  String? phoneNumber;
+  String? photoUrl;
+  String? coverPhotoUrl;
+  String? about;
+  String? societies;
+  String? achievements;
+  int? totalFollowers;
+  int? totalFollowings;
+  bool? isFollowing;
+  String? firebaseUid;
+  int? totalFeeds;
+  int? totalFeedComments;
 
   User(
       {this.id,

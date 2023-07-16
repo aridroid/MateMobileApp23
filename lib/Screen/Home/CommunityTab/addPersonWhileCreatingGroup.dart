@@ -12,7 +12,7 @@ import '../../../groupChat/services/database_service.dart';
 import 'createGroupScreen.dart';
 
 class AddPersonWhileCreatingGroup extends StatefulWidget {
-  const AddPersonWhileCreatingGroup({Key key}) : super(key: key);
+  const AddPersonWhileCreatingGroup({Key? key}) : super(key: key);
 
   @override
   State<AddPersonWhileCreatingGroup> createState() => _AddPersonWhileCreatingGroupState();
@@ -21,9 +21,9 @@ class AddPersonWhileCreatingGroup extends StatefulWidget {
 class _AddPersonWhileCreatingGroupState extends State<AddPersonWhileCreatingGroup> {
   ThemeController themeController = Get.find<ThemeController>();
   final AddUserController _addUserController = Get.find<AddUserController>();
-  QuerySnapshot searchResultSnapshot;
+  late QuerySnapshot searchResultSnapshot;
   bool isLoading = true;
-  User _user = FirebaseAuth.instance.currentUser;
+  User _user = FirebaseAuth.instance.currentUser!;
   List<UserListModel> personList = [];
 
   @override
@@ -63,10 +63,10 @@ class _AddPersonWhileCreatingGroupState extends State<AddPersonWhileCreatingGrou
         }
       }
       personList.sort((a, b) {
-        return a.displayName.toLowerCase().compareTo(b.displayName.toLowerCase());
+        return a.displayName!.toLowerCase().compareTo(b.displayName!.toLowerCase());
       });
       _addUserController.personList.sort((a, b) {
-        return a.displayName.toLowerCase().compareTo(b.displayName.toLowerCase());
+        return a.displayName!.toLowerCase().compareTo(b.displayName!.toLowerCase());
       });
       setState(() {
         isLoading = false;
@@ -208,12 +208,12 @@ class _AddPersonWhileCreatingGroupState extends State<AddPersonWhileCreatingGrou
                           if(_addUserController.addConnectionUid.contains(personList[index].uid)){
                             _addUserController.addConnectionUid.remove(personList[index].uid);
                           }else{
-                            _addUserController.addConnectionUid.add(personList[index].uid);
+                            _addUserController.addConnectionUid.add(personList[index].uid!);
                           }
                           if(_addUserController.addConnectionDisplayName.contains(personList[index].displayName)){
                             _addUserController.addConnectionDisplayName.remove(personList[index].displayName);
                           }else{
-                            _addUserController.addConnectionDisplayName.add(personList[index].displayName);
+                            _addUserController.addConnectionDisplayName.add(personList[index].displayName!);
                           }
                         },
                         child: Padding(
@@ -225,20 +225,20 @@ class _AddPersonWhileCreatingGroupState extends State<AddPersonWhileCreatingGrou
                                 radius: 30,
                                 backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
                                 backgroundImage: NetworkImage(
-                                  personList[index].photoURL,
+                                  personList[index].photoURL!,
                                 ),
                               ):
                               CircleAvatar(
                                 radius: 30,
                                 backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
-                                child: Text(personList[index].displayName.substring(0,1),
+                                child: Text(personList[index].displayName!.substring(0,1),
                                   style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
                               ),
                               Positioned(
                                 bottom: 0,
                                 right: 0,
                                 left: 0,
-                                child: Text(personList[index].displayName,
+                                child: Text(personList[index].displayName!,
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontFamily: "Poppins",
@@ -305,12 +305,12 @@ class _AddPersonWhileCreatingGroupState extends State<AddPersonWhileCreatingGrou
                               if(_addUserController.addConnectionUid.contains(personList[index].uid)){
                                 _addUserController.addConnectionUid.remove(personList[index].uid);
                               }else{
-                                _addUserController.addConnectionUid.add(personList[index].uid);
+                                _addUserController.addConnectionUid.add(personList[index].uid!);
                               }
                               if(_addUserController.addConnectionDisplayName.contains(personList[index].displayName)){
                                 _addUserController.addConnectionDisplayName.remove(personList[index].displayName);
                               }else{
-                                _addUserController.addConnectionDisplayName.add(personList[index].displayName);
+                                _addUserController.addConnectionDisplayName.add(personList[index].displayName!);
                               }
                             },
                             child: ListTile(
@@ -319,16 +319,16 @@ class _AddPersonWhileCreatingGroupState extends State<AddPersonWhileCreatingGrou
                                 radius: 30,
                                 backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
                                 backgroundImage: NetworkImage(
-                                  personList[index].photoURL,
+                                  personList[index].photoURL!,
                                 ),
                               ):
                               CircleAvatar(
                                 radius: 30,
                                 backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
-                                child: Text(personList[index].displayName.substring(0,1),
+                                child: Text(personList[index].displayName!.substring(0,1),
                                   style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
                               ),
-                              title: Text(personList[index].displayName,
+                              title: Text(personList[index].displayName!,
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontFamily: "Poppins",

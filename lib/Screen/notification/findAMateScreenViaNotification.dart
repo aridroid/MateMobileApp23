@@ -12,7 +12,7 @@ import 'package:mate_app/Model/findAMatePostsModel.dart';
 
 class FindAMateViaNotification extends StatefulWidget {
   final int id;
-  const FindAMateViaNotification({Key key,this.id}) : super(key: key);
+  const FindAMateViaNotification({Key? key,required this.id}) : super(key: key);
 
   @override
   State<FindAMateViaNotification> createState() => _FindAMateViaNotificationState();
@@ -21,7 +21,7 @@ class FindAMateViaNotification extends StatefulWidget {
 class _FindAMateViaNotificationState extends State<FindAMateViaNotification> {
   ThemeController themeController = Get.find<ThemeController>();
   bool isLoading = true;
-  Result findAMateData;
+  Result? findAMateData;
   String token = "";
   NotificationService _notificationService = NotificationService();
 
@@ -33,7 +33,7 @@ class _FindAMateViaNotificationState extends State<FindAMateViaNotification> {
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
     findAMateData = await _notificationService.getFindAMateDetails(token: token,id: widget.id);
     setState(() {
       isLoading = false;
@@ -95,19 +95,19 @@ class _FindAMateViaNotificationState extends State<FindAMateViaNotification> {
               ):
               findAMateData!=null?
               FindAMateRow(
-                findAMateId: findAMateData.id,
-                description: findAMateData.description,
-                title: findAMateData.title,
-                fromDate: findAMateData.fromDate,
-                toDate: findAMateData.toDate,
-                fromTime: findAMateData.timeFrom,
-                toTime: findAMateData.timeTo,
-                hyperlinkText: findAMateData.hyperLinkText,
-                hyperlink: findAMateData.hyperLink,
-                user: findAMateData.user,
-                createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(findAMateData.createdAt, true))}",
+                findAMateId: findAMateData!.id,
+                description: findAMateData!.description,
+                title: findAMateData!.title,
+                fromDate: findAMateData!.fromDate,
+                toDate: findAMateData!.toDate,
+                fromTime: findAMateData!.timeFrom,
+                toTime: findAMateData!.timeTo,
+                hyperlinkText: findAMateData!.hyperLinkText,
+                hyperlink: findAMateData!.hyperLink,
+                user: findAMateData!.user,
+                createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(findAMateData!.createdAt!, true))}",
                 //rowIndex: index,
-                isActive: findAMateData.isActive,
+                isActive: findAMateData!.isActive,
               ):
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 30),

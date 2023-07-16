@@ -1,7 +1,7 @@
 class FindAMatePostsModel {
-  bool success;
-  Data data;
-  String message;
+  bool? success;
+  Data? data;
+  String? message;
 
   FindAMatePostsModel({this.success, this.data, this.message});
 
@@ -15,7 +15,7 @@ class FindAMatePostsModel {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['success'] = this.success;
     if (this.data != null) {
-      data['data'] = this.data.toJson();
+      data['data'] = this.data?.toJson();
     }
     data['message'] = this.message;
     return data;
@@ -23,16 +23,16 @@ class FindAMatePostsModel {
 }
 
 class Data {
-  List<Result> result;
-  Pagination pagination;
+  List<Result>? result;
+  Pagination? pagination;
 
   Data({this.result, this.pagination});
 
   Data.fromJson(Map<String, dynamic> json) {
     if (json['result'] != null) {
-      result = new List<Result>();
+      result = [];
       json['result'].forEach((v) {
-        result.add(new Result.fromJson(v));
+        result?.add(new Result.fromJson(v));
       });
     }
     pagination = json['pagination'] != null
@@ -43,32 +43,32 @@ class Data {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     if (this.result != null) {
-      data['result'] = this.result.map((v) => v.toJson()).toList();
+      data['result'] = this.result?.map((v) => v.toJson()).toList();
     }
     if (this.pagination != null) {
-      data['pagination'] = this.pagination.toJson();
+      data['pagination'] = this.pagination?.toJson();
     }
     return data;
   }
 }
 
 class Result {
-  int id;
-  int userId;
-  String title;
-  String description;
-  String fromDate;
-  String toDate;
-  String timeFrom;
-  String timeTo;
-  String hyperLinkText;
-  String hyperLink;
-  String status;
-  String createdAt;
-  String updatedAt;
-  bool isActive;
-  User user;
-  bool toggleLoader=false;
+  int? id;
+  int? userId;
+  String? title;
+  String? description;
+  String? fromDate;
+  String? toDate;
+  String? timeFrom;
+  String? timeTo;
+  String? hyperLinkText;
+  String? hyperLink;
+  String? status;
+  String? createdAt;
+  String? updatedAt;
+  bool? isActive;
+  User? user;
+  bool? toggleLoader=false;
 
   Result(
       {this.id,
@@ -124,19 +124,19 @@ class Result {
     data['updated_at'] = this.updatedAt;
     data['is_active'] = this.isActive;
     if (this.user != null) {
-      data['user'] = this.user.toJson();
+      data['user'] = this.user?.toJson();
     }
     return data;
   }
 }
 
 class User {
-  String uuid;
-  String firstName;
-  String lastName;
-  String displayName;
-  String firebaseUid;
-  String profilePhoto;
+  String? uuid;
+  String? firstName;
+  String? lastName;
+  String? displayName;
+  String? firebaseUid;
+  String? profilePhoto;
 
   User(
       {this.uuid,
@@ -168,12 +168,12 @@ class User {
 }
 
 class Pagination {
-  int total;
-  int count;
-  int perPage;
-  int currentPage;
-  int totalPages;
-  bool morePages;
+  int? total;
+  int? count;
+  int? perPage;
+  int? currentPage;
+  int? totalPages;
+  bool? morePages;
 
   Pagination(
       {this.total,

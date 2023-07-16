@@ -1,7 +1,7 @@
 class StudyGroup {
-  String id;
-  String name;
-  List<Members> members;
+  String? id;
+  String? name;
+  List<Members>? members;
 
   StudyGroup({this.id, this.name, this.members});
 
@@ -9,9 +9,9 @@ class StudyGroup {
     id = json['id'];
     name = json['name'];
     if (json['members'] != null) {
-      members = new List<Members>();
+      members = [];
       json['members'].forEach((v) {
-        members.add(new Members.fromJson(v));
+        members?.add(new Members.fromJson(v));
       });
     }
   }
@@ -21,16 +21,16 @@ class StudyGroup {
     data['id'] = this.id;
     data['name'] = this.name;
     if (this.members != null) {
-      data['members'] = this.members.map((v) => v.toJson()).toList();
+      data['members'] = this.members?.map((v) => v.toJson()).toList();
     }
     return data;
   }
 }
 
 class Members {
-  String id;
-  String name;
-  String photoUrl;
+  String? id;
+  String? name;
+  String? photoUrl;
 
   Members({this.id, this.name, this.photoUrl});
 

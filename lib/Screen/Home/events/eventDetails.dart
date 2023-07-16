@@ -45,9 +45,9 @@ class EventDetails extends StatefulWidget {
   String reaction;
   bool showDetails;
   Function(int index,String value) changeReaction;
-  Function(int index,bool increment) changeCommentCount;
-  Function(int index,bool value) changeFollowUnfollow;
-  EventDetails({this.showDetails=true,this.list,this.isBookmark,this.index,this.changeBookmark,this.reaction,this.changeReaction,this.changeCommentCount,this.changeFollowUnfollow});
+  Function(int index,bool increment)? changeCommentCount;
+  Function(int index,bool value)? changeFollowUnfollow;
+  EventDetails({this.showDetails=true,required this.list,required this.isBookmark,required this.index,required this.changeBookmark,required this.reaction,required this.changeReaction,this.changeCommentCount,this.changeFollowUnfollow});
   static final String routeName = '/eventDetails';
 
   @override
@@ -59,15 +59,15 @@ class _EventDetailsState extends State<EventDetails> {
   TextEditingController messageEditingController = TextEditingController();
   EventService _eventService = EventService();
   String token = "";
-  Future<EventCommentListingModel> _future;
+  late Future<EventCommentListingModel?> _future;
   int page = 1;
   bool doingPagination = false;
   bool enableFutureBuilder = false;
   List<Result> list = [];
-  ScrollController _scrollController;
-  FeedProvider feedProvider;
-  ClientId _credentials;
-  auth.User _currentUser = auth.FirebaseAuth.instance.currentUser;
+  late ScrollController _scrollController;
+  late FeedProvider feedProvider;
+  late ClientId _credentials;
+  auth.User _currentUser = auth.FirebaseAuth.instance.currentUser!;
 
   @override
   void initState() {
@@ -91,7 +91,7 @@ class _EventDetailsState extends State<EventDetails> {
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
     fetchData();
   }
 
@@ -100,7 +100,7 @@ class _EventDetailsState extends State<EventDetails> {
     setState(() {
       doingPagination = false;
     });
-    _future =  _eventService.getComment(page: page,token: token,id: widget.list.id);
+    _future =  _eventService.getComment(page: page,token: token,id: widget.list.id!);
     _future.then((value){
       enableFutureBuilder = true;
       setState(() {});
@@ -116,7 +116,7 @@ class _EventDetailsState extends State<EventDetails> {
               doingPagination = true;
             });
             print('scrolled to bottom page is now $page');
-            _future = _eventService.getComment(page: page,token: token,id: widget.list.id);
+            _future = _eventService.getComment(page: page,token: token,id: widget.list.id!);
             _future.then((value){
               setState(() {
                 enableFutureBuilder = true;
@@ -128,7 +128,7 @@ class _EventDetailsState extends State<EventDetails> {
   }
 
   void changeCommentCount(bool increment){
-    widget.changeCommentCount(widget.index,increment);
+    widget.changeCommentCount!(widget.index,increment);
   }
 
   @override
@@ -206,16 +206,16 @@ class _EventDetailsState extends State<EventDetails> {
                           children: [
                             ListTile(
                               onTap: (){
-                                if(widget.list.user.uuid!=null){
-                                  if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.list.user.uuid) {
+                                if(widget.list.user!.uuid!=null){
+                                  if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.list.user!.uuid) {
                                     Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                   }else{
                                     Navigator.of(context).pushNamed(UserProfileScreen.routeName,
                                         arguments: {
-                                          "id": widget.list.user.uuid,
-                                          "name": widget.list.user.displayName,
-                                          "photoUrl": widget.list.user.profilePhoto,
-                                          "firebaseUid": widget.list.user.firebaseUid,
+                                          "id": widget.list.user!.uuid,
+                                          "name": widget.list.user!.displayName,
+                                          "photoUrl": widget.list.user!.profilePhoto,
+                                          "firebaseUid": widget.list.user!.firebaseUid,
                                         });
                                   }
                                 }
@@ -232,12 +232,12 @@ class _EventDetailsState extends State<EventDetails> {
                                   SizedBox(width: 10,),
                                   CircleAvatar(
                                     radius: 20,
-                                    backgroundImage: NetworkImage(widget.list.user.profilePhoto),
+                                    backgroundImage: NetworkImage(widget.list.user!.profilePhoto!),
                                   ),
                                 ],
                               ),
                               title: Text(
-                                widget.list.user.displayName,
+                                widget.list.user!.displayName!,
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontFamily: 'Poppins',
@@ -278,15 +278,15 @@ class _EventDetailsState extends State<EventDetails> {
 
                                       insertEvent(event);
                                     }else if (index1 == 1){
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => Chat(peerUuid: widget.list.user.uuid, currentUserId: _currentUser.uid, peerId: widget.list.user.firebaseUid, peerAvatar: widget.list.user.profilePhoto, peerName: widget.list.user.displayName)));
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => Chat(peerUuid: widget.list.user!.uuid, currentUserId: _currentUser.uid, peerId: widget.list.user!.firebaseUid!, peerAvatar: widget.list.user!.profilePhoto!, peerName: widget.list.user!.displayName!)));
                                     }else if(index1 == 2){
-                                      _showFollowAlertDialog(eventId: widget.list.id,isFollowed: widget.list.isFollowed);
+                                      _showFollowAlertDialog(eventId: widget.list.id!,isFollowed: widget.list.isFollowed);
                                     }else if(index1 == 3){
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => ReportPage(moduleId: widget.list.id, moduleType: "Event",),));
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => ReportPage(moduleId: widget.list.id!, moduleType: "Event",),));
                                     }else if(index1 == 4){
                                       Navigator.push(context, MaterialPageRoute(builder: (context) => EditEvent(data: widget.list),));
                                     }else if(index1 == 6){
-                                      String response  = await DynamicLinkService.buildDynamicLinkEvent(
+                                      String? response  = await DynamicLinkService.buildDynamicLinkEvent(
                                         id: widget.list.id.toString(),
                                       );
                                       if(response!=null){
@@ -322,7 +322,7 @@ class _EventDetailsState extends State<EventDetails> {
                                       value: 2,
                                       height: 40,
                                       child: Text(
-                                        widget.list.isFollowed?"Unfollow Event":"Follow Event",
+                                        widget.list.isFollowed!?"Unfollow Event":"Follow Event",
                                         textAlign: TextAlign.start,
                                         style: TextStyle(
                                           color: themeController.isDarkMode?Colors.white:Colors.black,
@@ -346,7 +346,7 @@ class _EventDetailsState extends State<EventDetails> {
                                         ),
                                       ),
                                     ),
-                                    ((Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.list.user.uuid))?
+                                    ((Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.list.user!.uuid))?
                                     PopupMenuItem(
                                       value: 4,
                                       height: 40,
@@ -389,7 +389,7 @@ class _EventDetailsState extends State<EventDetails> {
                             Padding(
                               padding: EdgeInsets.only(left: 16,top: 0),
                               child: buildEmojiAndText(
-                                content: widget.list.title,
+                                content: widget.list.title!,
                                 textStyle: TextStyle(
                                   fontFamily: 'Poppins',
                                   fontWeight: FontWeight.w700,
@@ -402,7 +402,7 @@ class _EventDetailsState extends State<EventDetails> {
                             Padding(
                               padding: EdgeInsets.only(left: 16,top: 10,right: 10),
                               child: buildEmojiAndText(
-                                content:  widget.list.description,
+                                content:  widget.list.description!,
                                 textStyle: TextStyle(
                                   fontFamily: 'Poppins',
                                   fontWeight: FontWeight.w400,
@@ -418,8 +418,8 @@ class _EventDetailsState extends State<EventDetails> {
                               splashColor: Colors.transparent,
                               highlightColor: Colors.transparent,
                               onTap: () async{
-                                if (await canLaunch(widget.list.hyperLink))
-                                  await launch(widget.list.hyperLink);
+                                if (await canLaunch(widget.list.hyperLink!))
+                                  await launch(widget.list.hyperLink!);
                                 else
                                   Fluttertoast.showToast(msg: " Could not launch given URL '${widget.list.hyperLink}'", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
                                 throw "Could not launch ${widget.list.hyperLink}";
@@ -427,7 +427,7 @@ class _EventDetailsState extends State<EventDetails> {
                               child: Padding(
                                 padding: EdgeInsets.only(left: 16,top: 10,right: 10),
                                 child: Text(
-                                  widget.list.hyperLinkText,
+                                  widget.list.hyperLinkText!,
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontFamily: 'Poppins',
@@ -447,7 +447,7 @@ class _EventDetailsState extends State<EventDetails> {
                                   ),
                                   SizedBox(width: 8,),
                                   Text(
-                                    widget.list.location,
+                                    widget.list.location!,
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w400,
@@ -505,20 +505,20 @@ class _EventDetailsState extends State<EventDetails> {
                               ),
                             ),
                             Container(
-                              margin: EdgeInsets.only(left: 16,top: widget.list.goingList.length>0?20:10,bottom: widget.list.goingList.length>0?5:0),
+                              margin: EdgeInsets.only(left: 16,top: widget.list.goingList!.length>0?20:10,bottom: widget.list.goingList!.length>0?5:0),
                               width: MediaQuery.of(context).size.width,
                               child: Wrap(
                                 spacing: 10,
                                 runSpacing: 10,
-                                children: List.generate(widget.list.goingList.length, (index) =>
+                                children: List.generate(widget.list.goingList!.length, (index) =>
                                     InkWell(
                                       onTap: (){
-                                        Get.to(MemberList(list: widget.list.goingList,));
+                                        Get.to(MemberList(list: widget.list.goingList!,));
                                       },
                                       child: CircleAvatar(
                                         radius: 16,
                                         backgroundColor: MateColors.activeIcons,
-                                        backgroundImage: NetworkImage(widget.list.goingList[index].profilePhoto),
+                                        backgroundImage: NetworkImage(widget.list.goingList![index].profilePhoto!),
                                       ),
                                     ),
                                 ),
@@ -543,22 +543,22 @@ class _EventDetailsState extends State<EventDetails> {
                                               height: 150,
                                               width: MediaQuery.of(context).size.width/1.1,
                                               child: InkWell(
-                                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>MediaViewer(url: widget.list.photoUrl,))),
+                                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>MediaViewer(url: widget.list.photoUrl!,))),
                                                 child: ClipRRect(
                                                   borderRadius: BorderRadius.circular(12.0),
                                                   clipBehavior: Clip.hardEdge,
                                                   child: Image.network(
-                                                    widget.list.photoUrl,
+                                                    widget.list.photoUrl!,
                                                     fit: BoxFit.cover,
                                                   ),
                                                 ),
                                               ),
                                             ),
                                           ):widget.list.videoUrl!=null?
-                                          VideoThumbnail(videoUrl: widget.list.videoUrl,isLeftPadding: false,):Container();
+                                          VideoThumbnail(videoUrl: widget.list.videoUrl!,isLeftPadding: false,):Container();
                                       }else{
                                         return  widget.list.videoUrl!=null?
-                                        VideoThumbnail(videoUrl: widget.list.videoUrl):Container();
+                                        VideoThumbnail(videoUrl: widget.list.videoUrl!):Container();
                                       }
                                     }
                                 ),
@@ -576,12 +576,12 @@ class _EventDetailsState extends State<EventDetails> {
                                             widget.reaction = "none";
                                             widget.changeReaction(widget.index,"none");
                                             setState(() {});
-                                            _eventService.reaction(id: widget.list.id,reaction: "none",token: token);
+                                            _eventService.reaction(id: widget.list.id!,reaction: "none",token: token);
                                           }else{
                                             widget.reaction = "Going";
                                             widget.changeReaction(widget.index,"Going");
                                             setState(() {});
-                                            _eventService.reaction(id: widget.list.id,reaction: "Going",token: token);
+                                            _eventService.reaction(id: widget.list.id!,reaction: "Going",token: token);
                                           }
                                         },
                                         child: Container(
@@ -614,12 +614,12 @@ class _EventDetailsState extends State<EventDetails> {
                                             widget.reaction = "none";
                                             widget.changeReaction(widget.index,"none");
                                             setState(() {});
-                                            _eventService.reaction(id: widget.list.id,reaction: "none",token: token);
+                                            _eventService.reaction(id: widget.list.id!,reaction: "none",token: token);
                                           }else{
                                             widget.reaction = "Interested";
                                             widget.changeReaction(widget.index,"Interested");
                                             setState(() {});
-                                            _eventService.reaction(id: widget.list.id,reaction: "Interested",token: token);
+                                            _eventService.reaction(id: widget.list.id!,reaction: "Interested",token: token);
                                           }
                                         },
                                         child: Container(
@@ -670,7 +670,7 @@ class _EventDetailsState extends State<EventDetails> {
                                             widget.isBookmark = !widget.isBookmark;
                                           });
                                           widget.changeBookmark(widget.index);
-                                          _eventService.bookMark(id: widget.list.id,token: token);
+                                          _eventService.bookMark(id: widget.list.id!,token: token);
                                         },
                                         child: Container(
                                           height: 39,
@@ -732,11 +732,11 @@ class _EventDetailsState extends State<EventDetails> {
                             ),
                             onPressed: ()async{
                               if(messageEditingController.text.length>0){
-                                bool response = await _eventService.comment(id: widget.list.id,content: messageEditingController.text,token: token);
+                                bool response = await _eventService.comment(id: widget.list.id!,content: messageEditingController.text,token: token);
                                 if(response){
                                   messageEditingController.clear();
                                   fetchData();
-                                  widget.changeCommentCount(widget.index,true);
+                                  widget.changeCommentCount!(widget.index,true);
                                   Fluttertoast.showToast(msg: "Comment added successfully", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
                                 }else{
                                   Fluttertoast.showToast(msg: "Something went wrong", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
@@ -755,20 +755,20 @@ class _EventDetailsState extends State<EventDetails> {
                         ),
                       ),
                     ),
-                    FutureBuilder<EventCommentListingModel>(
+                    FutureBuilder<EventCommentListingModel?>(
                       future: _future,
                       builder: (context,snapshot){
                         if(snapshot.hasData){
-                          if(snapshot.data.success==true || doingPagination==true){
+                          if(snapshot.data!.success==true || doingPagination==true){
                             if(enableFutureBuilder){
                               if(doingPagination){
-                                for(int i=0;i<snapshot.data.data.result.length;i++){
-                                  list.add(snapshot.data.data.result[i]);
+                                for(int i=0;i<snapshot.data!.data!.result!.length;i++){
+                                  list.add(snapshot.data!.data!.result![i]);
                                 }
                               }else{
                                 list.clear();
-                                for(int i=0;i<snapshot.data.data.result.length;i++){
-                                  list.add(snapshot.data.data.result[i]);
+                                for(int i=0;i<snapshot.data!.data!.result!.length;i++){
+                                  list.add(snapshot.data!.data!.result![i]);
                                 }
                               }
                               print(list.length);
@@ -797,36 +797,36 @@ class _EventDetailsState extends State<EventDetails> {
                                         Container(
                                           child: GestureDetector(
                                             onTap: (){
-                                              if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == list[index].user.uuid) {
+                                              if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == list[index].user!.uuid) {
                                                 Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                               } else {
                                                 Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                  "id": list[index].user.uuid,
-                                                  "name": list[index].user.displayName,
-                                                  "photoUrl": list[index].user.profilePhoto,
-                                                  "firebaseUid": list[index].user.firebaseUid
+                                                  "id": list[index].user!.uuid,
+                                                  "name": list[index].user!.displayName,
+                                                  "photoUrl": list[index].user!.profilePhoto,
+                                                  "firebaseUid": list[index].user!.firebaseUid
                                                 });
                                               }
                                             },
                                             child: ListTile(
                                               horizontalTitleGap: 1,
                                               dense: true,
-                                              leading: list[index].user.profilePhoto != null?
+                                              leading: list[index].user!.profilePhoto != null?
                                               ClipOval(
                                                 child: Image.network(
-                                                  list[index].user.profilePhoto,
+                                                  list[index].user!.profilePhoto!,
                                                   height: 28,
                                                   width: 28,
                                                   fit: BoxFit.cover,
                                                 ),
                                               ):CircleAvatar(
                                                 radius: 14,
-                                                child: Text(list[index].user.displayName[0]),
+                                                child: Text(list[index].user!.displayName![0]),
                                               ),
                                               title: Padding(
                                                 padding: const EdgeInsets.only(top: 10),
                                                 child: buildEmojiAndText(
-                                                  content:  list[index].content,
+                                                  content:  list[index].content!,
                                                   textStyle: TextStyle(
                                                     fontFamily: 'Poppins',
                                                     fontWeight: FontWeight.w400,
@@ -859,8 +859,8 @@ class _EventDetailsState extends State<EventDetails> {
                                                   await Navigator.of(context).push(MaterialPageRoute(
                                                       builder: (context) => EventCommentReply(
                                                         result: list[index],
-                                                        eventId: widget.list.id,
-                                                        commentId: list[index].id,
+                                                        eventId: widget.list.id!,
+                                                        commentId: list[index].id!,
                                                         changeCommentCount: changeCommentCount,
                                                       )));
                                                   fetchData();
@@ -875,7 +875,7 @@ class _EventDetailsState extends State<EventDetails> {
                                                   ),
                                                 ),
                                               ),
-                                              Text(list[index].replies.isEmpty?"":list[index].repliesCount>1?
+                                              Text(list[index].replies!.isEmpty?"":list[index].repliesCount!>1?
                                               "   •   ${list[index].repliesCount} Replies":
                                               "   •   ${list[index].repliesCount} Reply",
                                                 style: TextStyle(
@@ -888,8 +888,8 @@ class _EventDetailsState extends State<EventDetails> {
                                               ),
                                               Spacer(),
                                               Visibility(
-                                                visible: Provider.of<AuthUserProvider>(context, listen: false).authUser.id == list[index].user.uuid,
-                                                child: list[index].isDeleting?
+                                                visible: Provider.of<AuthUserProvider>(context, listen: false).authUser.id == list[index].user!.uuid,
+                                                child: list[index].isDeleting!?
                                                 SizedBox(
                                                   height: 14,
                                                   width: 14,
@@ -903,13 +903,13 @@ class _EventDetailsState extends State<EventDetails> {
                                                     setState(() {
                                                       list[index].isDeleting = true;
                                                     });
-                                                    await _eventService.deleteComment(id: list[index].id,token: token);
+                                                    await _eventService.deleteComment(id: list[index].id!,token: token);
                                                     setState(() {
                                                       list[index].isDeleting = false;
                                                     });
                                                     list.removeAt(index);
                                                     setState(() {});
-                                                    widget.changeCommentCount(widget.index,false);
+                                                    widget.changeCommentCount!(widget.index,false);
                                                   },
                                                   child: Icon(
                                                     Icons.delete_outline,
@@ -922,7 +922,7 @@ class _EventDetailsState extends State<EventDetails> {
                                           ),
                                         ),
                                         Visibility(
-                                          visible: list[index].repliesCount>1,
+                                          visible: list[index].repliesCount!>1,
                                           child: Padding(
                                             padding: EdgeInsets.fromLTRB(58, 10, 5, 0),
                                             child: InkWell(
@@ -930,8 +930,8 @@ class _EventDetailsState extends State<EventDetails> {
                                                 await Navigator.of(context).push(MaterialPageRoute(
                                                     builder: (context) => EventCommentReply(
                                                       result: list[index],
-                                                      eventId: widget.list.id,
-                                                      commentId: list[index].id,
+                                                      eventId: widget.list.id!,
+                                                      commentId: list[index].id!,
                                                       changeCommentCount: changeCommentCount,
                                                     )));
                                                 fetchData();
@@ -949,7 +949,7 @@ class _EventDetailsState extends State<EventDetails> {
                                             ),
                                           ),
                                         ),
-                                        list[index].replies.isNotEmpty?
+                                        list[index].replies!.isNotEmpty?
                                         Padding(
                                           padding: EdgeInsets.fromLTRB(40, 0, 0, 5),
                                           child: Row(
@@ -958,14 +958,14 @@ class _EventDetailsState extends State<EventDetails> {
                                               Expanded(
                                                 child: InkWell(
                                                   onTap: () {
-                                                    if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == list[index].replies.last.user.uuid) {
+                                                    if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == list[index].replies!.last.user!.uuid) {
                                                       Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                     } else {
                                                       Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                        "id": list[index].replies.last.user.uuid,
-                                                        "name": list[index].replies.last.user.displayName,
-                                                        "photoUrl": list[index].replies.last.user.profilePhoto,
-                                                        "firebaseUid": list[index].replies.last.user.firebaseUid
+                                                        "id": list[index].replies!.last.user!.uuid,
+                                                        "name": list[index].replies!.last.user!.displayName,
+                                                        "photoUrl": list[index].replies!.last.user!.profilePhoto,
+                                                        "firebaseUid": list[index].replies!.last.user!.firebaseUid
                                                       });
                                                     }
 
@@ -974,22 +974,22 @@ class _EventDetailsState extends State<EventDetails> {
                                                     horizontalTitleGap: 1,
                                                     dense: true,
                                                     leading:
-                                                    list[index].replies.last.user.profilePhoto != null ?
+                                                    list[index].replies!.last.user!.profilePhoto != null ?
                                                     ClipOval(
                                                       child: Image.network(
-                                                        list[index].replies.last.user.profilePhoto,
+                                                        list[index].replies!.last.user!.profilePhoto!,
                                                         height: 28,
                                                         width: 28,
                                                         fit: BoxFit.cover,
                                                       ),
                                                     ):CircleAvatar(
                                                       radius: 14,
-                                                      child: Text(list[index].replies.last.user.displayName[0],),
+                                                      child: Text(list[index].replies!.last.user!.displayName![0],),
                                                     ),
                                                     title: Padding(
                                                       padding: const EdgeInsets.only(top: 10),
                                                       child: buildEmojiAndText(
-                                                        content:  list[index].replies.last.content,
+                                                        content:  list[index].replies!.last.content!,
                                                         textStyle: TextStyle(
                                                           fontFamily: 'Poppins',
                                                           fontWeight: FontWeight.w400,
@@ -1003,7 +1003,7 @@ class _EventDetailsState extends State<EventDetails> {
                                                     subtitle: Padding(
                                                       padding: const EdgeInsets.only(top: 5),
                                                       child: Text(
-                                                        DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(list[index].replies.last.createdAt.toString(), true)),
+                                                        DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(list[index].replies!.last.createdAt.toString(), true)),
                                                         style: TextStyle(
                                                           fontSize: 12,
                                                           color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
@@ -1079,7 +1079,7 @@ class _EventDetailsState extends State<EventDetails> {
     }
   }
 
-  _showFollowAlertDialog({@required int eventId,@required isFollowed}) async {
+  _showFollowAlertDialog({required int eventId,required isFollowed}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -1103,7 +1103,7 @@ class _EventDetailsState extends State<EventDetails> {
                   bool unFollowDone = await feedProvider.unFollowAFeed(body, eventId);
                   if (unFollowDone) {
                     widget.list.isFollowed = false;
-                    widget.changeFollowUnfollow(widget.index,false);
+                    widget.changeFollowUnfollow!(widget.index,false);
                     setState(() {});
                     Navigator.pop(context);
                   }
@@ -1112,7 +1112,7 @@ class _EventDetailsState extends State<EventDetails> {
                   bool followDone = await feedProvider.followAFeed(body, eventId);
                   if (followDone) {
                     widget.list.isFollowed  = true;
-                    widget.changeFollowUnfollow(widget.index,true);
+                    widget.changeFollowUnfollow!(widget.index,true);
                     setState(() {});
                     Navigator.pop(context);
                   }

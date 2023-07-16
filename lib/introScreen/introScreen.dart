@@ -137,14 +137,14 @@ import '../asset/Colors/MateColors.dart';
 import '../main.dart';
 
 class IntroScreen extends StatefulWidget {
-  const IntroScreen({Key key}) : super(key: key);
+  const IntroScreen({Key? key}) : super(key: key);
 
   @override
   _IntroScreenState createState() => _IntroScreenState();
 }
 
 class _IntroScreenState extends State<IntroScreen> {
-  PageController controller;
+  late PageController controller;
   int page = 0;
 
   @override

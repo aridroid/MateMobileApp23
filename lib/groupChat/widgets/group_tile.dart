@@ -14,7 +14,7 @@ import '../../controller/theme_controller.dart';
 class GroupTile extends StatelessWidget {
   final String userName;
   final String groupId;
-  final String photoURL;
+  final String? photoURL;
   final String currentUserUid;
   final int unreadMessages;
   final bool isMuted;
@@ -22,7 +22,7 @@ class GroupTile extends StatelessWidget {
   final Function loadData;
   final int index;
   final bool showColor;
-  GroupTile({this.userName, this.groupId, this.photoURL, this.currentUserUid, this.unreadMessages, this.isMuted, this.loadData, this.isPinned, this.index,this.showColor=false});
+  GroupTile({required this.userName, required this.groupId, this.photoURL, required this.currentUserUid, required this.unreadMessages, required this.isMuted, required this.loadData, required this.isPinned, required this.index,this.showColor=false});
 
   ThemeController themeController = Get.find<ThemeController>();
 
@@ -34,8 +34,8 @@ class GroupTile extends StatelessWidget {
           stream: DatabaseService().getLastChatMessage(groupId),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              Provider.of<ChatProvider>(context,listen: false).messageList[index].name = snapshot.data['groupName'];
-              Provider.of<ChatProvider>(context,listen: false).messageList[index].author = snapshot.data["admin"];
+              Provider.of<ChatProvider>(context,listen: false).messageList[index].name = snapshot.data!['groupName'];
+              Provider.of<ChatProvider>(context,listen: false).messageList[index].author = snapshot.data!["admin"];
               return Container(
                 margin: EdgeInsets.only(left: 5),
                 decoration: BoxDecoration(
@@ -48,33 +48,33 @@ class GroupTile extends StatelessWidget {
                             builder: (context) => ChatPage(
                               groupId: groupId,
                               userName: userName,
-                              groupName: snapshot.data['groupName'],
-                              photoURL: snapshot.data['groupIcon'],
-                              totalParticipant: snapshot.data['members'].length.toString(),
-                              memberList : snapshot.data['members'],
+                              groupName: snapshot.data!['groupName'],
+                              photoURL: snapshot.data!['groupIcon'],
+                              totalParticipant: snapshot.data!['members'].length.toString(),
+                              memberList : snapshot.data!['members'],
                             )));
                     loadData();
                   },
-                  leading: snapshot.data['groupIcon'] != "" ?
+                  leading: snapshot.data!['groupIcon'] != "" ?
                   CircleAvatar(
                     radius: 30,
                     backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
-                    backgroundImage: NetworkImage(snapshot.data['groupIcon']),
+                    backgroundImage: NetworkImage(snapshot.data!['groupIcon']),
                   ):
                   CircleAvatar(
                     radius: 30,
                     backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
-                    child: Text(snapshot.data['groupName'].substring(0, 1).toUpperCase(),
+                    child: Text(snapshot.data!['groupName'].substring(0, 1).toUpperCase(),
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.black, fontSize: 12.5.sp, fontWeight: FontWeight.bold)),
                   ),
                   title: Padding(
-                    padding: EdgeInsets.only(top: snapshot.data['recentMessageSender'] != "" ? 0:10),
+                    padding: EdgeInsets.only(top: snapshot.data!['recentMessageSender'] != "" ? 0:10),
                     child: Row(
                       children: [
                         Flexible(
                           child: buildEmojiAndText(
-                            content: snapshot.data['groupName'],
+                            content: snapshot.data!['groupName'],
                             textStyle: TextStyle(
                               fontFamily: "Poppins",
                               fontWeight: FontWeight.w600,
@@ -111,8 +111,8 @@ class GroupTile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          snapshot.data['recentMessageSender'] != "" ?
-                          "${snapshot.data['recentMessageSender']}" :
+                          snapshot.data!['recentMessageSender'] != "" ?
+                          "${snapshot.data!['recentMessageSender']}" :
                           "Send first message to this group",
                           style: TextStyle(
                             fontFamily: "Poppins",
@@ -127,19 +127,19 @@ class GroupTile extends StatelessWidget {
                           overflow: TextOverflow.clip,
                         ),
                         Text(
-                            snapshot.data.data().toString().contains('isAudio') && snapshot.data['isAudio']? "Audio" :
-                          "${snapshot.data.data().toString().contains('isImage') ?
-                          snapshot.data['isImage'] ? " 🖼️ Image" :
-                          snapshot.data['isGif'] != null ? snapshot.data['isGif'] ? " 🖼️ GIF File" :
-                          snapshot.data['isFile'] ? "File" :
+                            snapshot.data!.data().toString().contains('isAudio') && snapshot.data!['isAudio']? "Audio" :
+                          "${snapshot.data!.data().toString().contains('isImage') ?
+                          snapshot.data!['isImage'] ? " 🖼️ Image" :
+                          snapshot.data!['isGif'] != null ? snapshot.data!['isGif'] ? " 🖼️ GIF File" :
+                          snapshot.data!['isFile'] ? "File" :
 
-                          snapshot.data['recentMessage'].toString().contains('This is missed call@#%')?
-                          snapshot.data['recentMessage'].toString().split('___').last:snapshot.data['recentMessage'] :
-                          snapshot.data['recentMessage'].toString().contains('This is missed call@#%')?
-                          snapshot.data['recentMessage'].toString().split('___').last:snapshot.data['recentMessage'] :
+                          snapshot.data!['recentMessage'].toString().contains('This is missed call@#%')?
+                          snapshot.data!['recentMessage'].toString().split('___').last:snapshot.data!['recentMessage'] :
+                          snapshot.data!['recentMessage'].toString().contains('This is missed call@#%')?
+                          snapshot.data!['recentMessage'].toString().split('___').last:snapshot.data!['recentMessage'] :
 
-                          snapshot.data['recentMessage'].toString().contains('This is missed call@#%')?
-                          snapshot.data['recentMessage'].toString().split('___').last:snapshot.data['recentMessage']
+                          snapshot.data!['recentMessage'].toString().contains('This is missed call@#%')?
+                          snapshot.data!['recentMessage'].toString().split('___').last:snapshot.data!['recentMessage']
 
                           }",
                           style: TextStyle(

@@ -16,7 +16,7 @@ import 'feed_search.dart';
 import 'package:http/http.dart'as http;
 
 class GlobalFeed extends StatefulWidget {
-  const GlobalFeed({Key key}) : super(key: key);
+  const GlobalFeed({Key? key}) : super(key: key);
 
   @override
   State<GlobalFeed> createState() => _GlobalFeedState();
@@ -24,9 +24,9 @@ class GlobalFeed extends StatefulWidget {
 
 class _GlobalFeedState extends State<GlobalFeed> {
   ThemeController themeController = Get.find<ThemeController>();
-  ScrollController _scrollController;
-  int _pageGlobal;
-  FeedProvider feedProvider;
+  late ScrollController _scrollController;
+  late int _pageGlobal;
+  late FeedProvider feedProvider;
 
   @override
   void initState() {

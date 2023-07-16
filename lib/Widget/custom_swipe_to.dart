@@ -21,13 +21,13 @@ class CustomSwipeTo extends StatefulWidget {
   final IconData iconOnRightSwipe;
 
   /// Widget that will be displayed beneath child widget when swipe right
-  final Widget rightSwipeWidget;
+  final Widget? rightSwipeWidget;
 
   /// Icon that will be displayed beneath child widget when swipe left
   final IconData iconOnLeftSwipe;
 
   /// Widget that will be displayed beneath child widget when swipe right
-  final Widget leftSwipeWidget;
+  final Widget? leftSwipeWidget;
 
   /// double value defining size of displayed icon beneath child widget
   /// if not specified default size 26 will be taken
@@ -35,7 +35,7 @@ class CustomSwipeTo extends StatefulWidget {
 
   /// color value defining color of displayed icon beneath child widget
   ///if not specified primaryColor from theme will be taken
-  final Color iconColor;
+  final Color? iconColor;
 
   /// Double value till which position child widget will get animate when swipe left
   /// or swipe right
@@ -51,12 +51,12 @@ class CustomSwipeTo extends StatefulWidget {
   /// callback which will be initiated at the end of child widget animation
   /// when swiped left
   /// if not passed swipe to left will be not available
-  final VoidCallback onLeftSwipe;
+  final VoidCallback? onLeftSwipe;
 
   const CustomSwipeTo({
-    Key key,
-    this.child,
-    this.onRightSwipe,
+    Key? key,
+    required this.child,
+    required this.onRightSwipe,
     this.onLeftSwipe,
     this.iconOnRightSwipe = Icons.reply,
     this.rightSwipeWidget,
@@ -66,8 +66,8 @@ class CustomSwipeTo extends StatefulWidget {
     this.iconColor,
     this.animationDuration = const Duration(milliseconds: 150),
     this.offsetDx = 0.3,
-    this.showDateToggle,
-    this.showDate,
+    required this.showDateToggle,
+    required this.showDate,
   }) : super(key: key);
 
   @override
@@ -75,12 +75,12 @@ class CustomSwipeTo extends StatefulWidget {
 }
 
 class _SwipeToState extends State<CustomSwipeTo> with SingleTickerProviderStateMixin {
-  AnimationController _controller;
-  Animation<Offset> _animation;
-  Animation<double> _leftIconAnimation;
-  Animation<double> _rightIconAnimation;
-  VoidCallback _onSwipeLeft;
-  VoidCallback _onSwipeRight;
+  late AnimationController _controller;
+  late Animation<Offset> _animation;
+  late Animation<double> _leftIconAnimation;
+  late Animation<double> _rightIconAnimation;
+  late VoidCallback _onSwipeLeft;
+  late VoidCallback _onSwipeRight;
 
   @override
   initState() {
@@ -123,7 +123,7 @@ class _SwipeToState extends State<CustomSwipeTo> with SingleTickerProviderStateM
 
   ///Run animation for child widget
   ///[onRight] value defines animation Offset direction
-  void _runAnimation({bool onRight}) {
+  void _runAnimation({required bool onRight}) {
     //set child animation
     _animation = Tween(
       begin: const Offset(0.0, 0.0),

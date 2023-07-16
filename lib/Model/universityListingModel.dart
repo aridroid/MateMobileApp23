@@ -15,9 +15,9 @@ class UniversityListingModel {
     this.data,
   });
 
-  bool success;
-  String message;
-  List<Datum> data;
+  bool? success;
+  String? message;
+  List<Datum>? data;
 
   factory UniversityListingModel.fromJson(Map<String, dynamic> json) => UniversityListingModel(
     success: json["success"],
@@ -28,7 +28,7 @@ class UniversityListingModel {
   Map<String, dynamic> toJson() => {
     "success": success,
     "message": message,
-    "data": List<dynamic>.from(data.map((x) => x.toJson())),
+    "data": List<dynamic>.from(data!.map((x) => x.toJson())),
   };
 }
 
@@ -39,9 +39,9 @@ class Datum {
     this.name,
   });
 
-  int id;
-  String uuid;
-  String name;
+  int? id;
+  String? uuid;
+  String? name;
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
     id: json["id"],

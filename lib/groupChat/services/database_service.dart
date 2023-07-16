@@ -1,19 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mate_app/Model/AuthUser.dart';
-import 'package:provider/provider.dart';
-
-import '../../Providers/chatProvider.dart';
 
 class DatabaseService {
-  final String uid;
-
+  final String? uid;
   DatabaseService({this.uid});
 
   // Collection reference
   final CollectionReference userCollection = FirebaseFirestore.instance.collection('chat-users');
   final CollectionReference groupCollection = FirebaseFirestore.instance.collection('chat-group');
   final CollectionReference callCollection = FirebaseFirestore.instance.collection('call-details');
+  final CollectionReference chatBotCollection = FirebaseFirestore.instance.collection('userChatBotDetails');
 
   // update userdata
   Future<void> updateUserData(User userData, String uuid, String displayName,String profileImage) async {
@@ -103,7 +100,7 @@ class DatabaseService {
 
     DocumentReference groupDocRef = groupCollection.doc(groupId);
 
-    List<dynamic> groups = await userDocSnapshot['chat-group'];
+    List<dynamic>? groups = await userDocSnapshot['chat-group'];
 
     if (groups != null) {
       if (groups.contains(groupId + '_' + groupName)) {
@@ -113,7 +110,7 @@ class DatabaseService {
         });
 
         await groupDocRef.update({
-          'members': FieldValue.arrayRemove([uid + '_' + userName])
+          'members': FieldValue.arrayRemove([uid! + '_' + userName])
         });
       } else {
         //print('nay');
@@ -122,7 +119,7 @@ class DatabaseService {
         });
 
         await groupDocRef.update({
-          'members': FieldValue.arrayUnion([uid + '_' + userName])
+          'members': FieldValue.arrayUnion([uid! + '_' + userName])
         });
       }
     } else {
@@ -132,7 +129,7 @@ class DatabaseService {
       });
 
       await groupDocRef.update({
-        'members': FieldValue.arrayUnion([uid + '_' + userName])
+        'members': FieldValue.arrayUnion([uid! + '_' + userName])
       });
     }
   }
@@ -143,7 +140,7 @@ class DatabaseService {
 
     DocumentReference groupDocRef = groupCollection.doc(groupId);
 
-    List<dynamic> groups = await userDocSnapshot['chat-group'];
+    List<dynamic>? groups = await userDocSnapshot['chat-group'];
 
     if (groups != null) {
       if (groups.contains(groupId + '_' + groupName)) {
@@ -155,7 +152,7 @@ class DatabaseService {
         });
 
         await groupDocRef.update({
-          'members': FieldValue.arrayUnion([uid + '_' + userName])
+          'members': FieldValue.arrayUnion([uid! + '_' + userName])
         });
       }
     } else {
@@ -165,7 +162,7 @@ class DatabaseService {
       });
 
       await groupDocRef.update({
-        'members': FieldValue.arrayUnion([uid + '_' + userName])
+        'members': FieldValue.arrayUnion([uid! + '_' + userName])
       });
     }
   }
@@ -187,7 +184,7 @@ class DatabaseService {
           });
 
           await groupDocRef.update({
-            'members': FieldValue.arrayRemove([uid + '_' + userName])
+            'members': FieldValue.arrayRemove([uid! + '_' + userName])
           });
 
           break;
@@ -211,7 +208,7 @@ class DatabaseService {
     DocumentReference userDocRef = userCollection.doc(uid);
     DocumentSnapshot userDocSnapshot = await userDocRef.get();
 
-    List<dynamic> groups = await userDocSnapshot['chat-group'];
+    List<dynamic>? groups = await userDocSnapshot['chat-group'];
 
     if (groups != null) {
       if (groups.contains(groupId + '_' + groupName)) {
@@ -261,7 +258,7 @@ class DatabaseService {
 
   Future<bool> getUserExistGroup(String groupId,String userId,String userName) async {
     DocumentSnapshot groupDocSnapshot = await groupCollection.doc(groupId).get();
-    List<dynamic> groupUsers = groupDocSnapshot['members'];
+    List<dynamic>? groupUsers = groupDocSnapshot['members'];
     if(groupUsers!=null){
       if(groupUsers.contains("${userId}_$userName")){
         return true;
@@ -283,7 +280,7 @@ class DatabaseService {
     });
 
     await groupDocRef.update({
-      'members': FieldValue.arrayUnion([uid + '_' + userName])
+      'members': FieldValue.arrayUnion([uid! + '_' + userName])
     });
 
     return true;
@@ -380,14 +377,6 @@ class DatabaseService {
     });
   }
 
-
-
-
-
-
-
-
-
   Stream<DocumentSnapshot> getLastChatMessage(String groupId) {
     String message = "";
     return FirebaseFirestore.instance.collection('chat-group').doc(groupId).snapshots();
@@ -457,7 +446,7 @@ class DatabaseService {
 
     DocumentReference groupDocRef = groupCollection.doc(groupId);
 
-    List<dynamic> groups = await userDocSnapshot['chat-group'];
+    List<dynamic>? groups = await userDocSnapshot['chat-group'];
 
     String result = "";
 
@@ -502,7 +491,7 @@ class DatabaseService {
 
   setMessageReaction(String groupId, String messageId,String value,String displayName,String photo){
     FirebaseFirestore.instance.collection('chat-group').doc(groupId).collection("messages").doc(messageId).set(
-      {'messageReaction': FieldValue.arrayUnion([uid + '_____' +displayName + '_____' +photo + "_____" + value])},
+      {'messageReaction': FieldValue.arrayUnion([uid! + '_____' +displayName + '_____' +photo + "_____" + value])},
       SetOptions(merge: true),
     );
   }
@@ -515,7 +504,7 @@ class DatabaseService {
 
   setMessageReactionOneToOne(String personChatId, String messageId,String value,String displayName,String photo){
     FirebaseFirestore.instance.collection('messages').doc(personChatId).collection(personChatId).doc(messageId).set(
-      {'messageReaction': FieldValue.arrayUnion([uid + '_____' +displayName + '_____' +photo + "_____" + value])},
+      {'messageReaction': FieldValue.arrayUnion([uid! + '_____' +displayName + '_____' +photo + "_____" + value])},
       SetOptions(merge: true),
     );
   }
@@ -531,6 +520,8 @@ class DatabaseService {
   }
 
   deleteMessage(String groupId, String messageId){
+    print(groupId);
+    print(messageId);
     FirebaseFirestore.instance.collection('chat-group').doc(groupId).collection("messages").doc(messageId).delete();
   }
   
@@ -617,7 +608,7 @@ class DatabaseService {
 
   ///Call related functions
 
-  createCall({String channelName, String groupIdORPeerId, String groupNameORCallerName,String videoOrAudio,String token,String callerUid,List<String> groupMember}) async {
+  createCall({required String channelName, required String groupIdORPeerId, required String groupNameORCallerName,required String videoOrAudio,required String token,required String callerUid,required List<String> groupMember}) async {
     Map<String,dynamic> body = {
       'channelName' : channelName,
       'groupIdORPeerId' : groupIdORPeerId,
@@ -635,14 +626,14 @@ class DatabaseService {
     callCollection.doc(channelName).set(body).then((_) => print('Added')).catchError((error) => print('Add failed: $error'));
   }
 
-  joinCall({String channelName,String uid}) async {
+  joinCall({required String channelName,required String uid}) async {
     callCollection.doc(channelName).set(
       {'membersWhoJoined': FieldValue.arrayUnion([uid]),'memberWhoIsOnCall':FieldValue.arrayUnion([uid])},
       SetOptions(merge: true),
     );
   }
 
-  leaveCall({String channelName,String uid}) async {
+  leaveCall({required String channelName,required String uid}) async {
     DocumentSnapshot result = await callCollection.doc(channelName).get();
     if(result['memberWhoIsOnCall'].length==1){
       callCollection.doc(channelName).set(
@@ -657,14 +648,14 @@ class DatabaseService {
     }
   }
 
-  changeCallType({String channelName,String callType}) async {
+  changeCallType({required String channelName,required String callType}) async {
     callCollection.doc(channelName).set(
       {'callType': callType,},
       SetOptions(merge: true),
     );
   }
 
-  updateCallHistory({String channelName,String uid}) async {
+  updateCallHistory({required String channelName,required String uid}) async {
     callCollection.doc(channelName).set(
       {'memberWhoseCallHistoryAddedToChat': FieldValue.arrayUnion([uid])},
       SetOptions(merge: true),
@@ -685,5 +676,19 @@ class DatabaseService {
     Future<QuerySnapshot> snapshot = callCollection.where('isCallOnGoing',isEqualTo: false).orderBy('createdAt',descending: true).get();
     return snapshot;
   }
+
+  createOrUpdateUserChatBotDetails({required String uid, required String name, required String photoUrl}) async {
+    Map<String,dynamic> body = {
+      'name' : name,
+      'photo' : photoUrl,
+    };
+    chatBotCollection.doc(uid).set(body).then((_) => print('Added')).catchError((error) => print('Add failed: $error'));
+  }
+
+  Stream<DocumentSnapshot> getChatBotUserDetails(String uid){
+    return chatBotCollection.doc(uid).snapshots();
+  }
+
+
 
 }

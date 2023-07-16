@@ -15,7 +15,7 @@ import '../services/database_service.dart';
 
 class GroupMembersSearch extends StatefulWidget {
   final String groupId;
-  const GroupMembersSearch({Key key, this.groupId}) : super(key: key);
+  const GroupMembersSearch({Key? key, required this.groupId}) : super(key: key);
 
   @override
   _GroupMembersSearchState createState() => _GroupMembersSearchState();
@@ -23,8 +23,8 @@ class GroupMembersSearch extends StatefulWidget {
 
 class _GroupMembersSearchState extends State<GroupMembersSearch> {
   ThemeController themeController = Get.find<ThemeController>();
-  User currentUser = FirebaseAuth.instance.currentUser;
-  DocumentSnapshot documentSnapshot;
+  User currentUser = FirebaseAuth.instance.currentUser!;
+  DocumentSnapshot? documentSnapshot;
   List<UserListModel> userList = [];
   bool isLoading = true;
   TextEditingController searchEditingController = new TextEditingController();
@@ -42,8 +42,8 @@ class _GroupMembersSearchState extends State<GroupMembersSearch> {
     QuerySnapshot allUser = await DatabaseService().getUsersDetailsAll();
 
     List<String> uidList = [];
-    for(int i=0;i<documentSnapshot['members'].length;i++){
-      uidList.add(documentSnapshot['members'][i].split("_")[0]);
+    for(int i=0;i<documentSnapshot!['members'].length;i++){
+      uidList.add(documentSnapshot!['members'][i].split("_")[0]);
     }
 
     for(int i=0;i<allUser.docs.length;i++){
@@ -158,7 +158,6 @@ class _GroupMembersSearchState extends State<GroupMembersSearch> {
                     stream: DatabaseService().getGroupDetails(widget.groupId),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
-                        print(snapshot.data['createdAt']);
                         return ListView(
                           padding: EdgeInsets.only(top: 10),
                           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -210,7 +209,7 @@ class _GroupMembersSearchState extends State<GroupMembersSearch> {
                                           backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
                                           child: Text(userList[index].displayName.substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
                                         ),
-                                        trailing: userList[index].uid == snapshot.data['creatorId']?
+                                        trailing: userList[index].uid == snapshot.data!['creatorId']?
                                         Container(
                                           height: 28,
                                           width: 63,
@@ -262,5 +261,5 @@ class UserListModel {
   String displayName;
   String photoURL;
   String email;
-  UserListModel({this.uuid, this.uid, this.displayName,this.photoURL,this.email});
+  UserListModel({required this.uuid, required this.uid, required this.displayName,required this.photoURL,required this.email});
 }

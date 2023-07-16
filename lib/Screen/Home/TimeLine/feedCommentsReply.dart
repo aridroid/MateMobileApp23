@@ -18,7 +18,7 @@ class FeedCommentsReply extends StatefulWidget {
   final int commentIndex;
   final int feedIndex;
   final int feedId;
-  const FeedCommentsReply({Key key, this.commentId, this.commentIndex, this.feedIndex, this.feedId}) : super(key: key);
+  const FeedCommentsReply({Key? key, required this.commentId, required this.commentIndex, required this.feedIndex, required this.feedId}) : super(key: key);
   @override
   _FeedCommentsReplyState createState() => _FeedCommentsReplyState();
 }
@@ -100,7 +100,7 @@ class _FeedCommentsReplyState extends State<FeedCommentsReply> {
                 child:  Consumer<FeedProvider>(
                   builder: (context, feedProvider, child) {
                     if (!feedProvider.fetchCommentsLoader && feedProvider.commentFetchData != null) {
-                      Result result=feedProvider.commentFetchData.data.result[widget.commentIndex];
+                      Result result=feedProvider.commentFetchData!.data!.result![widget.commentIndex];
                       return ListView(
                         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                         children: [
@@ -113,36 +113,36 @@ class _FeedCommentsReplyState extends State<FeedCommentsReply> {
                                 Container(
                                   child: GestureDetector(
                                     onTap: (){
-                                      if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == result.user.uuid) {
+                                      if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == result.user!.uuid) {
                                         Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                       } else {
                                         Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                          "id": result.user.uuid,
-                                          "name": result.user.displayName,
-                                          "photoUrl": result.user.profilePhoto,
-                                          "firebaseUid": result.user.firebaseUid
+                                          "id": result.user!.uuid,
+                                          "name": result.user!.displayName,
+                                          "photoUrl": result.user!.profilePhoto,
+                                          "firebaseUid": result.user!.firebaseUid
                                         });
                                       }
                                     },
                                     child: ListTile(
                                       horizontalTitleGap: 1,
                                       dense: true,
-                                      leading: result.user.profilePhoto != null?
+                                      leading: result.user!.profilePhoto != null?
                                       ClipOval(
                                         child: Image.network(
-                                          result.user.profilePhoto,
+                                          result.user!.profilePhoto!,
                                           height: 28,
                                           width: 28,
                                           fit: BoxFit.cover,
                                         ),
                                       ):CircleAvatar(
                                         radius: 14,
-                                        child: Text(result.user.displayName[0]),
+                                        child: Text(result.user!.displayName![0]),
                                       ),
                                       title: Padding(
                                         padding: const EdgeInsets.only(top: 10),
                                         child: buildEmojiAndText(
-                                          content:  result.content,
+                                          content:  result.content!,
                                           textStyle: TextStyle(
                                             fontFamily: 'Poppins',
                                             fontWeight: FontWeight.w400,
@@ -156,7 +156,7 @@ class _FeedCommentsReplyState extends State<FeedCommentsReply> {
                                       subtitle: Padding(
                                         padding: const EdgeInsets.only(top: 5),
                                         child: Text(
-                                          DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(result.createdAt, true)),
+                                          DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(result.createdAt!, true)),
                                           style: TextStyle(
                                             fontSize: 12,
                                             color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
@@ -182,9 +182,9 @@ class _FeedCommentsReplyState extends State<FeedCommentsReply> {
                                           ),
                                         ),
                                       ),
-                                      Text(result.replies.isEmpty?"":result.replies.length>1?
-                                      "   •   ${result.replies.length} Replies":
-                                      "   •   ${result.replies.length} Reply",
+                                      Text(result.replies!.isEmpty?"":result.replies!.length>1?
+                                      "   •   ${result.replies!.length} Replies":
+                                      "   •   ${result.replies!.length} Reply",
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontFamily: 'Poppins',
@@ -196,11 +196,11 @@ class _FeedCommentsReplyState extends State<FeedCommentsReply> {
                                     ],
                                   ),
                                 ),
-                                result.replies.isNotEmpty?
+                                result.replies!.isNotEmpty?
                                 ListView.builder(
                                   shrinkWrap: true,
                                   physics: ScrollPhysics(),
-                                  itemCount: result.replies.length,
+                                  itemCount: result.replies!.length,
                                   itemBuilder: (context, index) {
                                     return Padding(
                                       padding: EdgeInsets.fromLTRB(40, 0, 0, 5),
@@ -210,36 +210,36 @@ class _FeedCommentsReplyState extends State<FeedCommentsReply> {
                                           Expanded(
                                             child: InkWell(
                                               onTap: () {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == result.replies[index].user.uuid) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == result.replies![index].user!.uuid) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": result.replies[index].user.uuid,
-                                                    "name": result.replies[index].user.displayName,
-                                                    "photoUrl": result.replies[index].user.profilePhoto,
-                                                    "firebaseUid": result.replies[index].user.firebaseUid
+                                                    "id": result.replies![index].user!.uuid,
+                                                    "name": result.replies![index].user!.displayName,
+                                                    "photoUrl": result.replies![index].user!.profilePhoto,
+                                                    "firebaseUid": result.replies![index].user!.firebaseUid
                                                   });
                                                 }
                                               },
                                               child: ListTile(
                                                 horizontalTitleGap: 1,
                                                 dense: true,
-                                                leading: result.replies[index].user.profilePhoto != null?
+                                                leading: result.replies![index].user!.profilePhoto != null?
                                                 ClipOval(
                                                   child: Image.network(
-                                                    result.replies[index].user.profilePhoto,
+                                                    result.replies![index].user!.profilePhoto!,
                                                     height: 28,
                                                     width: 28,
                                                     fit: BoxFit.cover,
                                                   ),
                                                 ):CircleAvatar(
                                                   radius: 14,
-                                                  child: Text(result.replies[index].user.displayName[0],),
+                                                  child: Text(result.replies![index].user!.displayName![0],),
                                                 ),
                                                 title: Padding(
                                                   padding: const EdgeInsets.only(top: 10),
                                                   child: buildEmojiAndText(
-                                                    content:  result.replies[index].content,
+                                                    content:  result.replies![index].content!,
                                                     textStyle: TextStyle(
                                                       fontFamily: 'Poppins',
                                                       fontWeight: FontWeight.w400,
@@ -253,7 +253,7 @@ class _FeedCommentsReplyState extends State<FeedCommentsReply> {
                                                 subtitle: Padding(
                                                   padding: const EdgeInsets.only(top: 5),
                                                   child: Text(
-                                                    DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(result.createdAt, true)),
+                                                    DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(result.createdAt!, true)),
                                                     style: TextStyle(
                                                       fontSize: 12,
                                                       color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
@@ -261,10 +261,10 @@ class _FeedCommentsReplyState extends State<FeedCommentsReply> {
                                                   ),
                                                 ),
                                                 trailing: Visibility(
-                                                    visible: Provider.of<AuthUserProvider>(context, listen: false).authUser.id == result.replies[index].user.uuid,
+                                                    visible: Provider.of<AuthUserProvider>(context, listen: false).authUser.id == result.replies![index].user!.uuid,
                                                     child: Consumer<FeedProvider>(
                                                       builder: (context, value, child) {
-                                                        if(value.commentFetchData.data.result[widget.commentIndex].replies[index].isDeleting){
+                                                        if(value.commentFetchData!.data!.result![widget.commentIndex].replies![index].isDeleting!){
                                                           return SizedBox(
                                                             height: 14,
                                                             width: 14,
@@ -276,7 +276,7 @@ class _FeedCommentsReplyState extends State<FeedCommentsReply> {
                                                         }else{
                                                           return InkWell(
                                                             onTap: () async{
-                                                              bool updated = await Provider.of<FeedProvider>(context, listen: false).deleteCommentsOfAFeed(value.commentFetchData.data.result[widget.commentIndex].replies[index].id, widget.commentIndex,
+                                                              bool updated = await Provider.of<FeedProvider>(context, listen: false).deleteCommentsOfAFeed(value.commentFetchData!.data!.result![widget.commentIndex].replies![index].id!, widget.commentIndex,
                                                                   isReply: true, replyIndex: index);
 
                                                               if (updated) {

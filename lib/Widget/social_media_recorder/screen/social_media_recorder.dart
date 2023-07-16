@@ -11,40 +11,40 @@ import '../widgets/sound_recorder_when_locked_design.dart';
 
 class SocialMediaRecorder extends StatefulWidget {
   /// use it for change back ground of cancel
-  final Color cancelTextBackGroundColor;
+  final Color? cancelTextBackGroundColor;
 
   /// function reture the recording sound file
   final Function(File soundFile) sendRequestFunction;
 
   /// recording Icon That pressesd to start record
-  final Widget recordIcon;
+  final Widget? recordIcon;
 
   /// recording Icon when user locked the record
-  final Widget recordIconWhenLockedRecord;
+  final Widget? recordIconWhenLockedRecord;
 
   /// use to change the backGround Icon when user recording sound
   final Color recordIconBackGroundColor;
 
   /// use to change the Icon backGround color when user locked the record
-  final Color recordIconWhenLockBackGroundColor;
+  final Color? recordIconWhenLockBackGroundColor;
 
   /// use to change all recording widget color
   final Color backGroundColor;
 
   /// use to change the counter style
-  final TextStyle counterTextStyle;
+  final TextStyle? counterTextStyle;
 
   /// text to know user should drag in the left to cancel record
   final String slideToCancelText;
 
   /// use to change slide to cancel textstyle
-  final TextStyle slideToCancelTextStyle;
+  final TextStyle? slideToCancelTextStyle;
 
   /// this text show when lock record and to tell user should press in this text to cancel recod
   final String cancelText;
 
   /// use to change cancel text style
-  final TextStyle cancelTextStyle;
+  final TextStyle? cancelTextStyle;
 
   /// put you file directory storage path if you didn't pass it take deafult path
   final String storeSoundRecoringPath;
@@ -53,28 +53,28 @@ class SocialMediaRecorder extends StatefulWidget {
   final AudioEncoderType encode;
 
   /// use if you want change the raduis of un record
-  final BorderRadius radius;
+  final BorderRadius? radius;
 
   // use to change the counter back ground color
-  final Color counterBackGroundColor;
+  final Color? counterBackGroundColor;
 
   // use to change lock icon to design you need it
-  final Widget lockButton;
+  final Widget? lockButton;
   // use it to change send button when user lock the record
-  final Widget sendButtonIcon;
+  final Widget? sendButtonIcon;
 
   // ignore: sort_constructors_first
   const SocialMediaRecorder({
     this.sendButtonIcon,
     this.storeSoundRecoringPath = "",
-    this.sendRequestFunction,
+    required this.sendRequestFunction,
     this.recordIcon,
     this.lockButton,
     this.counterBackGroundColor,
     this.recordIconWhenLockedRecord,
     this.recordIconBackGroundColor = Colors.blue,
     this.recordIconWhenLockBackGroundColor = Colors.blue,
-    this.backGroundColor,
+    required this.backGroundColor,
     this.cancelTextStyle,
     this.counterTextStyle,
     this.slideToCancelTextStyle,
@@ -83,7 +83,7 @@ class SocialMediaRecorder extends StatefulWidget {
     this.encode = AudioEncoderType.AAC,
     this.cancelTextBackGroundColor,
     this.radius,
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -91,7 +91,7 @@ class SocialMediaRecorder extends StatefulWidget {
 }
 
 class _SocialMediaRecorder extends State<SocialMediaRecorder> {
-  SoundRecordNotifier soundRecordNotifier;
+  late SoundRecordNotifier soundRecordNotifier;
 
   @override
   void initState() {

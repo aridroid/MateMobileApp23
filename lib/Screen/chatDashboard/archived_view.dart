@@ -19,7 +19,7 @@ import '../../groupChat/widgets/group_tile.dart';
 import '../chat1/screens/chat.dart';
 
 class ArchivedView extends StatefulWidget {
-  const ArchivedView({Key key}) : super(key: key);
+  const ArchivedView({Key? key}) : super(key: key);
 
   @override
   State<ArchivedView> createState() => _ArchivedViewState();
@@ -27,8 +27,8 @@ class ArchivedView extends StatefulWidget {
 
 class _ArchivedViewState extends State<ArchivedView> {
   ThemeController themeController = Get.find<ThemeController>();
-  User _user = FirebaseAuth.instance.currentUser;
-  String personChatId;
+  User _user = FirebaseAuth.instance.currentUser!;
+  late String personChatId;
 
   @override
   void initState() {
@@ -36,10 +36,10 @@ class _ArchivedViewState extends State<ArchivedView> {
     super.initState();
   }
 
-  String token;
+  late String token;
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
     log(token);
   }
 
@@ -134,7 +134,7 @@ class _ArchivedViewState extends State<ArchivedView> {
                                 children: [
                                   CustomSlidableAction(
                                     onPressed: (v)async{
-                                      await CommunityTabService().toggleArchive(roomId: chatProvider.archiveList[indexMain].roomId,uid: _user.uid,token: token);
+                                      await CommunityTabService().toggleArchive(roomId: chatProvider.archiveList[indexMain].roomId!,uid: _user.uid,token: token);
                                       loadData();
                                     },
                                     padding: EdgeInsets.zero,
@@ -209,39 +209,39 @@ class _ArchivedViewState extends State<ArchivedView> {
                                     ),
                                     backgroundColor: Colors.white.withOpacity(0.15),
                                     onPressed: ()async{
-                                      await CommunityTabService().toggleArchive(roomId: chatProvider.archiveList[indexMain].roomId,uid: _user.uid,token: token);
+                                      await CommunityTabService().toggleArchive(roomId: chatProvider.archiveList[indexMain].roomId!,uid: _user.uid,token: token);
                                       loadData();
                                     },
                                   ),
                                 ],
                                 onPressed: (){},
                                 child: GroupTile(
-                                  userName: _user.displayName,
-                                  groupId: chatProvider.archiveList[indexMain].roomId,
-                                  unreadMessages: chatProvider.archiveList[indexMain].unreadMessages,
+                                  userName: _user.displayName!,
+                                  groupId: chatProvider.archiveList[indexMain].roomId!,
+                                  unreadMessages: chatProvider.archiveList[indexMain].unreadMessages!,
                                   currentUserUid: _user.uid,
                                   loadData: loadData,
-                                  isMuted: chatProvider.archiveList[indexMain].isMuted,
+                                  isMuted: chatProvider.archiveList[indexMain].isMuted!,
                                   isPinned: chatProvider.archiveList[indexMain].isPinned==0?false:true,
                                   index: indexMain,
-                                  showColor: chatProvider.archiveList[indexMain].isVisible,
+                                  showColor: chatProvider.archiveList[indexMain].isVisible!,
                                 ),
                               ),
                             ):
-                            StreamBuilder(
-                                stream: DatabaseService().getPeerChatUserDetail(chatProvider.archiveList[indexMain].receiverUid),
+                            StreamBuilder<QuerySnapshot>(
+                                stream: DatabaseService().getPeerChatUserDetail(chatProvider.archiveList[indexMain].receiverUid!),
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData) {
                                     return ListView.builder(
                                         shrinkWrap: true,
                                         padding: EdgeInsets.zero,
-                                        itemCount: snapshot.data.docs.length,
+                                        itemCount: snapshot.data!.docs.length,
                                         physics: ScrollPhysics(),
                                         itemBuilder: (context, index) {
-                                          if (_user.uid.hashCode <= snapshot.data.docs[index].data()["uid"].hashCode) {
-                                            personChatId = '${_user.uid}-${snapshot.data.docs[index].data()["uid"]}';
+                                          if (_user.uid.hashCode <= snapshot.data!.docs[index].get('uid').hashCode) {
+                                            personChatId = '${_user.uid}-${snapshot.data!.docs[index].get('uid')}';
                                           } else {
-                                            personChatId = '${snapshot.data.docs[index].data()["uid"]}-${_user.uid}';
+                                            personChatId = '${snapshot.data!.docs[index].get('uid')}-${_user.uid}';
                                           }
                                           return FocusedMenuHolder(
                                             menuWidth: MediaQuery.of(context).size.width*0.52,
@@ -283,7 +283,7 @@ class _ArchivedViewState extends State<ArchivedView> {
                                                 ),
                                                 backgroundColor: Colors.white.withOpacity(0.15),
                                                 onPressed: ()async{
-                                                  await CommunityTabService().toggleArchive(roomId: chatProvider.archiveList[indexMain].roomId,uid: _user.uid,token: token);
+                                                  await CommunityTabService().toggleArchive(roomId: chatProvider.archiveList[indexMain].roomId!,uid: _user.uid,token: token);
                                                   loadData();
                                                 },
                                               ),
@@ -293,22 +293,22 @@ class _ArchivedViewState extends State<ArchivedView> {
                                               padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 2.0),
                                               child: ListTile(
                                                 onTap: () => Get.to(() => Chat(
-                                                  peerUuid: snapshot.data.docs[index].data()["uuid"],
+                                                  peerUuid: snapshot.data!.docs[index].get('uuid'),
                                                   currentUserId: _user.uid,
-                                                  peerId: snapshot.data.docs[index].data()["uid"],
-                                                  peerName: snapshot.data.docs[index].data()["displayName"],
-                                                  peerAvatar: snapshot.data.docs[index].data()["photoURL"],
+                                                  peerId: snapshot.data!.docs[index].get('uid'),
+                                                  peerName: snapshot.data!.docs[index].get('displayName'),
+                                                  peerAvatar: snapshot.data!.docs[index].get('photoURL'),
                                                   roomId: chatProvider.archiveList[indexMain].roomId,
                                                 )),
                                                 leading: CircleAvatar(
                                                   radius: 30,
                                                   backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
-                                                  backgroundImage: NetworkImage(snapshot.data.docs[index].data()["photoURL"]),
+                                                  backgroundImage: NetworkImage(snapshot.data!.docs[index].get('photoURL')),
                                                 ),
                                                 title: Row(
                                                   children: [
                                                     Text(
-                                                      snapshot.data.docs[index].data()["displayName"],
+                                                      snapshot.data!.docs[index].get('displayName'),
                                                       style: TextStyle(
                                                         fontSize: 15,
                                                         fontFamily: "Poppins",
@@ -316,7 +316,7 @@ class _ArchivedViewState extends State<ArchivedView> {
                                                         color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
                                                       ),
                                                     ),
-                                                    chatProvider.archiveList[indexMain].isMuted?
+                                                    chatProvider.archiveList[indexMain].isMuted!?
                                                     Padding(
                                                       padding: EdgeInsets.only(left: 10),
                                                       child: Image.asset("lib/asset/icons/mute.png",
@@ -327,25 +327,24 @@ class _ArchivedViewState extends State<ArchivedView> {
                                                     ):Offstage(),
                                                   ],
                                                 ),
-                                                subtitle: StreamBuilder(
+                                                subtitle: StreamBuilder<QuerySnapshot>(
                                                     stream: FirebaseFirestore.instance.collection('messages').doc(personChatId).collection(personChatId).orderBy('timestamp', descending: true).limit(1).snapshots(),
                                                     builder: (context, snapshot) {
                                                       if (snapshot.hasData) {
-                                                        print(snapshot.data.docs);
-                                                        if (snapshot.data.docs.length > 0) {
+                                                        if (snapshot.data!.docs.length > 0) {
                                                           return Text(
-                                                            snapshot.data.docs[0].data()['type'] == 0 ?
-                                                            "${snapshot.data.docs[0].data()['content']}" : snapshot.data.docs[0].data()['type'] == 1 ?
+                                                            snapshot.data!.docs[0].get('type') == 0 ?
+                                                            "${snapshot.data!.docs[0].get('content')}" : snapshot.data!.docs[0].get('type') == 1 ?
                                                             "🖼️ Image" :
-                                                            snapshot.data.docs[0].data()['fileName'],
+                                                            snapshot.data!.docs[0].get('fileName'),
                                                             style: TextStyle(
                                                               fontFamily: "Poppins",
                                                               fontSize: 14.0,
                                                               fontWeight: FontWeight.w400,
                                                               color: themeController.isDarkMode?
-                                                              chatProvider.mergedChatModelData.data[indexMain].unreadMessages >0?
+                                                              chatProvider.mergedChatModelData!.data![indexMain].unreadMessages! >0?
                                                               Colors.white: Colors.white.withOpacity(0.5):
-                                                              chatProvider.mergedChatModelData.data[indexMain].unreadMessages >0?
+                                                              chatProvider.mergedChatModelData!.data![indexMain].unreadMessages! >0?
                                                               Colors.black: Colors.black.withOpacity(0.5),
                                                             ),
                                                             overflow: TextOverflow.ellipsis,
@@ -373,7 +372,7 @@ class _ArchivedViewState extends State<ArchivedView> {
                                                           overflow: TextOverflow.ellipsis,
                                                         );
                                                     }),
-                                                trailing: chatProvider.archiveList[indexMain].unreadMessages >0 && chatProvider.archiveList[indexMain].isMuted==false?
+                                                trailing: chatProvider.archiveList[indexMain].unreadMessages! >0 && chatProvider.archiveList[indexMain].isMuted==false?
                                                 Container(
                                                   height: 20,
                                                   width: 20,

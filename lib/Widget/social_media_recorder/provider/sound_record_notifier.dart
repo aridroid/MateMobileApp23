@@ -14,10 +14,10 @@ class SoundRecordNotifier extends ChangeNotifier {
   GlobalKey key = GlobalKey();
 
   /// This Timer Just For wait about 1 second until starting record
-  Timer _timer;
+  Timer? _timer;
 
   /// This time for counter wait about 1 send to increase counter
-  Timer _timerCounter;
+  Timer? _timerCounter;
 
   /// Use last to check where the last draggable in X
   double last = 0;
@@ -43,29 +43,29 @@ class SoundRecordNotifier extends ChangeNotifier {
   bool isShow = false;
 
   /// to show second of recording
-  int second;
+  late int second;
 
   /// to show minute of recording
-  int minute;
+  late int minute;
 
   /// to know if pressed the button
-  bool buttonPressed;
+  late bool buttonPressed;
 
   /// used to update space when dragg the button to left
-  double edge;
-  bool loopActive;
+  late double edge;
+  late bool loopActive;
 
   /// store final path where user need store mp3 record
-  bool startRecord;
+  late bool startRecord;
 
   /// store the value we draggble to the top
-  double heightPosition;
+  late double heightPosition;
 
   /// store status of record if lock change to true else
   /// false
-  bool lockScreenRecord;
-  String mPath;
-  AudioEncoderType encode;
+  late bool lockScreenRecord;
+  late String mPath;
+  late AudioEncoderType encode;
 
   bool isLeftToRight = false;
   // ignore: sort_constructors_first
@@ -101,8 +101,8 @@ class SoundRecordNotifier extends ChangeNotifier {
     key = GlobalKey();
     heightPosition = 0;
     lockScreenRecord = false;
-    if (_timer != null) _timer.cancel();
-    if (_timerCounter != null) _timerCounter.cancel();
+    if (_timer != null) _timer!.cancel();
+    if (_timerCounter != null) _timerCounter!.cancel();
     recordMp3.stop();
     notifyListeners();
   }
@@ -130,10 +130,10 @@ class SoundRecordNotifier extends ChangeNotifier {
     }
   }
 
-  User _user;
+  late User _user;
   /// used to get the current store path
   Future<String> getFilePath() async {
-    _user = FirebaseAuth.instance.currentUser;
+    _user = FirebaseAuth.instance.currentUser!;
     String _sdPath = "";
     //if (Platform.isIOS) {
       Directory appDocDir = await getApplicationDocumentsDirectory();
@@ -165,8 +165,8 @@ class SoundRecordNotifier extends ChangeNotifier {
 
   bool playingAudioWhenLocked = false;
   AudioPlayer _audioPlayer = AudioPlayer();
-  Duration duration;
-  Duration currentDuration;
+  late Duration duration;
+  late Duration currentDuration;
   String hasPreviousPath = "";
 
   // void playAudioWhenLocked()async{

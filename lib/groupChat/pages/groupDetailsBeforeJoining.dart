@@ -23,7 +23,7 @@ import 'groupMembersPage.dart';
 class GroupDetailsBeforeJoining extends StatefulWidget {
   final String groupId;
 
-  const GroupDetailsBeforeJoining({Key key,this.groupId}) : super(key: key);
+  const GroupDetailsBeforeJoining({Key? key,required this.groupId}) : super(key: key);
 
   @override
   _GroupDetailsBeforeJoiningState createState() => _GroupDetailsBeforeJoiningState();
@@ -31,14 +31,14 @@ class GroupDetailsBeforeJoining extends StatefulWidget {
 
 class _GroupDetailsBeforeJoiningState extends State<GroupDetailsBeforeJoining> {
   final GlobalKey<ScaffoldState> _key = GlobalKey();
-  User currentUser = FirebaseAuth.instance.currentUser;
+  User currentUser = FirebaseAuth.instance.currentUser!;
   ThemeController themeController = Get.find<ThemeController>();
   bool isLoadedGroup = false;
-  QuerySnapshot searchResultSnapshot;
-  User _user;
+  QuerySnapshot? searchResultSnapshot;
+  User? _user;
 
-  String groupName;
-  String groupIcon;
+  String? groupName;
+  String? groupIcon;
 
   @override
   void initState() {
@@ -67,7 +67,7 @@ class _GroupDetailsBeforeJoiningState extends State<GroupDetailsBeforeJoining> {
           leading: IconButton(
             onPressed: (){
               Navigator.pop(context, true);
-              return Future.value(true);
+              //return Future.value(true);
             },
             icon: Icon(Icons.arrow_back,color: MateColors.activeIcons),
           ),
@@ -80,9 +80,9 @@ class _GroupDetailsBeforeJoiningState extends State<GroupDetailsBeforeJoining> {
               onTap: ()async{
                 String response  = await DynamicLinkService.buildDynamicLink(
                     groupId: widget.groupId,
-                    groupName: groupName,
-                    groupIcon: groupIcon,
-                    userName: _user.displayName
+                    groupName: groupName!,
+                    groupIcon: groupIcon!,
+                    userName: _user!.displayName!
                 );
                 if(response!=null){
                   Share.share(response);
@@ -104,11 +104,9 @@ class _GroupDetailsBeforeJoiningState extends State<GroupDetailsBeforeJoining> {
             stream: DatabaseService().getGroupDetails(widget.groupId),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                print(snapshot.data.data());
-                print(snapshot.data['createdAt']);
                 Future.delayed(Duration.zero,(){
-                  groupName = snapshot.data['groupName'];
-                  groupIcon = snapshot.data['groupIcon']??"";
+                  groupName = snapshot.data?['groupName'];
+                  groupIcon = snapshot.data?['groupIcon']??"";
                 });
                 return ListView(
                   shrinkWrap: true,
@@ -117,7 +115,6 @@ class _GroupDetailsBeforeJoiningState extends State<GroupDetailsBeforeJoining> {
                       height: 200,
                       decoration: BoxDecoration(
                         color: themeController.isDarkMode?MateColors.drawerTileColor:Colors.white,
-                        //borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.05),
@@ -129,16 +126,16 @@ class _GroupDetailsBeforeJoiningState extends State<GroupDetailsBeforeJoining> {
                       ),
                       child: Column(
                         children: [
-                          snapshot.data['groupIcon']!=""?
+                          snapshot.data?['groupIcon']!=""?
                           CircleAvatar(
                             radius: 50,
                             backgroundColor: MateColors.activeIcons,
-                            backgroundImage: NetworkImage(snapshot.data['groupIcon']),
+                            backgroundImage: NetworkImage(snapshot.data?['groupIcon']),
                           ):
                           CircleAvatar(
                             radius: 50,
                             backgroundColor: MateColors.activeIcons,
-                            child: Text(snapshot.data['groupName'].substring(0, 1).toUpperCase(),
+                            child: Text(snapshot.data?['groupName'].substring(0, 1).toUpperCase(),
                               textAlign: TextAlign.center,
                               style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white, fontSize: 28.5.sp, fontWeight: FontWeight.w500),
                             ),
@@ -146,7 +143,7 @@ class _GroupDetailsBeforeJoiningState extends State<GroupDetailsBeforeJoining> {
                           Flexible(
                             child: Padding(
                               padding: const EdgeInsets.only(top: 20,left: 16,right: 16),
-                              child: Text(snapshot.data['groupName'],
+                              child: Text(snapshot.data?['groupName'],
                                 textAlign: TextAlign.center,
                                 overflow: TextOverflow.ellipsis,
                                 style:  TextStyle(fontSize: 17,fontFamily: "Poppins",fontWeight: FontWeight.w700,color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,),
@@ -155,7 +152,7 @@ class _GroupDetailsBeforeJoiningState extends State<GroupDetailsBeforeJoining> {
                           ),
                           Padding(
                             padding: const EdgeInsets.only(top: 10,bottom: 10),
-                            child: Text("${snapshot.data['members'].length} ${snapshot.data['members'].length<2 ? "member": "members"}",
+                            child: Text("${snapshot.data!['members'].length} ${snapshot.data?['members'].length<2 ? "member": "members"}",
                               style:  TextStyle(fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.w400,color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,),
                             ),
                           ),
@@ -167,7 +164,7 @@ class _GroupDetailsBeforeJoiningState extends State<GroupDetailsBeforeJoining> {
                       thickness: 2,
                       height: 0,
                     ),
-                    !snapshot.data['members'].contains(_user.uid + '_' + _user.displayName)?
+                    !snapshot.data?['members'].contains(_user!.uid + '_' + _user!.displayName!)?
                     Container(
                       height: 40,
                       width: 120,
@@ -179,14 +176,14 @@ class _GroupDetailsBeforeJoiningState extends State<GroupDetailsBeforeJoining> {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                         ),
                         onPressed: ()async{
-                          await DatabaseService(uid: _user.uid).togglingGroupJoin(snapshot.data["groupId"], snapshot.data["groupName"].toString(), Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName);
-                          _showScaffold('Successfully joined the group "${snapshot.data["groupName"].toString()}"');
+                          await DatabaseService(uid: _user!.uid).togglingGroupJoin(snapshot.data?["groupId"], snapshot.data!["groupName"].toString(), Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName!);
+                          _showScaffold('Successfully joined the group "${snapshot.data?["groupName"].toString()}"');
                           Future.delayed(Duration(milliseconds: 100), () {
                             Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(
-                              groupId: snapshot.data["groupId"],
-                              userName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName,
-                              groupName: snapshot.data["groupName"].toString(),
-                                memberList : snapshot.data["members"],
+                              groupId: snapshot.data?["groupId"],
+                              userName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName!,
+                              groupName: snapshot.data!["groupName"].toString(),
+                                memberList : snapshot.data!["members"],
                             )));
                           });
                         },
@@ -218,12 +215,12 @@ class _GroupDetailsBeforeJoiningState extends State<GroupDetailsBeforeJoining> {
                       ),
                       child: InkWell(
                         onTap: (){
-                          Navigator.of(context).push(MaterialPageRoute(builder: (context)=>GroupMembersPage(groupId: widget.groupId,addPerson: snapshot.data['members'].contains(_user.uid + '_' + _user.displayName),)));
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context)=>GroupMembersPage(groupId: widget.groupId,addPerson: snapshot.data!['members'].contains(_user!.uid + '_' + _user!.displayName!),)));
                         },
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("${snapshot.data['members'].length} ${snapshot.data['members'].length<2 ? "member": "members"}",
+                            Text("${snapshot.data?['members'].length} ${snapshot.data?['members'].length<2 ? "member": "members"}",
                               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,),
                             ),
                             Container(
@@ -236,41 +233,41 @@ class _GroupDetailsBeforeJoiningState extends State<GroupDetailsBeforeJoining> {
                                       shrinkWrap: true,
                                       scrollDirection: Axis.horizontal,
                                       physics: NeverScrollableScrollPhysics(),
-                                      itemCount: snapshot.data['members'].length>5?5:snapshot.data['members'].length,
+                                      itemCount: snapshot.data?['members'].length>5?5:snapshot.data?['members'].length,
                                       itemBuilder: (context, index) {
-                                        return FutureBuilder(
-                                            future: DatabaseService().getUsersDetails(snapshot.data['members'][index].split("_")[0]),
+                                        return FutureBuilder<DocumentSnapshot>(
+                                            future: DatabaseService().getUsersDetails(snapshot.data?['members'][index].split("_")[0]),
                                             builder: (context, snapshot1) {
                                               if(snapshot1.hasData){
                                                 return Padding(
                                                   padding: EdgeInsets.only(left: index==0?0:16),
                                                   child: InkWell(
                                                     onTap: (){
-                                                      if(snapshot1.data.data()['uuid']!=null){
-                                                        if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                                      if(snapshot1.data!.get('uuid')!=null){
+                                                        if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                           Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                         } else {
                                                           Navigator.of(context).pushNamed(UserProfileScreen.routeName,
-                                                              arguments: {"id": snapshot1.data.data()['uuid'],
-                                                                "name": snapshot1.data.data()['displayName'],
-                                                                "photoUrl": snapshot1.data.data()['photoURL'],
-                                                                "firebaseUid": snapshot1.data.data()['uid']
+                                                              arguments: {"id": snapshot1.data!.get('uuid'),
+                                                                "name": snapshot1.data!.get('displayName'),
+                                                                "photoUrl": snapshot1.data!.get('photoURL'),
+                                                                "firebaseUid": snapshot1.data!.get('uid')
                                                               });
                                                         }
                                                       }
                                                     },
-                                                    child: snapshot1.data.data()['photoURL']!=null?
+                                                    child: snapshot1.data!.get('photoURL')!=null?
                                                     CircleAvatar(
                                                       radius: 20,
                                                       backgroundColor: MateColors.activeIcons,
                                                       backgroundImage: NetworkImage(
-                                                        snapshot1.data.data()['photoURL'],
+                                                        snapshot1.data!.get('photoURL'),
                                                       ),
                                                     ):
                                                     CircleAvatar(
                                                       radius: 20,
                                                       backgroundColor: MateColors.activeIcons,
-                                                      child: Text(snapshot.data['members'][index].split('_')[1].substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
+                                                      child: Text(snapshot.data!['members'][index].split('_')[1].substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
                                                     ),
                                                   ),
                                                 );
@@ -283,6 +280,7 @@ class _GroupDetailsBeforeJoiningState extends State<GroupDetailsBeforeJoining> {
                                                     child: LinearProgressIndicator(
                                                       color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                                                       minHeight: 3,
+                                                      backgroundColor: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                                                     ),
                                                   ),
                                                 );
@@ -291,8 +289,8 @@ class _GroupDetailsBeforeJoiningState extends State<GroupDetailsBeforeJoining> {
                                             }
                                         );
                                       }),
-                                  snapshot.data['members'].length>5?
-                                  Text("+${snapshot.data['members'].length - 5}",
+                                  snapshot.data!['members'].length>5?
+                                  Text("+${snapshot.data!['members'].length - 5}",
                                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: themeController.isDarkMode?MateColors.subTitleTextLight:MateColors.subTitleTextLight,),
                                   ):Offstage(),
                                 ],
@@ -302,7 +300,7 @@ class _GroupDetailsBeforeJoiningState extends State<GroupDetailsBeforeJoining> {
                         ),
                       ),
                     ),
-                    snapshot.data['members'].contains(_user.uid + '_' + _user.displayName)?
+                    snapshot.data!['members'].contains(_user!.uid + '_' + _user!.displayName!)?
                     Container(
                       width: MediaQuery.of(context).size.width,
                       margin: EdgeInsets.only(left: 16,right: 16,top: 20,bottom: 20),
@@ -328,13 +326,13 @@ class _GroupDetailsBeforeJoiningState extends State<GroupDetailsBeforeJoining> {
                           SizedBox(
                             height: 10,
                           ),
-                          (snapshot.data['description']==null || snapshot.data['description']=="")?
+                          (snapshot.data!['description']==null || snapshot.data!['description']=="")?
                           InkWell(
                             splashColor:  Colors.transparent,
                             highlightColor: Colors.transparent,
                             onTap: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context) => GroupDescriptionPage(
-                              groupId: snapshot.data['groupId'],
-                              description: snapshot.data['description'] ?? "",
+                              groupId: snapshot.data!['groupId'],
+                              description: snapshot.data!['description'] ?? "",
                             ))),
                             child: Text("Add group description",
                               style:  TextStyle(fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.w400,color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,),
@@ -344,21 +342,21 @@ class _GroupDetailsBeforeJoiningState extends State<GroupDetailsBeforeJoining> {
                             splashColor:  Colors.transparent,
                             highlightColor: Colors.transparent,
                             onTap: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context) => GroupDescriptionShowPage(
-                              groupId: snapshot.data['groupId'],
-                              description: snapshot.data['description'] ?? "",
-                              descriptionCreatorName: snapshot.data['descriptionCreatorName']??"",
-                              descriptionCreatorImage: snapshot.data['descriptionCreatorImage']??"",
-                              descriptionCreationTime: snapshot.data['descriptionCreationTime']??0,
+                              groupId: snapshot.data!['groupId'],
+                              description: snapshot.data!['description'] ?? "",
+                              descriptionCreatorName: snapshot.data!['descriptionCreatorName']??"",
+                              descriptionCreatorImage: snapshot.data!['descriptionCreatorImage']??"",
+                              descriptionCreationTime: snapshot.data!['descriptionCreationTime']??0,
                             ))),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(snapshot.data['description'].toString().length>100?
-                                snapshot.data['description'].toString().substring(0,100) + "...":
-                                snapshot.data['description'].toString(),
+                                Text(snapshot.data!['description'].toString().length>100?
+                                snapshot.data!['description'].toString().substring(0,100) + "...":
+                                snapshot.data!['description'].toString(),
                                   style:  TextStyle(fontSize: 14,fontFamily: "Poppins",fontWeight: FontWeight.w400,color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,),
                                 ),
-                                if(snapshot.data['description'].toString().length>100)
+                                if(snapshot.data!['description'].toString().length>100)
                                   Padding(
                                     padding: const EdgeInsets.only(top: 6),
                                     child: Text("See more",
@@ -390,36 +388,36 @@ class _GroupDetailsBeforeJoiningState extends State<GroupDetailsBeforeJoining> {
                           physics: BouncingScrollPhysics(),
                           padding: EdgeInsets.only(left: 16,right: 0),
                           scrollDirection: Axis.horizontal,
-                          itemCount: searchResultSnapshot.docs.length,
+                          itemCount: searchResultSnapshot!.docs.length,
                           itemBuilder: (context, index) {
-                            if(searchResultSnapshot.docs[index]["isPrivate"] != null){
-                              if(searchResultSnapshot.docs[index]["isPrivate"] == false && !searchResultSnapshot.docs[index]["members"].contains(_user.uid + '_' + _user.displayName)){
-                                  if(searchResultSnapshot.docs[index]["groupName"].toString().contains(snapshot.data['groupName'][0]) || searchResultSnapshot.docs[index]["admin"].toString().contains(snapshot.data['admin'])){
+                            if(searchResultSnapshot!.docs[index]["isPrivate"] != null){
+                              if(searchResultSnapshot!.docs[index]["isPrivate"] == false && !searchResultSnapshot!.docs[index]["members"].contains(_user!.uid + '_' + _user!.displayName!)){
+                                  if(searchResultSnapshot!.docs[index]["groupName"].toString().contains(snapshot.data!['groupName'][0]) || searchResultSnapshot!.docs[index]["admin"].toString().contains(snapshot.data!['admin'])){
                                     return InkWell(
                                       onTap: (){
-                                        if(searchResultSnapshot.docs[index]["members"].contains(_user.uid + '_' + _user.displayName)){
+                                        if(searchResultSnapshot!.docs[index]["members"].contains(_user!.uid + '_' + _user!.displayName!)){
                                           Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(
-                                            groupId: snapshot.data["groupId"],
-                                            userName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName,
-                                            totalParticipant: snapshot.data["members"].length.toString(),
-                                            photoURL: snapshot.data['groupIcon'],
-                                            groupName: snapshot.data["groupName"].toString(),
-                                            memberList : snapshot.data["members"],
+                                            groupId: snapshot.data!["groupId"],
+                                            userName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName!,
+                                            totalParticipant: snapshot.data!["members"].length.toString(),
+                                            photoURL: snapshot.data!['groupIcon'],
+                                            groupName: snapshot.data!["groupName"].toString(),
+                                            memberList : snapshot.data!["members"],
                                           )));
                                         }else{
-                                          Navigator.of(context).push(MaterialPageRoute(builder: (context)=>GroupDetailsBeforeJoining(groupId: searchResultSnapshot.docs[index]["groupId"],)));
+                                          Navigator.of(context).push(MaterialPageRoute(builder: (context)=>GroupDetailsBeforeJoining(groupId: searchResultSnapshot!.docs[index]["groupId"],)));
                                         }
                                       },
                                       child: groupTile(
-                                          Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName,
-                                          searchResultSnapshot.docs[index]["groupId"],
-                                          searchResultSnapshot.docs[index]["groupName"].toString(),
-                                          searchResultSnapshot.docs[index]["admin"],
-                                          searchResultSnapshot.docs[index]["members"].length,
-                                          searchResultSnapshot.docs[index]["maxParticipantNumber"],
-                                          searchResultSnapshot.docs[index]["isPrivate"],
-                                          searchResultSnapshot.docs[index]["members"].contains(_user.uid + '_' + _user.displayName),
-                                          searchResultSnapshot.docs[index]["groupIcon"]
+                                          Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName!,
+                                          searchResultSnapshot!.docs[index]["groupId"],
+                                          searchResultSnapshot!.docs[index]["groupName"].toString(),
+                                          searchResultSnapshot!.docs[index]["admin"],
+                                          searchResultSnapshot!.docs[index]["members"].length,
+                                          searchResultSnapshot!.docs[index]["maxParticipantNumber"],
+                                          searchResultSnapshot!.docs[index]["isPrivate"],
+                                          searchResultSnapshot!.docs[index]["members"].contains(_user!.uid + '_' + _user!.displayName!),
+                                          searchResultSnapshot!.docs[index]["groupIcon"]
                                       ),
                                     );
                                   }else{

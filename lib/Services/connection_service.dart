@@ -7,7 +7,7 @@ import 'package:mate_app/Model/conncetionListingModel.dart';
 class ConnectionService{
 
 
-  Future<String> addConnection({String uid,String name,String uuid,String token})async{
+  Future<String> addConnection({required String uid,required String name,required String uuid,required String token})async{
     String result = "";
     debugPrint("https://api.mateapp.us/api/connection/requests/$uuid");
     log(token);
@@ -37,7 +37,7 @@ class ConnectionService{
   }
 
 
-  Future<List<Datum>> getConnection({String token})async{
+  Future<List<Datum>> getConnection({required String token})async{
     List<Datum> list = [];
     debugPrint("https://api.mateapp.us/api/connections");
     debugPrint(token);
@@ -50,7 +50,7 @@ class ConnectionService{
         var parsed = json.decode(utf8.decode(response.bodyBytes));
         debugPrint(parsed.toString());
         ConncetionLIstingModel conncetionLIstingModel = ConncetionLIstingModel.fromJson(parsed);
-        list = conncetionLIstingModel.data;
+        list = conncetionLIstingModel.data!;
       }else {
         var parsed = json.decode(utf8.decode(response.bodyBytes));
         debugPrint(parsed.toString());
@@ -61,7 +61,7 @@ class ConnectionService{
     return list;
   }
 
-  Future<List<ConnectionGetSentData>> getConnectionRequestsSent({String token})async{
+  Future<List<ConnectionGetSentData>> getConnectionRequestsSent({required String token})async{
     List<ConnectionGetSentData> list = [];
     debugPrint("https://api.mateapp.us/api/connection/requests");
     debugPrint(token);
@@ -88,7 +88,7 @@ class ConnectionService{
     return list;
   }
 
-  Future<List<ConnectionGetSentData>> getConnectionRequestsGet({String token})async{
+  Future<List<ConnectionGetSentData>> getConnectionRequestsGet({required String token})async{
     List<ConnectionGetSentData> list = [];
     debugPrint("https://api.mateapp.us/api/connection/requests?reverse=1");
     debugPrint(token);
@@ -115,7 +115,7 @@ class ConnectionService{
     return list;
   }
 
-  Future<bool> connectionAcceptReject({int connectionRequestId,String status,String token})async{
+  Future<bool> connectionAcceptReject({required int connectionRequestId,required String status,required String token})async{
     bool result = false;
     debugPrint("https://api.mateapp.us/api/connection/requests/$connectionRequestId/update");
     log(token);
@@ -144,7 +144,7 @@ class ConnectionService{
 
 
 
-  Future<String> removeConnection({int connId,String token})async{
+  Future<String> removeConnection({required int connId,required String token})async{
     String result = "";
     debugPrint("https://api.mateapp.us/api/connections/$connId/delete");
     log(token);

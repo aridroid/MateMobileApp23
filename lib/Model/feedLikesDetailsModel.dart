@@ -1,8 +1,8 @@
 class FeedLikesDetailsModel {
-  bool success;
+  bool? success;
   dynamic emojiGroups;
-  Data data;
-  String message;
+  Data? data;
+  String? message;
 
   FeedLikesDetailsModel({this.success, this.emojiGroups, this.data, this.message});
 
@@ -22,7 +22,7 @@ class FeedLikesDetailsModel {
       data['emojiGroups'] = this.emojiGroups;
     }
     if (this.data != null) {
-      data['data'] = this.data.toJson();
+      data['data'] = this.data?.toJson();
     }
     data['message'] = this.message;
     return data;
@@ -30,15 +30,15 @@ class FeedLikesDetailsModel {
 }
 
 class Data {
-  List<Result> result;
-  Pagination pagination;
+  List<Result>? result;
+  Pagination? pagination;
 
   Data({this.result, this.pagination});
 
   Data.fromJson(Map<String, dynamic> json) {
     if (json['result'] != null) {
       result = <Result>[];
-      json['result'].forEach((v) { result.add(new Result.fromJson(v)); });
+      json['result'].forEach((v) { result?.add(new Result.fromJson(v)); });
     }
     pagination = json['pagination'] != null ? new Pagination.fromJson(json['pagination']) : null;
   }
@@ -46,23 +46,23 @@ class Data {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     if (this.result != null) {
-      data['result'] = this.result.map((v) => v.toJson()).toList();
+      data['result'] = this.result?.map((v) => v.toJson()).toList();
     }
     if (this.pagination != null) {
-      data['pagination'] = this.pagination.toJson();
+      data['pagination'] = this.pagination?.toJson();
     }
     return data;
   }
 }
 
 class Result {
-  int id;
-  int feedId;
-  int userId;
-  int emojiValue;
-  String createdAt;
-  String updatedAt;
-  User user;
+  int? id;
+  int? feedId;
+  int? userId;
+  int? emojiValue;
+  String? createdAt;
+  String? updatedAt;
+  User? user;
 
   Result({this.id, this.feedId, this.userId, this.emojiValue, this.createdAt, this.updatedAt, this.user});
 
@@ -85,19 +85,19 @@ class Result {
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;
     if (this.user != null) {
-      data['user'] = this.user.toJson();
+      data['user'] = this.user?.toJson();
     }
     return data;
   }
 }
 
 class User {
-  String uuid;
-  String firstName;
-  String lastName;
-  String displayName;
-  String firebaseUid;
-  String profilePhoto;
+  String? uuid;
+  String? firstName;
+  String? lastName;
+  String? displayName;
+  String? firebaseUid;
+  String? profilePhoto;
 
   User({this.uuid, this.firstName, this.lastName, this.displayName, this.firebaseUid, this.profilePhoto});
 
@@ -123,12 +123,12 @@ class User {
 }
 
 class Pagination {
-  int total;
-  int count;
-  int perPage;
-  int currentPage;
-  int totalPages;
-  bool morePages;
+  int? total;
+  int? count;
+  int? perPage;
+  int? currentPage;
+  int? totalPages;
+  bool? morePages;
 
   Pagination({this.total, this.count, this.perPage, this.currentPage, this.totalPages, this.morePages});
 

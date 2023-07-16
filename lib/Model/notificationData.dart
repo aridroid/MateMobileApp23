@@ -1,14 +1,14 @@
 class NotificationData {
-  int id;
-  Sender sender;
-  String title;
+  int? id;
+  Sender? sender;
+  String? title;
   Null description;
-  String postType;
-  int postId;
+  String? postType;
+  int? postId;
   Null commentId;
-  bool isRead;
-  String created;
-  String updatedAt;
+  bool? isRead;
+  String? created;
+  String? updatedAt;
 
   NotificationData(
       {this.id,
@@ -40,7 +40,7 @@ class NotificationData {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = this.id;
     if (this.sender != null) {
-      data['sender'] = this.sender.toJson();
+      data['sender'] = this.sender?.toJson();
     }
     data['title'] = this.title;
     data['description'] = this.description;
@@ -55,11 +55,11 @@ class NotificationData {
 }
 
 class Sender {
-  String id;
-  String name;
-  String photoUrl;
-  String firebaseUid;
-  String university;
+  String? id;
+  String? name;
+  String? photoUrl;
+  String? firebaseUid;
+  String? university;
 
   Sender(
       {this.id, this.name, this.photoUrl, this.firebaseUid, this.university});

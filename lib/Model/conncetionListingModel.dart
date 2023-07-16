@@ -15,9 +15,9 @@ class ConncetionLIstingModel {
     this.message,
   });
 
-  bool success;
-  List<Datum> data;
-  String message;
+  bool? success;
+  List<Datum>? data;
+  String? message;
 
   factory ConncetionLIstingModel.fromJson(Map<String, dynamic> json) => ConncetionLIstingModel(
     success: json["success"],
@@ -27,7 +27,7 @@ class ConncetionLIstingModel {
 
   Map<String, dynamic> toJson() => {
     "success": success,
-    "data": List<dynamic>.from(data.map((x) => x.toJson())),
+    "data": List<dynamic>.from(data!.map((x) => x.toJson())),
     "message": message,
   };
 }
@@ -43,13 +43,13 @@ class Datum {
     this.updatedAt,
   });
 
-  int id;
-  String uid;
-  String name;
-  int userId;
-  String status;
-  DateTime createdAt;
-  DateTime updatedAt;
+  int? id;
+  String? uid;
+  String? name;
+  int? userId;
+  String? status;
+  DateTime? createdAt;
+  DateTime? updatedAt;
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
     id: json["id"],
@@ -67,23 +67,23 @@ class Datum {
     "name": name,
     "user_id": userId,
     "status": status,
-    "created_at": createdAt.toIso8601String(),
-    "updated_at": updatedAt.toIso8601String(),
+    "created_at": createdAt?.toIso8601String(),
+    "updated_at": updatedAt?.toIso8601String(),
   };
 }
 
 
 class ConnectionGetSentData {
-  int id;
-  int connUserId;
-  String connUid;
-  String connName;
-  int senderUserId;
-  String senderUid;
-  String senderName;
+  int? id;
+  int? connUserId;
+  String? connUid;
+  String? connName;
+  int? senderUserId;
+  String? senderUid;
+  String? senderName;
   Null status;
-  String createdAt;
-  String updatedAt;
+  String? createdAt;
+  String? updatedAt;
 
   ConnectionGetSentData(
       {this.id,

@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 class FeedSearchBar extends StatefulWidget {
-  final bool isFollowingFeeds;
+  final bool? isFollowingFeeds;
 
-  const FeedSearchBar({Key key, this.isFollowingFeeds}) : super(key: key);
+  const FeedSearchBar({Key? key, this.isFollowingFeeds}) : super(key: key);
 
   @override
   _FeedSearchBarState createState() => _FeedSearchBarState();
@@ -74,7 +74,7 @@ class _FeedSearchBarState extends State<FeedSearchBar> {
                 ),
               ),
             ),
-            Expanded(child: widget.isFollowingFeeds!=null?TimeLine(searchKeyword: searchText.trim(),isFollowingFeeds: widget.isFollowingFeeds,):TimeLine(searchKeyword: searchText.trim(),)),
+            Expanded(child: widget.isFollowingFeeds!=null?TimeLine(searchKeyword: searchText.trim(),isFollowingFeeds: widget.isFollowingFeeds!,):TimeLine(searchKeyword: searchText.trim(),)),
           ],
         ),
       ),

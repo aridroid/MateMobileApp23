@@ -10,14 +10,14 @@ import '../../../groupChat/services/database_service.dart';
 class AddNoticePage extends StatefulWidget {
   final String groupId;
   final String notice;
-  const AddNoticePage({Key key,this.groupId,this.notice}) : super(key: key);
+  const AddNoticePage({Key? key,required this.groupId,required this.notice}) : super(key: key);
 
   @override
   _AddNoticePageState createState() => _AddNoticePageState();
 }
 
 class _AddNoticePageState extends State<AddNoticePage> {
-  TextEditingController descText;
+  late TextEditingController descText;
   ThemeController themeController = Get.find<ThemeController>();
 
 
@@ -138,7 +138,7 @@ class _AddNoticePageState extends State<AddNoticePage> {
     );
   }
 
-  InputDecoration _customInputDecoration({@required String labelText, IconData icon}) {
+  InputDecoration _customInputDecoration({required String labelText, IconData? icon}) {
     return InputDecoration(
       hintStyle: TextStyle(
         fontSize: 14,

@@ -9,15 +9,15 @@ class CustomDialog extends StatelessWidget {
   // /
   // / Typically used in conjunction with [showDialog].
   const CustomDialog({
-    Key key,
-    this.backgroundColor,
+    Key? key,
+    required this.backgroundColor,
     this.elevation,
     this.insetAnimationDuration = const Duration(milliseconds: 100),
     this.insetAnimationCurve = Curves.decelerate,
     this.insetPadding = _defaultInsetPadding,
     this.clipBehavior = Clip.none,
     this.shape,
-    this.child,
+    required this.child,
   }) : assert(clipBehavior != null),
         super(key: key);
 
@@ -37,7 +37,7 @@ class CustomDialog extends StatelessWidget {
   // / dialog's elevation is 24.0.
   // / {@endtemplate}
   // / {@macro flutter.material.material.elevation}
-  final double elevation;
+  final double? elevation;
 
   // / {@template flutter.material.dialog.insetAnimationDuration}
   // / The duration of the animation to show when the system keyboard intrudes
@@ -82,7 +82,7 @@ class CustomDialog extends StatelessWidget {
   // /
   // / The default shape is a [RoundedRectangleBorder] with a radius of 4.0
   // / {@endtemplate}
-  final ShapeBorder shape;
+  final ShapeBorder? shape;
 
   // / The widget below this widget in the tree.
   // /

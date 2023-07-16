@@ -1,7 +1,7 @@
 class CampusLiveCommentResponseModel {
-  bool success;
-  Data data;
-  String message;
+  bool? success;
+  Data? data;
+  String? message;
 
   CampusLiveCommentResponseModel({this.success, this.data, this.message});
 
@@ -15,7 +15,7 @@ class CampusLiveCommentResponseModel {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['success'] = this.success;
     if (this.data != null) {
-      data['data'] = this.data.toJson();
+      data['data'] = this.data?.toJson();
     }
     data['message'] = this.message;
     return data;
@@ -23,16 +23,16 @@ class CampusLiveCommentResponseModel {
 }
 
 class Data {
-  int id;
+  int? id;
   Null parentId;
-  int postId;
-  int userId;
-  String content;
-  String createdAt;
-  String updatedAt;
-  int likesCount;
-  bool isLikedBool;
-  User user;
+  int? postId;
+  int? userId;
+  String? content;
+  String? createdAt;
+  String? updatedAt;
+  int? likesCount;
+  bool? isLikedBool;
+  User? user;
   Null isLiked;
 
   Data(
@@ -74,7 +74,7 @@ class Data {
     data['likes_count'] = this.likesCount;
     data['is_liked_bool'] = this.isLikedBool;
     if (this.user != null) {
-      data['user'] = this.user.toJson();
+      data['user'] = this.user?.toJson();
     }
     data['is_liked'] = this.isLiked;
     return data;
@@ -84,8 +84,8 @@ class Data {
 class User {
   Null firstName;
   Null lastName;
-  String displayName;
-  String firebaseUid;
+  String? displayName;
+  String? firebaseUid;
 
   User({this.firstName, this.lastName, this.displayName, this.firebaseUid});
 

@@ -21,9 +21,9 @@ class ConnectingScreen extends StatefulWidget {
   final String callType;
   final List<dynamic> uid;
   final bool isGroupCalling;
-  final String groupOrPeerId;
-  final String groupOrCallerName;
-  const ConnectingScreen({Key key, this.receiverImage, this.receiverName, this.callType, this.uid, this.isGroupCalling, this.groupOrPeerId, this.groupOrCallerName}) : super(key: key);
+  final String? groupOrPeerId;
+  final String? groupOrCallerName;
+  const ConnectingScreen({Key? key, required this.receiverImage, required this.receiverName, required this.callType, required this.uid, required this.isGroupCalling, this.groupOrPeerId, this.groupOrCallerName}) : super(key: key);
 
   @override
   State<ConnectingScreen> createState() => _ConnectingScreenState();
@@ -32,9 +32,9 @@ class ConnectingScreen extends StatefulWidget {
 class _ConnectingScreenState extends State<ConnectingScreen> with SingleTickerProviderStateMixin{
   ThemeController themeController = Get.find<ThemeController>();
   bool callPushApi = true;
-  User _user;
-  String tokenApi;
-  AnimationController _controller;
+  late User _user;
+  late String tokenApi;
+  late AnimationController _controller;
 
   @override
   void dispose() {
@@ -44,7 +44,7 @@ class _ConnectingScreenState extends State<ConnectingScreen> with SingleTickerPr
 
   @override
   void initState() {
-    _user = FirebaseAuth.instance.currentUser;
+    _user = FirebaseAuth.instance.currentUser!;
     _controller = AnimationController(
       vsync: this,
       lowerBound: 0.5,
@@ -57,7 +57,7 @@ class _ConnectingScreenState extends State<ConnectingScreen> with SingleTickerPr
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    tokenApi = preferences.getString("token");
+    tokenApi = preferences.getString("tokenApp")!;
   }
 
   @override
@@ -215,7 +215,7 @@ class _ConnectingScreenState extends State<ConnectingScreen> with SingleTickerPr
           channelName: channelNameRand,
           token: response,
           callerImage: widget.isGroupCalling ? widget.receiverImage!=""?widget.receiverImage:"" : _user.photoURL??"",
-          callerName: widget.isGroupCalling ? widget.receiverName : _user.displayName,
+          callerName: widget.isGroupCalling ? widget.receiverName : _user.displayName!,
           uid: uid,
           isGroupCall: widget.isGroupCalling,
         );
@@ -223,7 +223,7 @@ class _ConnectingScreenState extends State<ConnectingScreen> with SingleTickerPr
           await [Permission.microphone, Permission.camera].request();
           List<String> members = [];
           if(widget.isGroupCalling){
-            DocumentSnapshot groupDetails = await DatabaseService().getGroupDetailsOnce(widget.groupOrPeerId);
+            DocumentSnapshot groupDetails = await DatabaseService().getGroupDetailsOnce(widget.groupOrPeerId!);
             List<dynamic> groupMembers = groupDetails["members"];
             for(int i=0;i<groupMembers.length;i++){
               String temp = groupMembers[i].toString().split("_").first;
@@ -232,8 +232,8 @@ class _ConnectingScreenState extends State<ConnectingScreen> with SingleTickerPr
           }
           await DatabaseService().createCall(
             channelName: channelNameRand,
-            groupIdORPeerId: widget.groupOrPeerId,
-            groupNameORCallerName: widget.groupOrCallerName,
+            groupIdORPeerId: widget.groupOrPeerId!,
+            groupNameORCallerName: widget.groupOrCallerName!,
             videoOrAudio: widget.callType,
             token: response,
             callerUid: _user.uid,
@@ -260,7 +260,7 @@ class _ConnectingScreenState extends State<ConnectingScreen> with SingleTickerPr
     }
   }
 
-  Future<String> joinVideoCall({String channelName})async{
+  Future<String> joinVideoCall({required String channelName})async{
     String result = "";
     debugPrint("https://api.mateapp.us/api/agora/token?channel_name=$channelName&user_name=0");
     try {
@@ -281,7 +281,7 @@ class _ConnectingScreenState extends State<ConnectingScreen> with SingleTickerPr
     return result;
   }
 
-  Future<String> notifyPushNotification({String channelName,String token,String callerName,String callerImage,List<String> uid,bool isGroupCall})async{
+  Future<String> notifyPushNotification({required String channelName,required String token,required String callerName,required String callerImage,required List<String> uid,required bool isGroupCall})async{
     String result = "";
     debugPrint("https://api.mateapp.us/api/agora/callPushNotify");
     Map body = {

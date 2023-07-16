@@ -29,10 +29,10 @@ class _CreateEventState extends State<CreateEvent> {
   int locationLength = 0;
   int linkLength= 0;
   int linkTextLength= 0;
-  File _image;
-  File _video;
-  String _base64encodedImage;
-  String _base64encodedVideo;
+  File? _image;
+  File? _video;
+  String? _base64encodedImage;
+  String? _base64encodedVideo;
   final picker = ImagePicker();
   TextEditingController _title = TextEditingController();
   TextEditingController _description = TextEditingController();
@@ -44,12 +44,12 @@ class _CreateEventState extends State<CreateEvent> {
   TextEditingController _link = TextEditingController();
   bool isLoading = false;
   ScrollController _scrollController = ScrollController();
-  String dateValue;
-  String timeValue;
-  String timeValueEnd;
+  String? dateValue;
+  String? timeValue;
+  String? timeValueEnd;
   EventService _eventService = EventService();
   String token = "";
-  EventCategoryModel eventCategoryModel;
+  late EventCategoryModel eventCategoryModel;
   List<int> categoryId = [];
   List<String> categoryName = [];
   int selectedCategoryId = 0;
@@ -70,11 +70,11 @@ class _CreateEventState extends State<CreateEvent> {
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
     eventCategoryModel = await _eventService.getCategory(token: token);
-    for(int i=0;i<eventCategoryModel.data.length;i++){
-      categoryId.add(eventCategoryModel.data[i].id);
-      categoryName.add(eventCategoryModel.data[i].name);
+    for(int i=0;i<eventCategoryModel.data!.length;i++){
+      categoryId.add(eventCategoryModel.data![i].id!);
+      categoryName.add(eventCategoryModel.data![i].name!);
     }
     if(categoryId.isNotEmpty && categoryName.isNotEmpty){
       selectedCategoryId = categoryId[0];
@@ -94,7 +94,7 @@ class _CreateEventState extends State<CreateEvent> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           ),
           onPressed: ()async{
-            if(_formKey.currentState.validate()){
+            if(_formKey.currentState!.validate()){
               if(selectedCategoryId==0){
                 Fluttertoast.showToast(msg: "Please select category", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
                 return;
@@ -350,7 +350,7 @@ class _CreateEventState extends State<CreateEvent> {
                                       ),
                                       onChanged: (newValue) {
                                         setState(() {
-                                          selectedCategoryName = newValue;
+                                          selectedCategoryName = newValue!;
                                           int index = categoryName.indexOf(selectedCategoryName);
                                           selectedCategoryId = categoryId[index];
                                         });
@@ -385,7 +385,7 @@ class _CreateEventState extends State<CreateEvent> {
                                   ),
                                   textInputAction: TextInputAction.next,
                                   validator: (value) {
-                                    if(value.isEmpty){
+                                    if(value!.isEmpty){
                                       return "This field is required";
                                     }
                                     return null;
@@ -419,7 +419,7 @@ class _CreateEventState extends State<CreateEvent> {
                                   minLines: 3,
                                   maxLines: 8,
                                   validator: (value) {
-                                    if(value.isEmpty){
+                                    if(value!.isEmpty){
                                       return "This field is required";
                                     }
                                     return null;
@@ -566,7 +566,7 @@ class _CreateEventState extends State<CreateEvent> {
                                     setState(() {});
                                   },
                                   validator: (value) {
-                                    if(value.isEmpty){
+                                    if(value!.isEmpty){
                                       return "This field is required";
                                     }
                                     return null;
@@ -710,7 +710,7 @@ class _CreateEventState extends State<CreateEvent> {
                                   textInputAction: TextInputAction.done,
                                   maxLength: 50,
                                   validator: (value) {
-                                    if(value.isEmpty){
+                                    if(value!.isEmpty){
                                       return "This field is required";
                                     }
                                     return null;
@@ -747,7 +747,7 @@ class _CreateEventState extends State<CreateEvent> {
                                   textInputAction: TextInputAction.done,
                                   maxLength: 50,
                                   validator: (value) {
-                                    if(value.isEmpty){
+                                    if(value!.isEmpty){
                                       return "This field is required";
                                     }
                                     return null;
@@ -800,7 +800,7 @@ class _CreateEventState extends State<CreateEvent> {
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(8.0),
                                         clipBehavior: Clip.hardEdge,
-                                        child: Image.file(_image,fit: BoxFit.fill),
+                                        child: Image.file(_image!,fit: BoxFit.fill),
                                       ),
                                     ),
                                     Positioned(
@@ -833,7 +833,7 @@ class _CreateEventState extends State<CreateEvent> {
                                       height: 150,
                                       width: MediaQuery.of(context).size.width,
                                       margin: EdgeInsets.only(top: 30),
-                                      child: VideoThumbnailFile(videoUrl: _video),
+                                      child: VideoThumbnailFile(videoUrl: _video!),
                                     ),
                                     Positioned(
                                       top: 18,
@@ -882,16 +882,16 @@ class _CreateEventState extends State<CreateEvent> {
     );
   }
 
-  void getDate({BuildContext context}) async {
-    DateTime dateLocal = await showDatePicker(
+  void getDate({required BuildContext context}) async {
+    DateTime? dateLocal = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime(2050),
-      builder: (BuildContext context, Widget child) {
+      builder: (BuildContext context, Widget? child) {
         return Theme(
           data: ThemeData.light(),
-          child: child,
+          child: child!,
         );
       },
     );
@@ -906,13 +906,13 @@ class _CreateEventState extends State<CreateEvent> {
   }
 
   void selectTime(BuildContext context) async {
-    final TimeOfDay picked = await showTimePicker(
+    final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
-      builder: (BuildContext context, Widget child) {
+      builder: (BuildContext context, Widget? child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
-          child: child,
+          child: child!,
         );
       },
     );
@@ -928,13 +928,13 @@ class _CreateEventState extends State<CreateEvent> {
   }
 
   void selectTimeEnd(BuildContext context) async {
-    final TimeOfDay picked = await showTimePicker(
+    final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
-      builder: (BuildContext context, Widget child) {
+      builder: (BuildContext context, Widget? child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
-          child: child,
+          child: child!,
         );
       },
     );
@@ -950,7 +950,7 @@ class _CreateEventState extends State<CreateEvent> {
     }
   }
 
-  InputDecoration _customInputDecoration({@required String labelText, IconData icon,bool isSuffix=false}) {
+  InputDecoration _customInputDecoration({required String labelText, IconData? icon,bool isSuffix=false}) {
     return InputDecoration(
       hintStyle: TextStyle(
         fontSize: 16,

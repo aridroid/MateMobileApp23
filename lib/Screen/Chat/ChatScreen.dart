@@ -88,7 +88,7 @@ class _ChatScreenState extends State<ChatScreen> implements ChatListener {
                       ),
                       padding: EdgeInsets.all(16),
                       child: Text(
-                        message.textMessage,
+                        message.textMessage!,
                         style: TextStyle(fontSize: 15),
                       ),
                     ),
@@ -103,7 +103,7 @@ class _ChatScreenState extends State<ChatScreen> implements ChatListener {
                         ? Alignment.topRight
                         : Alignment.topLeft),
                     child: Image.network(
-                      message.textMessage,
+                      message.textMessage!,
                       width: 150,
                       height: 150,
                     ),

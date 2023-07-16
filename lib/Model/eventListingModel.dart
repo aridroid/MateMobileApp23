@@ -15,9 +15,9 @@ class EventListingModel {
     this.message,
   });
 
-  bool success;
-  Data data;
-  String message;
+  bool? success;
+  Data? data;
+  String? message;
 
   factory EventListingModel.fromJson(Map<String, dynamic> json) => EventListingModel(
     success: json["success"],
@@ -27,7 +27,7 @@ class EventListingModel {
 
   Map<String, dynamic> toJson() => {
     "success": success,
-    "data": data.toJson(),
+    "data": data?.toJson(),
     "message": message,
   };
 }
@@ -38,8 +38,8 @@ class Data {
     this.pagination,
   });
 
-  List<Result> result;
-  Pagination pagination;
+  List<Result>? result;
+  Pagination? pagination;
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
     result: List<Result>.from(json["result"].map((x) => Result.fromJson(x))),
@@ -47,8 +47,8 @@ class Data {
   );
 
   Map<String, dynamic> toJson() => {
-    "result": List<dynamic>.from(result.map((x) => x.toJson())),
-    "pagination": pagination.toJson(),
+    "result": List<dynamic>.from(result!.map((x) => x.toJson())),
+    "pagination": pagination?.toJson(),
   };
 }
 
@@ -62,12 +62,12 @@ class Pagination {
     this.morePages,
   });
 
-  int total;
-  int count;
-  int perPage;
-  int currentPage;
-  int totalPages;
-  bool morePages;
+  int? total;
+  int? count;
+  int? perPage;
+  int? currentPage;
+  int? totalPages;
+  bool? morePages;
 
   factory Pagination.fromJson(Map<String, dynamic> json) => Pagination(
     total: json["total"],
@@ -117,31 +117,31 @@ class Result {
     this.isFollowed,
   });
 
-  int id;
-  String uuid;
-  int userId;
-  String title;
-  String description;
-  String locationOpt;
-  int typeId;
-  String location;
-  String hyperLinkText;
-  String hyperLink;
-  DateTime date;
-  String time;
-  String endTime;
-  String photoUrl;
-  String videoUrl;
-  String status;
-  DateTime createdAt;
-  DateTime updatedAt;
-  int bookmarksCount;
-  int commentsCount;
-  List<GoingList> goingList;
-  User user;
+  int? id;
+  String? uuid;
+  int? userId;
+  String? title;
+  String? description;
+  String? locationOpt;
+  int? typeId;
+  String? location;
+  String? hyperLinkText;
+  String? hyperLink;
+  DateTime? date;
+  String? time;
+  String? endTime;
+  String? photoUrl;
+  String? videoUrl;
+  String? status;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+  int? bookmarksCount;
+  int? commentsCount;
+  List<GoingList>? goingList;
+  User? user;
   dynamic isBookmarked;
-  IsReacted isReacted;
-  bool isFollowed;
+  IsReacted? isReacted;
+  bool? isFollowed;
 
   factory Result.fromJson(Map<String, dynamic> json) => Result(
     id: json["id"],
@@ -182,20 +182,20 @@ class Result {
     "location": location,
     "hyperlinkText": hyperLinkText,
     "hyperlink": hyperLink,
-    "date": "${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}",
+    "date": "${date?.year.toString().padLeft(4, '0')}-${date?.month.toString().padLeft(2, '0')}-${date?.day.toString().padLeft(2, '0')}",
     "time": time,
     "end_time" : endTime,
     "photo_url": photoUrl == null ? null : photoUrl,
     "video_url": videoUrl == null ? null : videoUrl,
     "status": status,
-    "created_at": createdAt.toIso8601String(),
-    "updated_at": updatedAt.toIso8601String(),
+    "created_at": createdAt?.toIso8601String(),
+    "updated_at": updatedAt?.toIso8601String(),
     "bookmarks_count": bookmarksCount,
     "comments_count": commentsCount,
-    "going_list" : List<dynamic>.from(goingList.map((x) => x.toJson())),
-    "user": user.toJson(),
+    "going_list" : List<dynamic>.from(goingList!.map((x) => x.toJson())),
+    "user": user?.toJson(),
     "is_bookmarked": isBookmarked,
-    "is_reacted": isReacted == null ? null : isReacted.toJson(),
+    "is_reacted": isReacted == null ? null : isReacted?.toJson(),
     "is_followed": isFollowed,
   };
 }
@@ -210,12 +210,12 @@ class GoingList {
     this.firebaseUid,
     this.profilePhoto,
   });
-  int id;
-  String firstName;
-  String lastName;
-  String displayName;
-  String firebaseUid;
-  String profilePhoto;
+  int? id;
+  String? firstName;
+  String? lastName;
+  String? displayName;
+  String? firebaseUid;
+  String? profilePhoto;
 
   factory GoingList.fromJson(Map<String, dynamic> json) => GoingList(
     id : json['id'],
@@ -247,12 +247,12 @@ class IsReacted {
     this.updatedAt,
   });
 
-  int id;
-  int eventId;
-  int userId;
-  String status;
-  DateTime createdAt;
-  DateTime updatedAt;
+  int? id;
+  int? eventId;
+  int? userId;
+  String? status;
+  DateTime? createdAt;
+  DateTime? updatedAt;
 
   factory IsReacted.fromJson(Map<String, dynamic> json) => IsReacted(
     id: json["id"],
@@ -268,8 +268,8 @@ class IsReacted {
     "event_id": eventId,
     "user_id": userId,
     "status": status,
-    "created_at": createdAt.toIso8601String(),
-    "updated_at": updatedAt.toIso8601String(),
+    "created_at": createdAt?.toIso8601String(),
+    "updated_at": updatedAt?.toIso8601String(),
   };
 }
 
@@ -283,12 +283,12 @@ class User {
     this.profilePhoto,
   });
 
-  String uuid;
-  String firstName;
-  String lastName;
-  String displayName;
-  String firebaseUid;
-  String profilePhoto;
+  String? uuid;
+  String? firstName;
+  String? lastName;
+  String? displayName;
+  String? firebaseUid;
+  String? profilePhoto;
 
   factory User.fromJson(Map<String, dynamic> json) => User(
     uuid: json["uuid"],

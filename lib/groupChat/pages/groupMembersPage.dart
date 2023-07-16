@@ -21,7 +21,7 @@ import '../services/database_service.dart';
 class GroupMembersPage extends StatefulWidget {
   final String groupId;
   final bool addPerson;
-  const GroupMembersPage({Key key, this.groupId, this.addPerson}) : super(key: key);
+  const GroupMembersPage({Key? key, required this.groupId, required this.addPerson}) : super(key: key);
 
   @override
   _GroupMembersPageState createState() => _GroupMembersPageState();
@@ -29,18 +29,18 @@ class GroupMembersPage extends StatefulWidget {
 
 class _GroupMembersPageState extends State<GroupMembersPage> {
   ThemeController themeController = Get.find<ThemeController>();
-  User currentUser = FirebaseAuth.instance.currentUser;
-  DocumentSnapshot documentSnapshot;
+  User currentUser = FirebaseAuth.instance.currentUser!;
+  DocumentSnapshot? documentSnapshot;
   List<UserListModel> userListAll = [];
   List<UserListModel> userList = [];
   bool isLoading = false;
   String groupId = "";
   String groupName = "";
-  String token;
+  String? token;
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp");
   }
 
   @override
@@ -57,15 +57,15 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
     });
     documentSnapshot =  await DatabaseService().getGroupDetailsOnce(widget.groupId);
     setState(() {
-      groupId = documentSnapshot['groupId'];
-      groupName = documentSnapshot['groupName'];
+      groupId = documentSnapshot!['groupId'];
+      groupName = documentSnapshot!['groupName'];
     });
 
     QuerySnapshot allUser = await DatabaseService().getUsersDetailsAll();
 
     List<String> uidList = [];
-    for(int i=0;i<documentSnapshot['members'].length;i++){
-      uidList.add(documentSnapshot['members'][i].split("_")[0]);
+    for(int i=0;i<documentSnapshot!['members'].length;i++){
+      uidList.add(documentSnapshot!['members'][i].split("_")[0]);
     }
 
     for(int i=0;i<allUser.docs.length;i++){
@@ -156,7 +156,6 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
                 stream: DatabaseService().getGroupDetails(widget.groupId),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
-                      print(snapshot.data['createdAt']);
                       return ListView(
                         shrinkWrap: true,
                         padding: EdgeInsets.only(top: 0),
@@ -205,7 +204,7 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
                                       backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
                                       child: Text(userList[index].displayName.substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
                                     ),
-                                    trailing: userList[index].uid == snapshot.data['creatorId']?
+                                    trailing: userList[index].uid == snapshot.data!['creatorId']?
                                     Row(
                                       mainAxisSize: MainAxisSize.min,
                                       mainAxisAlignment: MainAxisAlignment.end,
@@ -300,7 +299,7 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
   }
 
 
-  _showAddConnectionAlertDialog({@required String uid, @required String name, @required String uuid})async{
+  _showAddConnectionAlertDialog({required String uid, required String name, required String uuid})async{
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -313,7 +312,7 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
               isDefaultAction: true,
               child: Text("Yes"),
               onPressed: ()async{
-                String res = await ConnectionService().addConnection(uid: uid,name: name,uuid:uuid,token: token);
+                String res = await ConnectionService().addConnection(uid: uid,name: name,uuid:uuid,token: token!);
                 //Connection saved successfully
                 //Connection already exists
                 Navigator.of(context).pop();
@@ -342,5 +341,5 @@ class UserListModel {
   String displayName;
   String photoURL;
   String email;
-  UserListModel({this.uuid, this.uid, this.displayName,this.photoURL,this.email});
+  UserListModel({required this.uuid, required this.uid, required this.displayName,required this.photoURL,required this.email});
 }

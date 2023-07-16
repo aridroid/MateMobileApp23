@@ -20,17 +20,17 @@ class BeAMateRow extends StatefulWidget {
   final int beAMateId;
   final String title;
   final String description;
-  final String portfolioLink;
-  final String fromDate;
-  final String toDate;
-  final String fromTime;
-  final String toTime;
-  final String hyperlinkText;
-  final String hyperlink;
+  final String? portfolioLink;
+  final String? fromDate;
+  final String? toDate;
+  final String? fromTime;
+  final String? toTime;
+  final String? hyperlinkText;
+  final String? hyperlink;
   final String createdAt;
-  final int rowIndex;
+  final int? rowIndex;
   final bool isActive;
-  const BeAMateRow({Key key, this.user, this.beAMateId, this.title, this.description, this.portfolioLink, this.fromDate, this.toDate, this.fromTime, this.toTime, this.createdAt, this.rowIndex, this.isActive, this.hyperlinkText, this.hyperlink}) : super(key: key);
+  const BeAMateRow({Key? key, required this.user, required this.beAMateId, required this.title, required this.description, this.portfolioLink, this.fromDate, required this.toDate, this.fromTime, this.toTime, required this.createdAt, this.rowIndex, required this.isActive, this.hyperlinkText, this.hyperlink}) : super(key: key);
 
   @override
   _BeAMateRowState createState() => _BeAMateRowState(this.user, this.beAMateId, this.title, this.description, this.portfolioLink, this.fromDate, this.toDate, this.fromTime, this.toTime, this.createdAt, this.rowIndex, this.isActive, this.hyperlinkText, this.hyperlink);
@@ -41,29 +41,29 @@ class _BeAMateRowState extends State<BeAMateRow> {
   final int beAMateId;
   final String title;
   final String description;
-  final String portfolioLink;
-  final String fromDate;
-  final String toDate;
-  final String fromTime;
-  final String toTime;
-  final String hyperlinkText;
-  final String hyperlink;
+  final String? portfolioLink;
+  final String? fromDate;
+  final String? toDate;
+  final String? fromTime;
+  final String? toTime;
+  final String? hyperlinkText;
+  final String? hyperlink;
   final String createdAt;
-  final int rowIndex;
+  final int? rowIndex;
   bool isActive;
   _BeAMateRowState(this.user, this.beAMateId, this.title, this.description, this.portfolioLink, this.fromDate, this.toDate, this.fromTime, this.toTime, this.createdAt, this.rowIndex, this.isActive, this.hyperlinkText, this.hyperlink);
 
-  BeAMateProvider beAMateProvider;
-  List<String> fromTimeLocal;
-  List<String> toTimeLocal;
+  late BeAMateProvider beAMateProvider;
+  late List<String> fromTimeLocal;
+  late List<String> toTimeLocal;
 
   @override
   void initState() {
     if(fromTime!=null){
-      fromTimeLocal = fromTime.split(":");
+      fromTimeLocal = fromTime!.split(":");
     }
     if(toTime!=null){
-      toTimeLocal = toTime.split(":");
+      toTimeLocal = toTime!.split(":");
     }
     beAMateProvider = Provider.of<BeAMateProvider>(context,listen: false);
     super.initState();
@@ -94,7 +94,7 @@ class _BeAMateRowState extends State<BeAMateRow> {
               CircleAvatar(
                 radius: 20,
                 backgroundImage: NetworkImage(
-                  user.profilePhoto,
+                  user.profilePhoto!,
                 ),
               ):
               CircleAvatar(
@@ -112,7 +112,7 @@ class _BeAMateRowState extends State<BeAMateRow> {
                 }
               },
               child: Text(
-                user.displayName,
+                user.displayName!,
                 style: TextStyle(
                   fontSize: 15,
                   fontFamily: 'Poppins',
@@ -133,7 +133,7 @@ class _BeAMateRowState extends State<BeAMateRow> {
                 if(index==0){
 
                 }else if(index==1){
-                  _showDeleteAlertDialog(beAMateId: widget.beAMateId, rowIndex: widget.rowIndex);
+                  _showDeleteAlertDialog(beAMateId: widget.beAMateId, rowIndex: widget.rowIndex!);
                 }else if(index==2){
                   Navigator.push(context, MaterialPageRoute(builder: (context) => ReportPage(moduleId: widget.beAMateId,moduleType: "beMate",),));
                 }
@@ -226,8 +226,8 @@ class _BeAMateRowState extends State<BeAMateRow> {
             padding: EdgeInsets.fromLTRB(15, 10, 14, 0),
             child: InkWell(
               onTap: ()async{
-                if (await canLaunch(portfolioLink)) {
-                  await launch(portfolioLink);
+                if (await canLaunch(portfolioLink!)) {
+                  await launch(portfolioLink!);
                 } else {
                   throw 'Could not launch $portfolioLink';
                 }
@@ -247,8 +247,8 @@ class _BeAMateRowState extends State<BeAMateRow> {
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
             onTap: () async{
-              if (await canLaunch(hyperlink))
-                await launch(hyperlink);
+              if (await canLaunch(hyperlink!))
+                await launch(hyperlink!);
               else
                 Fluttertoast.showToast(msg: " Could not launch given URL '$hyperlink'", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
               throw "Could not launch $hyperlink";
@@ -256,7 +256,7 @@ class _BeAMateRowState extends State<BeAMateRow> {
             child: Padding(
               padding: EdgeInsets.only(left: 16,top: 10,right: 10),
               child: Text(
-                hyperlinkText,
+                hyperlinkText!,
                 style: TextStyle(
                   fontSize: 14,
                   fontFamily: 'Poppins',
@@ -366,14 +366,14 @@ class _BeAMateRowState extends State<BeAMateRow> {
                           borderRadius: 14.0,
                           showOnOff: true,
                           onToggle: (val) async {
-                            bool updated = await Provider.of<BeAMateProvider>(context, listen: false).activeBeAMatePost(widget.beAMateId, widget.rowIndex, val);
+                            bool updated = await Provider.of<BeAMateProvider>(context, listen: false).activeBeAMatePost(widget.beAMateId, widget.rowIndex!, val);
                             if (updated) {
                               if (value.beAMateActiveData != null) {
-                                if (value.beAMateActiveData.message == "Post activated successfully" && value.beAMateActiveData.data.id == beAMateId) {
-                                  value.beAMatePostsDataList[widget.rowIndex].isActive = true;
+                                if (value.beAMateActiveData.message == "Post activated successfully" && value.beAMateActiveData.data!.id == beAMateId) {
+                                  value.beAMatePostsDataList[widget.rowIndex!].isActive = true;
                                   isActive = true;
-                                } else if (value.beAMateActiveData.message == "Post de-activated successfully" && value.beAMateActiveData.data.id == beAMateId) {
-                                  value.beAMatePostsDataList[widget.rowIndex].isActive = false;
+                                } else if (value.beAMateActiveData.message == "Post de-activated successfully" && value.beAMateActiveData.data!.id == beAMateId) {
+                                  value.beAMatePostsDataList[widget.rowIndex!].isActive = false;
                                   isActive = false;
                                 }
                               }
@@ -391,7 +391,7 @@ class _BeAMateRowState extends State<BeAMateRow> {
     );
   }
 
-  _showDeleteAlertDialog({@required int beAMateId, @required int rowIndex,}) async {
+  _showDeleteAlertDialog({required int beAMateId, required int rowIndex,}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!

@@ -26,8 +26,8 @@ import 'memberList.dart';
 
 class EventSearch extends StatefulWidget {
   static final String routes = '/eventSearch';
-  final bool isLocal;
-  const EventSearch({Key key, this.isLocal}) : super(key: key);
+  final bool? isLocal;
+  const EventSearch({Key? key, this.isLocal}) : super(key: key);
 
   @override
   _EventSearchState createState() => _EventSearchState();
@@ -37,24 +37,24 @@ class _EventSearchState extends State<EventSearch> {
   ThemeController themeController = Get.find<ThemeController>();
   String token = "";
   EventService _eventService = EventService();
-  Future<EventListingModel> future;
+  late Future<EventListingModel?> future;
   int page = 1;
   bool enterFutureBuilder = false;
   List<Result> list = [];
   List<bool> isBookMark = [];
   List<String> reaction = [];
   TextEditingController _textEditingController = TextEditingController();
-  ScrollController _scrollController;
+  late ScrollController _scrollController;
   bool doingPagination = false;
-  ClientId _credentials;
-  auth.User _currentUser = auth.FirebaseAuth.instance.currentUser;
+  late ClientId _credentials;
+  auth.User _currentUser = auth.FirebaseAuth.instance.currentUser!;
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
   }
 
-  Timer _throttle;
+  Timer? _throttle;
   _onSearchChanged() {
     if (_throttle?.isActive??false) _throttle?.cancel();
     _throttle = Timer(const Duration(milliseconds: 200), () {
@@ -66,7 +66,7 @@ class _EventSearchState extends State<EventSearch> {
 
   fetchData()async{
     page = 1;
-    if(widget.isLocal){
+    if(widget.isLocal!){
       print("///////////Local search//////////////");
       future = _eventService.getSearchLocal(text: _textEditingController.text,page: page,token: token);
       future.then((value) {
@@ -104,7 +104,7 @@ class _EventSearchState extends State<EventSearch> {
             doingPagination = true;
           });
           print('scrolled to bottom page is now $page');
-          if(widget.isLocal){
+          if(widget.isLocal!){
             print("///////////Local search Pagination//////////////");
             future = _eventService.getSearchLocal(text: _textEditingController.text,page: page,token: token);
             future.then((value) {
@@ -252,22 +252,22 @@ class _EventSearchState extends State<EventSearch> {
                   shrinkWrap: true,
                   physics: const ScrollPhysics(),
                   children: [
-                    FutureBuilder<EventListingModel>(
+                    FutureBuilder<EventListingModel?>(
                       future: future,
                       builder: (context,snapshot){
                         if(snapshot.hasData){
-                          if(snapshot.data.success==true || doingPagination==true){
+                          if(snapshot.data!.success==true || doingPagination==true){
                             if(enterFutureBuilder){
                               if(doingPagination==false){
                                 list.clear();
                                 isBookMark.clear();
                                 reaction.clear();
                               }
-                              for(int i=0;i<snapshot.data.data.result.length;i++){
-                                list.add(snapshot.data.data.result[i]);
-                                isBookMark.add(snapshot.data.data.result[i].isBookmarked!=null?true:false);
-                                if(snapshot.data.data.result[i].isReacted!=null){
-                                  reaction.add(snapshot.data.data.result[i].isReacted.status=="Going"?"Going":"Interested");
+                              for(int i=0;i<snapshot.data!.data!.result!.length;i++){
+                                list.add(snapshot.data!.data!.result![i]);
+                                isBookMark.add(snapshot.data!.data!.result![i].isBookmarked!=null?true:false);
+                                if(snapshot.data!.data!.result![i].isReacted!=null){
+                                  reaction.add(snapshot.data!.data!.result![i].isReacted!.status=="Going"?"Going":"Interested");
                                 }else{
                                   reaction.add("blank");
                                 }
@@ -299,10 +299,10 @@ class _EventSearchState extends State<EventSearch> {
                                       ListTile(
                                         leading: CircleAvatar(
                                           radius: 20,
-                                          backgroundImage: NetworkImage(list[index].user.profilePhoto),
+                                          backgroundImage: NetworkImage(list[index].user!.profilePhoto!),
                                         ),
                                         title: Text(
-                                          list[index].user.displayName,
+                                          list[index].user!.displayName!,
                                           style: TextStyle(
                                             fontSize: 15,
                                             fontFamily: 'Poppins',
@@ -343,7 +343,7 @@ class _EventSearchState extends State<EventSearch> {
 
                                                 insertEvent(event);
                                               } else if (index1 == 1) {
-                                                Navigator.push(context, MaterialPageRoute(builder: (context) => Chat(peerUuid: list[index].user.uuid, currentUserId: _currentUser.uid, peerId: list[index].user.firebaseUid, peerAvatar: list[index].user.profilePhoto, peerName: list[index].user.displayName)));
+                                                Navigator.push(context, MaterialPageRoute(builder: (context) => Chat(peerUuid: list[index].user!.uuid!, currentUserId: _currentUser.uid, peerId: list[index].user!.firebaseUid!, peerAvatar: list[index].user!.profilePhoto!, peerName: list[index].user!.displayName!)));
                                               }else if(index1 == 6){
                                                 String response  = await DynamicLinkService.buildDynamicLinkEvent(
                                                   id: list[index].id.toString(),
@@ -412,7 +412,7 @@ class _EventSearchState extends State<EventSearch> {
                                         child: Padding(
                                           padding: EdgeInsets.only(left: 16,top: 0),
                                           child: Text(
-                                            list[index].title,
+                                            list[index].title!,
                                             style: TextStyle(
                                               fontSize: 16,
                                               fontFamily: 'Poppins',
@@ -438,7 +438,7 @@ class _EventSearchState extends State<EventSearch> {
                                         child: Padding(
                                           padding: EdgeInsets.only(left: 16,top: 10,right: 10),
                                           child: Text(
-                                            list[index].description,
+                                            list[index].description!,
                                             style: TextStyle(
                                               fontSize: 14,
                                               fontFamily: 'Poppins',
@@ -454,8 +454,8 @@ class _EventSearchState extends State<EventSearch> {
                                         splashColor: Colors.transparent,
                                         highlightColor: Colors.transparent,
                                         onTap: () async{
-                                          if (await canLaunch(list[index].hyperLink))
-                                            await launch(list[index].hyperLink);
+                                          if (await canLaunch(list[index].hyperLink!))
+                                            await launch(list[index].hyperLink!);
                                           else
                                             Fluttertoast.showToast(msg: " Could not launch given URL '${list[index].hyperLink}'", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
                                           throw "Could not launch ${list[index].hyperLink}";
@@ -463,7 +463,7 @@ class _EventSearchState extends State<EventSearch> {
                                         child: Padding(
                                           padding: EdgeInsets.only(left: 16,top: 10,right: 10),
                                           child: Text(
-                                            list[index].hyperLinkText,
+                                            list[index].hyperLinkText!,
                                             style: TextStyle(
                                               fontSize: 14,
                                               fontFamily: 'Poppins',
@@ -483,7 +483,7 @@ class _EventSearchState extends State<EventSearch> {
                                             ),
                                             SizedBox(width: 8,),
                                             Text(
-                                              list[index].location,
+                                              list[index].location!,
                                               style: TextStyle(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w400,
@@ -540,7 +540,7 @@ class _EventSearchState extends State<EventSearch> {
                                           ],
                                         ),
                                       ),
-                                      if(list[index].goingList.length>0)
+                                      if(list[index].goingList!.length>0)
                                         Container(
                                           height: 40,
                                           margin: EdgeInsets.only(left: 16,top: 10),
@@ -552,28 +552,28 @@ class _EventSearchState extends State<EventSearch> {
                                                   scrollDirection: Axis.horizontal,
                                                   shrinkWrap: true,
                                                   physics: ScrollPhysics(),
-                                                  itemCount: list[index].goingList.length>6?6:list[index].goingList.length,
+                                                  itemCount: list[index].goingList!.length>6?6:list[index].goingList!.length,
                                                   itemBuilder: (context,ind){
                                                     return InkWell(
                                                       onTap: (){
-                                                        Get.to(MemberList(list: list[index].goingList,));
+                                                        Get.to(MemberList(list: list[index].goingList!,));
                                                       },
                                                       child: CircleAvatar(
                                                         radius: 12,
                                                         backgroundColor: MateColors.activeIcons,
-                                                        backgroundImage: NetworkImage(list[index].goingList[ind].profilePhoto),
+                                                        backgroundImage: NetworkImage(list[index].goingList![ind].profilePhoto!),
                                                       ),
                                                     );
                                                   }
                                               ),
-                                              list[index].goingList.length>6?
+                                              list[index].goingList!.length>6?
                                               InkWell(
                                                 onTap: (){
-                                                  Get.to(MemberList(list: list[index].goingList,));
+                                                  Get.to(MemberList(list: list[index].goingList!,));
                                                 },
                                                 child: Padding(
                                                   padding: const EdgeInsets.only(left: 5),
-                                                  child: Text("+${list[index].goingList.length -6}",
+                                                  child: Text("+${list[index].goingList!.length -6}",
                                                     style: TextStyle(
                                                       fontSize: 14,
                                                       fontWeight: FontWeight.w400,
@@ -605,22 +605,22 @@ class _EventSearchState extends State<EventSearch> {
                                                         height: 150,
                                                         width: MediaQuery.of(context).size.width/1.2,
                                                         child: InkWell(
-                                                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>MediaViewer(url: list[index].photoUrl,))),
+                                                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>MediaViewer(url: list[index].photoUrl!,))),
                                                           child: ClipRRect(
                                                             borderRadius: BorderRadius.circular(12.0),
                                                             clipBehavior: Clip.hardEdge,
                                                             child: Image.network(
-                                                              list[index].photoUrl,
+                                                              list[index].photoUrl!,
                                                               fit: BoxFit.cover,
                                                             ),
                                                           ),
                                                         ),
                                                       ),
                                                     ):list[index].videoUrl!=null?
-                                                    VideoThumbnail(videoUrl: list[index].videoUrl,isLeftPadding: false,):Container();
+                                                    VideoThumbnail(videoUrl: list[index].videoUrl!,isLeftPadding: false,):Container();
                                                 }else{
                                                   return list[index].videoUrl!=null?
-                                                  VideoThumbnail(videoUrl: list[index].videoUrl):Container();
+                                                  VideoThumbnail(videoUrl: list[index].videoUrl!):Container();
                                                 }
                                               }
                                           ),
@@ -637,7 +637,7 @@ class _EventSearchState extends State<EventSearch> {
                                                     if(reaction[index]=="Interested" || reaction[index]=="blank"){
                                                       reaction[index] = "Going";
                                                       setState(() {});
-                                                      _eventService.reaction(id: list[index].id,reaction: "Going",token: token);
+                                                      _eventService.reaction(id: list[index].id!,reaction: "Going",token: token);
                                                     }
                                                   },
                                                   child: Container(
@@ -669,7 +669,7 @@ class _EventSearchState extends State<EventSearch> {
                                                     if(reaction[index]=="Going" || reaction[index]=="blank"){
                                                       reaction[index] = "Interested";
                                                       setState(() {});
-                                                      _eventService.reaction(id: list[index].id,reaction: "Interested",token: token);
+                                                      _eventService.reaction(id: list[index].id!,reaction: "Interested",token: token);
                                                     }
                                                   },
                                                   child: Container(
@@ -748,7 +748,7 @@ class _EventSearchState extends State<EventSearch> {
                                                     setState(() {
                                                       isBookMark[index] = !isBookMark[index];
                                                     });
-                                                    _eventService.bookMark(id: list[index].id, token: token);
+                                                    _eventService.bookMark(id: list[index].id!, token: token);
                                                   },
                                                   child: Container(
                                                     height: 39,

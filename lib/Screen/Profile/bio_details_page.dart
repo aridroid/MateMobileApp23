@@ -6,7 +6,7 @@ import '../../asset/Colors/MateColors.dart';
 
 class BioDetailsPage extends StatefulWidget {
   final String bio;
-  const BioDetailsPage({Key key, this.bio}) : super(key: key);
+  const BioDetailsPage({Key? key, required this.bio}) : super(key: key);
 
   @override
   _BioDetailsPageState createState() => _BioDetailsPageState();

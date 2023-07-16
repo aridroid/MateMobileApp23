@@ -1,7 +1,7 @@
 class Course {
-  int id;
-  String identifier;
-  String title;
+  int? id;
+  String? identifier;
+  String? title;
 
   Course({this.id, this.identifier, this.title});
 

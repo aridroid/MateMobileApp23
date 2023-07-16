@@ -28,15 +28,15 @@ class CampusTalkComments extends StatefulWidget {
   final bool isListCard;
   final bool isSearch;
   final postModel.User user;
-  const CampusTalkComments({Key key,
+  const CampusTalkComments({Key? key,
     this.isTrending = false,
     this.isLatest = false,
     this.isForums = false,
     this.isYourCampus = false,
     this.isListCard = false,
     this.isSearch = false,
-    this.user,
-    this.postId, this.postIndex, this.isBookmarkedPage=false, this.isUserProfile=false}) : super(key: key);
+    required this.user,
+    required this.postId, required this.postIndex, this.isBookmarkedPage=false, this.isUserProfile=false}) : super(key: key);
 
   @override
   _CampusTalkCommentsState createState() => _CampusTalkCommentsState();
@@ -136,14 +136,14 @@ class CampusTalkCommentsWidget extends StatefulWidget {
   final bool isListCard;
   final bool isSearch;
   final postModel.User user;
-  const CampusTalkCommentsWidget({Key key, this.isBookmarkedPage, this.isUserProfile, this.postIndex, this.postId,
+  const CampusTalkCommentsWidget({Key? key, required this.isBookmarkedPage, required this.isUserProfile, required this.postIndex, required this.postId,
     this.isTrending = false,
     this.isLatest = false,
     this.isForums = false,
     this.isYourCampus = false,
     this.isListCard = false,
     this.isSearch = false,
-    this.user,
+    required this.user,
   }) : super(key: key);
 
   @override
@@ -154,7 +154,7 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
   TextEditingController messageEditingController = new TextEditingController();
   ThemeController themeController = Get.find<ThemeController>();
   bool messageSentCheck = false;
-  XFile imageFile;
+  XFile? imageFile;
   bool isLoading = false;
   bool  isAnonymous =false;
 
@@ -193,9 +193,9 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
                       reverse: true,
                       physics: ScrollPhysics(),
                       padding: EdgeInsets.fromLTRB(16, 10, 16, 16),
-                      itemCount: campusTalkProvider.commentFetchData.data.result.length,
+                      itemCount: campusTalkProvider.commentFetchData!.data!.result!.length,
                       itemBuilder: (context, index) {
-                        Result commentData=campusTalkProvider.commentFetchData.data.result[index];
+                        Result commentData=campusTalkProvider.commentFetchData!.data!.result![index];
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -203,14 +203,14 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
                               child: GestureDetector(
                                 onTap: (){
                                   if(commentData.isAnonymous==0){
-                                    if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == commentData.user.uuid) {
+                                    if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == commentData.user!.uuid) {
                                       Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                     } else {
                                       Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                        "id": commentData.user.uuid,
-                                        "name": commentData.user.displayName,
-                                        "photoUrl": commentData.user.profilePhoto,
-                                        "firebaseUid": commentData.user.firebaseUid
+                                        "id": commentData.user!.uuid,
+                                        "name": commentData.user!.displayName,
+                                        "photoUrl": commentData.user!.profilePhoto,
+                                        "firebaseUid": commentData.user!.firebaseUid
                                       });
                                     }
                                   }
@@ -221,7 +221,7 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
                                   leading: commentData.isAnonymous==0?
                                   ClipOval(
                                     child: Image.network(
-                                      commentData.user.profilePhoto,
+                                      commentData.user!.profilePhoto!,
                                       height: 28,
                                       width: 28,
                                       fit: BoxFit.cover,
@@ -238,7 +238,7 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
                                   title: Padding(
                                     padding: const EdgeInsets.only(top: 10),
                                     child: buildEmojiAndText(
-                                      content: commentData.content,
+                                      content: commentData.content!,
                                       textStyle: TextStyle(
                                         fontWeight: FontWeight.w400,
                                         letterSpacing: 0.1,
@@ -252,7 +252,7 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
                                   subtitle: Padding(
                                     padding: const EdgeInsets.only(top: 5),
                                     child: Text(
-                                      DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(commentData.createdAt, true)),
+                                      DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(commentData.createdAt!, true)),
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
@@ -269,7 +269,7 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
                                   InkWell(
                                     onTap: ()=> Navigator.of(context).push(MaterialPageRoute(
                                         builder: (context) => CampusTalkCommentReply(
-                                          commentId: commentData.id,
+                                          commentId: commentData.id!,
                                           commentIndex: index,
                                           postId: widget.postId,
                                           isBookmarkedPage: widget.isBookmarkedPage,
@@ -293,7 +293,7 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
                                       ),
                                     ),
                                   ),
-                                  Text(commentData.replies.isEmpty?"":commentData.repliesCount>1?
+                                  Text(commentData.replies!.isEmpty?"":commentData.repliesCount!>1?
                                   "   •   ${commentData.repliesCount} Replies":
                                   "   •   ${commentData.repliesCount} Reply",
                                     style: TextStyle(
@@ -306,7 +306,7 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
                                   ),
                                   Spacer(),
                                   Visibility(
-                                      visible: Provider.of<AuthUserProvider>(context, listen: false).authUser.id == commentData.user.uuid,
+                                      visible: Provider.of<AuthUserProvider>(context, listen: false).authUser.id == commentData.user!.uuid,
                                       child: Consumer<CampusTalkProvider>(
                                         builder: (context, value, child) {
                                           if(commentData.isDeleting){
@@ -321,10 +321,10 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
                                           }else{
                                             return InkWell(
                                               onTap: () async{
-                                                bool updated = await Provider.of<CampusTalkProvider>(context, listen: false).deleteCommentsOfACampusTalk(commentData.id, index);
+                                                bool updated = await Provider.of<CampusTalkProvider>(context, listen: false).deleteCommentsOfACampusTalk(commentData.id!, index);
                                                 if (updated) {
                                                   if(widget.isBookmarkedPage){
-                                                    --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsBookmarkData.data.result[widget.postIndex].commentsCount;
+                                                    --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsBookmarkData.data!.result![widget.postIndex].commentsCount;
                                                   }
                                                   if(widget.isUserProfile){
                                                     --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkByUserPostsResultsList[widget.postIndex].commentsCount;
@@ -366,13 +366,13 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
                               ),
                             ),
                             Visibility(
-                              visible: commentData.repliesCount>1,
+                              visible: commentData.repliesCount!>1,
                               child: Padding(
                                 padding: EdgeInsets.fromLTRB(55, 10, 5, 0),
                                 child: InkWell(
                                   onTap: ()=> Navigator.of(context).push(MaterialPageRoute(
                                       builder: (context) => CampusTalkCommentReply(
-                                        commentId: commentData.id,
+                                        commentId: commentData.id!,
                                         commentIndex: index,
                                         postId: widget.postId,
                                         isBookmarkedPage: widget.isBookmarkedPage,
@@ -399,7 +399,7 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
                                 ),
                               ),
                             ),
-                            commentData.replies.isNotEmpty?
+                            commentData.replies!.isNotEmpty?
                             Padding(
                               padding: EdgeInsets.fromLTRB(40, 0, 0, 5),
                               child: Row(
@@ -408,15 +408,15 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
                                   Expanded(
                                     child: InkWell(
                                       onTap: () {
-                                        if( commentData.replies.last.isAnonymous==0){
-                                          if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == commentData.replies.last.user.uuid) {
+                                        if( commentData.replies!.last.isAnonymous==0){
+                                          if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == commentData.replies!.last.user!.uuid) {
                                             Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                           } else {
                                             Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                              "id": commentData.replies.last.user.uuid,
-                                              "name": commentData.replies.last.user.displayName,
-                                              "photoUrl": commentData.replies.last.user.profilePhoto,
-                                              "firebaseUid": commentData.replies.last.user.firebaseUid
+                                              "id": commentData.replies!.last.user!.uuid,
+                                              "name": commentData.replies!.last.user!.displayName,
+                                              "photoUrl": commentData.replies!.last.user!.profilePhoto,
+                                              "firebaseUid": commentData.replies!.last.user!.firebaseUid
                                             });
                                           }
                                         }
@@ -424,7 +424,7 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
                                       child: ListTile(
                                         horizontalTitleGap: 1,
                                         dense: true,
-                                        leading: commentData.replies.last.isAnonymous==1?
+                                        leading: commentData.replies!.last.isAnonymous==1?
                                         ClipOval(
                                           child: Image.asset(
                                             "lib/asset/logo.png",
@@ -433,22 +433,22 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
                                             fit: BoxFit.fitWidth,
                                           ),
                                         ):
-                                        commentData.replies.last.user.profilePhoto != null ?
+                                        commentData.replies!.last.user!.profilePhoto != null ?
                                         ClipOval(
                                           child: Image.network(
-                                            commentData.replies.last.user.profilePhoto,
+                                            commentData.replies!.last.user!.profilePhoto!,
                                             height: 28,
                                             width: 28,
                                             fit: BoxFit.cover,
                                           ),
                                         ):CircleAvatar(
                                           radius: 14,
-                                          child: Text(commentData.replies.last.user.displayName[0],),
+                                          child: Text(commentData.replies!.last.user!.displayName![0],),
                                         ),
                                         title: Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: buildEmojiAndText(
-                                            content: commentData.replies.last.content,
+                                            content: commentData.replies!.last.content!,
                                             textStyle: TextStyle(
                                               fontWeight: FontWeight.w400,
                                               letterSpacing: 0.1,
@@ -462,7 +462,7 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
                                         subtitle: Padding(
                                           padding: const EdgeInsets.only(top: 5),
                                           child: Text(
-                                            DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(commentData.replies.last.createdAt, true)),
+                                            DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(commentData.replies!.last.createdAt!, true)),
                                             style: TextStyle(
                                               fontSize: 12,
                                               color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
@@ -571,7 +571,7 @@ class _CampusTalkCommentsWidgetState extends State<CampusTalkCommentsWidget> {
 
                             if (updated) {
                               if(widget.isBookmarkedPage){
-                                ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsBookmarkData.data.result[widget.postIndex].commentsCount;
+                                ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsBookmarkData.data!.result![widget.postIndex].commentsCount;
                               }
                               if(widget.isUserProfile){
                                 ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkByUserPostsResultsList[widget.postIndex].commentsCount;

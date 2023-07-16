@@ -9,7 +9,7 @@ class ReportProvider extends ChangeNotifier{
 
   /// initialization
 
-  ReportService _reportService;
+  ReportService _reportService = ReportService();
   String _apiError = "";
   Map<String, dynamic> _validationErrors = Map();
 
@@ -19,13 +19,13 @@ class ReportProvider extends ChangeNotifier{
   bool _userBlockLoader = false;
   bool _appUpdateLoader = false;
 
-  AppUpdateModel _appUpdateModelData;
+  AppUpdateModel? _appUpdateModelData;
 
 
   ///constructor
-  ReportProvider() {
-    _reportService = ReportService();
-  }
+  // ReportProvider() {
+  //   _reportService = ReportService();
+  // }
 
 
   ///getters
@@ -36,7 +36,7 @@ class ReportProvider extends ChangeNotifier{
 
   bool get appUpdateLoader => _appUpdateLoader;
 
-  AppUpdateModel get appUpdateModelData => _appUpdateModelData;
+  AppUpdateModel? get appUpdateModelData => _appUpdateModelData;
 
   String get error => _apiError;
 

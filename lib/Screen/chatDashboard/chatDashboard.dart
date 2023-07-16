@@ -5,6 +5,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:mate_app/Screen/Home/CommunityTab/communityTab.dart';
+import 'package:mate_app/Screen/chatBot/chat_bot_screen.dart';
 import 'package:mate_app/Screen/chatDashboard/chatMergedSearch.dart';
 import 'package:mate_app/Screen/chatDashboard/new_message.dart';
 import 'package:provider/provider.dart';
@@ -38,15 +39,15 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
   ThemeController themeController = Get.find<ThemeController>();
   final AddUserController _addUserController = Get.put(AddUserController());
   final GlobalKey<ScaffoldState> _key = GlobalKey();
-  User _user = FirebaseAuth.instance.currentUser;
-  String personChatId;
-  PageController _pageController;
+  User _user = FirebaseAuth.instance.currentUser!;
+  late String personChatId;
+  late PageController _pageController;
   List<CallHistoryModel> callHistoryList = [];
   bool isLoading = true;
   int _selectedIndex = 0;
   int universityId = 0;
-  String university;
-  String displayName;
+  late String university;
+  late String displayName;
 
   @override
   void initState() {
@@ -65,13 +66,13 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
     super.dispose();
   }
 
-  String token;
+  late String token;
   getStoredValue()async{
     universityId = Provider.of<AuthUserProvider>(context, listen: false).authUser.universityId??0;
     university = Provider.of<AuthUserProvider>(context, listen: false).authUser.university??"";
-    displayName = Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName;
+    displayName = Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName!;
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
   }
 
   void getCallHistory()async{
@@ -143,7 +144,7 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
       'isAudio':isAudio,
     };
 
-    DatabaseService().sendMessage(data['groupIdORPeerId'], chatMessageMap,_user.photoURL);
+    DatabaseService().sendMessage(data['groupIdORPeerId'], chatMessageMap,_user.photoURL!);
     DatabaseService().updateCallHistory(channelName: data['channelName'],uid: _user.uid);
   }
 
@@ -368,7 +369,7 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                               ),
                             );
                           }else if(chatProvider.mergedChatModelData!=null){
-                            return chatProvider.mergedChatModelData.data.length == 0 ?
+                            return chatProvider.mergedChatModelData!.data!.length == 0 ?
                             Center(
                               child: Text("You don't have any message",
                                 style: TextStyle(
@@ -385,7 +386,7 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                               shrinkWrap: true,
                               physics: ScrollPhysics(),
                               children: [
-                                if(chatProvider.mergedChatModelData.archived.length>0)
+                                if(chatProvider.mergedChatModelData!.archived!.length>0)
                                   InkWell(
                                     onTap: ()async{
                                       await Get.to(()=>ArchivedView());
@@ -451,14 +452,98 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                     ),
                                   ),
                                 ),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 10,left: 26,right: 16,bottom: 5),
+                                  child: GestureDetector(
+                                    onTap: ()async{
+                                      Get.to(()=>ChatBotScreen());
+                                    },
+                                    child: StreamBuilder<DocumentSnapshot>(
+                                      stream: DatabaseService().getChatBotUserDetails(_user.uid),
+                                      builder: (context, snapshot){
+                                        if (snapshot.hasData) {
+                                          return Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                height: 60,
+                                                width: 60,
+                                                decoration: BoxDecoration(
+                                                  shape: snapshot.data!.exists && snapshot.data!['photo']!=""?
+                                                  BoxShape.circle : BoxShape.rectangle,
+                                                  image: DecorationImage(
+                                                    fit: BoxFit.cover,
+                                                    image: snapshot.data!.exists && snapshot.data!['photo']!=""?
+                                                    NetworkImage(snapshot.data!['photo']):
+                                                    AssetImage("lib/asset/iconsNewDesign/bot.png") as ImageProvider,
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Text(
+                                                snapshot.data!.exists?
+                                                snapshot.data!['name']:
+                                                "My AI",
+                                                style: TextStyle(
+                                                  fontFamily: "Poppins",
+                                                  fontSize: 15.0,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: themeController.isDarkMode?Colors.white:MateColors.blackText,
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        } else {
+                                          return Container();
+                                        }
+                                      },
+                                    ),
+
+                                    // Padding(
+                                    //   padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
+                                    //   child: ListTile(
+                                    //     onTap: ()async {
+                                    //       Get.to(()=>ChatBotScreen());
+                                    //     },
+                                    //     leading: CircleAvatar(
+                                    //       radius: 30,
+                                    //       backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+                                    //       backgroundImage: NetworkImage(_user.photoURL!),
+                                    //     ),
+                                    //     title: Row(
+                                    //       children: [
+                                    //         Text(
+                                    //           "My AI",
+                                    //           style: TextStyle(
+                                    //             fontSize: 15,
+                                    //             fontFamily: "Poppins",
+                                    //             fontWeight: FontWeight.w600,
+                                    //             color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                                    //           ),
+                                    //         ),
+                                    //       ],
+                                    //     ),
+                                    //   ),
+                                    // ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 16,right: 16,top: 5,bottom: 5),
+                                  child: Divider(
+                                    thickness: 1,
+                                    color: themeController.isDarkMode?MateColors.dividerDark:MateColors.dividerLight,
+                                  ),
+                                ),
                                 ListView.separated(
-                                  itemCount: chatProvider.mergedChatModelData.data.length,
+                                  itemCount: chatProvider.mergedChatModelData!.data!.length,
                                   shrinkWrap: true,
                                   padding: EdgeInsets.zero,
                                   physics: ScrollPhysics(),
                                   scrollDirection: Axis.vertical,
                                   itemBuilder: (context, indexMain) {
-                                    return chatProvider.mergedChatModelData.data[indexMain].type=="group"?
+                                    return chatProvider.mergedChatModelData!.data![indexMain].type=="group"?
                                     Slidable(
                                       key: Key(indexMain.toString()),
                                       endActionPane: ActionPane(
@@ -466,15 +551,15 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                         children: [
                                           CustomSlidableAction(
                                             onPressed: (v)async{
-                                              DocumentSnapshot data = await DatabaseService().getMateGroupDetailsData(chatProvider.mergedChatModelData.data[indexMain].roomId);
+                                              DocumentSnapshot data = await DatabaseService().getMateGroupDetailsData(chatProvider.mergedChatModelData!.data![indexMain].roomId!);
                                               if(!data.toString().contains('isPinned')){
-                                                DatabaseService().setTopToPin(chatProvider.mergedChatModelData.data[indexMain].roomId, _user.uid);
+                                                DatabaseService().setTopToPin(chatProvider.mergedChatModelData!.data![indexMain].roomId!, _user.uid);
                                               }else if(data['isPinned'].contains(_user.uid)){
-                                                DatabaseService().removeTopToPin(chatProvider.mergedChatModelData.data[indexMain].roomId, _user.uid);
+                                                DatabaseService().removeTopToPin(chatProvider.mergedChatModelData!.data![indexMain].roomId!, _user.uid);
                                               }else{
-                                                DatabaseService().setTopToPin(chatProvider.mergedChatModelData.data[indexMain].roomId, _user.uid);
+                                                DatabaseService().setTopToPin(chatProvider.mergedChatModelData!.data![indexMain].roomId!, _user.uid);
                                               }
-                                              await CommunityTabService().toggleTopToPin(groupId: chatProvider.mergedChatModelData.data[indexMain].roomId,uid: _user.uid,token: token);
+                                              await CommunityTabService().toggleTopToPin(groupId: chatProvider.mergedChatModelData!.data![indexMain].roomId!,uid: _user.uid,token: token);
                                               loadData();
                                             },
                                             padding: EdgeInsets.zero,
@@ -484,9 +569,9 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                               onVisibilityChanged: (visibilityInfo) {
                                                 setState(() {
                                                   if(visibilityInfo.visibleFraction==1.0){
-                                                    chatProvider.mergedChatModelData.data[indexMain].isVisible = true;
+                                                    chatProvider.mergedChatModelData!.data![indexMain].isVisible = true;
                                                   }else{
-                                                    chatProvider.mergedChatModelData.data[indexMain].isVisible = false;
+                                                    chatProvider.mergedChatModelData!.data![indexMain].isVisible = false;
                                                   }
                                                 });
                                                 print(visibilityInfo.visibleFraction);
@@ -509,7 +594,7 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                           ),
                                           CustomSlidableAction(
                                             onPressed: (v)async{
-                                              await CommunityTabService().toggleArchive(roomId: chatProvider.mergedChatModelData.data[indexMain].roomId,uid: _user.uid,token: token);
+                                              await CommunityTabService().toggleArchive(roomId: chatProvider.mergedChatModelData!.data![indexMain].roomId!,uid: _user.uid,token: token);
                                               loadData();
                                             },
                                             backgroundColor: Colors.transparent,
@@ -529,12 +614,12 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                           ),
                                           CustomSlidableAction(
                                             onPressed: (v)async{
-                                              if(chatProvider.mergedChatModelData.data[indexMain].isMuted){
-                                                DatabaseService().removeIsMuted(chatProvider.mergedChatModelData.data[indexMain].roomId, _user.uid);
+                                              if(chatProvider.mergedChatModelData!.data![indexMain].isMuted!){
+                                                DatabaseService().removeIsMuted(chatProvider.mergedChatModelData!.data![indexMain].roomId!, _user.uid);
                                               }else{
-                                                DatabaseService().setIsMuted(chatProvider.mergedChatModelData.data[indexMain].roomId, _user.uid);
+                                                DatabaseService().setIsMuted(chatProvider.mergedChatModelData!.data![indexMain].roomId!, _user.uid);
                                               }
-                                              await CommunityTabService().toggleMute(groupId: chatProvider.mergedChatModelData.data[indexMain].roomId,uid: _user.uid,token: token);
+                                              await CommunityTabService().toggleMute(groupId: chatProvider.mergedChatModelData!.data![indexMain].roomId!,uid: _user.uid,token: token);
                                               loadData();
                                             },
                                             padding: EdgeInsets.zero,
@@ -547,7 +632,7 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                                 color: themeController.isDarkMode?MateColors.containerDark:MateColors.containerLight,
                                               ),
                                               child: Icon(
-                                                chatProvider.mergedChatModelData.data[indexMain].isMuted?
+                                                chatProvider.mergedChatModelData!.data![indexMain].isMuted!?
                                                 Icons.volume_up:
                                                 Icons.volume_off,
                                                 size: 20,
@@ -597,7 +682,7 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                             ),
                                             backgroundColor: Colors.white.withOpacity(0.15),
                                             onPressed: ()async{
-                                              await CommunityTabService().toggleArchive(roomId: chatProvider.mergedChatModelData.data[indexMain].roomId,uid: _user.uid,token: token);
+                                              await CommunityTabService().toggleArchive(roomId: chatProvider.mergedChatModelData!.data![indexMain].roomId!,uid: _user.uid,token: token);
                                               loadData();
                                             },
                                           ),
@@ -607,7 +692,7 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                                 Padding(
                                                   padding: EdgeInsets.only(left: 0),
                                                   child: Text(
-                                                    chatProvider.mergedChatModelData.data[indexMain].isMuted?
+                                                    chatProvider.mergedChatModelData!.data![indexMain].isMuted!?
                                                     "Unmute":
                                                     "Mute",
                                                     style: TextStyle(
@@ -620,11 +705,11 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                                 ),
                                                 Padding(
                                                   padding: EdgeInsets.only(left:
-                                                  chatProvider.mergedChatModelData.data[indexMain].isMuted?
+                                                  chatProvider.mergedChatModelData!.data![indexMain].isMuted!?
                                                   MediaQuery.of(context).size.width*0.23:
                                                   MediaQuery.of(context).size.width*0.28),
                                                   child: Icon(
-                                                    chatProvider.mergedChatModelData.data[indexMain].isMuted?
+                                                    chatProvider.mergedChatModelData!.data![indexMain].isMuted!?
                                                     Icons.volume_up:
                                                     Icons.volume_off,
                                                     size: 20,
@@ -635,12 +720,12 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                             ),
                                             backgroundColor: Colors.white.withOpacity(0.15),
                                             onPressed: ()async{
-                                              if(chatProvider.mergedChatModelData.data[indexMain].isMuted){
-                                                DatabaseService().removeIsMuted(chatProvider.mergedChatModelData.data[indexMain].roomId, _user.uid);
+                                              if(chatProvider.mergedChatModelData!.data![indexMain].isMuted!){
+                                                DatabaseService().removeIsMuted(chatProvider.mergedChatModelData!.data![indexMain].roomId!, _user.uid);
                                               }else{
-                                                DatabaseService().setIsMuted(chatProvider.mergedChatModelData.data[indexMain].roomId, _user.uid);
+                                                DatabaseService().setIsMuted(chatProvider.mergedChatModelData!.data![indexMain].roomId!, _user.uid);
                                               }
-                                              await CommunityTabService().toggleMute(groupId: chatProvider.mergedChatModelData.data[indexMain].roomId,uid: _user.uid,token: token);
+                                              await CommunityTabService().toggleMute(groupId: chatProvider.mergedChatModelData!.data![indexMain].roomId!,uid: _user.uid,token: token);
                                               loadData();
                                             },
                                           ),
@@ -670,31 +755,31 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                             ),
                                             backgroundColor: Colors.white.withOpacity(0.15),
                                             onPressed: ()async{
-                                              DocumentSnapshot data = await DatabaseService().getMateGroupDetailsData(chatProvider.mergedChatModelData.data[indexMain].roomId);
-                                              DatabaseService(uid: _user.uid).togglingGroupJoin(chatProvider.mergedChatModelData.data[indexMain].roomId,data["groupName"],_user.displayName);
-                                              await CommunityTabService().exitGroup(token: token,uid: _user.uid,groupId: chatProvider.mergedChatModelData.data[indexMain].roomId);
+                                              DocumentSnapshot data = await DatabaseService().getMateGroupDetailsData(chatProvider.mergedChatModelData!.data![indexMain].roomId!);
+                                              DatabaseService(uid: _user.uid).togglingGroupJoin(chatProvider.mergedChatModelData!.data![indexMain].roomId!,data["groupName"],_user.displayName!);
+                                              await CommunityTabService().exitGroup(token: token,uid: _user.uid,groupId: chatProvider.mergedChatModelData!.data![indexMain].roomId!);
                                               loadData();
                                             },
                                           ),
                                         ],
                                         onPressed: (){},
                                         child: GroupTile(
-                                          userName: _user.displayName,
-                                          groupId: chatProvider.mergedChatModelData.data[indexMain].roomId,
-                                          unreadMessages: chatProvider.mergedChatModelData.data[indexMain].unreadMessages,
+                                          userName: _user.displayName!,
+                                          groupId: chatProvider.mergedChatModelData!.data![indexMain].roomId!,
+                                          unreadMessages: chatProvider.mergedChatModelData!.data![indexMain].unreadMessages!,
                                           currentUserUid: _user.uid,
                                           loadData: loadData,
-                                          isMuted: chatProvider.mergedChatModelData.data[indexMain].isMuted,
-                                          isPinned: chatProvider.mergedChatModelData.data[indexMain].isPinned==0?false:true,
+                                          isMuted: chatProvider.mergedChatModelData!.data![indexMain].isMuted!,
+                                          isPinned: chatProvider.mergedChatModelData!.data![indexMain].isPinned==0?false:true,
                                           index: indexMain,
-                                          showColor: chatProvider.mergedChatModelData.data[indexMain].isVisible,
+                                          showColor: chatProvider.mergedChatModelData!.data![indexMain].isVisible!,
                                         ),
                                       ),
                                     ):
                                     SizedBox();
                                   },
                                   separatorBuilder: (BuildContext context, int index) {
-                                    return chatProvider.mergedChatModelData.data[index].type=="group"?Padding(
+                                    return chatProvider.mergedChatModelData!.data![index].type=="group"?Padding(
                                       padding: const EdgeInsets.only(left: 16,right: 16,top: 5,bottom: 5),
                                       child: Divider(
                                         thickness: 1,
@@ -743,7 +828,7 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                               ),
                             );
                           }else if(chatProvider.mergedChatModelData!=null){
-                            return chatProvider.mergedChatModelData.data.length == 0 ?
+                            return chatProvider.mergedChatModelData!.data!.length == 0 ?
                             Center(
                               child: Text("You don't have any message",
                                 style: TextStyle(
@@ -759,7 +844,7 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                               shrinkWrap: true,
                               physics: ScrollPhysics(),
                               children: [
-                                if(chatProvider.mergedChatModelData.archived.length>0)
+                                if(chatProvider.mergedChatModelData!.archived!.length>0)
                                   InkWell(
                                     onTap: ()async{
                                       await Get.to(()=>ArchivedView());
@@ -784,31 +869,108 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                       ),
                                     ),
                                   ),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 10,left: 26,right: 16,bottom: 5),
+                                  child: GestureDetector(
+                                    onTap: ()async{
+                                      Get.to(()=>ChatBotScreen());
+                                    },
+                                    child: StreamBuilder<DocumentSnapshot>(
+                                      stream: DatabaseService().getChatBotUserDetails(_user.uid),
+                                      builder: (context, snapshot){
+                                        if (snapshot.hasData) {
+                                          return Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                height: 60,
+                                                width: 60,
+                                                decoration: BoxDecoration(
+                                                  shape: snapshot.data!.exists && snapshot.data!['photo']!=""?
+                                                  BoxShape.circle : BoxShape.rectangle,
+                                                  image: DecorationImage(
+                                                    fit: BoxFit.cover,
+                                                    image: snapshot.data!.exists && snapshot.data!['photo']!=""?
+                                                    NetworkImage(snapshot.data!['photo']):
+                                                    AssetImage("lib/asset/iconsNewDesign/bot.png") as ImageProvider,
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Text(
+                                                snapshot.data!.exists?
+                                                snapshot.data!['name']:
+                                                "My AI",
+                                                style: TextStyle(
+                                                  fontFamily: "Poppins",
+                                                  fontSize: 15.0,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: themeController.isDarkMode?Colors.white:MateColors.blackText,
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        } else {
+                                          return Container();
+                                        }
+                                      },
+                                    ),
+
+                                    // Padding(
+                                    //   padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
+                                    //   child: ListTile(
+                                    //     onTap: ()async {
+                                    //       Get.to(()=>ChatBotScreen());
+                                    //     },
+                                    //     leading: CircleAvatar(
+                                    //       radius: 30,
+                                    //       backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
+                                    //       backgroundImage: NetworkImage(_user.photoURL!),
+                                    //     ),
+                                    //     title: Row(
+                                    //       children: [
+                                    //         Text(
+                                    //           "My AI",
+                                    //           style: TextStyle(
+                                    //             fontSize: 15,
+                                    //             fontFamily: "Poppins",
+                                    //             fontWeight: FontWeight.w600,
+                                    //             color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
+                                    //           ),
+                                    //         ),
+                                    //       ],
+                                    //     ),
+                                    //   ),
+                                    // ),
+                                  ),
+                                ),
                                 ListView.builder(
-                                  itemCount: chatProvider.mergedChatModelData.data.length,
+                                  itemCount: chatProvider.mergedChatModelData!.data!.length,
                                   shrinkWrap: true,
                                   padding: EdgeInsets.zero,
                                   physics: ScrollPhysics(),
                                   scrollDirection: Axis.vertical,
                                   itemBuilder: (context, indexMain) {
-                                    return chatProvider.mergedChatModelData.data[indexMain].type=="group"?
+                                    return chatProvider.mergedChatModelData!.data![indexMain].type=="group"?
                                     SizedBox():
-                                    StreamBuilder(
-                                        stream: DatabaseService().getPeerChatUserDetail(chatProvider.mergedChatModelData.data[indexMain].receiverUid),
+                                    StreamBuilder<QuerySnapshot>(
+                                        stream: DatabaseService().getPeerChatUserDetail(chatProvider.mergedChatModelData!.data![indexMain].receiverUid!),
                                         builder: (context, snapshot) {
                                           if (snapshot.hasData) {
                                             return ListView.separated(
                                                 shrinkWrap: true,
                                                 padding: EdgeInsets.zero,
-                                                itemCount: snapshot.data.docs.length,
+                                                itemCount: snapshot.data!.docs.length,
                                                 physics: ScrollPhysics(),
                                                 itemBuilder: (context, index) {
-                                                  if (_user.uid.hashCode <= snapshot.data.docs[index].data()["uid"].hashCode) {
-                                                    personChatId = '${_user.uid}-${snapshot.data.docs[index].data()["uid"]}';
+                                                  if (_user.uid.hashCode <= snapshot.data!.docs[index].get('uid').hashCode) {
+                                                    personChatId = '${_user.uid}-${snapshot.data!.docs[index].get('uid')}';
                                                   } else {
-                                                    personChatId = '${snapshot.data.docs[index].data()["uid"]}-${_user.uid}';
+                                                    personChatId = '${snapshot.data!.docs[index].get('uid')}-${_user.uid}';
                                                   }
-                                                  chatProvider.messageList[indexMain].name = snapshot.data.docs[index].data()["displayName"];
+                                                  chatProvider.messageList[indexMain].name = snapshot.data!.docs[index].get('displayName');
                                                   return FocusedMenuHolder(
                                                     menuWidth: MediaQuery.of(context).size.width*0.52,
                                                     blurSize: 5.0,
@@ -849,7 +1011,7 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                                         ),
                                                         backgroundColor: Colors.white.withOpacity(0.15),
                                                         onPressed: ()async{
-                                                          await CommunityTabService().toggleArchive(roomId: chatProvider.mergedChatModelData.data[indexMain].roomId,uid: _user.uid,token: token);
+                                                          await CommunityTabService().toggleArchive(roomId: chatProvider.mergedChatModelData!.data![indexMain].roomId!,uid: _user.uid,token: token);
                                                           loadData();
                                                         },
                                                       ),
@@ -859,7 +1021,7 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                                             Padding(
                                                               padding: EdgeInsets.only(left: 0),
                                                               child: Text(
-                                                                chatProvider.mergedChatModelData.data[indexMain].isMuted?
+                                                                chatProvider.mergedChatModelData!.data![indexMain].isMuted!?
                                                                 "Unmute":
                                                                 "Mute",
                                                                 style: TextStyle(
@@ -872,11 +1034,11 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                                             ),
                                                             Padding(
                                                               padding: EdgeInsets.only(left:
-                                                              chatProvider.mergedChatModelData.data[indexMain].isMuted?
+                                                              chatProvider.mergedChatModelData!.data![indexMain].isMuted!?
                                                               MediaQuery.of(context).size.width*0.23:
                                                               MediaQuery.of(context).size.width*0.28),
                                                               child: Icon(
-                                                                chatProvider.mergedChatModelData.data[indexMain].isMuted?
+                                                                chatProvider.mergedChatModelData!.data![indexMain].isMuted!?
                                                                 Icons.volume_up:
                                                                 Icons.volume_off,
                                                                 size: 20,
@@ -887,7 +1049,7 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                                         ),
                                                         backgroundColor: Colors.white.withOpacity(0.15),
                                                         onPressed: ()async{
-                                                          await CommunityTabService().toggleMutePersonalChat(roomId: chatProvider.mergedChatModelData.data[indexMain].roomId,uid: _user.uid,token: token);
+                                                          await CommunityTabService().toggleMutePersonalChat(roomId: chatProvider.mergedChatModelData!.data![indexMain].roomId!,uid: _user.uid,token: token);
                                                           loadData();
                                                         },
                                                       ),
@@ -899,11 +1061,11 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                                         onTap: ()async {
                                                           await Navigator.push(context, MaterialPageRoute(
                                                               builder: (context) => Chat(
-                                                                peerUuid: snapshot.data.docs[index].data()["uuid"],
+                                                                peerUuid: snapshot.data!.docs[index].get('uuid'),
                                                                 currentUserId: _user.uid,
-                                                                peerId: snapshot.data.docs[index].data()["uid"],
-                                                                peerName: snapshot.data.docs[index].data()["displayName"],
-                                                                peerAvatar: snapshot.data.docs[index].data()["photoURL"],
+                                                                peerId: snapshot.data!.docs[index].get('uid'),
+                                                                peerName: snapshot.data!.docs[index].get('displayName'),
+                                                                peerAvatar: snapshot.data!.docs[index].get('photoURL'),
                                                                 roomId: chatProvider.messageList[indexMain].roomId,
                                                               )));
                                                           loadData();
@@ -911,12 +1073,12 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                                         leading: CircleAvatar(
                                                           radius: 30,
                                                           backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
-                                                          backgroundImage: NetworkImage(snapshot.data.docs[index].data()["photoURL"]),
+                                                          backgroundImage: NetworkImage(snapshot.data!.docs[index].get('photoURL')),
                                                         ),
                                                         title: Row(
                                                           children: [
                                                             Text(
-                                                              snapshot.data.docs[index].data()["displayName"],
+                                                              snapshot.data!.docs[index].get('displayName'),
                                                               style: TextStyle(
                                                                 fontSize: 15,
                                                                 fontFamily: "Poppins",
@@ -924,7 +1086,7 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                                                 color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
                                                               ),
                                                             ),
-                                                            chatProvider.mergedChatModelData.data[indexMain].isMuted?
+                                                            chatProvider.mergedChatModelData!.data![indexMain].isMuted!?
                                                             Padding(
                                                               padding: EdgeInsets.only(left: 10),
                                                               child: Image.asset("lib/asset/icons/mute.png",
@@ -935,30 +1097,29 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                                             ):Offstage(),
                                                           ],
                                                         ),
-                                                        subtitle: StreamBuilder(
+                                                        subtitle: StreamBuilder<QuerySnapshot>(
                                                             stream: FirebaseFirestore.instance.collection('messages').doc(personChatId).collection(personChatId).orderBy('timestamp', descending: true).limit(1).snapshots(),
                                                             builder: (context, snapshot) {
                                                               if (snapshot.hasData) {
-                                                                print(snapshot.data.docs);
-                                                                if (snapshot.data.docs.length > 0) {
+                                                                if (snapshot.data!.docs.length > 0) {
                                                                   return Text(
-                                                                    snapshot.data.docs[0].data()['type'] == 4?
+                                                                    snapshot.data!.docs[0].get('type') == 4?
                                                                     "Audio" :
-                                                                    snapshot.data.docs[0].data()['type'] == 0 ?
-                                                                    snapshot.data.docs[0].data()['content'].toString().contains('This is missed call@#%')?
-                                                                    "${snapshot.data.docs[0].data()['content'].toString().split('___').last}":
-                                                                    "${snapshot.data.docs[0].data()['content']}" :
-                                                                    snapshot.data.docs[0].data()['type'] == 1 ?
+                                                                    snapshot.data!.docs[0].get('type') == 0 ?
+                                                                    snapshot.data!.docs[0].get('content').toString().contains('This is missed call@#%')?
+                                                                    "${snapshot.data!.docs[0].get('content').toString().split('___').last}":
+                                                                    "${snapshot.data!.docs[0].get('content')}" :
+                                                                    snapshot.data!.docs[0].get('type') == 1 ?
                                                                     "🖼️ Image" :
-                                                                    snapshot.data.docs[0].data()['fileName'],
+                                                                    snapshot.data!.docs[0].get('fileName'),
                                                                     style: TextStyle(
                                                                       fontFamily: "Poppins",
                                                                       fontSize: 14.0,
                                                                       fontWeight: FontWeight.w400,
                                                                       color: themeController.isDarkMode?
-                                                                      chatProvider.mergedChatModelData.data[indexMain].unreadMessages >0?
+                                                                      chatProvider.mergedChatModelData!.data![indexMain].unreadMessages! >0?
                                                                       Colors.white: Colors.white.withOpacity(0.5):
-                                                                      chatProvider.mergedChatModelData.data[indexMain].unreadMessages >0?
+                                                                      chatProvider.mergedChatModelData!.data![indexMain].unreadMessages! >0?
                                                                       Colors.black: Colors.black.withOpacity(0.5),
                                                                     ),
                                                                     overflow: TextOverflow.ellipsis,
@@ -986,7 +1147,7 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                                                   overflow: TextOverflow.ellipsis,
                                                                 );
                                                             }),
-                                                        trailing: chatProvider.mergedChatModelData.data[indexMain].unreadMessages >0 && chatProvider.mergedChatModelData.data[indexMain].isMuted==false?
+                                                        trailing: chatProvider.mergedChatModelData!.data![indexMain].unreadMessages! >0 && chatProvider.mergedChatModelData!.data![indexMain].isMuted==false?
                                                         Container(
                                                           height: 20,
                                                           width: 20,
@@ -997,7 +1158,7 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                                           ),
                                                           child: Center(
                                                             child: Text(
-                                                              chatProvider.mergedChatModelData.data[indexMain].unreadMessages.toString(),
+                                                              chatProvider.mergedChatModelData!.data![indexMain].unreadMessages.toString(),
                                                               style: TextStyle(fontFamily: "Poppins",
                                                                 fontSize: 12.0,
                                                                 fontWeight: FontWeight.w400,
@@ -1011,7 +1172,7 @@ class _ChatDashboardState extends State<ChatDashboard> with TickerProviderStateM
                                                   );
                                                 },
                                               separatorBuilder: (BuildContext context, int index) {
-                                                return chatProvider.mergedChatModelData.data[indexMain].type=="group"?
+                                                return chatProvider.mergedChatModelData!.data![indexMain].type=="group"?
                                                 SizedBox() :
                                                 Padding(
                                                   padding: const EdgeInsets.only(left: 16,right: 16,top: 5,bottom: 5),

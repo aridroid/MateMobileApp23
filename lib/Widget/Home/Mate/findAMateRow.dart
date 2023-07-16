@@ -17,52 +17,52 @@ import '../../../constant.dart';
 import '../../Loaders/Shimmer.dart';
 
 class FindAMateRow extends StatefulWidget {
-  final User user;
-  final int findAMateId;
-  final String title;
-  final String description;
-  final String fromDate;
-  final String toDate;
-  final String fromTime;
-  final String toTime;
-  final String hyperlinkText;
-  final String hyperlink;
-  final String createdAt;
-  final int rowIndex;
-  final bool isActive;
-  const FindAMateRow({Key key, this.user, this.findAMateId, this.title, this.description, this.fromDate, this.toDate, this.fromTime, this.toTime, this.createdAt, this.rowIndex, this.isActive,this.hyperlinkText,this.hyperlink}) : super(key: key);
+  final User? user;
+  final int? findAMateId;
+  final String? title;
+  final String? description;
+  final String? fromDate;
+  final String? toDate;
+  final String? fromTime;
+  final String? toTime;
+  final String? hyperlinkText;
+  final String? hyperlink;
+  final String? createdAt;
+  final int? rowIndex;
+  final bool? isActive;
+  const FindAMateRow({Key? key, this.user, this.findAMateId, this.title, this.description, this.fromDate, this.toDate, this.fromTime, this.toTime, this.createdAt, this.rowIndex, this.isActive,this.hyperlinkText,this.hyperlink}) : super(key: key);
 
   @override
   _FindAMateRowState createState() => _FindAMateRowState(this.user, this.findAMateId, this.title, this.description, this.fromDate, this.toDate, this.fromTime, this.toTime, this.createdAt, this.rowIndex, this.isActive,this.hyperlinkText,this.hyperlink);
 }
 
 class _FindAMateRowState extends State<FindAMateRow> {
-  final User user;
-  final int findAMateId;
-  final String title;
-  final String description;
-  final String fromDate;
-  final String toDate;
-  final String fromTime;
-  final String toTime;
-  final String hyperlinkText;
-  final String hyperlink;
-  final String createdAt;
-  final int rowIndex;
-  bool isActive;
+  final User? user;
+  final int? findAMateId;
+  final String? title;
+  final String? description;
+  final String? fromDate;
+  final String? toDate;
+  final String? fromTime;
+  final String? toTime;
+  final String? hyperlinkText;
+  final String? hyperlink;
+  final String? createdAt;
+  final int? rowIndex;
+  bool? isActive;
   _FindAMateRowState(this.user, this.findAMateId, this.title, this.description, this.fromDate, this.toDate, this.fromTime, this.toTime, this.createdAt, this.rowIndex, this.isActive,this.hyperlinkText,this.hyperlink);
 
-  FindAMateProvider findAMateProvider;
-  List<String> fromTimeLocal;
-  List<String> toTimeLocal;
+  FindAMateProvider? findAMateProvider;
+  List<String>? fromTimeLocal;
+  List<String>? toTimeLocal;
 
   @override
   void initState() {
     if(fromTime!=null){
-      fromTimeLocal = fromTime.split(":");
+      fromTimeLocal = fromTime!.split(":");
     }
     if(toTime!=null){
-      toTimeLocal = toTime.split(":");
+      toTimeLocal = toTime!.split(":");
     }
     findAMateProvider = Provider.of<FindAMateProvider>(context,listen: false);
     super.initState();
@@ -83,17 +83,17 @@ class _FindAMateRowState extends State<FindAMateRow> {
           ListTile(
             leading: InkWell(
               onTap: () {
-                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == user.uuid) {
+                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == user!.uuid!) {
                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                 } else {
-                  Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": user.uuid, "name": user.displayName, "photoUrl": user.profilePhoto, "firebaseUid": user.firebaseUid});
+                  Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": user!.uuid, "name": user!.displayName, "photoUrl": user!.profilePhoto, "firebaseUid": user!.firebaseUid});
                 }
               },
-              child: user.profilePhoto != null ?
+              child: user!.profilePhoto != null ?
               CircleAvatar(
                 radius: 20,
                 backgroundImage: NetworkImage(
-                  user.profilePhoto,
+                  user!.profilePhoto!,
                 ),
               ):
               CircleAvatar(
@@ -104,14 +104,14 @@ class _FindAMateRowState extends State<FindAMateRow> {
             ),
             title: InkWell(
               onTap: () {
-                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == user.uuid) {
+                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == user!.uuid) {
                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                 } else {
-                  Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": user.uuid, "name": user.displayName, "photoUrl": user.profilePhoto, "firebaseUid": user.firebaseUid});
+                  Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": user!.uuid, "name": user!.displayName, "photoUrl": user!.profilePhoto, "firebaseUid": user!.firebaseUid});
                 }
               },
               child: Text(
-                user.displayName,
+                user!.displayName!,
                 style: TextStyle(
                   fontSize: 15,
                   fontFamily: 'Poppins',
@@ -132,13 +132,13 @@ class _FindAMateRowState extends State<FindAMateRow> {
                 if(index==0){
 
                 }else if(index==1){
-                  _showDeleteAlertDialog(findAMateId: widget.findAMateId, rowIndex: widget.rowIndex);
+                  _showDeleteAlertDialog(findAMateId: widget.findAMateId!, rowIndex: widget.rowIndex!);
                 }else if(index==2){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ReportPage(moduleId: widget.findAMateId,moduleType: "findMate",),));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ReportPage(moduleId: widget.findAMateId!,moduleType: "findMate",),));
                 }
               },
               itemBuilder: (context) => [
-                (widget.user.uuid != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user.uuid)) ?
+                (widget.user!.uuid != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user!.uuid)) ?
                 PopupMenuItem(
                   value: 1,
                   height: 40,
@@ -179,7 +179,7 @@ class _FindAMateRowState extends State<FindAMateRow> {
               ],
             ),
             subtitle: Text(
-              createdAt,
+              createdAt!,
               style: TextStyle(
                 fontSize: 14,
                 color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
@@ -196,7 +196,7 @@ class _FindAMateRowState extends State<FindAMateRow> {
           Padding(
             padding: EdgeInsets.only(left: 16,top: 6),
             child: buildEmojiAndText(
-              content: title,
+              content: title!,
               textStyle: TextStyle(
                 fontFamily: 'Poppins',
                 fontWeight: FontWeight.w700,
@@ -208,9 +208,9 @@ class _FindAMateRowState extends State<FindAMateRow> {
           ),
           Padding(
             padding: EdgeInsets.fromLTRB(15, 10, 14, 0),
-            child:  REGEX_EMOJI.allMatches(description).isNotEmpty?
+            child:  REGEX_EMOJI.allMatches(description!).isNotEmpty?
             buildEmojiAndText(
-              content: description,
+              content: description!,
               textStyle: TextStyle(
                 fontFamily: 'Poppins',
                 fontWeight: FontWeight.w400,
@@ -228,7 +228,7 @@ class _FindAMateRowState extends State<FindAMateRow> {
                 else
                   throw "Could not launch ${link.url}";
               },
-              text: description,
+              text: description!,
               style: TextStyle(
                 fontSize: 14,
                 fontFamily: 'Poppins',
@@ -249,8 +249,8 @@ class _FindAMateRowState extends State<FindAMateRow> {
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
             onTap: () async{
-              if (await canLaunch(hyperlink))
-                await launch(hyperlink);
+              if (await canLaunch(hyperlink!))
+                await launch(hyperlink!);
               else
                 Fluttertoast.showToast(msg: " Could not launch given URL '${hyperlink}'", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
               throw "Could not launch $hyperlink";
@@ -258,7 +258,7 @@ class _FindAMateRowState extends State<FindAMateRow> {
             child: Padding(
               padding: EdgeInsets.only(left: 16,top: 10,right: 10),
               child: Text(
-                hyperlinkText,
+                hyperlinkText!,
                 style: TextStyle(
                   fontSize: 14,
                   fontFamily: 'Poppins',
@@ -304,7 +304,7 @@ class _FindAMateRowState extends State<FindAMateRow> {
               children: [
                 fromTime != null ?
                 Text(
-                  "Available times : ${fromTimeLocal[0]}:${fromTimeLocal[1]}",
+                  "Available times : ${fromTimeLocal![0]}:${fromTimeLocal![1]}",
                   style: TextStyle(
                     fontSize: 14,
                     fontFamily: 'Poppins',
@@ -316,7 +316,7 @@ class _FindAMateRowState extends State<FindAMateRow> {
                 ):
                 SizedBox(),
                 toTime != null ?
-                Text("  -  ${toTimeLocal[0]}:${toTimeLocal[1]}",
+                Text("  -  ${toTimeLocal![0]}:${toTimeLocal![1]}",
                   style: TextStyle(
                     fontSize: 14,
                     fontFamily: 'Poppins',
@@ -335,10 +335,10 @@ class _FindAMateRowState extends State<FindAMateRow> {
             child: Row(
               children: [
                 Visibility(
-                    visible: (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == user.uuid),
+                    visible: (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == user!.uuid),
                     child: Padding(
                       padding: const EdgeInsets.only(right: 7.0),
-                      child: Text(isActive ? "Active" : "Inactive", textAlign: TextAlign.left,
+                      child: Text(isActive! ? "Active" : "Inactive", textAlign: TextAlign.left,
                         style: TextStyle(
                           fontSize: 14,
                           fontFamily: 'Poppins',
@@ -350,7 +350,7 @@ class _FindAMateRowState extends State<FindAMateRow> {
                     ),
                 ),
                 Visibility(
-                  visible: (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == user.uuid),
+                  visible: (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == user!.uuid),
                   child: Consumer<FindAMateProvider>(
                     builder: (context, value, child) {
                       return FlutterSwitch(
@@ -360,21 +360,21 @@ class _FindAMateRowState extends State<FindAMateRow> {
                           toggleSize: 20.0,
                           activeText: "",
                           inactiveText: "",
-                          toggleColor: isActive?Color(0xFF1E1E1E):Color(0xFF8A8A99),
+                          toggleColor: isActive!?Color(0xFF1E1E1E):Color(0xFF8A8A99),
                           inactiveColor: themeController.isDarkMode?Colors.white.withOpacity(0.12):Colors.black.withOpacity(0.1),
                           activeColor: themeController.isDarkMode?Color(0xFF67AE8C):Color(0xFF17F3DE),
-                          value: isActive,
+                          value: isActive!,
                           borderRadius: 14.0,
                           showOnOff: true,
                           onToggle: (val) async {
-                            bool updated = await Provider.of<FindAMateProvider>(context, listen: false).activeFindAMatePost(widget.findAMateId, widget.rowIndex, val);
+                            bool updated = await Provider.of<FindAMateProvider>(context, listen: false).activeFindAMatePost(widget.findAMateId!, widget.rowIndex!, val);
                             if (updated) {
                               if (value.findAMateActiveData != null) {
-                                if (value.findAMateActiveData.message == "Post activated successfully" && value.findAMateActiveData.data.id == findAMateId) {
-                                  value.findAMatePostsDataList[widget.rowIndex].isActive = true;
+                                if (value.findAMateActiveData.message == "Post activated successfully" && value.findAMateActiveData.data!.id == findAMateId) {
+                                  value.findAMatePostsDataList[widget.rowIndex!].isActive = true;
                                   isActive = true;
-                                } else if (value.findAMateActiveData.message == "Post de-activated successfully" && value.findAMateActiveData.data.id == findAMateId) {
-                                  value.findAMatePostsDataList[widget.rowIndex].isActive = false;
+                                } else if (value.findAMateActiveData.message == "Post de-activated successfully" && value.findAMateActiveData.data!.id == findAMateId) {
+                                  value.findAMatePostsDataList[widget.rowIndex!].isActive = false;
                                   isActive = false;
                                 }
                               }
@@ -392,7 +392,7 @@ class _FindAMateRowState extends State<FindAMateRow> {
     );
   }
 
-  _showDeleteAlertDialog({@required int findAMateId, @required int rowIndex,}) async {
+  _showDeleteAlertDialog({required int findAMateId, required int rowIndex,}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -405,10 +405,10 @@ class _FindAMateRowState extends State<FindAMateRow> {
               isDefaultAction: true,
               child: Text("Yes"),
               onPressed: () async {
-                bool isDeleted = await findAMateProvider.deleteFindAMatePost(findAMateId, rowIndex);
+                bool isDeleted = await findAMateProvider!.deleteFindAMatePost(findAMateId, rowIndex);
                 if (isDeleted) {
                   Future.delayed(Duration(seconds: 0), () {
-                    findAMateProvider.fetchFindAMatePostList(page: 1);
+                    findAMateProvider!.fetchFindAMatePostList(page: 1);
                     Navigator.pop(context);
                   });
                 }

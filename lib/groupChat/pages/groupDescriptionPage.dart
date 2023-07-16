@@ -10,7 +10,7 @@ class GroupDescriptionPage extends StatefulWidget {
   final String description;
   final String groupId;
 
-  GroupDescriptionPage({Key key, this.description, this.groupId}) : super(key: key);
+  GroupDescriptionPage({Key? key, required this.description, required this.groupId}) : super(key: key);
 
   @override
   _GroupDescriptionPageState createState() => _GroupDescriptionPageState();
@@ -18,9 +18,9 @@ class GroupDescriptionPage extends StatefulWidget {
 
 class _GroupDescriptionPageState extends State<GroupDescriptionPage> {
 
-  TextEditingController descText;
+  TextEditingController? descText;
   ThemeController themeController = Get.find<ThemeController>();
-  User _user;
+  User? _user;
 
   @override
   void initState(){
@@ -168,7 +168,7 @@ class _GroupDescriptionPageState extends State<GroupDescriptionPage> {
                     Expanded(
                       child: TextButton(
                         onPressed: () {
-                          DatabaseService().updateGroupDescription(widget.groupId, descText.text,_user.displayName,_user.photoURL);
+                          DatabaseService().updateGroupDescription(widget.groupId, descText!.text,_user!.displayName!,_user!.photoURL!);
                           Navigator.pop(context);
                         },
                         child: Text("Save",
@@ -192,7 +192,7 @@ class _GroupDescriptionPageState extends State<GroupDescriptionPage> {
     );
   }
 
-  InputDecoration _customInputDecoration({@required String labelText, IconData icon}) {
+  InputDecoration _customInputDecoration({required String labelText, required IconData icon}) {
     return InputDecoration(
       hintStyle: TextStyle(
         fontSize: 16,

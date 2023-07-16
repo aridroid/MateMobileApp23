@@ -1,10 +1,10 @@
 class JoinedClass {
-  String id;
-  String courseIdentifier;
-  String courseTitle;
-  String semester;
-  int year;
-  List<Assignments> assignments;
+  String? id;
+  String? courseIdentifier;
+  String? courseTitle;
+  String? semester;
+  int? year;
+  List<Assignments>? assignments;
 
   JoinedClass(
       {this.id,
@@ -21,9 +21,9 @@ class JoinedClass {
     semester = json['semester'];
     year = json['year'];
     if (json['assignments'] != null) {
-      assignments = new List<Assignments>();
+      assignments = [];
       json['assignments'].forEach((v) {
-        assignments.add(new Assignments.fromJson(v));
+        assignments?.add(new Assignments.fromJson(v));
       });
     }
   }
@@ -36,16 +36,16 @@ class JoinedClass {
     data['semester'] = this.semester;
     data['year'] = this.year;
     if (this.assignments != null) {
-      data['assignments'] = this.assignments.map((v) => v.toJson()).toList();
+      data['assignments'] = this.assignments?.map((v) => v.toJson()).toList();
     }
     return data;
   }
 }
 
 class Assignments {
-  String id;
-  String name;
-  String dueDate;
+  String? id;
+  String? name;
+  String? dueDate;
 
   Assignments({this.id, this.name, this.dueDate});
 

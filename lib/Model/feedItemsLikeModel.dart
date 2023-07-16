@@ -1,7 +1,7 @@
 class FeedItemsLikeModel {
-  bool success;
-  Data data;
-  String message;
+  bool? success;
+  Data? data;
+  String? message;
 
   FeedItemsLikeModel({this.success, this.data, this.message});
 
@@ -15,7 +15,7 @@ class FeedItemsLikeModel {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['success'] = this.success;
     if (this.data != null) {
-      data['data'] = this.data.toJson();
+      data['data'] = this.data?.toJson();
     }
     data['message'] = this.message;
     return data;
@@ -23,12 +23,12 @@ class FeedItemsLikeModel {
 }
 
 class Data {
-  int userId;
-  String feedId;
-  int emojiValue;
-  String updatedAt;
-  String createdAt;
-  int id;
+  int? userId;
+  String? feedId;
+  int? emojiValue;
+  String? updatedAt;
+  String? createdAt;
+  int? id;
 
   Data(
       {this.userId,

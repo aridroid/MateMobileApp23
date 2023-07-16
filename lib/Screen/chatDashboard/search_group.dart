@@ -14,7 +14,7 @@ import '../../groupChat/services/database_service.dart';
 import '../Home/CommunityTab/groupDetailsBeforeJoiningPage.dart';
 
 class SearchGroup extends StatefulWidget {
-  const SearchGroup({Key key}) : super(key: key);
+  const SearchGroup({Key? key}) : super(key: key);
 
   @override
   _SearchGroupState createState() => _SearchGroupState();
@@ -25,11 +25,11 @@ class _SearchGroupState extends State<SearchGroup> {
   TextEditingController searchEditingController = new TextEditingController();
   ThemeController themeController = Get.find<ThemeController>();
   FocusNode focusNode= FocusNode();
-  QuerySnapshot searchResultSnapshot;
+  late QuerySnapshot searchResultSnapshot;
   bool isLoading = true;
   bool hasUserSearched = false;
   String _userName = '';
-  User _user;
+  late User _user;
   String searchedName="";
 
   @override
@@ -56,9 +56,9 @@ class _SearchGroupState extends State<SearchGroup> {
 
   _getCurrentUserNameAndUid() async {
     await HelperFunctions.getUserNameSharedPreference().then((value) {
-      _userName = value;
+      _userName = value!;
     });
-    _user = FirebaseAuth.instance.currentUser;
+    _user = FirebaseAuth.instance.currentUser!;
   }
 
   void _showScaffold(String message) {
@@ -162,18 +162,18 @@ class _SearchGroupState extends State<SearchGroup> {
           Visibility(
             visible: /*?*/ searchResultSnapshot.docs[index]["isPrivate"] != null
                 ? searchResultSnapshot.docs[index]["isPrivate"] == true
-                ? searchResultSnapshot.docs[index]["members"].contains(_user.uid + '_' + _user.displayName)
+                ? searchResultSnapshot.docs[index]["members"].contains(_user.uid + '_' + _user.displayName!)
                 : true
                 : true /*: false*/,
             child: groupTile(
-                Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName,
+                Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName!,
                 searchResultSnapshot.docs[index]["groupId"],
                 searchResultSnapshot.docs[index]["groupName"].toString(),
                 searchResultSnapshot.docs[index]["admin"],
                 searchResultSnapshot.docs[index]["members"].length,
                 searchResultSnapshot.docs[index]["maxParticipantNumber"],
                 searchResultSnapshot.docs[index]["isPrivate"],
-                searchResultSnapshot.docs[index]["members"].contains(_user.uid + '_' + _user.displayName),
+                searchResultSnapshot.docs[index]["members"].contains(_user.uid + '_' + _user.displayName!),
                 searchResultSnapshot.docs[index]["groupIcon"],
                 searchResultSnapshot.docs[index]["members"],
             ),

@@ -1,7 +1,7 @@
 class UserAboutDataModel {
-  bool success;
-  String message;
-  Data data;
+  bool? success;
+  String? message;
+  Data? data;
 
   UserAboutDataModel({this.success, this.message, this.data});
 
@@ -16,23 +16,23 @@ class UserAboutDataModel {
     data['success'] = this.success;
     data['message'] = this.message;
     if (this.data != null) {
-      data['data'] = this.data.toJson();
+      data['data'] = this.data?.toJson();
     }
     return data;
   }
 }
 
 class Data {
-  int userId;
-  User user;
-  String about;
-  List<String> classes;
-  List<String> iCanHelpWith;
-  List<String> iNeedHelpWith;
-  List<String> interests;
-  List<String> skills;
-  String createdAt;
-  String updatedAt;
+  int? userId;
+  User? user;
+  String? about;
+  List<String>? classes;
+  List<String>? iCanHelpWith;
+  List<String>? iNeedHelpWith;
+  List<String>? interests;
+  List<String>? skills;
+  String? createdAt;
+  String? updatedAt;
 
   Data(
       {this.userId,
@@ -63,7 +63,7 @@ class Data {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['user_id'] = this.userId;
     if (this.user != null) {
-      data['user'] = this.user.toJson();
+      data['user'] = this.user?.toJson();
     }
     data['about'] = this.about;
     data['classes'] = this.classes;
@@ -78,20 +78,20 @@ class Data {
 }
 
 class User {
-  String uuid;
-  String email;
-  String phoneNumber;
-  String firstName;
-  String lastName;
-  String displayName;
-  String photo;
-  String about;
-  String societies;
-  String achievements;
-  String firebaseUid;
-  String emailVerifiedAt;
-  String createdAt;
-  String updatedAt;
+  String? uuid;
+  String? email;
+  String? phoneNumber;
+  String? firstName;
+  String? lastName;
+  String? displayName;
+  String? photo;
+  String? about;
+  String? societies;
+  String? achievements;
+  String? firebaseUid;
+  String? emailVerifiedAt;
+  String? createdAt;
+  String? updatedAt;
 
   User(
       {this.uuid,

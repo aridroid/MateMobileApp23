@@ -21,7 +21,7 @@ class GoogleLogin extends StatefulWidget {
 
 class _GoogleLoginState extends State<GoogleLogin> {
   ThemeController themeController = Get.find<ThemeController>();
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
 
   @override
   Widget build(BuildContext context) {
@@ -122,12 +122,12 @@ class _GoogleLoginState extends State<GoogleLogin> {
                                             prefs.setBool('login_app', true);
                                             if(Provider.of<AuthUserProvider>(context, listen: false).authUser.universityId==null){
                                               Get.off(UpdateProfile(
-                                                fullName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName,
+                                                fullName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName!,
                                                 about: "",
-                                                uuid: Provider.of<AuthUserProvider>(context, listen: false).authUser.id,
-                                                universityId: Provider.of<AuthUserProvider>(context, listen: false).authUser.universityId,
-                                                photoUrl: Provider.of<AuthUserProvider>(context, listen: false).authUser.photoUrl,
-                                                coverPhotoUrl: Provider.of<AuthUserProvider>(context, listen: false).authUser.coverPhotoUrl,
+                                                uuid: Provider.of<AuthUserProvider>(context, listen: false).authUser.id!,
+                                                universityId: Provider.of<AuthUserProvider>(context, listen: false).authUser.universityId!,
+                                                photoUrl: Provider.of<AuthUserProvider>(context, listen: false).authUser.photoUrl!,
+                                                coverPhotoUrl: Provider.of<AuthUserProvider>(context, listen: false).authUser.coverPhotoUrl!,
                                                 isGoToHome: true,
                                               ));
                                             }else{
@@ -171,12 +171,12 @@ class _GoogleLoginState extends State<GoogleLogin> {
                                       prefs.setBool('login_app', true);
                                       if(Provider.of<AuthUserProvider>(context, listen: false).authUser.universityId==null){
                                         Get.off(UpdateProfile(
-                                          fullName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName,
+                                          fullName: Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName!,
                                           about: "",
-                                          uuid: Provider.of<AuthUserProvider>(context, listen: false).authUser.id,
-                                          universityId: Provider.of<AuthUserProvider>(context, listen: false).authUser.universityId,
-                                          photoUrl: Provider.of<AuthUserProvider>(context, listen: false).authUser.photoUrl,
-                                          coverPhotoUrl: Provider.of<AuthUserProvider>(context, listen: false).authUser.coverPhotoUrl,
+                                          uuid: Provider.of<AuthUserProvider>(context, listen: false).authUser.id!,
+                                          universityId: Provider.of<AuthUserProvider>(context, listen: false).authUser.universityId!,
+                                          photoUrl: Provider.of<AuthUserProvider>(context, listen: false).authUser.photoUrl!,
+                                          coverPhotoUrl: Provider.of<AuthUserProvider>(context, listen: false).authUser.coverPhotoUrl!,
                                           isGoToHome: true,
                                         ));
                                       }else{

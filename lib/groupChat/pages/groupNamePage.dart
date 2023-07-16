@@ -9,14 +9,14 @@ import '../../constant.dart';
 class GroupNamePage extends StatefulWidget {
   final String groupName;
   final String groupId;
-  const GroupNamePage({Key key, this.groupName, this.groupId}) : super(key: key);
+  const GroupNamePage({Key? key, required this.groupName, required this.groupId}) : super(key: key);
 
   @override
   _GroupNamePageState createState() => _GroupNamePageState();
 }
 
 class _GroupNamePageState extends State<GroupNamePage> {
-  TextEditingController groupNameText;
+  TextEditingController? groupNameText;
   ThemeController themeController = Get.find<ThemeController>();
 
   @override
@@ -147,7 +147,7 @@ class _GroupNamePageState extends State<GroupNamePage> {
                     Expanded(
                       child: TextButton(
                         onPressed: () {
-                          DatabaseService().updateGroupName(widget.groupId, groupNameText.text);
+                          DatabaseService().updateGroupName(widget.groupId, groupNameText!.text);
                           Navigator.pop(context);
                         },
                         child: Text("Save",
@@ -171,7 +171,7 @@ class _GroupNamePageState extends State<GroupNamePage> {
     );
   }
 
-  InputDecoration _customInputDecoration({@required String labelText, IconData icon}) {
+  InputDecoration _customInputDecoration({required String labelText, required IconData icon}) {
     return InputDecoration(
       hintStyle: TextStyle(
         fontSize: 16,

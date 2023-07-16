@@ -1,7 +1,7 @@
 class AppUpdateModel {
-  bool success;
-  Data data;
-  String message;
+  bool? success;
+  Data? data;
+  String? message;
 
   AppUpdateModel({this.success, this.data, this.message});
 
@@ -15,7 +15,7 @@ class AppUpdateModel {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['success'] = this.success;
     if (this.data != null) {
-      data['data'] = this.data.toJson();
+      data['data'] = this.data?.toJson();
     }
     data['message'] = this.message;
     return data;
@@ -23,9 +23,9 @@ class AppUpdateModel {
 }
 
 class Data {
-  String androidVersion;
-  String iosVersion;
-  String generalVersion;
+  String? androidVersion;
+  String? iosVersion;
+  String? generalVersion;
 
   Data({this.androidVersion, this.iosVersion, this.generalVersion});
 

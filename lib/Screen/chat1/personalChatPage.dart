@@ -26,8 +26,8 @@ class PersonalChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<PersonalChatScreen> {
 
 
-  User _user = FirebaseAuth.instance.currentUser;
-  String personChatId;
+  User _user = FirebaseAuth.instance.currentUser!;
+  late String personChatId;
 
   @override
   void initState() {
@@ -141,7 +141,7 @@ class _ChatScreenState extends State<PersonalChatScreen> {
                   )));
 
         }else if(chatProvider.personalChatModelData!=null){
-          return chatProvider.personalChatModelData.data.length == 0
+          return chatProvider.personalChatModelData!.data!.length == 0
               ? Center(
             child: Text("Start a conversation, mate!", style: TextStyle(fontSize: 13.0.sp, fontWeight: FontWeight.w700, color: MateColors.activeIcons)),
           )
@@ -150,11 +150,11 @@ class _ChatScreenState extends State<PersonalChatScreen> {
               return chatProvider.personalChatDataFetch(_user.uid);
             },
             child: ListView.builder(
-                itemCount: chatProvider.personalChatModelData.data.length,
+                itemCount: chatProvider.personalChatModelData!.data!.length,
                 shrinkWrap: true,
                 itemBuilder: (context, index1) {
-                  return StreamBuilder(
-                      stream: DatabaseService().getPeerChatUserDetail(chatProvider.personalChatModelData.data[index1].receiverUid),
+                  return StreamBuilder<QuerySnapshot>(
+                      stream: DatabaseService().getPeerChatUserDetail(chatProvider.personalChatModelData!.data![index1].receiverUid!),
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           // Future.delayed(Duration.zero,(){
@@ -162,13 +162,13 @@ class _ChatScreenState extends State<PersonalChatScreen> {
                           // });
                           return ListView.builder(
                               shrinkWrap: true,
-                              itemCount: snapshot.data.docs.length,
+                              itemCount: snapshot.data!.docs.length,
                               physics: ScrollPhysics(),
                               itemBuilder: (context, index) {
-                                if (_user.uid.hashCode <= {snapshot.data.docs[index].data()["uid"]}.hashCode) {
-                                  personChatId = '${_user.uid}-${snapshot.data.docs[index].data()["uid"]}';
+                                if (_user.uid.hashCode <= {snapshot.data!.docs[index].get('uid')}.hashCode) {
+                                  personChatId = '${_user.uid}-${snapshot.data!.docs[index].get('uid')}';
                                 } else {
-                                  personChatId = '${snapshot.data.docs[index].data()["uid"]}-${_user.uid}';
+                                  personChatId = '${snapshot.data!.docs[index].get('uid')}-${_user.uid}';
                                 }
                                 return Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 2.0),
@@ -176,44 +176,44 @@ class _ChatScreenState extends State<PersonalChatScreen> {
                                     onTap: () =>
                                         Get.to(() =>
                                             Chat(
-                                              peerUuid: snapshot.data.docs[index].data()["uuid"],
+                                              peerUuid: snapshot.data!.docs[index].get('uuid'),
                                               currentUserId: _user.uid,
-                                              peerId: snapshot.data.docs[index].data()["uid"],
-                                              peerName: snapshot.data.docs[index].data()["displayName"],
-                                              peerAvatar: snapshot.data.docs[index].data()["photoURL"],
+                                              peerId: snapshot.data!.docs[index].get('uid'),
+                                              peerName: snapshot.data!.docs[index].get('displayName'),
+                                              peerAvatar: snapshot.data!.docs[index].get('photoURL'),
                                             )),
                                     leading: CircleAvatar(
                                       radius: 20,
                                       backgroundColor: MateColors.activeIcons,
                                       backgroundImage: NetworkImage(
-                                        snapshot.data.docs[index].data()["photoURL"],
+                                        snapshot.data!.docs[index].get('photoURL'),
                                       ),
 
                                     ),
                                     title: Row(
                                       children: [
-                                        Expanded(child: Text(snapshot.data.docs[index].data()["displayName"], style: TextStyle(fontSize: 11.7.sp, fontWeight: FontWeight.w700, color: MateColors.activeIcons))),
-                                        Text(chatProvider.personalChatModelData.data[index1].unreadMessages<1?"":chatProvider.personalChatModelData.data[index1].unreadMessages.toString(), style: TextStyle(fontSize: 11.7.sp, fontWeight: FontWeight.w700, color: MateColors.activeIcons)),
+                                        Expanded(child: Text(snapshot.data!.docs[index].get('displayName'), style: TextStyle(fontSize: 11.7.sp, fontWeight: FontWeight.w700, color: MateColors.activeIcons))),
+                                        Text(chatProvider.personalChatModelData!.data![index1].unreadMessages!<1?"":chatProvider.personalChatModelData!.data![index1].unreadMessages.toString(), style: TextStyle(fontSize: 11.7.sp, fontWeight: FontWeight.w700, color: MateColors.activeIcons)),
                                       ],
                                     ),
-                                    subtitle: StreamBuilder(
+                                    subtitle: StreamBuilder<QuerySnapshot>(
                                         stream: FirebaseFirestore.instance.collection('messages').doc(personChatId).collection(personChatId).orderBy('timestamp', descending: true).limit(1).snapshots(),
                                         // stream: DatabaseService().getLastPersonalChatMessage(personChatId),
                                         builder: (context, snapshot) {
                                           if(snapshot.hasData){
-                                            print(snapshot.data.docs);
-                                            if(snapshot.data.docs.length >0){
+                                            print(snapshot.data!.docs);
+                                            if(snapshot.data!.docs.length >0){
                                               return Row(
                                                 children: [
                                                   Expanded(
                                                     child: Text(
-                                                      snapshot.data.docs[0].data()['type']==0?"${snapshot.data.docs[0].data()['content']}":snapshot.data.docs[0].data()['type']==1?"🖼️ Image":snapshot.data.docs[0].data()['fileName'],
+                                                      snapshot.data!.docs[0].get('type')==0?"${snapshot.data!.docs[0].get('content')}":snapshot.data!.docs[0].get('type')==1?"🖼️ Image":snapshot.data!.docs[0].get('fileName'),
                                                       style: TextStyle(fontSize: 10.0.sp, fontWeight: FontWeight.w100, color: Colors.grey[50]),
                                                       overflow: TextOverflow.ellipsis,
                                                     ),
                                                   ),
                                                   Text(
-                                                    snapshot.data.docs[0].data()['timestamp'].toString()!=""?"    ${DateFormat.jm().format(DateTime.fromMillisecondsSinceEpoch(int.parse(snapshot.data.docs[0].data()['timestamp'].toString())))}":"",
+                                                    snapshot.data!.docs[0].get('timestamp').toString()!=""?"    ${DateFormat.jm().format(DateTime.fromMillisecondsSinceEpoch(int.parse(snapshot.data!.docs[0].get('timestamp').toString())))}":"",
                                                     style: TextStyle(fontSize: 8.4.sp, fontWeight: FontWeight.w100, color: Colors.grey[50]),
                                                     overflow: TextOverflow.ellipsis,
                                                   ),

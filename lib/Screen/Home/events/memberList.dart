@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -16,7 +17,7 @@ import '../../Profile/UserProfileScreen.dart';
 
 class MemberList extends StatefulWidget {
   final List<GoingList> list;
-  const MemberList({Key key, this.list}) : super(key: key);
+  const MemberList({Key? key, required this.list}) : super(key: key);
 
   @override
   _MemberListState createState() => _MemberListState();
@@ -24,8 +25,8 @@ class MemberList extends StatefulWidget {
 
 class _MemberListState extends State<MemberList> {
   ThemeController themeController = Get.find<ThemeController>();
-  String token;
-  PageController _pageController;
+  late String token;
+  late PageController _pageController;
   int _selectedIndex = 0;
 
   @override
@@ -43,7 +44,7 @@ class _MemberListState extends State<MemberList> {
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
   }
 
   @override
@@ -181,41 +182,41 @@ class _MemberListState extends State<MemberList> {
                           itemCount: widget.list.length,
                           itemBuilder: (context, index) {
                             print(widget.list[index].firebaseUid);
-                            return FutureBuilder(
-                                future: DatabaseService().getUsersDetails(widget.list[index].firebaseUid),
+                            return FutureBuilder<DocumentSnapshot>(
+                                future: DatabaseService().getUsersDetails(widget.list[index].firebaseUid!),
                                 builder: (context, snapshot1) {
                                   if(snapshot1.hasData){
                                     return InkWell(
                                       onTap: (){
-                                        if(snapshot1.data.data()['uuid']!=null){
-                                          if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                        if(snapshot1.data!.get('uuid')!=null){
+                                          if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                             Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                           } else {
                                             Navigator.of(context).pushNamed(UserProfileScreen.routeName,
-                                                arguments: {"id": snapshot1.data.data()['uuid'],
-                                                  "name": snapshot1.data.data()['displayName'],
-                                                  "photoUrl": snapshot1.data.data()['photoURL'],
-                                                  "firebaseUid": snapshot1.data.data()['uid']
+                                                arguments: {"id": snapshot1.data!.get('uuid'),
+                                                  "name": snapshot1.data!.get('displayName'),
+                                                  "photoUrl": snapshot1.data!.get('photoURL'),
+                                                  "firebaseUid": snapshot1.data!.get('uid')
                                                 });
                                           }
                                         }
                                       },
                                       child: ListTile(
-                                        leading:  snapshot1.data.data()['photoURL']!=null?
+                                        leading:  snapshot1.data!.get('photoURL')!=null?
                                         CircleAvatar(
                                           radius: 30,
                                           backgroundColor: MateColors.activeIcons,
                                           backgroundImage: NetworkImage(
-                                            snapshot1.data.data()['photoURL'],
+                                            snapshot1.data!.get('photoURL'),
                                           ),
                                         ):
                                         CircleAvatar(
                                           radius: 30,
                                           backgroundColor: MateColors.activeIcons,
-                                          child: Text(snapshot1.data.data()['displayName'].substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
+                                          child: Text(snapshot1.data!.get('displayName').substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
                                         ),
                                         title: Text(
-                                          snapshot1.data.data()['displayName'],
+                                          snapshot1.data!.get('displayName'),
                                           style: TextStyle(
                                             fontFamily: "Poppins",
                                             fontSize: 15.0,
@@ -223,10 +224,10 @@ class _MemberListState extends State<MemberList> {
                                             color: themeController.isDarkMode?Colors.white:Colors.black,
                                           ),
                                         ),
-                                        trailing: !connectionGlobalUidList.contains(snapshot1.data.data()['uid']) && Provider.of<AuthUserProvider>(context, listen: false).authUser.firebaseUid!=snapshot1.data.data()['uid']?
+                                        trailing: !connectionGlobalUidList.contains(snapshot1.data!.get('uid')) && Provider.of<AuthUserProvider>(context, listen: false).authUser.firebaseUid!=snapshot1.data!.get('uid')?
                                         InkWell(
                                           onTap: ()async{
-                                            _showAddConnectionAlertDialog(uid: snapshot1.data.data()['uid'], name: snapshot1.data.data()['displayName'],uuid: snapshot1.data.data()['uuid']);
+                                            _showAddConnectionAlertDialog(uid: snapshot1.data!.get('uid'), name: snapshot1.data!.get('displayName'),uuid: snapshot1.data!.get('uuid'));
                                           },
                                           child: Padding(
                                             padding: const EdgeInsets.only(right: 4,left: 4),
@@ -246,6 +247,7 @@ class _MemberListState extends State<MemberList> {
                                         child: LinearProgressIndicator(
                                           color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                                           minHeight: 3,
+                                          backgroundColor: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                                         ),
                                       ),
                                     );
@@ -277,41 +279,41 @@ class _MemberListState extends State<MemberList> {
                         itemCount: widget.list.length,
                         itemBuilder: (context, index) {
                           print(widget.list[index].firebaseUid);
-                          return FutureBuilder(
-                              future: DatabaseService().getUsersDetails(widget.list[index].firebaseUid),
+                          return FutureBuilder<DocumentSnapshot>(
+                              future: DatabaseService().getUsersDetails(widget.list[index].firebaseUid!),
                               builder: (context, snapshot1) {
                                 if(snapshot1.hasData){
                                   return InkWell(
                                     onTap: (){
-                                      if(snapshot1.data.data()['uuid']!=null){
-                                        if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                      if(snapshot1.data!.get('uuid')!=null){
+                                        if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                           Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                         } else {
                                           Navigator.of(context).pushNamed(UserProfileScreen.routeName,
-                                              arguments: {"id": snapshot1.data.data()['uuid'],
-                                                "name": snapshot1.data.data()['displayName'],
-                                                "photoUrl": snapshot1.data.data()['photoURL'],
-                                                "firebaseUid": snapshot1.data.data()['uid']
+                                              arguments: {"id": snapshot1.data!.get('uuid'),
+                                                "name": snapshot1.data!.get('displayName'),
+                                                "photoUrl": snapshot1.data!.get('photoURL'),
+                                                "firebaseUid": snapshot1.data!.get('uid')
                                               });
                                         }
                                       }
                                     },
                                     child: ListTile(
-                                      leading:  snapshot1.data.data()['photoURL']!=null?
+                                      leading:  snapshot1.data!.get('photoURL')!=null?
                                       CircleAvatar(
                                         radius: 30,
                                         backgroundColor: MateColors.activeIcons,
                                         backgroundImage: NetworkImage(
-                                          snapshot1.data.data()['photoURL'],
+                                          snapshot1.data!.get('photoURL'),
                                         ),
                                       ):
                                       CircleAvatar(
                                         radius: 30,
                                         backgroundColor: MateColors.activeIcons,
-                                        child: Text(snapshot1.data.data()['displayName'].substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
+                                        child: Text(snapshot1.data!.get('displayName').substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
                                       ),
                                       title: Text(
-                                        snapshot1.data.data()['displayName'],
+                                        snapshot1.data!.get('displayName'),
                                         style: TextStyle(
                                           fontFamily: "Poppins",
                                           fontSize: 15.0,
@@ -319,10 +321,10 @@ class _MemberListState extends State<MemberList> {
                                           color: themeController.isDarkMode?Colors.white:Colors.black,
                                         ),
                                       ),
-                                      trailing: !connectionGlobalUidList.contains(snapshot1.data.data()['uid']) && Provider.of<AuthUserProvider>(context, listen: false).authUser.firebaseUid!=snapshot1.data.data()['uid']?
+                                      trailing: !connectionGlobalUidList.contains(snapshot1.data!.get('uid')) && Provider.of<AuthUserProvider>(context, listen: false).authUser.firebaseUid!=snapshot1.data!.get('uid')?
                                       InkWell(
                                         onTap: ()async{
-                                          _showAddConnectionAlertDialog(uid: snapshot1.data.data()['uid'], name: snapshot1.data.data()['displayName'],uuid: snapshot1.data.data()['uuid']);
+                                          _showAddConnectionAlertDialog(uid: snapshot1.data!.get('uid'), name: snapshot1.data!.get('displayName'),uuid: snapshot1.data!.get('uuid'));
                                         },
                                         child: Padding(
                                           padding: const EdgeInsets.only(right: 4,left: 4),
@@ -342,6 +344,7 @@ class _MemberListState extends State<MemberList> {
                                       child: LinearProgressIndicator(
                                         color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                                         minHeight: 3,
+                                        backgroundColor: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                                       ),
                                     ),
                                   );
@@ -370,7 +373,7 @@ class _MemberListState extends State<MemberList> {
     );
   }
 
-  _showAddConnectionAlertDialog({@required String uid, @required String name, @required String uuid})async{
+  _showAddConnectionAlertDialog({required String uid, required String name, required String uuid})async{
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!

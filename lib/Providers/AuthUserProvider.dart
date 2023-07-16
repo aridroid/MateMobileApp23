@@ -18,14 +18,14 @@ import '../Services/appleSigninService.dart';
 
 class AuthUserProvider with ChangeNotifier {
   ///initialization
-  FirebaseMessaging _firebaseMessaging;
-  GoogleSignInService _googleSignInService;
-  AppleSignInService _appleSignInService;
-  AuthUser _authUser;
-  List<UserClass> _authUserClasses = [];
-  AuthUserService _authUserService;
-  Map<String, dynamic> _validationError = {};
-  uadm.UserAboutDataModel _userAboutData;
+  late FirebaseMessaging _firebaseMessaging;
+  late GoogleSignInService _googleSignInService;
+  late AppleSignInService _appleSignInService;
+  late AuthUser _authUser;
+  late List<UserClass> _authUserClasses = [];
+  late AuthUserService _authUserService;
+  late Map<String, dynamic> _validationError = {};
+  uadm.UserAboutDataModel? _userAboutData;
 
   String _error = "";
 
@@ -45,7 +45,16 @@ class AuthUserProvider with ChangeNotifier {
   bool _updateNotificationLoader = false;
 
   ///constructor
-  AuthUserProvider() {
+  // AuthUserProvider() {
+  //   _authUserService = AuthUserService();
+  //   _firebaseMessaging = FirebaseMessaging.instance;
+  //   _googleSignInService = GoogleSignInService();
+  //   _appleSignInService = AppleSignInService();
+  //   // _firebaseMessaging.requestNotificationPermissions();
+  //   _firebaseMessaging.requestPermission();
+  // }
+
+  init(){
     _authUserService = AuthUserService();
     _firebaseMessaging = FirebaseMessaging.instance;
     _googleSignInService = GoogleSignInService();
@@ -55,17 +64,17 @@ class AuthUserProvider with ChangeNotifier {
   }
 
   ///getters
-  get error => _error;
+  String get error => _error;
 
   AuthUser get authUser => _authUser;
 
-  get authUserClasses => _authUserClasses;
+  List<UserClass> get authUserClasses => _authUserClasses;
 
-  uadm.UserAboutDataModel get userAboutData => _userAboutData;
+  uadm.UserAboutDataModel? get userAboutData => _userAboutData;
 
-  get profileUpdateLoaderStatus => _profileUpdateLoader;
+  bool get profileUpdateLoaderStatus => _profileUpdateLoader;
 
-  get loggingInLoaderStatus => _loggingInLoader;
+  bool get loggingInLoaderStatus => _loggingInLoader;
 
   get autoLoginLoader => _autoLoginLoader;
 
@@ -75,25 +84,25 @@ class AuthUserProvider with ChangeNotifier {
 
   get updateNotificationLoader => _updateNotificationLoader;
 
-  get profileLoaderStatus => _profileLoader;
+  bool get profileLoaderStatus => _profileLoader;
 
-  get userClassListLoaderStatus => _userClassListLoader;
+  bool get userClassListLoaderStatus => _userClassListLoader;
 
-  get photoUpdateLoaderStatus => _photoUpdateLoader;
+  bool get photoUpdateLoaderStatus => _photoUpdateLoader;
 
   get coverPhotoUpdateLoader => _coverPhotoUpdateLoader;
 
-  get aboutUpdateLoaderStatus => _aboutUpdateLoader;
+  bool get aboutUpdateLoaderStatus => _aboutUpdateLoader;
 
-  get societiesUpdateLoaderStatus => _societiesUpdateLoader;
+  bool get societiesUpdateLoaderStatus => _societiesUpdateLoader;
 
   get achievementUpdateLoader => _achievementUpdateLoader;
 
-  get authUserPhoto => _authUser.photoUrl.length > 0
-      ? _authUser.photoUrl
+  String get authUserPhoto => _authUser.photoUrl!.length > 0
+      ? _authUser.photoUrl!
       : 'https://cdn.pixabay.com/photo/2016/03/31/23/37/bird-1297727__340.png';
 
-  get validationErrors => _validationError;
+  Map<String, dynamic> get validationErrors => _validationError;
 
   set setAuthUserPhoto(String url) {
     _authUser.photoUrl = url;
@@ -232,7 +241,7 @@ class AuthUserProvider with ChangeNotifier {
     bool result = false;
 
     try {
-      String deviceId= await _firebaseMessaging.getToken();
+      String? deviceId= await _firebaseMessaging.getToken();
       await _authUserService.clearAuthUserDataFromSharedPreference();
       List<dynamic> data = await _googleSignInService.signInWithGoogle();
       loggingInLoaderStatus = true;
@@ -240,13 +249,13 @@ class AuthUserProvider with ChangeNotifier {
       User user= data[1];
       log(user.toString());
       print("deviceId : $deviceId");
-      AuthUser userData = await _authUserService.login(googleToken: googleToken, deviceId: deviceId);
+      AuthUser? userData = await _authUserService.login(googleToken: googleToken, deviceId: deviceId!);
       if(userData != null){
-        DatabaseService(uid: user.uid).updateUserData(user, userData.id, userData.displayName,userData.photoUrl);
+        DatabaseService(uid: user.uid).updateUserData(user, userData.id!, userData.displayName!,userData.photoUrl!);
         authUser = userData;
         result = true;
         var _user = FirebaseAuth.instance.currentUser;
-        await _user.updateProfile(displayName: authUser.displayName,photoURL: authUser.photoUrl);
+        await _user!.updateProfile(displayName: authUser.displayName,photoURL: authUser.photoUrl);
         // if(userData.universityId!=null){
         //   DatabaseService(uid: user.uid).updateUserData(user, userData.id, userData.displayName);
         //   authUser = userData;
@@ -290,7 +299,7 @@ class AuthUserProvider with ChangeNotifier {
     error = '';
     bool result = false;
     try {
-      String deviceId= await _firebaseMessaging.getToken();
+      String? deviceId= await _firebaseMessaging.getToken();
       await _authUserService.clearAuthUserDataFromSharedPreference();
       List<dynamic> data = await _appleSignInService.useAppleAuthentication();
       loggingInLoaderStatus = true;
@@ -298,13 +307,13 @@ class AuthUserProvider with ChangeNotifier {
       User user= data[1];
       log(user.toString());
       print("deviceId : $deviceId");
-      AuthUser userData = await _authUserService.login(googleToken: googleToken, deviceId: deviceId);
+      AuthUser userData = await _authUserService.login(googleToken: googleToken, deviceId: deviceId!);
       if(userData != null){
-        DatabaseService(uid: user.uid).updateUserData(user, userData.id, userData.displayName,userData.photoUrl);
+        DatabaseService(uid: user.uid).updateUserData(user, userData.id!, userData.displayName!,userData.photoUrl!);
         authUser = userData;
         result = true;
         var _user = FirebaseAuth.instance.currentUser;
-        await _user.updateProfile(displayName: authUser.displayName,photoURL: authUser.photoUrl);
+        await _user!.updateProfile(displayName: authUser.displayName,photoURL: authUser.photoUrl);
       }
     } on PlatformException catch (err) {
       print('platform exception: ${err.toString()}');
@@ -372,7 +381,7 @@ class AuthUserProvider with ChangeNotifier {
         await _authUserService.storeAuthUserToSharedPreference(authUser);
         await DatabaseService().updateOldUserLoginWithEmail(authUser);
         var _user = FirebaseAuth.instance.currentUser;
-        await _user.updateProfile(displayName: authUser.displayName,photoURL: authUser.photoUrl);
+        await _user!.updateProfile(displayName: authUser.displayName,photoURL: authUser.photoUrl);
       }
 
       print(_authUser.firstName.toString());
@@ -384,13 +393,13 @@ class AuthUserProvider with ChangeNotifier {
   }
 
   Future<bool> updateUserProfile({
-    @required String firstName,
-    @required String lastName,
-    @required String displayName,
-    @required String phoneNumber,
-    String about,
-    String achievements,
-    String societies,
+    required String firstName,
+    required String lastName,
+    required String displayName,
+    required String phoneNumber,
+    String? about,
+    String? achievements,
+    String? societies,
   }) async {
     error = "";
     validationErrors = {};
@@ -443,7 +452,7 @@ class AuthUserProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updateAbout({@required String about}) async {
+  Future<void> updateAbout({required String about}) async {
     error = '';
     aboutUpdateLoaderStatus = true;
     try {
@@ -457,7 +466,7 @@ class AuthUserProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updateSocieties({@required String societies}) async {
+  Future<void> updateSocieties({required String societies}) async {
     error = '';
     societiesUpdateLoaderStatus = true;
     try {
@@ -471,7 +480,7 @@ class AuthUserProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updateAchievements({@required String achievements}) async {
+  Future<void> updateAchievements({required String achievements}) async {
     error = '';
     achievementsUpdateLoaderStatus = true;
     try {
@@ -485,7 +494,7 @@ class AuthUserProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updatePhoto({@required String imageFile}) async {
+  Future<void> updatePhoto({required String imageFile}) async {
     error = '';
     photoUpdateLoaderStatus = true;
     try {
@@ -504,7 +513,7 @@ class AuthUserProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updateCoverPhoto({@required String imageFile}) async {
+  Future<void> updateCoverPhoto({required String imageFile}) async {
     error = '';
     _coverPhotoUpdateLoader = true;
     try {

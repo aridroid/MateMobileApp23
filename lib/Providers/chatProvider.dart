@@ -10,7 +10,7 @@ class ChatProvider extends ChangeNotifier{
 
   /// initialization
 
-  ChatService _chatService;
+  ChatService _chatService = ChatService();
   String _apiError = "";
   Map<String, dynamic> _validationErrors = Map();
 
@@ -20,14 +20,14 @@ class ChatProvider extends ChangeNotifier{
   bool _groupChatDataFetchLoader = false;
   bool _mergedChatDataFetchLoader = false;
 
-  PersonalChatDataModel _personalChatModelData;
-  GroupChatDataModel _groupChatModelData;
-  ChatMergedModel _mergedChatModelData;
+  PersonalChatDataModel? _personalChatModelData;
+  GroupChatDataModel? _groupChatModelData;
+  ChatMergedModel? _mergedChatModelData;
 
   ///constructor
-  ChatProvider() {
-    _chatService = ChatService();
-  }
+  // ChatProvider() {
+  //   _chatService = ChatService();
+  // }
 
 
   ///getters
@@ -38,11 +38,11 @@ class ChatProvider extends ChangeNotifier{
 
   bool get mergedChatDataFetchLoader => _mergedChatDataFetchLoader;
 
-  PersonalChatDataModel get personalChatModelData => _personalChatModelData;
+  PersonalChatDataModel? get personalChatModelData => _personalChatModelData;
 
-  GroupChatDataModel get groupChatModelData => _groupChatModelData;
+  GroupChatDataModel? get groupChatModelData => _groupChatModelData;
 
-  ChatMergedModel get mergedChatModelData => _mergedChatModelData;
+  ChatMergedModel? get mergedChatModelData => _mergedChatModelData;
 
   String get error => _apiError;
 
@@ -122,35 +122,35 @@ class ChatProvider extends ChangeNotifier{
       _mergedChatModelData = await _chatService.mergedChatDataFetch(uid);
       messageList.clear();
       archiveList.clear();
-      for(int i=0;i<_mergedChatModelData.data.length;i++){
+      for(int i=0;i<_mergedChatModelData!.data!.length;i++){
         messageList.add(CustomDataForChatList(
           name: "",
           author: "",
-          roomId: _mergedChatModelData.data[i].roomId,
-          receiverUid: _mergedChatModelData.data[i].receiverUid,
-          updatedAt: _mergedChatModelData.data[i].updatedAt,
-          createdAt: _mergedChatModelData.data[i].createdAt,
-          isMuted: _mergedChatModelData.data[i].isMuted,
-          isPinned: _mergedChatModelData.data[i].isPinned,
-          totalMessages: _mergedChatModelData.data[i].totalMessages,
-          type: _mergedChatModelData.data[i].type,
-          unreadMessages: _mergedChatModelData.data[i].unreadMessages,
+          roomId: _mergedChatModelData!.data![i].roomId,
+          receiverUid: _mergedChatModelData!.data![i].receiverUid,
+          updatedAt: _mergedChatModelData!.data![i].updatedAt,
+          createdAt: _mergedChatModelData!.data![i].createdAt,
+          isMuted: _mergedChatModelData!.data![i].isMuted,
+          isPinned: _mergedChatModelData!.data![i].isPinned,
+          totalMessages: _mergedChatModelData!.data![i].totalMessages,
+          type: _mergedChatModelData!.data![i].type,
+          unreadMessages: _mergedChatModelData!.data![i].unreadMessages,
         ));
       }
       print(messageList);
-      for(int i=0;i<_mergedChatModelData.archived.length;i++){
+      for(int i=0;i<_mergedChatModelData!.archived!.length;i++){
         archiveList.add(CustomDataForChatList(
           name: "",
           author: "",
-          roomId: _mergedChatModelData.archived[i].roomId,
-          receiverUid: _mergedChatModelData.archived[i].receiverUid,
-          updatedAt: _mergedChatModelData.archived[i].updatedAt,
-          createdAt: _mergedChatModelData.archived[i].createdAt,
-          isMuted: _mergedChatModelData.archived[i].isMuted,
-          isPinned: _mergedChatModelData.archived[i].isPinned,
-          totalMessages: _mergedChatModelData.archived[i].totalMessages,
-          type: _mergedChatModelData.archived[i].type,
-          unreadMessages: _mergedChatModelData.archived[i].unreadMessages,
+          roomId: _mergedChatModelData!.archived![i].roomId,
+          receiverUid: _mergedChatModelData!.archived![i].receiverUid,
+          updatedAt: _mergedChatModelData!.archived![i].updatedAt,
+          createdAt: _mergedChatModelData!.archived![i].createdAt,
+          isMuted: _mergedChatModelData!.archived![i].isMuted,
+          isPinned: _mergedChatModelData!.archived![i].isPinned,
+          totalMessages: _mergedChatModelData!.archived![i].totalMessages,
+          type: _mergedChatModelData!.archived![i].type,
+          unreadMessages: _mergedChatModelData!.archived![i].unreadMessages,
         ));
       }
       print(archiveList);

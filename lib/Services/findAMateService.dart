@@ -14,8 +14,8 @@ import 'BackEndAPIRoutes.dart';
 import 'package:http/http.dart'as http;
 
 class FindAMateService {
-  APIService _apiService;
-  BackEndAPIRoutes _backEndAPIRoutes;
+  late APIService _apiService;
+  late BackEndAPIRoutes _backEndAPIRoutes;
 
   FindAMateService() {
     _apiService = APIService();
@@ -241,8 +241,8 @@ class FindAMateService {
 
 
 
-  Future<FindAMatePostsModel> searchFindAMate({String token,int page,String text})async{
-    FindAMatePostsModel findAMatePostsModel;
+  Future<FindAMatePostsModel?> searchFindAMate({required String token,required int page,required String text})async{
+    FindAMatePostsModel? findAMatePostsModel;
     debugPrint("https://api.mateapp.us/api/findmate/posts?findmate_name=$text&page=$page");
     debugPrint(token);
     try {

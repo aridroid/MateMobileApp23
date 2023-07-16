@@ -57,13 +57,13 @@ class BackEndAPIRoutes {
   /// Feeds Routes
   Uri feedTypes() => Uri(
       scheme: _scheme, host: _host, path: '$_path/feeds/types'); // method GET
-  Uri feeds([Map<String, dynamic> queryParams]) => Uri(
+  Uri feeds([Map<String, dynamic>? queryParams]) => Uri(
       scheme: _scheme,
       host: _host,
       path: '$_path/feeds',
       queryParameters: queryParams); // method GET, query params: [feed_type_id]
 
-  Uri feedsMyCampus([Map<String, dynamic> queryParams]) => Uri(
+  Uri feedsMyCampus([Map<String, dynamic>? queryParams]) => Uri(
       scheme: _scheme,
       host: _host,
       path: '$_path/feeds',
@@ -128,7 +128,7 @@ class BackEndAPIRoutes {
 
 
 
-  Uri fetchFollowerFeeds([Map<String, dynamic> queryParams]) => Uri(
+  Uri fetchFollowerFeeds([Map<String, dynamic>? queryParams]) => Uri(
       scheme: _scheme,
       host: _host,
       path: '$_path/feed/followers',
@@ -228,7 +228,7 @@ class BackEndAPIRoutes {
 
 
   /// CampusTalk Routes
-  Uri campusTalkPosts([Map<String, dynamic> queryParams]) => Uri(
+  Uri campusTalkPosts([Map<String, dynamic>? queryParams]) => Uri(
       scheme: _scheme,
       host: _host,
       path: '$_path/discussion/posts',
@@ -246,7 +246,7 @@ class BackEndAPIRoutes {
       host: _host,
       path: '$_path/discussion/post/bookmarkbyuser');
 
-  Uri fetchCampusTalkByAuthUser(String uuid, [Map<String, dynamic> queryParams]) => Uri(
+  Uri fetchCampusTalkByAuthUser(String uuid, [Map<String, dynamic>? queryParams]) => Uri(
       scheme: _scheme,
       host: _host,
       path: '$_path/discussion/posts/user/$uuid',
@@ -318,7 +318,7 @@ class BackEndAPIRoutes {
 
 
   /// BeAMate Routes
-  Uri beAMatePosts([Map<String, dynamic> queryParams]) => Uri(
+  Uri beAMatePosts([Map<String, dynamic>? queryParams]) => Uri(
       scheme: _scheme,
       host: _host,
       path: '$_path/bemate/posts',
@@ -494,9 +494,9 @@ class BackEndAPIRoutes {
   ///---------------------------------------------------------------------------------------------------
 
   /// Users Routes
-  Uri findUserById({@required String id}) =>
+  Uri findUserById({required String id}) =>
       Uri(scheme: _scheme, host: _host, path: '$_path/users/' + id);
-  Uri userSearch([Map<String, dynamic> queryParams]) => Uri(
+  Uri userSearch([Map<String, dynamic>? queryParams]) => Uri(
       scheme: _scheme,
       host: _host,
       path: '$_path/users',
@@ -504,7 +504,7 @@ class BackEndAPIRoutes {
           queryParams); //method GET, query params: [search, per_page=numeric/all]
 
   ///Classes Routes
-  Uri classSearch([Map<String, dynamic> queryParams]) => Uri(
+  Uri classSearch([Map<String, dynamic>? queryParams]) => Uri(
       scheme: _scheme,
       host: _host,
       path: '$_path/courses/',
@@ -514,20 +514,20 @@ class BackEndAPIRoutes {
   Uri joinClass() =>
       Uri(scheme: _scheme, host: _host, path: '$_path/classes'); //method POST
 
-  Uri classAssgnMents({@required String id}) => Uri(
+  Uri classAssgnMents({required String id}) => Uri(
         scheme: _scheme,
         host: _host,
         path: '$_path/classes/$id/',
       ); //Method GET
 
-  Uri addAssignMents({@required String id}) => Uri(
+  Uri addAssignMents({required String id}) => Uri(
         scheme: _scheme,
         host: _host,
         path: '$_path/classes/$id/assignments',
       ); //Method POST
 
   ///study groups routes
-  Uri studyGroups([Map<String, dynamic> queryParams]) => Uri(
+  Uri studyGroups([Map<String, dynamic>? queryParams]) => Uri(
       scheme: _scheme,
       host: _host,
       path: '$_path/study-groups',

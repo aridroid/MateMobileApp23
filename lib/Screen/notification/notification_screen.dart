@@ -42,10 +42,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   getStoredValue() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
     notificationData = await _notificationService.getNotificationListing(token: token);
-    notificationDataUnread = notificationData.where((element) => !element.isRead).toList();
-    notificationDataRead = notificationData.where((element) => element.isRead).toList();
+    notificationDataUnread = notificationData.where((element) => !element.isRead!).toList();
+    notificationDataRead = notificationData.where((element) => element.isRead!).toList();
     setState(() {
       isLoading = false;
     });
@@ -163,33 +163,33 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       return GestureDetector(
                         onTap: ()async{
                           if(notification.postType == "Feed"){
-                            Get.to(()=>FeedDetailsViaNotification(feedId: notification.postId,));
+                            Get.to(()=>FeedDetailsViaNotification(feedId: notification.postId!,));
                           }else if(notification.postType == "Event"){
                             Get.to(()=> EventDetailsScreenViaNotification(
-                              eventId: notification.postId,
+                              eventId: notification.postId!,
                             ));
                           }else if(notification.postType == "CampusTalk"){
                             Get.to(()=> CampusTalkDetailsScreenViaNotification(
-                              campusId: notification.postId,//notification.postId,
+                              campusId: notification.postId!,//notification.postId,
                             ));
                           }else if(notification.postType == "BeMate"){
                             Get.to(()=> BeAMateScreenViaNotification(
-                              id: notification.postId,
+                              id: notification.postId!,
                             ));
                           }else if(notification.postType == "FindMate"){
                             Get.to(()=> FindAMateViaNotification(
-                              id: notification.postId,//notification.postId,
+                              id: notification.postId!,//notification.postId,
                             ));
                           }else if(notification.postType == "Connection"){
                             Navigator.of(context).pushNamed(UserProfileScreen.routeName,
                                 arguments: {
-                                  "id": notification.sender.id,
-                                  "name": notification.sender.name,
-                                  "photoUrl": notification.sender.photoUrl,
-                                  "firebaseUid": notification.sender.firebaseUid,
+                                  "id": notification.sender!.id,
+                                  "name": notification.sender!.name,
+                                  "photoUrl": notification.sender!.photoUrl,
+                                  "firebaseUid": notification.sender!.firebaseUid,
                                 });
                           }
-                          bool res = await _notificationService.changeStatus(token: token,id: notification.id);
+                          bool res = await _notificationService.changeStatus(token: token,id: notification.id!);
                           if(res){
                             setState(() {
                               notificationDataUnread.removeAt(index);
@@ -216,12 +216,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                     shape: BoxShape.circle,
                                     color: MateColors.activeIcons,
                                     image: DecorationImage(
-                                      image: NetworkImage(notification.sender.photoUrl),
+                                      image: NetworkImage(notification.sender!.photoUrl!),
                                       fit: BoxFit.cover,
                                     ),
                                   ),
                                 ),
-                                title: Text(notification.sender.name,
+                                title: Text(notification.sender!.name!,
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontFamily: "Poppins",
@@ -229,7 +229,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                     color: MateColors.blackTextColor,
                                   ),
                                 ),
-                                subtitle: Text(notification.created,
+                                subtitle: Text(notification.created!,
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Colors.black.withOpacity(0.72),
@@ -239,7 +239,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                               Padding(
                                 padding: EdgeInsets.only(top: 10,left: 16),
                                 child: Text(
-                                  notification.title,
+                                  notification.title!,
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontFamily: 'Poppins',
@@ -304,30 +304,30 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       return GestureDetector(
                         onTap: (){
                           if(notification.postType == "Feed"){
-                            Get.to(()=>FeedDetailsViaNotification(feedId: notification.postId,));
+                            Get.to(()=>FeedDetailsViaNotification(feedId: notification.postId!,));
                           }else if(notification.postType == "Event"){
                             Get.to(()=> EventDetailsScreenViaNotification(
-                              eventId: notification.postId,
+                              eventId: notification.postId!,
                             ));
                           }else if(notification.postType == "CampusTalk"){
                             Get.to(()=> CampusTalkDetailsScreenViaNotification(
-                              campusId: notification.postId,//notification.postId,
+                              campusId: notification.postId!,//notification.postId,
                             ));
                           }else if(notification.postType == "BeMate"){
                             Get.to(()=> BeAMateScreenViaNotification(
-                              id: notification.postId,
+                              id: notification.postId!,
                             ));
                           }else if(notification.postType == "FindMate"){
                             Get.to(()=> FindAMateViaNotification(
-                              id: notification.postId,//notification.postId,
+                              id: notification.postId!,//notification.postId,
                             ));
                           }else if(notification.postType == "Connection"){
                             Navigator.of(context).pushNamed(UserProfileScreen.routeName,
                                 arguments: {
-                                  "id": notification.sender.id,
-                                  "name": notification.sender.name,
-                                  "photoUrl": notification.sender.photoUrl,
-                                  "firebaseUid": notification.sender.firebaseUid,
+                                  "id": notification.sender!.id,
+                                  "name": notification.sender!.name,
+                                  "photoUrl": notification.sender!.photoUrl,
+                                  "firebaseUid": notification.sender!.firebaseUid,
                                 });
                           }
                         },
@@ -350,12 +350,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                     shape: BoxShape.circle,
                                     color: MateColors.activeIcons,
                                     image: DecorationImage(
-                                      image: NetworkImage(notification.sender.photoUrl),
+                                      image: NetworkImage(notification.sender!.photoUrl!),
                                       fit: BoxFit.cover,
                                     ),
                                   ),
                                 ),
-                                title: Text(notification.sender.name,
+                                title: Text(notification.sender!.name!,
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontFamily: "Poppins",
@@ -363,7 +363,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                     color: themeController.isDarkMode?Colors.white: MateColors.blackTextColor,
                                   ),
                                 ),
-                                subtitle: Text(notification.created,
+                                subtitle: Text(notification.created!,
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
@@ -373,7 +373,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                               Padding(
                                 padding: EdgeInsets.only(top: 10,left: 16),
                                 child: Text(
-                                  notification.title,
+                                  notification.title!,
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontFamily: 'Poppins',

@@ -30,7 +30,7 @@ class _LoginWithEmailState extends State<LoginWithEmail> {
   bool isLoading = false;
   final formKey = GlobalKey<FormState>();
   AuthUserService authUserService = AuthUserService();
-  FirebaseMessaging _firebaseMessaging;
+  late FirebaseMessaging _firebaseMessaging;
 
   @override
   void initState() {
@@ -186,16 +186,16 @@ class _LoginWithEmailState extends State<LoginWithEmail> {
                           ),
                           onPressed: ()async{
                             SharedPreferences prefs = await SharedPreferences.getInstance();
-                            if(formKey.currentState.validate()){
+                            if(formKey.currentState!.validate()){
                               setState(() {
                                 isLoading = true;
                               });
-                              String deviceId = await _firebaseMessaging.getToken();
+                              String? deviceId = await _firebaseMessaging.getToken();
                               print(deviceId);
                               dynamic response = await authUserService.signInWithEmail(
                                 email: emailController.text,
                                 password: passwordController.text,
-                                deviceId: deviceId,
+                                deviceId: deviceId!,
                               );
                              if(response == "Invalid user credentials."){
                                 setState(() {
@@ -266,8 +266,8 @@ class _LoginWithEmailState extends State<LoginWithEmail> {
       ],
     );
   }
-  String validateEmail(String value) {
-    if (value.isEmpty) {
+  String? validateEmail(String? value) {
+    if (value!.isEmpty) {
       return "Email Is Required";
     } else if (!GetUtils.isEmail(value)) {
       return "Invalid Email Id";
@@ -276,8 +276,8 @@ class _LoginWithEmailState extends State<LoginWithEmail> {
     }
   }
 
-  String validatePassword(String value) {
-    if(value.isEmpty){
+  String? validatePassword(String? value) {
+    if(value!.isEmpty){
       return "Password is Required";
     }else if(value.length <6){
       return "Password must contain minimum six digit";

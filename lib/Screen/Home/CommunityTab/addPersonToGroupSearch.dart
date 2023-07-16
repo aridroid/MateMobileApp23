@@ -17,7 +17,7 @@ import '../../../groupChat/services/database_service.dart';
 
 class AddPersonToGroupSearch extends StatefulWidget {
   final String groupId,groupName;
-  const AddPersonToGroupSearch({Key key, this.groupId, this.groupName}) : super(key: key);
+  const AddPersonToGroupSearch({Key? key, required this.groupId, required this.groupName}) : super(key: key);
 
   @override
   _AddPersonToGroupSearchState createState() => _AddPersonToGroupSearchState();
@@ -25,10 +25,10 @@ class AddPersonToGroupSearch extends StatefulWidget {
 
 class _AddPersonToGroupSearchState extends State<AddPersonToGroupSearch> {
   ThemeController themeController = Get.find<ThemeController>();
-  QuerySnapshot searchResultSnapshot;
+  late QuerySnapshot searchResultSnapshot;
   bool isLoading = true;
   bool hasUserSearched = false;
-  User _user = FirebaseAuth.instance.currentUser;
+  User _user = FirebaseAuth.instance.currentUser!;
   String searchedName="";
   List<UserListModel> userList = [];
   bool addingUser = false;
@@ -44,7 +44,7 @@ class _AddPersonToGroupSearchState extends State<AddPersonToGroupSearch> {
     super.initState();
   }
 
-  DocumentSnapshot documentSnapshot;
+  late DocumentSnapshot documentSnapshot;
   getData()async{
     documentSnapshot =  await DatabaseService().getGroupDetailsOnce(widget.groupId);
     List<String> uidList = [];
@@ -81,10 +81,10 @@ class _AddPersonToGroupSearchState extends State<AddPersonToGroupSearch> {
 
   }
 
-  String token;
+  late String token;
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
     log(token);
   }
 
@@ -333,49 +333,49 @@ class _AddPersonToGroupSearchState extends State<AddPersonToGroupSearch> {
     );
   }
 
-  Future<void> _showSendAlertDialog({@required String peerId, @required String groupId,@required groupName,@required String peerName}) async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: new Text("Are you sure?"),
-          content: new Text("You want to add this person to $groupName?"),
-          actions: <Widget>[
-            CupertinoDialogAction(
-              isDefaultAction: true,
-              child: Text("Yes"),
-              onPressed: ()async{
-                Navigator.of(context).pop();
-                setState(() {
-                  addingUser = true;
-                });
-                String res = await DatabaseService().addUserToGroup(peerId,groupId,groupName,peerName);
-                print(res);
-                if(res == "already added"){
-                  Fluttertoast.showToast(msg: "User is already added to this group", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
-                }else if(res == "Success"){
-                  CommunityTabService().joinGroup(token: token,groupId: widget.groupId,uid: peerId);
-                  Fluttertoast.showToast(msg: "User successfully added to this group", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
-                }else{
-                  Fluttertoast.showToast(msg: "Something went wrong", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
-                }
-                setState(() {
-                  addingUser = false;
-                });
-              },
-            ),
-            CupertinoDialogAction(
-              child: Text("No"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // Future<void> _showSendAlertDialog({required String peerId, required String groupId,required groupName,required String peerName}) async {
+  //   return showDialog<void>(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (BuildContext context) {
+  //       return CupertinoAlertDialog(
+  //         title: new Text("Are you sure?"),
+  //         content: new Text("You want to add this person to $groupName?"),
+  //         actions: <Widget>[
+  //           CupertinoDialogAction(
+  //             isDefaultAction: true,
+  //             child: Text("Yes"),
+  //             onPressed: ()async{
+  //               Navigator.of(context).pop();
+  //               setState(() {
+  //                 addingUser = true;
+  //               });
+  //               String res = await DatabaseService().addUserToGroup(peerId,groupId,groupName,peerName);
+  //               print(res);
+  //               if(res == "already added"){
+  //                 Fluttertoast.showToast(msg: "User is already added to this group", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+  //               }else if(res == "Success"){
+  //                 CommunityTabService().joinGroup(token: token,groupId: widget.groupId,uid: peerId);
+  //                 Fluttertoast.showToast(msg: "User successfully added to this group", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+  //               }else{
+  //                 Fluttertoast.showToast(msg: "Something went wrong", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+  //               }
+  //               setState(() {
+  //                 addingUser = false;
+  //               });
+  //             },
+  //           ),
+  //           CupertinoDialogAction(
+  //             child: Text("No"),
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 }
 
 
@@ -386,5 +386,5 @@ class UserListModel {
   String photoURL;
   String email;
   bool isSelected;
-  UserListModel({this.uuid, this.uid, this.displayName,this.photoURL,this.email,this.isSelected});
+  UserListModel({required this.uuid, required this.uid, required this.displayName,required this.photoURL,required this.email,required this.isSelected});
 }

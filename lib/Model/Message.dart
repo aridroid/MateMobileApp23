@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Message {
-  String senderId;
-  String senderName;
-  String senderAvatar;
-  String textMessage;
-  Timestamp timestamp;
-  int messageType;
-  String id;
+  String? senderId;
+  String? senderName;
+  String? senderAvatar;
+  String? textMessage;
+  Timestamp? timestamp;
+  int? messageType;
+  String? id;
 
   Message(this.senderId, this.senderName, this.senderAvatar, this.textMessage,
       this.timestamp, this.messageType);

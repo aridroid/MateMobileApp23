@@ -13,8 +13,8 @@ import 'BackEndAPIRoutes.dart';
 import 'package:http/http.dart'as http;
 
 class BeAMateService {
-  APIService _apiService;
-  BackEndAPIRoutes _backEndAPIRoutes;
+  late APIService _apiService;
+  late BackEndAPIRoutes _backEndAPIRoutes;
 
   BeAMateService() {
     _apiService = APIService();
@@ -237,8 +237,8 @@ class BeAMateService {
     }
   }
 
-  Future<BeAMatePostsModel> searchBeAMate({String token,int page,String text})async{
-    BeAMatePostsModel beAMatePostsModel;
+  Future<BeAMatePostsModel> searchBeAMate({required String token,required int page,required String text})async{
+    late BeAMatePostsModel beAMatePostsModel;
     debugPrint("https://api.mateapp.us/api/bemate/posts?bemate_name=$text&page=$page");
     debugPrint(token);
     try {

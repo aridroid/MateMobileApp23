@@ -1,7 +1,7 @@
 class CampusLiveUploadModel {
-  bool success;
-  Data data;
-  String message;
+  bool? success;
+  Data? data;
+  String? message;
 
   CampusLiveUploadModel({this.success, this.data, this.message});
 
@@ -15,7 +15,7 @@ class CampusLiveUploadModel {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['success'] = this.success;
     if (this.data != null) {
-      data['data'] = this.data.toJson();
+      data['data'] = this.data?.toJson();
     }
     data['message'] = this.message;
     return data;
@@ -23,15 +23,15 @@ class CampusLiveUploadModel {
 }
 
 class Data {
-  int id;
-  int userId;
+  int? id;
+  int? userId;
   Null audioId;
-  String url;
-  String subject;
-  String createdAt;
-  String updatedAt;
+  String? url;
+  String? subject;
+  String? createdAt;
+  String? updatedAt;
   Null thumbnailUrl;
-  String featured;
+  String? featured;
   Null viewCount;
 
   Data(

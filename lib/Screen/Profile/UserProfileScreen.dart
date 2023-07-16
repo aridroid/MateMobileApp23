@@ -28,7 +28,7 @@ import 'package:http/http.dart'as http;
 
 class UserProfileScreen extends StatefulWidget {
   static final String routeName = '/user-profile';
-  const UserProfileScreen({Key key}) : super(key: key);
+  const UserProfileScreen({Key? key}) : super(key: key);
 
   @override
   _UserProfileScreenState createState() => _UserProfileScreenState();
@@ -36,17 +36,17 @@ class UserProfileScreen extends StatefulWidget {
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
   ThemeController themeController = Get.find<ThemeController>();
-  ScrollController _scrollController;
-  int _page;
-  User _currentUser = FirebaseAuth.instance.currentUser;
-  UserProvider userProvider;
-  ReportProvider reportProvider;
-  String token;
-  FeedProvider feedProvider;
+  late ScrollController _scrollController;
+  late int _page;
+  User _currentUser = FirebaseAuth.instance.currentUser!;
+  late UserProvider userProvider;
+  late ReportProvider reportProvider;
+  late String token;
+  late FeedProvider feedProvider;
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
   }
 
   @override
@@ -56,7 +56,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     userProvider = Provider.of<UserProvider>(context, listen: false);
     reportProvider = Provider.of<ReportProvider>(context, listen: false);
     Future.delayed(Duration(milliseconds: 600), (){
-      final routeArgs = ModalRoute.of(context).settings.arguments as Map<String, dynamic>;
+      final routeArgs = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
       Provider.of<FeedProvider>(context, listen: false).fetchFeedList(page: 1,userId: routeArgs['id']);
     });
     _page = 1;
@@ -72,7 +72,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   void _scrollListener() {
-    final routeArgs = ModalRoute.of(context).settings.arguments as Map<String, dynamic>;
+    final routeArgs = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     if (_scrollController.position.atEdge) {
       if (_scrollController.position.pixels != 0) {
         Future.delayed(Duration.zero,(){
@@ -88,7 +88,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   Widget build(BuildContext context) {
     final scH = MediaQuery.of(context).size.height;
     final scW = MediaQuery.of(context).size.width;
-    final routeArgs = ModalRoute.of(context).settings.arguments as Map<String, dynamic>;
+    final routeArgs = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     Future.delayed(Duration(seconds: 0), () {
       Provider.of<UserProvider>(context, listen: false).findUserById(id: routeArgs["id"]);
       Provider.of<AuthUserProvider>(context, listen: false).getUserInfo(routeArgs["id"]);
@@ -121,8 +121,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(14),
                         image: DecorationImage(
-                          image: provider.fullUserDetail!=null?(provider.fullUserDetail.coverPhotoUrl!=null && provider.fullUserDetail.coverPhotoUrl!="")?
-                          NetworkImage(provider.fullUserDetail.coverPhotoUrl)
+                          image: provider.fullUserDetail!=null?(provider.fullUserDetail!.coverPhotoUrl!=null && provider.fullUserDetail!.coverPhotoUrl!="")?
+                          NetworkImage(provider.fullUserDetail!.coverPhotoUrl!) as ImageProvider
                               :AssetImage("lib/asset/icons/profile-cover-new.png"):AssetImage("lib/asset/icons/profile-cover-new.png"),
                           fit: BoxFit.cover,
                         ),
@@ -150,8 +150,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                         boundaryMargin: EdgeInsets.all(50),
                                         minScale: 0.5,
                                         maxScale: 4,
-                                        child: provider.fullUserDetail!=null?(provider.fullUserDetail.photoUrl!=null && provider.fullUserDetail.photoUrl!="")?
-                                        Image.network(provider.fullUserDetail.photoUrl)
+                                        child: provider.fullUserDetail!=null?(provider.fullUserDetail!.photoUrl!=null && provider.fullUserDetail!.photoUrl!="")?
+                                        Image.network(provider.fullUserDetail!.photoUrl!)
                                             :Image.network(routeArgs["photoUrl"]??""):Image.network(routeArgs["photoUrl"]??""),
                                       ),
                                     ),
@@ -165,8 +165,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           radius: 60,
                           child: CircleAvatar(
                             radius: 54,
-                            backgroundImage: provider.fullUserDetail!=null?(provider.fullUserDetail.photoUrl!=null && provider.fullUserDetail.photoUrl!="")?
-                            NetworkImage(provider.fullUserDetail.photoUrl) :NetworkImage(routeArgs["photoUrl"]??""):NetworkImage(routeArgs["photoUrl"]??""),
+                            backgroundImage: provider.fullUserDetail!=null?(provider.fullUserDetail!.photoUrl!=null && provider.fullUserDetail!.photoUrl!="")?
+                            NetworkImage(provider.fullUserDetail!.photoUrl!) :NetworkImage(routeArgs["photoUrl"]??""):NetworkImage(routeArgs["photoUrl"]??""),
                             ),
                           ),
                       ),
@@ -196,7 +196,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           Expanded(
                             child: Text(
                               userProvider.fullUserDetail!=null?
-                              userProvider.fullUserDetail.university??"":"",
+                              userProvider.fullUserDetail!.university??"":"",
                               style: TextStyle(
                                 overflow: TextOverflow.ellipsis,
                                 color: Colors.white.withOpacity(0.7),
@@ -228,16 +228,16 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             ),
             Consumer<AuthUserProvider>(
               builder: (context, userProvider, _){
-                if(!userProvider.userAboutDataLoader && userProvider.userAboutData != null && userProvider.userAboutData.data.about!=null){
+                if(!userProvider.userAboutDataLoader && userProvider.userAboutData != null && userProvider.userAboutData!.data!.about!=null){
                   return Center(
                     child: Padding(
                       padding: EdgeInsets.only(top: 16,left: 16,right: 16),
                       child: InkWell(
                         onTap: (){
-                          Get.to(BioDetailsPage(bio: userProvider.userAboutData.data.about??"",));
+                          Get.to(BioDetailsPage(bio: userProvider.userAboutData!.data!.about??"",));
                         },
                         child: Text(
-                          userProvider.userAboutData.data.about??"",
+                          userProvider.userAboutData!.data!.about??"",
                           textAlign: TextAlign.center,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -415,7 +415,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
 
-  _showDeleteAlertDialog({@required Map<String, dynamic> body, String name})async{
+  _showDeleteAlertDialog({required Map<String, dynamic> body, required String name})async{
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -450,7 +450,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
 
-  _showAddConnectionAlertDialog({@required String uid, @required String name,@required String uuid})async{
+  _showAddConnectionAlertDialog({required String uid, required String name,required String uuid})async{
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -470,7 +470,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   await ConnectionService().addConnection(uid: uid,name: name,uuid:uuid,token: token);
                 }else{
                   int index = connectionGlobalUidList.indexOf(uid);
-                  int connId = connectionGlobalList[index].id;
+                  int connId = connectionGlobalList[index].id!;
                   await ConnectionService().removeConnection(connId: connId,token: token);
                 }
                 Navigator.of(context).pop();

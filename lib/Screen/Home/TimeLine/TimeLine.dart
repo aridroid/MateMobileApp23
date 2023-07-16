@@ -32,10 +32,10 @@ import 'package:http/http.dart' as http;
 
 class TimeLine extends StatefulWidget {
   static final String timeLineScreenRoute = '/timeline';
-  String id;
-  String searchKeyword;
-  bool isFollowingFeeds;
-  String userId;
+  String? id;
+  String? searchKeyword;
+  bool? isFollowingFeeds;
+  String? userId;
   TimeLine({this.searchKeyword, this.id, this.isFollowingFeeds, this.userId});
 
   @override
@@ -43,15 +43,15 @@ class TimeLine extends StatefulWidget {
 }
 
 class _TimeLineState extends State<TimeLine> with TickerProviderStateMixin{
-  ScrollController _scrollController;
-  int _pageMyCampus;
+  late ScrollController _scrollController;
+  late int _pageMyCampus;
   ThemeController themeController = Get.find<ThemeController>();
   int universityId = 0;
   int _selectedIndex = 0;
   int segmentedControlValue = 0;
   bool isGlobalFeed=false;
   final GlobalKey<ScaffoldState> _key = GlobalKey();
-  FeedProvider feedProvider;
+  late FeedProvider feedProvider;
   bool isLoading = false;
 
   @override
@@ -81,11 +81,11 @@ class _TimeLineState extends State<TimeLine> with TickerProviderStateMixin{
     }
   }
 
-  String token;
+  late String token;
   AuthUserService authUserService = AuthUserService();
   getUniversityListing()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
     universityList = await authUserService.getUniversityList(token: token);
     print(universityList);
     setState(() {});
@@ -99,7 +99,7 @@ class _TimeLineState extends State<TimeLine> with TickerProviderStateMixin{
   }
 
   List<Datum> universityList = [];
-  String universityIdDropDown;
+  late String universityIdDropDown;
   TextEditingController universityController = TextEditingController();
 
   void _scrollListener() {
@@ -331,7 +331,7 @@ class _TimeLineState extends State<TimeLine> with TickerProviderStateMixin{
                                         dropdownBuilder: (context,data){
                                           return Padding(
                                             padding: const EdgeInsets.only(left: 16),
-                                            child: Text(data1.authUser.university,
+                                            child: Text(data1.authUser.university!,
                                               overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
                                                 fontSize: 14,
@@ -343,7 +343,7 @@ class _TimeLineState extends State<TimeLine> with TickerProviderStateMixin{
                                         },
                                         showSearchBox: true,
                                         items: universityList,
-                                        itemAsString: (Datum u) => u.name,
+                                        itemAsString: (Datum? u) => u!.name!,
                                         dropdownSearchDecoration: InputDecoration(
                                           hintText: data1.authUser.university,
                                           hintStyle: TextStyle(
@@ -356,7 +356,7 @@ class _TimeLineState extends State<TimeLine> with TickerProviderStateMixin{
                                           border: InputBorder.none,
                                         ),
                                         onChanged: (value)async{
-                                          universityController.text = value.name;
+                                          universityController.text = value!.name!;
                                           for(int i=0;i<universityList.length;i++){
                                             if(universityList[i].name == value.name){
                                               universityIdDropDown = universityList[i].id.toString();
@@ -365,9 +365,9 @@ class _TimeLineState extends State<TimeLine> with TickerProviderStateMixin{
                                           print(universityIdDropDown);
                                           setState(() {});
                                           String response = await authUserService.updateUserProfile(
-                                            firstName: data1.authUser.firstName,
-                                            lastName: data1.authUser.lastName,
-                                            displayName: data1.authUser.displayName,
+                                            firstName: data1.authUser.firstName!,
+                                            lastName: data1.authUser.lastName!,
+                                            displayName: data1.authUser.displayName!,
                                             universityId: universityIdDropDown,
                                             token: token,
                                           );
@@ -416,7 +416,7 @@ class _TimeLineState extends State<TimeLine> with TickerProviderStateMixin{
                                     padding:  EdgeInsets.only(left: 12.0.sp),
                                     child: InkWell(
                                         onTap: () {
-                                          _key.currentState.openEndDrawer();
+                                          _key.currentState!.openEndDrawer();
                                         },
                                         child: CircleAvatar(
                                           backgroundColor: MateColors.activeIcons,
@@ -443,7 +443,7 @@ class _TimeLineState extends State<TimeLine> with TickerProviderStateMixin{
                         Expanded(
                           child: Selector<AuthUserProvider, String>(
                             selector: (ctx, authUserProvider) =>
-                            authUserProvider.authUser.displayName,
+                            authUserProvider.authUser.displayName!,
                             builder: (ctx, data, _) {
                               return Text(
                                   "Hello $data! ☺️",
@@ -783,7 +783,7 @@ class _TimeLineState extends State<TimeLine> with TickerProviderStateMixin{
                       itemBuilder: (_, index) {
                         var feedItem = widget.userId!=null?feedProvider.feedItemListOfUser[index]:feedProvider.feedListMyCampus[index];
                         return Visibility(
-                          visible: widget.searchKeyword!=null? widget.searchKeyword!=""? feedItem.title.toLowerCase().contains(widget.searchKeyword.toLowerCase()):false : true,
+                          visible: widget.searchKeyword!=null? widget.searchKeyword!=""? feedItem.title!.toLowerCase().contains(widget.searchKeyword!.toLowerCase()):false : true,
                           child: Padding(
                             padding: const EdgeInsets.only(left: 16, right: 16),
                             child: HomeRow(

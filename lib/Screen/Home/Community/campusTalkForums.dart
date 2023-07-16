@@ -24,7 +24,7 @@ import 'package:mate_app/Model/campusTalkTypeModel.dart' as campusTalkTypeModel;
 import 'package:http/http.dart' as http;
 
 class CampusTalkScreenForums extends StatefulWidget {
-  const CampusTalkScreenForums({Key key}) : super(key: key);
+  const CampusTalkScreenForums({Key? key}) : super(key: key);
 
   @override
   _CampusTalkScreenForumsState createState() => _CampusTalkScreenForumsState();
@@ -166,22 +166,22 @@ class _CampusTalkScreenForumsState extends State<CampusTalkScreenForums> with Ti
 }
 
 class CampusTalk extends StatefulWidget {
-  const CampusTalk({Key key}) : super(key: key);
+  const CampusTalk({Key? key}) : super(key: key);
 
   @override
   _CampusTalkState createState() => _CampusTalkState();
 }
 
 class _CampusTalkState extends State<CampusTalk> {
-  ScrollController _scrollController;
-  int _page;
+  late ScrollController _scrollController;
+  late int _page;
   List<campusTalkTypeModel.Data> type = [];
   CampusTalkService _campusTalkService = CampusTalkService();
   bool isLoadingType = true;
   List<bool> selected = [];
   String typeKey = "";
   String token = "";
-  CampusTalkProvider campusTalkProvider;
+  late CampusTalkProvider campusTalkProvider;
 
   void _scrollListener() {
     if (_scrollController.position.atEdge) {
@@ -220,7 +220,7 @@ class _CampusTalkState extends State<CampusTalk> {
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
     type = await _campusTalkService.getType(token: token);
     for(int i=0;i<type.length;i++){
       selected.add(false);
@@ -406,7 +406,7 @@ class _CampusTalkState extends State<CampusTalk> {
                               typeKey = "";
                               selected[i] = false;
                             }else{
-                              typeKey = type[index].name;
+                              typeKey = type[index].name!;
                               selected[i] = true;
                             }
                           }else{
@@ -488,7 +488,7 @@ class _CampusTalkState extends State<CampusTalk> {
                       isAnonymous: campusTalkData.isAnonymous,
                       anonymousUser: campusTalkData.anonymousUser,
                       url: campusTalkData.url,
-                      createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(campusTalkData.createdAt, true))}",
+                      createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(campusTalkData.createdAt!, true))}",
                       rowIndex: index,
                       isBookmarked: campusTalkData.isBookmarked,
                       isLiked: campusTalkData.isLiked,

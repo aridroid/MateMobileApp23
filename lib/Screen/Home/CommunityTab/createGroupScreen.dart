@@ -20,7 +20,7 @@ import '../../../controller/theme_controller.dart';
 import '../../../groupChat/services/database_service.dart';
 
 class CreateGroupScreen extends StatefulWidget {
-  const CreateGroupScreen({Key key}) : super(key: key);
+  const CreateGroupScreen({Key? key}) : super(key: key);
 
   @override
   State<CreateGroupScreen> createState() => _CreateGroupScreenState();
@@ -29,18 +29,18 @@ class CreateGroupScreen extends StatefulWidget {
 class _CreateGroupScreenState extends State<CreateGroupScreen> {
   ThemeController themeController = Get.find<ThemeController>();
   final AddUserController _addUserController = Get.find<AddUserController>();
-  String _groupName;
+  late String _groupName;
   bool isPrivate = false;
-  List<String> category;
+  late List<String> category;
   String categoryValue = "";
   List<String> type = ["Campus","Class"];// Campus = School
   String typeValue = "";
   CommunityTabService _communityTabService = CommunityTabService();
   String token = "";
   int universityId = 0;
-  String university;
-  String displayName;
-  User _user;
+  late String university;
+  late String displayName;
+  late User _user;
   bool isLoading = false;
 
   @override
@@ -51,11 +51,11 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
-    _user = FirebaseAuth.instance.currentUser;
+    token = preferences.getString("tokenApp")!;
+    _user = FirebaseAuth.instance.currentUser!;
     universityId = Provider.of<AuthUserProvider>(context, listen: false).authUser.universityId??0;
     university = Provider.of<AuthUserProvider>(context, listen: false).authUser.university??"";
-    displayName = Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName;
+    displayName = Provider.of<AuthUserProvider>(context, listen: false).authUser.displayName!;
     if(universityId==0 || universityId==1){
       category = ["All"];
     }else if(universityId==2){
@@ -152,7 +152,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                                   await _uploadFile(value);
                                 }
                                 ///For current user
-                                CommunityTabService().joinGroup(token: token,groupId: value,uid: FirebaseAuth.instance.currentUser.uid);
+                                CommunityTabService().joinGroup(token: token,groupId: value,uid: FirebaseAuth.instance.currentUser!.uid);
                                 setState(() {
                                   isLoading = false;
                                 });
@@ -236,7 +236,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                               Center(
                                 child: CircleAvatar(
                                   radius: 60,
-                                  backgroundImage: FileImage(File(imageFile.path)),
+                                  backgroundImage: FileImage(File(imageFile!.path)),
                                 ),
                               ):
                               Image.asset(
@@ -556,12 +556,12 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                                 if(_addUserController.addConnectionUid.contains(_addUserController.personList[index].uid)){
                                   _addUserController.addConnectionUid.remove(_addUserController.personList[index].uid);
                                 }else{
-                                  _addUserController.addConnectionUid.add(_addUserController.personList[index].uid);
+                                  _addUserController.addConnectionUid.add(_addUserController.personList[index].uid!);
                                 }
                                 if(_addUserController.addConnectionDisplayName.contains(_addUserController.personList[index].displayName)){
                                   _addUserController.addConnectionDisplayName.remove(_addUserController.personList[index].displayName);
                                 }else{
-                                  _addUserController.addConnectionDisplayName.add(_addUserController.personList[index].displayName);
+                                  _addUserController.addConnectionDisplayName.add(_addUserController.personList[index].displayName!);
                                 }
                               },
                               child: Padding(
@@ -573,20 +573,20 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                                       radius: 30,
                                       backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
                                       backgroundImage: NetworkImage(
-                                        _addUserController.personList[index].photoURL,
+                                        _addUserController.personList[index].photoURL!,
                                       ),
                                     ):
                                     CircleAvatar(
                                       radius: 30,
                                       backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
-                                      child: Text(_addUserController.personList[index].displayName.substring(0,1),
+                                      child: Text(_addUserController.personList[index].displayName!.substring(0,1),
                                         style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
                                     ),
                                     Positioned(
                                       bottom: 0,
                                       right: 0,
                                       left: 0,
-                                      child: Text(_addUserController.personList[index].displayName,
+                                      child: Text(_addUserController.personList[index].displayName!,
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontFamily: "Poppins",
@@ -758,10 +758,10 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
   }
 
   final picker = ImagePicker();
-  File imageFile;
-  String imageUrl;
+  File? imageFile;
+  String? imageUrl;
   Future _getProfileImage(int option) async {
-    PickedFile pickImage;
+    PickedFile? pickImage;
     if (option == 1) {
       pickImage = await picker.getImage(source: ImageSource.gallery, imageQuality: 50);
     } else{
@@ -769,7 +769,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     }
     if (pickImage != null) {
       setState(() {
-        imageFile = File(pickImage.path);
+        imageFile = File(pickImage!.path);
       });
     } else {
       print('No image selected.');
@@ -780,12 +780,12 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
   Future _uploadFile(String groupId) async {
     String fileName = DateTime.now().millisecondsSinceEpoch.toString();
     Reference reference = FirebaseStorage.instance.ref().child(fileName);
-    File compressedFile = await FlutterNativeImage.compressImage(imageFile.path, quality: 60, percentage: 60);
+    File compressedFile = await FlutterNativeImage.compressImage(imageFile!.path, quality: 60, percentage: 60);
     UploadTask uploadTask = reference.putFile(compressedFile);
     TaskSnapshot storageTaskSnapshot = await uploadTask.whenComplete((){});
     storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
       imageUrl = downloadUrl;
-      DatabaseService().updateGroupIcon(groupId, imageUrl);
+      DatabaseService().updateGroupIcon(groupId, imageUrl!);
     },
     );
   }

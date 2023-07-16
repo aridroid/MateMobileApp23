@@ -19,7 +19,7 @@ class EditEvent extends StatefulWidget {
   final Result data;
   static final String routeName = '/createEvent';
 
-  const EditEvent({Key key, this.data}) : super(key: key);
+  const EditEvent({Key? key, required this.data}) : super(key: key);
 
   @override
   _EditEventState createState() => _EditEventState();
@@ -33,10 +33,10 @@ class _EditEventState extends State<EditEvent> {
   int locationLength = 0;
   int linkLength= 0;
   int linkTextLength= 0;
-  File _image;
-  File _video;
-  String _base64encodedImage;
-  String _base64encodedVideo;
+  File? _image;
+  File? _video;
+  String? _base64encodedImage;
+  String? _base64encodedVideo;
   final picker = ImagePicker();
   TextEditingController _title = TextEditingController();
   TextEditingController _description = TextEditingController();
@@ -48,16 +48,16 @@ class _EditEventState extends State<EditEvent> {
   TextEditingController _link = TextEditingController();
   bool isLoading = false;
   ScrollController _scrollController = ScrollController();
-  String dateValue;
-  String timeValue;
-  String timeValueEnd;
+  String? dateValue;
+  String? timeValue;
+  String? timeValueEnd;
   EventService _eventService = EventService();
   String token = "";
   String _imageUrl = "";
   String _videoUrl = "";
   bool imagedDeleted = false;
   bool videoDeleted = false;
-  EventCategoryModel eventCategoryModel;
+  late EventCategoryModel eventCategoryModel;
   List<int> categoryId = [];
   List<String> categoryName = [];
   int selectedCategoryId = 0;
@@ -78,12 +78,12 @@ class _EditEventState extends State<EditEvent> {
   }
 
   void setPreviousData(){
-    _title.text = widget.data.title;
-    _description.text = widget.data.description;
-    _location.text = widget.data.location;
+    _title.text = widget.data.title!;
+    _description.text = widget.data.description!;
+    _location.text = widget.data.location!;
     _date.text = widget.data.date.toString().split(' ').first;
-    _time.text = widget.data.time!=null?widget.data.time.split('T').last.substring(0,5):"";
-    _timeEnd.text = widget.data.endTime!=null?widget.data.endTime.split('T').last.substring(0,5):"";
+    _time.text = widget.data.time!=null?widget.data.time!.split('T').last.substring(0,5):"";
+    _timeEnd.text = widget.data.endTime!=null?widget.data.endTime!.split('T').last.substring(0,5):"";
     _linkText.text = widget.data.hyperLinkText??"";
     _link.text = widget.data.hyperLink??"";
     dateValue = widget.data.date.toString();
@@ -91,20 +91,20 @@ class _EditEventState extends State<EditEvent> {
     timeValueEnd = widget.data.endTime;
     _imageUrl = widget.data.photoUrl??"";
     _videoUrl = widget.data.videoUrl??"";
-    selectedLocationOption = widget.data.locationOpt;
+    selectedLocationOption = widget.data.locationOpt!;
     setState(() {});
   }
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
     eventCategoryModel = await _eventService.getCategory(token: token);
-    for(int i=0;i<eventCategoryModel.data.length;i++){
-      categoryId.add(eventCategoryModel.data[i].id);
-      categoryName.add(eventCategoryModel.data[i].name);
+    for(int i=0;i<eventCategoryModel.data!.length;i++){
+      categoryId.add(eventCategoryModel.data![i].id!);
+      categoryName.add(eventCategoryModel.data![i].name!);
     }
     if(categoryId.isNotEmpty && categoryName.isNotEmpty){
-      selectedCategoryId = widget.data.typeId;
+      selectedCategoryId = widget.data.typeId!;
       int index = categoryId.indexOf(selectedCategoryId);
       selectedCategoryName = categoryName[index];
     }
@@ -124,7 +124,7 @@ class _EditEventState extends State<EditEvent> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             ),
             onPressed: ()async{
-              if(_formKey.currentState.validate()){
+              if(_formKey.currentState!.validate()){
                 print('-------');
                 print(imagedDeleted);
                 print(_image);
@@ -385,7 +385,7 @@ class _EditEventState extends State<EditEvent> {
                                       ),
                                       onChanged: (newValue) {
                                         setState(() {
-                                          selectedCategoryName = newValue;
+                                          selectedCategoryName = newValue!;
                                           int index = categoryName.indexOf(selectedCategoryName);
                                           selectedCategoryId = categoryId[index];
                                         });
@@ -420,7 +420,7 @@ class _EditEventState extends State<EditEvent> {
                                   ),
                                   textInputAction: TextInputAction.next,
                                   validator: (value) {
-                                    if(value.isEmpty){
+                                    if(value!.isEmpty){
                                       return "This field is required";
                                     }
                                     return null;
@@ -454,7 +454,7 @@ class _EditEventState extends State<EditEvent> {
                                   minLines: 3,
                                   maxLines: 8,
                                   validator: (value) {
-                                    if(value.isEmpty){
+                                    if(value!.isEmpty){
                                       return "This field is required";
                                     }
                                     return null;
@@ -601,7 +601,7 @@ class _EditEventState extends State<EditEvent> {
                                     setState(() {});
                                   },
                                   validator: (value) {
-                                    if(value.isEmpty){
+                                    if(value!.isEmpty){
                                       return "This field is required";
                                     }
                                     return null;
@@ -745,7 +745,7 @@ class _EditEventState extends State<EditEvent> {
                                   textInputAction: TextInputAction.done,
                                   maxLength: 50,
                                   validator: (value) {
-                                    if(value.isEmpty){
+                                    if(value!.isEmpty){
                                       return "This field is required";
                                     }
                                     return null;
@@ -782,7 +782,7 @@ class _EditEventState extends State<EditEvent> {
                                   textInputAction: TextInputAction.done,
                                   maxLength: 50,
                                   validator: (value) {
-                                    if(value.isEmpty){
+                                    if(value!.isEmpty){
                                       return "This field is required";
                                     }
                                     return null;
@@ -831,7 +831,7 @@ class _EditEventState extends State<EditEvent> {
                                         clipBehavior: Clip.hardEdge,
                                         child: _imageUrl!=""?
                                         Image.network(_imageUrl,fit: BoxFit.fill):
-                                        Image.file(_image,fit: BoxFit.fill),
+                                        Image.file(_image!,fit: BoxFit.fill),
                                       ),
                                     ),
                                     Positioned(
@@ -873,7 +873,7 @@ class _EditEventState extends State<EditEvent> {
                                       margin: EdgeInsets.only(top: 30),
                                       child: _videoUrl!=""?
                                       VideoThumbnail(videoUrl: _videoUrl):
-                                      VideoThumbnailFile(videoUrl: _video),
+                                      VideoThumbnailFile(videoUrl: _video!),
                                     ),
                                     Positioned(
                                       top: 18,
@@ -929,16 +929,16 @@ class _EditEventState extends State<EditEvent> {
     );
   }
 
-  void getDate({BuildContext context}) async {
-    DateTime dateLocal = await showDatePicker(
+  void getDate({required BuildContext context}) async {
+    DateTime? dateLocal = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime(2050),
-      builder: (BuildContext context, Widget child) {
+      builder: (BuildContext context, Widget? child) {
         return Theme(
           data: ThemeData.light(),
-          child: child,
+          child: child!,
         );
       },
     );
@@ -953,13 +953,13 @@ class _EditEventState extends State<EditEvent> {
   }
 
   void selectTime(BuildContext context) async {
-    final TimeOfDay picked = await showTimePicker(
+    final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
-      builder: (BuildContext context, Widget child) {
+      builder: (BuildContext context, Widget? child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
-          child: child,
+          child: child!,
         );
       },
     );
@@ -975,13 +975,13 @@ class _EditEventState extends State<EditEvent> {
   }
 
   void selectTimeEnd(BuildContext context) async {
-    final TimeOfDay picked = await showTimePicker(
+    final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
-      builder: (BuildContext context, Widget child) {
+      builder: (BuildContext context, Widget? child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
-          child: child,
+          child: child!,
         );
       },
     );
@@ -998,7 +998,7 @@ class _EditEventState extends State<EditEvent> {
     }
   }
 
-  InputDecoration _customInputDecoration({@required String labelText, IconData icon,bool isSuffix=false}) {
+  InputDecoration _customInputDecoration({required String labelText, IconData? icon,bool isSuffix=false}) {
     return InputDecoration(
       hintStyle: TextStyle(
         fontSize: 16,

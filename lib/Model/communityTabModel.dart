@@ -1,7 +1,7 @@
 class CommunityTabModel {
-  bool success;
-  List<Data> data;
-  String message;
+  bool? success;
+  List<Data>? data;
+  String? message;
 
   CommunityTabModel({this.success, this.data, this.message});
 
@@ -10,7 +10,7 @@ class CommunityTabModel {
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
-        data.add(new Data.fromJson(v));
+        data?.add(new Data.fromJson(v));
       });
     }
     message = json['message'];
@@ -20,7 +20,7 @@ class CommunityTabModel {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['success'] = this.success;
     if (this.data != null) {
-      data['data'] = this.data.map((v) => v.toJson()).toList();
+      data['data'] = this.data?.map((v) => v.toJson()).toList();
     }
     data['message'] = this.message;
     return data;
@@ -28,10 +28,10 @@ class CommunityTabModel {
 }
 
 class Data {
-  String groupId;
-  int totalMessages;
-  String category;
-  String group;
+  String? groupId;
+  int? totalMessages;
+  String? category;
+  String? group;
 
 
   Data({this.groupId, this.totalMessages,this.category,this.group});

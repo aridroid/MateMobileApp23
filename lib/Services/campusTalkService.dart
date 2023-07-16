@@ -17,8 +17,8 @@ import 'package:dio/dio.dart';
 import 'package:mate_app/Model/campusTalkTypeModel.dart' as campusTalkTypeModel;
 import 'package:http/http.dart'as http;
 class CampusTalkService {
-  APIService _apiService;
-  BackEndAPIRoutes _backEndAPIRoutes;
+  late APIService _apiService;
+  late BackEndAPIRoutes _backEndAPIRoutes;
 
   CampusTalkService() {
     _apiService = APIService();
@@ -350,7 +350,7 @@ class CampusTalkService {
     }
   }
 
-  Future<List<campusTalkTypeModel.Data>> getType({String token})async{
+  Future<List<campusTalkTypeModel.Data>> getType({required String token})async{
     List<campusTalkTypeModel.Data> list = [];
     debugPrint("https://api.mateapp.us/api/discussion/posts/types");
     debugPrint(token);
@@ -362,7 +362,7 @@ class CampusTalkService {
         var parsed = json.decode(utf8.decode(response.bodyBytes));
         debugPrint(parsed.toString());
         campusTalkTypeModel.CampusTalkTypeModel data = campusTalkTypeModel.CampusTalkTypeModel.fromJson(parsed);
-        list = data.data;
+        list = data.data!;
       }else {
         var parsed = json.decode(utf8.decode(response.bodyBytes));
         debugPrint(parsed.toString());

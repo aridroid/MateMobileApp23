@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ChatBlock with ChangeNotifier {
-  List<ChatModel> ourChats = List<ChatModel>();
+  List<ChatModel> ourChats = [];
   Future<void> sendMessage(String msg, String user, String date) async {
     try {
       const url = 'https://mate-app-b5fe6.firebaseio.com/chats.json';

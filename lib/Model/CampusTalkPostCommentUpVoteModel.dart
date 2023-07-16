@@ -1,7 +1,7 @@
 class CampusTalkPostCommentUpVoteModel {
-  bool success;
-  Data data;
-  String message;
+  bool? success;
+  Data? data;
+  String? message;
 
   CampusTalkPostCommentUpVoteModel({this.success, this.data, this.message});
 
@@ -15,7 +15,7 @@ class CampusTalkPostCommentUpVoteModel {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['success'] = this.success;
     if (this.data != null) {
-      data['data'] = this.data.toJson();
+      data['data'] = this.data?.toJson();
     }
     data['message'] = this.message;
     return data;
@@ -23,11 +23,11 @@ class CampusTalkPostCommentUpVoteModel {
 }
 
 class Data {
-  int userId;
-  String commentId;
-  String updatedAt;
-  String createdAt;
-  int id;
+  int? userId;
+  String? commentId;
+  String? updatedAt;
+  String? createdAt;
+  int? id;
 
   Data({this.userId, this.commentId, this.updatedAt, this.createdAt, this.id});
 

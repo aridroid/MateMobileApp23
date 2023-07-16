@@ -5,8 +5,8 @@ import 'package:mate_app/Services/APIService.dart';
 import 'package:mate_app/Services/BackEndAPIRoutes.dart';
 
 class UserService {
-  APIService _apiService;
-  BackEndAPIRoutes _backEndAPIRoutes;
+  late APIService _apiService;
+  late BackEndAPIRoutes _backEndAPIRoutes;
 
   UserService() {
     _apiService = APIService();

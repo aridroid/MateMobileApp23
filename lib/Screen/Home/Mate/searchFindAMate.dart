@@ -14,7 +14,7 @@ import '../../../asset/Colors/MateColors.dart';
 import '../../../controller/theme_controller.dart';
 
 class SearchFindAMate extends StatefulWidget {
-  const SearchFindAMate({Key key}) : super(key: key);
+  const SearchFindAMate({Key? key}) : super(key: key);
 
   @override
   _SearchFindAMateState createState() => _SearchFindAMateState();
@@ -22,17 +22,17 @@ class SearchFindAMate extends StatefulWidget {
 
 class _SearchFindAMateState extends State<SearchFindAMate> {
   ThemeController themeController = Get.find<ThemeController>();
-  ScrollController _scrollController;
-  int _page;
+  late ScrollController _scrollController;
+  late int _page;
   List<fampm.Result> _findAMatePostsDataList = [];
   TextEditingController _textEditingController = TextEditingController();
-  Future<fampm.FindAMatePostsModel> future;
+  Future<fampm.FindAMatePostsModel?>? future;
   bool enterFutureBuilder = false;
   bool doingPagination = false;
   FindAMateService _findAMateService = FindAMateService();
-  FindAMateProvider findAMateProvider;
+  late FindAMateProvider findAMateProvider;
   String token = "";
-  Timer _throttle;
+  Timer? _throttle;
 
   @override
   void initState() {
@@ -64,7 +64,7 @@ class _SearchFindAMateState extends State<SearchFindAMate> {
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
     log(token);
   }
 
@@ -80,7 +80,7 @@ class _SearchFindAMateState extends State<SearchFindAMate> {
   fetchData()async{
     _page = 1;
       future = _findAMateService.searchFindAMate(text: _textEditingController.text,page: _page,token: token);
-      future.then((value) {
+      future!.then((value) {
         setState(() {
           doingPagination = false;
         });
@@ -187,17 +187,17 @@ class _SearchFindAMateState extends State<SearchFindAMate> {
                   shrinkWrap: true,
                   physics: const ScrollPhysics(),
                   children: [
-                    FutureBuilder<fampm.FindAMatePostsModel>(
+                    FutureBuilder<fampm.FindAMatePostsModel?>(
                       future: future,
                       builder: (context,snapshot){
                         if(snapshot.hasData){
-                          if(snapshot.data.success==true || doingPagination==true){
+                          if(snapshot.data!.success==true || doingPagination==true){
                             if(enterFutureBuilder){
                               if(doingPagination==false){
                                 _findAMatePostsDataList.clear();
                               }
-                              for(int i=0;i<snapshot.data.data.result.length;i++){
-                                _findAMatePostsDataList.add(snapshot.data.data.result[i]);
+                              for(int i=0;i<snapshot.data!.data!.result!.length;i++){
+                                _findAMatePostsDataList.add(snapshot.data!.data!.result![i]);
                               }
                               Future.delayed(Duration.zero,(){
                                 enterFutureBuilder = false;
@@ -223,7 +223,7 @@ class _SearchFindAMateState extends State<SearchFindAMate> {
                                   hyperlinkText: findAMateData.hyperLinkText,
                                   hyperlink: findAMateData.hyperLink,
                                   user: findAMateData.user,
-                                  createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(findAMateData.createdAt, true))}",
+                                  createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(findAMateData.createdAt!, true))}",
                                   rowIndex: index,
                                   isActive: findAMateData.isActive,
                                 );

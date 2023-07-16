@@ -14,24 +14,24 @@ class SoundRecorderWhenLockedDesign extends StatelessWidget {
   final SoundRecordNotifier soundRecordNotifier;
   final String cancelText;
   final Function sendRequestFunction;
-  final Widget recordIconWhenLockedRecord;
-  final TextStyle cancelTextStyle;
-  final TextStyle counterTextStyle;
+  final Widget? recordIconWhenLockedRecord;
+  final TextStyle? cancelTextStyle;
+  final TextStyle? counterTextStyle;
   final Color recordIconWhenLockBackGroundColor;
-  final Color counterBackGroundColor;
-  final Color cancelTextBackGroundColor;
-  final Widget sendButtonIcon;
+  final Color? counterBackGroundColor;
+  final Color? cancelTextBackGroundColor;
+  final Widget? sendButtonIcon;
   // ignore: sort_constructors_first
   const SoundRecorderWhenLockedDesign({
-    Key key,
-    this.sendButtonIcon,
-    this.soundRecordNotifier,
-    this.cancelText,
-    this.sendRequestFunction,
+    Key? key,
+    required this.sendButtonIcon,
+    required this.soundRecordNotifier,
+    required this.cancelText,
+    required this.sendRequestFunction,
     this.recordIconWhenLockedRecord,
     this.cancelTextStyle,
     this.counterTextStyle,
-    this.recordIconWhenLockBackGroundColor,
+    required this.recordIconWhenLockBackGroundColor,
     this.counterBackGroundColor,
     this.cancelTextBackGroundColor,
   }) : super(key: key);

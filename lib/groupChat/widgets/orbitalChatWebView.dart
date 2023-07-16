@@ -9,7 +9,7 @@ import 'package:sizer/sizer.dart';
 class OrbitalChatWebViewPage extends StatefulWidget {
   final String pageUrl;
 
-  const OrbitalChatWebViewPage({Key key, this.pageUrl}) : super(key: key);
+  const OrbitalChatWebViewPage({Key? key, required this.pageUrl}) : super(key: key);
 
   @override
   _OrbitalChatWebViewPageState createState() => _OrbitalChatWebViewPageState();

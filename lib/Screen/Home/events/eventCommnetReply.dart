@@ -20,7 +20,7 @@ class EventCommentReply extends StatefulWidget {
   final int commentId;
   final int eventId;
   Function(bool increment) changeCommentCount;
-  EventCommentReply({Key key, this.commentId, this.eventId, this.result,this.changeCommentCount}) : super(key: key);
+  EventCommentReply({Key? key, required this.commentId, required this.eventId, required this.result,required this.changeCommentCount}) : super(key: key);
 
   @override
   _EventCommentReplyState createState() => _EventCommentReplyState();
@@ -47,7 +47,7 @@ class _EventCommentReplyState extends State<EventCommentReply> {
   String token = "";
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
   }
 
   @override
@@ -126,36 +126,36 @@ class _EventCommentReplyState extends State<EventCommentReply> {
                           Container(
                             child: GestureDetector(
                               onTap: (){
-                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.result.user.uuid) {
+                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.result.user!.uuid) {
                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                 } else {
                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                    "id": widget.result.user.uuid,
-                                    "name": widget.result.user.displayName,
-                                    "photoUrl": widget.result.user.profilePhoto,
-                                    "firebaseUid": widget.result.user.firebaseUid,
+                                    "id": widget.result.user!.uuid,
+                                    "name": widget.result.user!.displayName,
+                                    "photoUrl": widget.result.user!.profilePhoto,
+                                    "firebaseUid": widget.result.user!.firebaseUid,
                                   });
                                 }
                               },
                               child: ListTile(
                                 horizontalTitleGap: 1,
                                 dense: true,
-                                leading: widget.result.user.profilePhoto != null?
+                                leading: widget.result.user!.profilePhoto != null?
                                 ClipOval(
                                   child: Image.network(
-                                    widget.result.user.profilePhoto,
+                                    widget.result.user!.profilePhoto!,
                                     height: 28,
                                     width: 28,
                                     fit: BoxFit.cover,
                                   ),
                                 ):CircleAvatar(
                                   radius: 14,
-                                  child: Text(widget.result.user.displayName[0]),
+                                  child: Text(widget.result.user!.displayName![0]),
                                 ),
                                 title: Padding(
                                   padding: const EdgeInsets.only(top: 10),
                                   child: buildEmojiAndText(
-                                    content: widget.result.content,
+                                    content: widget.result.content!,
                                     textStyle: TextStyle(
                                       fontFamily: 'Poppins',
                                       fontWeight: FontWeight.w400,
@@ -195,9 +195,9 @@ class _EventCommentReplyState extends State<EventCommentReply> {
                                     ),
                                   ),
                                 ),
-                                Text(widget.result.replies.isEmpty?"":widget.result.replies.length>1?
-                                "   •   ${widget.result.replies.length} Replies":
-                                "   •   ${widget.result.replies.length} Reply",
+                                Text(widget.result.replies!.isEmpty?"":widget.result.replies!.length>1?
+                                "   •   ${widget.result.replies!.length} Replies":
+                                "   •   ${widget.result.replies!.length} Reply",
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontFamily: 'Poppins',
@@ -209,12 +209,12 @@ class _EventCommentReplyState extends State<EventCommentReply> {
                               ],
                             ),
                           ),
-                          widget.result.replies.isNotEmpty?
+                          widget.result.replies!.isNotEmpty?
                           ListView.builder(
                             shrinkWrap: true,
                             physics: ScrollPhysics(),
                             padding: EdgeInsets.zero,
-                            itemCount: widget.result.replies.length,
+                            itemCount: widget.result.replies!.length,
                             itemBuilder: (context, index) {
                               return Padding(
                                 padding: EdgeInsets.fromLTRB(40, 0, 0, 5),
@@ -224,36 +224,36 @@ class _EventCommentReplyState extends State<EventCommentReply> {
                                     Expanded(
                                       child: InkWell(
                                         onTap: () {
-                                          if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.result.replies[index].user.uuid) {
+                                          if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.result.replies![index].user!.uuid) {
                                             Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                           } else {
                                             Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                              "id": widget.result.replies[index].user.uuid,
-                                              "name": widget.result.replies[index].user.displayName,
-                                              "photoUrl": widget.result.replies[index].user.profilePhoto,
-                                              "firebaseUid": widget.result.replies[index].user.firebaseUid
+                                              "id": widget.result.replies![index].user!.uuid,
+                                              "name": widget.result.replies![index].user!.displayName,
+                                              "photoUrl": widget.result.replies![index].user!.profilePhoto,
+                                              "firebaseUid": widget.result.replies![index].user!.firebaseUid
                                             });
                                           }
                                         },
                                         child: ListTile(
                                           horizontalTitleGap: 1,
                                           dense: true,
-                                          leading: widget.result.replies[index].user.profilePhoto != null?
+                                          leading: widget.result.replies![index].user!.profilePhoto != null?
                                           ClipOval(
                                             child: Image.network(
-                                              widget.result.replies[index].user.profilePhoto,
+                                              widget.result.replies![index].user!.profilePhoto!,
                                               height: 28,
                                               width: 28,
                                               fit: BoxFit.cover,
                                             ),
                                           ):CircleAvatar(
                                             radius: 14,
-                                            child: Text(widget.result.replies[index].user.displayName[0],),
+                                            child: Text(widget.result.replies![index].user!.displayName![0],),
                                           ),
                                           title: Padding(
                                             padding: const EdgeInsets.only(top: 10),
                                             child: buildEmojiAndText(
-                                              content:  widget.result.replies[index].content,
+                                              content:  widget.result.replies![index].content!,
                                               textStyle: TextStyle(
                                                 fontFamily: 'Poppins',
                                                 fontWeight: FontWeight.w400,
@@ -267,7 +267,7 @@ class _EventCommentReplyState extends State<EventCommentReply> {
                                           subtitle: Padding(
                                             padding: const EdgeInsets.only(top: 5),
                                             child: Text(
-                                              DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(widget.result.replies[index].createdAt.toString(), true)),
+                                              DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(widget.result.replies![index].createdAt.toString(), true)),
                                               style: TextStyle(
                                                 fontSize: 12,
                                                 color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
@@ -275,8 +275,8 @@ class _EventCommentReplyState extends State<EventCommentReply> {
                                             ),
                                           ),
                                           trailing: Visibility(
-                                            visible:  Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.result.replies[index].user.uuid,
-                                            child: widget.result.replies[index].isDeleting?
+                                            visible:  Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.result.replies![index].user!.uuid,
+                                            child: widget.result.replies![index].isDeleting!?
                                             SizedBox(
                                               height: 14,
                                               width: 14,
@@ -288,13 +288,13 @@ class _EventCommentReplyState extends State<EventCommentReply> {
                                             InkWell(
                                               onTap: () async{
                                                 setState(() {
-                                                  widget.result.replies[index].isDeleting = true;
+                                                  widget.result.replies![index].isDeleting = true;
                                                 });
-                                                await _eventService.deleteComment(id: widget.result.replies[index].id,token: token);
+                                                await _eventService.deleteComment(id: widget.result.replies![index].id!,token: token);
                                                 setState(() {
-                                                  widget.result.replies[index].isDeleting = false;
+                                                  widget.result.replies![index].isDeleting = false;
                                                 });
-                                                widget.result.replies.removeAt(index);
+                                                widget.result.replies!.removeAt(index);
                                                 setState(() {});
                                                 widget.changeCommentCount(false);
                                               },
@@ -372,7 +372,7 @@ class _EventCommentReplyState extends State<EventCommentReply> {
                       );
                       if(res != false){
                         //Get.back();
-                        widget.result.replies.add(
+                        widget.result.replies!.add(
                           Result(
                             id: res["data"]["id"],
                             parentId: res["data"]["parent_id"],

@@ -33,13 +33,13 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:http/http.dart'as http;
 
 class Chat extends StatelessWidget {
-  final String peerUuid;
+  final String? peerUuid;
   final String peerId;
   final String peerAvatar;
   final String peerName;
   final String currentUserId;
-  final String roomId;
-  Chat({Key key, @required this.peerUuid, @required this.currentUserId, @required this.peerId, @required this.peerAvatar, @required this.peerName, this.roomId}) : super(key: key);
+  final String? roomId;
+  Chat({Key? key, this.peerUuid, required this.currentUserId, required this.peerId, required this.peerAvatar, required this.peerName, this.roomId}) : super(key: key);
 
   ThemeController themeController = Get.find<ThemeController>();
 
@@ -123,7 +123,7 @@ class Chat extends StatelessWidget {
                           } else {
                             personChatId = '$peerId-$id';
                           }
-                          String callerName = FirebaseAuth.instance.currentUser.displayName;
+                          String callerName = FirebaseAuth.instance.currentUser!.displayName!;
 
                           QuerySnapshot res = await DatabaseService().checkCallIsOngoing(personChatId);
                           if(res.docs.length>0){
@@ -176,7 +176,7 @@ class Chat extends StatelessWidget {
                           } else {
                             personChatId = '$peerId-$id';
                           }
-                          String callerName = FirebaseAuth.instance.currentUser.displayName;
+                          String callerName = FirebaseAuth.instance.currentUser!.displayName!;
 
                           QuerySnapshot res = await DatabaseService().checkCallIsOngoing(personChatId);
                           if(res.docs.length>0){
@@ -246,45 +246,45 @@ class _ChatScreen extends StatefulWidget {
   final String peerAvatar;
   final String currentUserId;
   final String peerName;
-  final String roomId;
-  _ChatScreen({Key key, @required this.peerId, @required this.peerAvatar, @required this.currentUserId, this.peerName, this.roomId}) : super(key: key);
+  final String? roomId;
+  _ChatScreen({Key? key, required this.peerId, required this.peerAvatar, required this.currentUserId, required this.peerName, this.roomId}) : super(key: key);
 
   @override
   State createState() => new _ChatScreenState(peerId: peerId, peerAvatar: peerAvatar);
 }
 
 class _ChatScreenState extends State<_ChatScreen> {
-  _ChatScreenState({Key key, @required this.peerId, @required this.peerAvatar});
-  String peerId;
-  String peerAvatar;
-  String id;
+  _ChatScreenState({Key? key, required this.peerId, required this.peerAvatar});
+  late String peerId;
+  late String peerAvatar;
+  late String id;
   bool firstHit = true;
   bool readMessageUpdate=true;
 
   var listMessage;
-  String personChatId;
+  late String personChatId;
 
-  PickedFile imageFile;
-  bool isLoading;
-  bool isShowSticker;
-  String imageUrl;
+  PickedFile? imageFile;
+  late bool isLoading;
+  late bool isShowSticker;
+  late String imageUrl;
 
-  File file;
+  late File file;
   String fileExtension = "";
   String fileName = "";
   int fileSize = 0;
-  String fileUrl;
+  late String fileUrl;
 
   final TextEditingController textEditingController = new TextEditingController();
   final ScrollController listScrollController = new ScrollController();
   final FocusNode focusNode = new FocusNode();
   ThemeController themeController = Get.find<ThemeController>();
-  User _user;
+  late User _user;
 
   @override
   void initState() {
     super.initState();
-    _user = FirebaseAuth.instance.currentUser;
+    _user = FirebaseAuth.instance.currentUser!;
     focusNode.addListener(onFocusChange);
     personChatId = '';
     isLoading = false;
@@ -296,7 +296,7 @@ class _ChatScreenState extends State<_ChatScreen> {
 
   bool isPressed = false;
   int _recordDuration = 0;
-  Timer _timer;
+  Timer? _timer;
   final _audioRecorder = Record();
   bool sendAudio = false;
   bool showCancelLock = false;
@@ -353,7 +353,9 @@ class _ChatScreenState extends State<_ChatScreen> {
 
   @override
   void dispose() {
-    _timer?.cancel();
+    if(_timer!=null){
+      _timer!.cancel();
+    }
     _audioRecorder.dispose();
     audioPlayer.dispose();
     super.dispose();
@@ -363,8 +365,8 @@ class _ChatScreenState extends State<_ChatScreen> {
   List<bool> isPlaying = [];
   List<bool> isPaused = [];
   List<bool> isLoadingAudio = [];
-  Duration duration;
-  Duration currentDuration;
+  Duration? duration;
+  Duration? currentDuration;
 
   Future<void> startAudio(String url,int index) async {
     if(isPaused[index]==true){
@@ -418,7 +420,7 @@ class _ChatScreenState extends State<_ChatScreen> {
         var filePathAndName = dir.path + "/audios/" +url.split("/").last + ".m4a";
         if(File(filePathAndName).existsSync()){
           print("------File Already Exist-------");
-          duration = await audioPlayer.setFilePath(filePathAndName);
+          duration = (await audioPlayer.setFilePath(filePathAndName))!;
           audioPlayer.play();
           setState(() {
             isPlaying[index] = true;
@@ -435,7 +437,7 @@ class _ChatScreenState extends State<_ChatScreen> {
           });
 
           if(path !=""){
-            duration = await audioPlayer.setFilePath(path);
+            duration = (await audioPlayer.setFilePath(path))!;
             audioPlayer.play();
             setState(() {
               isPlaying[index] = true;
@@ -498,11 +500,11 @@ class _ChatScreenState extends State<_ChatScreen> {
   }
 
   Future _getFile() async {
-    FilePickerResult result = await FilePicker.platform.pickFiles(allowCompression: true);
+    FilePickerResult? result = await FilePicker.platform.pickFiles(allowCompression: true);
 
     if (result != null) {
-      file = File(result.files.single.path);
-      fileExtension = result.files.single.extension;
+      file = File(result.files.single.path!);
+      fileExtension = result.files.single.extension!;
       fileName = result.files.single.name;
       fileSize = result.files.single.size;
 
@@ -561,7 +563,7 @@ class _ChatScreenState extends State<_ChatScreen> {
   }
 
   Future getImage(int index) async {
-    imageFile = index == 0 ? await ImagePicker.platform.pickImage(source: ImageSource.gallery) : await ImagePicker.platform.pickImage(source: ImageSource.camera);
+    imageFile = (index == 0 ? await ImagePicker.platform.pickImage(source: ImageSource.gallery) : await ImagePicker.platform.pickImage(source: ImageSource.camera));
 
     if (imageFile != null) {
       setState(() {
@@ -575,7 +577,7 @@ class _ChatScreenState extends State<_ChatScreen> {
     String fileName = DateTime.now().millisecondsSinceEpoch.toString();
     Reference reference = FirebaseStorage.instance.ref().child(fileName);
 
-    File compressedFile = await FlutterNativeImage.compressImage(imageFile.path, quality: 80, percentage: 90);
+    File compressedFile = await FlutterNativeImage.compressImage(imageFile!.path, quality: 80, percentage: 90);
 
     UploadTask uploadTask = reference.putFile(compressedFile);
     TaskSnapshot storageTaskSnapshot = await uploadTask.whenComplete(() {});
@@ -662,18 +664,20 @@ class _ChatScreenState extends State<_ChatScreen> {
   String selectedMessage = "";
   String sender = "";
   bool showSelected = false;
-  selectedMessageFunc(String message,String senderName,bool selected)async{
+  bool isAudioPreviousMessage = false;
+  selectedMessageFunc(String message,String senderName,bool selected,bool isAudio)async{
     selectedMessage = message;
     showSelected = selected;
     sender = senderName;
+    isAudioPreviousMessage = isAudio;
     setState(() {});
   }
 
   int messageLength = 0;
 
   bool isEditing = false;
-  String editPersonChatId;
-  String editMessageId;
+  late String editPersonChatId;
+  late String editMessageId;
   void editMessage(String personChatId,String messageId,String previousMessage)async{
     setState(() {
       isEditing = true;
@@ -717,15 +721,15 @@ class _ChatScreenState extends State<_ChatScreen> {
                   onHorizontalDragEnd: (val){
                     showDateToggle();
                   },
-                      child: StreamBuilder(
+                      child: StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance.collection('messages').doc(personChatId).collection(personChatId).orderBy('timestamp', descending: true) /*.limit(20)*/ .snapshots(),
                   builder: (context, snapshot) {
                       if (!snapshot.hasData) {
                         return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(themeColor)));
                       } else {
-                        listMessage = snapshot.data.docs;
+                        listMessage = snapshot.data!.docs;
 
-                        messageLength = snapshot.data.docs.length;
+                        messageLength = snapshot.data!.docs.length;
                         if(messageLength!=isPlaying.length){
                           if(messageLength>isPlaying.length && messageLength<isPlaying.length+2){
                             isPlaying.add(false);
@@ -773,8 +777,8 @@ class _ChatScreenState extends State<_ChatScreen> {
                         DateTime dateParsedYesterday = DateTime.parse(splitYesterday[0]);
                         String dateFormattedYesterday = DateFormat('dd MMMM yyyy').format(dateParsedYesterday);
 
-                        for(int i=0; i<snapshot.data.docs.length; i++){
-                          DateTime dateFormat = new DateTime.fromMillisecondsSinceEpoch(int.parse(snapshot.data.docs[i].data()["timestamp"].toString()));
+                        for(int i=0; i<snapshot.data!.docs.length; i++){
+                          DateTime dateFormat = new DateTime.fromMillisecondsSinceEpoch(int.parse(snapshot.data!.docs[i].get('timestamp').toString()));
                           String dateFormatted = DateFormat('dd MMMM yyyy').format(dateFormat);
                           if(dateFormatted == dateFormattedToday){
                             String formattedTime = DateFormat.jm().format(dateFormat);
@@ -800,44 +804,52 @@ class _ChatScreenState extends State<_ChatScreen> {
                           itemBuilder: (context, index) {
                             double size = 0;
                             String unit = "";
-                            if (snapshot.data.docs[index].data()["fileSize"] != null) {
-                              if (snapshot.data.docs[index].data()["fileSize"] < 100000) {
-                                size = snapshot.data.docs[index].data()["fileSize"] / 1000;
+                            if (snapshot.data!.docs[index].data().toString().contains('fileSize')) {
+                              if (snapshot.data!.docs[index].get('fileSize') < 100000) {
+                                size = snapshot.data!.docs[index].get('fileSize') / 1000;
                                 unit = "KB";
-                              } else if (snapshot.data.docs[index].data()["fileSize"] > 100000) {
-                                size = snapshot.data.docs[index].data()["fileSize"] / 1000000;
+                              } else if (snapshot.data!.docs[index].get('fileSize') > 100000) {
+                                size = snapshot.data!.docs[index].get('fileSize') / 1000000;
                                 unit = "MB";
                               }
                             }
-                            int itemCount = snapshot.data.docs.length ?? 0;
+                            int itemCount = snapshot.data?.docs.length ?? 0;
                             int reversedIndex = itemCount - 1 - index;
                             return PersonMessageTile(
-                              messageTime: snapshot.data.docs[index].data()["timestamp"],
-                              message: snapshot.data.docs[index].data()["content"],
-                              sentByMe: snapshot.data.docs[index].data()["idFrom"] == id,
-                              isImage: snapshot.data.docs[index].data()["type"] == 1,
-                              isFile: snapshot.data.docs[index].data()["type"] == 3,
-                              fileExtension: snapshot.data.docs[index].data()["fileExtension"] ?? "",
-                              fileName: snapshot.data.docs[index].data()["fileName"] ?? "",
+                              messageTime: snapshot.data!.docs[index].get('timestamp'),
+                              message: snapshot.data!.docs[index].get('content'),
+                              sentByMe: snapshot.data!.docs[index].get('idFrom') == id,
+                              isImage: snapshot.data!.docs[index].get('type') == 1,
+                              isFile: snapshot.data!.docs[index].get('type') == 3,
+                              fileExtension: snapshot.data!.docs[index].data().toString().contains('fileExtension')?
+                              snapshot.data!.docs[index].get('fileExtension') : "",
+                              fileName: snapshot.data!.docs[index].data().toString().contains('fileName')?
+                              snapshot.data!.docs[index].get('fileName') : "",
                               fileSize: size.toStringAsPrecision(2),
                               fileSizeUnit: unit,
                               index: reversedIndex,
                               date: dateReversed,
                               time: timeReversed,
-                              isForwarded: snapshot.data.docs[index].data()["isForwarded"]!=null?true:false,
-                              messageReaction: snapshot.data.docs[index].data()["messageReaction"]??[],
-                              messageId: snapshot.data.docs[index].data()["messageId"]??"",
+                              isForwarded: snapshot.data!.docs[index].data().toString().contains('isForwarded')?
+                              snapshot.data!.docs[index].get('isForwarded'):false,
+                              messageReaction: snapshot.data!.docs[index].data().toString().contains('messageReaction')?
+                              snapshot.data!.docs[index].get('messageReaction'):[],
+                              messageId: snapshot.data!.docs[index].data().toString().contains('messageId')?
+                              snapshot.data!.docs[index].get('messageId'):"",
                               userId: _user.uid,
-                              displayName: _user.displayName,
-                              photo: _user.photoURL,
+                              displayName: _user.displayName!,
+                              photo: _user.photoURL!,
                               personChatId: personChatId,
-                              fileSizeFull: snapshot.data.docs[index].data()["fileSize"]??0,
-                              sender: snapshot.data.docs[index].data()["idFrom"] == id?_user.displayName:widget.peerName,
+                              fileSizeFull: snapshot.data!.docs[index].data().toString().contains('fileSize')?
+                              snapshot.data!.docs[index].get('fileSize'):0,
+                              sender: snapshot.data!.docs[index].get('idFrom') == id?_user.displayName!:widget.peerName,
                               selectMessage: selectedMessageFunc,
-                              previousMessage: snapshot.data.docs[index].data()["previousMessage"]??"",
-                              previousSender: snapshot.data.docs[index].data()["previousSender"]??"",
+                              previousMessage: snapshot.data!.docs[index].data().toString().contains('previousMessage')?
+                              snapshot.data!.docs[index].get('previousMessage'):"",
+                              previousSender: snapshot.data!.docs[index].data().toString().contains('previousSender')?
+                              snapshot.data!.docs[index].get('previousSender'):"",
                               roomId: widget.roomId,
-                              isAudio: snapshot.data.docs[index].data()["type"] == 4,
+                              isAudio: snapshot.data!.docs[index].get('type') == 4,
                               isPlaying: isPlaying[reversedIndex],
                               isPaused: isPaused[reversedIndex],
                               isLoadingAudio: isLoadingAudio[reversedIndex],
@@ -853,7 +865,7 @@ class _ChatScreenState extends State<_ChatScreen> {
                             );
                           },
                           // ChatWidget.widgetChatBuildItem(context, listMessage, widget.currentUserId, index, snapshot.data.documents[index], peerAvatar),
-                          itemCount: snapshot.data.docs.length,
+                          itemCount: snapshot.data!.docs.length,
                           reverse: true,
                           controller: listScrollController,
                         );
@@ -891,8 +903,8 @@ class _ChatScreenState extends State<_ChatScreen> {
     });
   }
 
-  String messageId;
-  List<dynamic> messageReaction;
+  late String messageId;
+  late List<dynamic> messageReaction;
   onPlusIconCall(String messageIdFromBack ,List<dynamic> messageReactionFromBack){
     messageId = messageIdFromBack;
     messageReaction = messageReactionFromBack;
@@ -951,6 +963,30 @@ class _ChatScreenState extends State<_ChatScreen> {
                   SizedBox(
                     height: 4,
                   ),
+                  isAudioPreviousMessage?
+                  Row(
+                    children: [
+                      Image.asset('lib/asset/iconsNewDesign/mic.png',
+                        color: themeController.isDarkMode?Colors.white:MateColors.blackText,
+                        height: 20,
+                        width: 20,
+                      ),
+                      SizedBox(
+                        width: 4,
+                      ),
+                      Text(
+                        "Voice Message",
+                        style: TextStyle(
+                          fontFamily: "Poppins",
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: 0.1,
+                          color: themeController.isDarkMode? Colors.white : MateColors.blackTextColor,
+                        ),
+                        textAlign: TextAlign.start,
+                      ),
+                    ],
+                  ):
                   Text(
                     selectedMessage,
                     style: TextStyle(

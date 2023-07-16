@@ -10,7 +10,7 @@ import 'package:sizer/sizer.dart';
 class UserReportPage extends StatefulWidget {
   final String uuid;
 
-  const UserReportPage({Key key, this.uuid}) : super(key: key);
+  const UserReportPage({Key? key, required this.uuid}) : super(key: key);
 
   @override
   _UserReportPageState createState() => _UserReportPageState();
@@ -58,7 +58,7 @@ class _UserReportPageState extends State<UserReportPage> {
               textInputAction: TextInputAction.next,
               controller: _title,
               validator: (value) {
-                return value.isEmpty ? "*title is required" : null; //returning null means no error occurred. if there are any error then simply return a string
+                return value!.isEmpty ? "*title is required" : null; //returning null means no error occurred. if there are any error then simply return a string
               },
             ),
             Padding(
@@ -78,7 +78,7 @@ class _UserReportPageState extends State<UserReportPage> {
               textInputAction: TextInputAction.done,
               controller: _description,
               validator: (value) {
-                return value.isEmpty ? "*description is required" : null; //returning null means no error occurred. if there are any error then simply return a string
+                return value!.isEmpty ? "*description is required" : null; //returning null means no error occurred. if there are any error then simply return a string
               },
             ),
             SizedBox(
@@ -125,7 +125,7 @@ class _UserReportPageState extends State<UserReportPage> {
   }
 
   _showDeleteAlertDialog({
-    @required Map<String, dynamic> body,
+    required Map<String, dynamic> body,
   }) async {
     return showDialog<void>(
       context: context,
@@ -172,7 +172,7 @@ class _UserReportPageState extends State<UserReportPage> {
     );
   }
 
-  InputDecoration _customInputDecoration({@required String labelText, IconData icon}) {
+  InputDecoration _customInputDecoration({required String labelText, IconData? icon}) {
     return InputDecoration(
         contentPadding: EdgeInsets.fromLTRB(12, 13, 12, 13),
         isDense: true,
@@ -193,7 +193,7 @@ class _UserReportPageState extends State<UserReportPage> {
           borderRadius: BorderRadius.circular(15.0),
         ),
         errorBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.red[300], width: 0.3),
+          borderSide: BorderSide(color: Colors.red[300]!, width: 0.3),
           borderRadius: BorderRadius.circular(15.0),
         ),
         focusedErrorBorder: OutlineInputBorder(

@@ -6,7 +6,7 @@ import '../../../asset/Colors/MateColors.dart';
 import '../../../controller/theme_controller.dart';
 
 class StudentOffer extends StatefulWidget {
-  const StudentOffer({Key key}) : super(key: key);
+  const StudentOffer({Key? key}) : super(key: key);
 
   @override
   State<StudentOffer> createState() => _StudentOfferState();

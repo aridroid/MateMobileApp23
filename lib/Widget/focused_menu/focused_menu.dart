@@ -16,7 +16,7 @@ class FocusedMenuHolder extends StatefulWidget {
   final Function onPressed;
   final Duration duration;
   final double blurSize;
-  final Color blurBackgroundColor;
+  final Color? blurBackgroundColor;
   final double bottomOffsetHeight;
   final double menuOffset;
   /// Open with tap insted of long press.
@@ -27,19 +27,18 @@ class FocusedMenuHolder extends StatefulWidget {
   final bool isRightPadding;
 
   FocusedMenuHolder(
-      {Key key,
-        this.child,
-        this.onPressed,
-        this.menuItems,
-      this.duration,
-      this.menuBoxDecoration,
-      this.menuItemExtent,
-      this.animateMenuItems,
-      this.blurSize,
-      this.blurBackgroundColor,
-      this.menuWidth,
-      this.bottomOffsetHeight,
-      this.menuOffset,
+      {Key? key,
+        required this.child,
+        required this.onPressed,
+        required this.menuItems,
+      required this.duration,
+      required this.menuBoxDecoration,
+      required this.menuItemExtent,
+      required this.animateMenuItems,
+      required this.blurSize, this.blurBackgroundColor,
+      required this.menuWidth,
+      required this.bottomOffsetHeight,
+      required this.menuOffset,
       this.openWithTap = false,
         this.isUserMember = true,
         this.isChatPage = false,
@@ -55,10 +54,10 @@ class FocusedMenuHolder extends StatefulWidget {
 class _FocusedMenuHolderState extends State<FocusedMenuHolder> {
   GlobalKey containerKey = GlobalKey();
   Offset childOffset = Offset(0, 0);
-  Size childSize;
+  late Size childSize;
 
   getOffset(){
-    RenderBox renderBox = containerKey.currentContext.findRenderObject() as RenderBox;
+    RenderBox renderBox = containerKey.currentContext!.findRenderObject() as RenderBox;
     Size size = renderBox.size;
     Offset offset = renderBox.localToGlobal(Offset.zero);
     setState(() {
@@ -126,7 +125,7 @@ class _FocusedMenuHolderState extends State<FocusedMenuHolder> {
                     menuItems: widget.menuItems,
                     blurSize: widget.blurSize,
                     menuWidth: widget.menuWidth,
-                    blurBackgroundColor: widget.blurBackgroundColor,
+                    blurBackgroundColor: widget.blurBackgroundColor!,
                     animateMenu: widget.animateMenuItems ?? true,
                     bottomOffsetHeight: widget.bottomOffsetHeight ?? 0,
                     menuOffset: widget.menuOffset ?? 0,
@@ -152,7 +151,7 @@ class FocusedMenuDetails extends StatelessWidget {
   final double menuOffset;
 
   const FocusedMenuDetails(
-      {Key key, this.menuItems, this.child, this.childOffset, this.childSize, this.menuBoxDecoration, this.itemExtent, this.animateMenu, this.blurSize, this.blurBackgroundColor, this.menuWidth, this.bottomOffsetHeight, this.menuOffset})
+      {Key? key, required this.menuItems, required this.child, required this.childOffset, required this.childSize, required this.menuBoxDecoration, required this.itemExtent, required this.animateMenu, required this.blurSize, required this.blurBackgroundColor, required this.menuWidth, required this.bottomOffsetHeight, required this.menuOffset})
       : super(key: key);
 
   @override
@@ -187,7 +186,7 @@ class FocusedMenuDetails extends StatelessWidget {
               left: leftOffset,
               child: TweenAnimationBuilder(
                 duration: Duration(milliseconds: 200),
-                builder: (BuildContext context, dynamic value, Widget child) {
+                builder: (BuildContext context, double value, Widget? child) {
                   return Transform.scale(
                     scale: value,
                     alignment: Alignment.center,
@@ -215,7 +214,7 @@ class FocusedMenuDetails extends StatelessWidget {
                             onTap:
                                 () {
                               Navigator.pop(context);
-                              item.onPressed();
+                              item.onPressed!();
 
                             },
                             child: Container(
@@ -228,8 +227,8 @@ class FocusedMenuDetails extends StatelessWidget {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: <Widget>[
-                                      item.title,
-                                      if (item.trailingIcon != null) ...[item.trailingIcon]
+                                      item.title!,
+                                      if (item.trailingIcon != null) ...[item.trailingIcon!]
                                     ],
                                   ),
                                 )));
@@ -275,14 +274,14 @@ class FocusedMenuDetailsForChat extends StatelessWidget {
   final bool animateMenu;
   final double blurSize;
   final double menuWidth;
-  final Color blurBackgroundColor;
+  final Color? blurBackgroundColor;
   final double bottomOffsetHeight;
   final double menuOffset;
   final isLeftPadding;
   final isRightPadding;
 
   const FocusedMenuDetailsForChat(
-      {Key key, this.menuItems, this.child, this.childOffset, this.childSize, this.menuBoxDecoration, this.itemExtent, this.animateMenu, this.blurSize, this.blurBackgroundColor, this.menuWidth, this.bottomOffsetHeight, this.menuOffset,this.isLeftPadding,this.isRightPadding})
+      {Key? key, required this.menuItems, required this.child, required this.childOffset, required this.childSize, required this.menuBoxDecoration, required this.itemExtent, required this.animateMenu, required this.blurSize, this.blurBackgroundColor, required this.menuWidth, required this.bottomOffsetHeight, required this.menuOffset,this.isLeftPadding,this.isRightPadding})
       : super(key: key);
 
   @override
@@ -317,7 +316,7 @@ class FocusedMenuDetailsForChat extends StatelessWidget {
               left: leftOffset,
               child: TweenAnimationBuilder(
                 duration: Duration(milliseconds: 200),
-                builder: (BuildContext context, dynamic value, Widget child) {
+                builder: (BuildContext context, double value, Widget? child) {
                   return Transform.scale(
                     scale: value,
                     alignment: Alignment.center,
@@ -353,7 +352,7 @@ class FocusedMenuDetailsForChat extends StatelessWidget {
                               onTap:
                                   () {
                                 Navigator.pop(context);
-                                item.onPressed();
+                                item.onPressed!();
 
                               },
                               child: Container(
@@ -375,8 +374,8 @@ class FocusedMenuDetailsForChat extends StatelessWidget {
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: <Widget>[
-                                        item.title,
-                                        if (item.trailingIcon != null) ...[item.trailingIcon]
+                                        item.title!,
+                                        if (item.trailingIcon != null) ...[item.trailingIcon!]
                                       ],
                                     ),
                                   )));

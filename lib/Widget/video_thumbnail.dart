@@ -8,14 +8,14 @@ import 'package:video_player/video_player.dart';
 class VideoThumbnail extends StatefulWidget {
   final String videoUrl;
   final bool isLeftPadding;
-  const VideoThumbnail({Key key, this.videoUrl,this.isLeftPadding=true}) : super(key: key);
+  const VideoThumbnail({Key? key, required this.videoUrl,this.isLeftPadding=true}) : super(key: key);
 
   @override
   _VideoThumbnailState createState() => _VideoThumbnailState();
 }
 
 class _VideoThumbnailState extends State<VideoThumbnail> {
-  VideoPlayerController videoPlayerController;
+  late VideoPlayerController videoPlayerController;
 
   @override
   void initState() {
@@ -71,14 +71,14 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
 class VideoThumbnailFile extends StatefulWidget {
   final File videoUrl;
-  const VideoThumbnailFile({Key key, this.videoUrl}) : super(key: key);
+  const VideoThumbnailFile({Key? key, required this.videoUrl}) : super(key: key);
 
   @override
   _VideoThumbnailFileState createState() => _VideoThumbnailFileState();
 }
 
 class _VideoThumbnailFileState extends State<VideoThumbnailFile> {
-  VideoPlayerController videoPlayerController;
+  late VideoPlayerController videoPlayerController;
 
   @override
   void initState() {

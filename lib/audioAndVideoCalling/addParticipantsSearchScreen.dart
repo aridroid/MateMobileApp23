@@ -20,7 +20,7 @@ class AddParticipantsToCallSearch extends StatefulWidget {
   final String image;
   final String name;
   final bool isGroupCall;
-  const AddParticipantsToCallSearch({Key key, this.channelName, this.token, this.callType, this.image, this.name, this.isGroupCall}) : super(key: key);
+  const AddParticipantsToCallSearch({Key? key, required this.channelName, required this.token, required this.callType, required this.image, required this.name, required this.isGroupCall}) : super(key: key);
 
   @override
   State<AddParticipantsToCallSearch> createState() => _AddParticipantsToCallSearchState();
@@ -32,11 +32,11 @@ class _AddParticipantsToCallSearchState extends State<AddParticipantsToCallSearc
   FocusNode focusNode = FocusNode();
   String searchedName="";
   bool isLoading = true;
-  QuerySnapshot searchResultSnapshot;
-  User _user = FirebaseAuth.instance.currentUser;
+  late QuerySnapshot searchResultSnapshot;
+  User _user = FirebaseAuth.instance.currentUser!;
   List<UserListModel> userList = [];
   bool hasUserSearched = false;
-  String tokenApi;
+  late String tokenApi;
 
   @override
   void initState() {
@@ -58,7 +58,7 @@ class _AddParticipantsToCallSearchState extends State<AddParticipantsToCallSearc
         }
       }
       userList.sort((a, b) {
-        return a.displayName.toLowerCase().compareTo(b.displayName.toLowerCase());
+        return a.displayName!.toLowerCase().compareTo(b.displayName!.toLowerCase());
       });
       setState(() {
         isLoading = false;
@@ -76,7 +76,7 @@ class _AddParticipantsToCallSearchState extends State<AddParticipantsToCallSearc
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    tokenApi = preferences.getString("token");
+    tokenApi = preferences.getString("tokenApp")!;
   }
 
   @override
@@ -93,7 +93,7 @@ class _AddParticipantsToCallSearchState extends State<AddParticipantsToCallSearc
             channelName: widget.channelName,
             token: widget.token,
             callerImage: widget.isGroupCall ? widget.image!=""?widget.image:"" : _user.photoURL??"",
-            callerName: widget.isGroupCall ? widget.name : _user.displayName,
+            callerName: widget.isGroupCall ? widget.name : _user.displayName!,
             uid: _addUserController.addConnectionUid,
             callType: widget.callType,
             tokenApi: tokenApi,
@@ -196,12 +196,12 @@ class _AddParticipantsToCallSearchState extends State<AddParticipantsToCallSearc
                       physics: NeverScrollableScrollPhysics(),
                       itemCount: userList.length,
                       itemBuilder: (context, index) {
-                        return FutureBuilder(
-                            future: DatabaseService().getUsersDetails(userList[index].uid),
+                        return FutureBuilder<DocumentSnapshot>(
+                            future: DatabaseService().getUsersDetails(userList[index].uid!),
                             builder: (context, snapshot1) {
                               if(snapshot1.hasData){
                                 return Visibility(
-                                  visible: searchedName!="" && snapshot1.data.data()['displayName'].toString().toLowerCase().contains(searchedName.toLowerCase()),
+                                  visible: searchedName!="" && snapshot1.data!.get('displayName').toString().toLowerCase().contains(searchedName.toLowerCase()),
                                   child: Padding(
                                     padding: const EdgeInsets.only(bottom: 35),
                                     child: InkWell(
@@ -216,24 +216,24 @@ class _AddParticipantsToCallSearchState extends State<AddParticipantsToCallSearc
                                         if(_addUserController.addConnectionUid.contains(userList[index].uid)){
                                           _addUserController.addConnectionUid.remove(userList[index].uid);
                                         }else{
-                                          _addUserController.addConnectionUid.add(userList[index].uid);
+                                          _addUserController.addConnectionUid.add(userList[index].uid!);
                                         }
                                       },
                                       child: ListTile(
-                                        leading: snapshot1.data.data()['photoURL']!=null?
+                                        leading: snapshot1.data?['photoURL']!=null?
                                         CircleAvatar(
                                           radius: 30,
                                           backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
                                           backgroundImage: NetworkImage(
-                                            snapshot1.data.data()['photoURL'],
+                                            snapshot1.data!['photoURL'],
                                           ),
                                         ):
                                         CircleAvatar(
                                           radius: 30,
                                           backgroundColor: themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight,
-                                          child: Text(snapshot1.data.data()['displayName'].substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
+                                          child: Text(snapshot1.data!['displayName'].substring(0,1),style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white),),
                                         ),
-                                        title: Text(snapshot1.data.data()['displayName'],
+                                        title: Text(snapshot1.data!['displayName'],
                                           style: TextStyle(
                                             fontSize: 15,
                                             fontFamily: "Poppins",
@@ -260,7 +260,7 @@ class _AddParticipantsToCallSearchState extends State<AddParticipantsToCallSearc
       ),
     );
   }
-  Future<String> notifyPushNotification({String channelName,String token,String callerName,String callerImage,List<String> uid,String callType,String tokenApi})async{
+  Future<String> notifyPushNotification({required String channelName,required String token,required String callerName,required String callerImage,required List<String> uid,required String callType,required String tokenApi})async{
     String result = "";
     debugPrint("https://api.mateapp.us/api/agora/callPushNotify");
     Map body = {
@@ -299,10 +299,10 @@ class _AddParticipantsToCallSearchState extends State<AddParticipantsToCallSearc
 }
 
 class UserListModel {
-  String uuid;
-  String uid;
-  String displayName;
-  String photoURL;
-  String email;
+  String? uuid;
+  String? uid;
+  String? displayName;
+  String? photoURL;
+  String? email;
   UserListModel({this.uuid, this.uid, this.displayName,this.photoURL,this.email});
 }

@@ -11,7 +11,7 @@ import 'addNoticePage.dart';
 class ViewNoticePage extends StatefulWidget {
   final String groupId;
   final String notice;
-  const ViewNoticePage({Key key,this.groupId,this.notice}) : super(key: key);
+  const ViewNoticePage({Key? key,required this.groupId,required this.notice}) : super(key: key);
 
   @override
   _ViewNoticePageState createState() => _ViewNoticePageState();

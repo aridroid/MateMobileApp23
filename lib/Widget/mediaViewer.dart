@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class MediaViewer extends StatelessWidget {
   final String url;
   final bool isGif;
-  const MediaViewer({Key key, this.url, this.isGif=false}) : super(key: key);
+  const MediaViewer({Key? key, required this.url, this.isGif=false}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

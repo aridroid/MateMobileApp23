@@ -14,7 +14,7 @@ import '../../../constant.dart';
 import '../../../controller/theme_controller.dart';
 
 class SearchBeAMate extends StatefulWidget {
-  const SearchBeAMate({Key key}) : super(key: key);
+  const SearchBeAMate({Key? key}) : super(key: key);
 
   @override
   _SearchBeAMateState createState() => _SearchBeAMateState();
@@ -22,17 +22,17 @@ class SearchBeAMate extends StatefulWidget {
 
 class _SearchBeAMateState extends State<SearchBeAMate> {
   ThemeController themeController = Get.find<ThemeController>();
-  ScrollController _scrollController;
-  int _page;
+  late ScrollController _scrollController;
+  late int _page;
   List<Result> _beAMatePostsDataList = [];
   TextEditingController _textEditingController = TextEditingController();
-  Future<BeAMatePostsModel> future;
+  Future<BeAMatePostsModel>? future;
   bool enterFutureBuilder = false;
   bool doingPagination = false;
   BeAMateService _beAMateService = BeAMateService();
-  BeAMateProvider beAMateProvider;
+  late BeAMateProvider beAMateProvider;
   String token = "";
-  Timer _throttle;
+  Timer? _throttle;
 
   @override
   void initState() {
@@ -64,7 +64,7 @@ class _SearchBeAMateState extends State<SearchBeAMate> {
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
     log(token);
   }
 
@@ -80,7 +80,7 @@ class _SearchBeAMateState extends State<SearchBeAMate> {
   fetchData()async{
     _page = 1;
     future = _beAMateService.searchBeAMate(text: _textEditingController.text,page: _page,token: token);
-    future.then((value) {
+    future!.then((value) {
       setState(() {
         doingPagination = false;
       });
@@ -191,13 +191,13 @@ class _SearchBeAMateState extends State<SearchBeAMate> {
                       future: future,
                       builder: (context,snapshot){
                         if(snapshot.hasData){
-                          if(snapshot.data.success==true || doingPagination==true){
+                          if(snapshot.data!.success==true || doingPagination==true){
                             if(enterFutureBuilder){
                               if(doingPagination==false){
                                 _beAMatePostsDataList.clear();
                               }
-                              for(int i=0;i<snapshot.data.data.result.length;i++){
-                                _beAMatePostsDataList.add(snapshot.data.data.result[i]);
+                              for(int i=0;i<snapshot.data!.data!.result!.length;i++){
+                                _beAMatePostsDataList.add(snapshot.data!.data!.result![i]);
                               }
                               Future.delayed(Duration.zero,(){
                                 enterFutureBuilder = false;
@@ -213,20 +213,20 @@ class _SearchBeAMateState extends State<SearchBeAMate> {
                               itemBuilder: (context,index){
                                 Result beAMateData = _beAMatePostsDataList[index];
                                 return BeAMateRow(
-                                  beAMateId: beAMateData.id,
-                                  description: beAMateData.description,
-                                  title: beAMateData.title,
+                                  beAMateId: beAMateData.id!,
+                                  description: beAMateData.description!,
+                                  title: beAMateData.title!,
                                   portfolioLink: beAMateData.portfolioLink,
                                   fromDate: beAMateData.fromDate,
                                   toDate: beAMateData.toDate,
                                   fromTime: beAMateData.timeFrom,
                                   toTime: beAMateData.timeTo,
-                                  user: beAMateData.user,
+                                  user: beAMateData.user!,
                                   hyperlinkText: beAMateData.hyperLinkText,
                                   hyperlink: beAMateData.hyperLink,
-                                  createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(beAMateData.createdAt, true))}",
+                                  createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(beAMateData.createdAt!, true))}",
                                   rowIndex: index,
-                                  isActive: beAMateData.isActive,
+                                  isActive: beAMateData.isActive!,
                                 );
                               },
                             );

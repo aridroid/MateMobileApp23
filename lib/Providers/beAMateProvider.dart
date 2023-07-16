@@ -11,14 +11,14 @@ class BeAMateProvider extends ChangeNotifier{
 
   /// initialization
 
-  BeAMateService _beAMateService;
+  BeAMateService? _beAMateService = BeAMateService();
   String _apiError = "";
   Map<String, dynamic> _validationErrors = Map();
-  bmpm.BeAMatePostsModel _beAMatePostsModelData;
+  late bmpm.BeAMatePostsModel _beAMatePostsModelData;
   List<bmpm.Result> _beAMatePostsDataList = [];
   // BeAMatePostsModel beAMatePostsBookmarkData;
   // BeAMatePostsModel beAMateByAuthUserData;
-  BeAMatePostActiveModel _beAMateActiveData;
+  late BeAMatePostActiveModel _beAMateActiveData;
   // BeAMatePostBookmarkModel _bookmarkPostData;
   // BeAMateCommentFetchModel _commentFetchData;
 
@@ -34,9 +34,9 @@ class BeAMateProvider extends ChangeNotifier{
 
 
   ///constructor
-  BeAMateProvider() {
-    _beAMateService = BeAMateService();
-  }
+  // BeAMateProvider() {
+  //   _beAMateService = BeAMateService();
+  // }
 
 
   ///getters
@@ -94,7 +94,7 @@ class BeAMateProvider extends ChangeNotifier{
 
   /// methods
 
-  Future<void> fetchBeAMatePostList({int page, bool paginationCheck=false,}) async {
+  Future<void> fetchBeAMatePostList({int? page, bool paginationCheck=false,}) async {
     error = '';
     _beAMatePostLoader = true;
 
@@ -107,12 +107,12 @@ class BeAMateProvider extends ChangeNotifier{
     try {
       Map<String, dynamic> queryParams = {"page": page.toString()};
 
-      var data = await _beAMateService.fetchBeAMatePostList(queryParams);
+      var data = await _beAMateService!.fetchBeAMatePostList(queryParams);
       _beAMatePostsModelData = data;
 
       List<bmpm.Result> rawFeedList = [];
-      for (int i = 0; i < _beAMatePostsModelData.data.result.length; i++) {
-        rawFeedList.add(_beAMatePostsModelData.data.result[i]);
+      for (int i = 0; i < _beAMatePostsModelData.data!.result!.length; i++) {
+        rawFeedList.add(_beAMatePostsModelData.data!.result![i]);
       }
 
 
@@ -139,7 +139,7 @@ class BeAMateProvider extends ChangeNotifier{
     _beAMatePostBookmarkLoader = true;
 
     try {
-      var data = await _beAMateService.fetchBeAMatePostBookmarkedList();
+      var data = await _beAMateService!.fetchBeAMatePostBookmarkedList();
       // beAMatePostsBookmarkData = data;
 
     } catch (err) {
@@ -156,7 +156,7 @@ class BeAMateProvider extends ChangeNotifier{
     _beAMatePostBookmarkLoader = true;
 
     try {
-      var data = await _beAMateService.fetchBeAMatePostByAuthUser(uuid);
+      var data = await _beAMateService!.fetchBeAMatePostByAuthUser(uuid);
       // beAMateByAuthUserData = data;
 
     } catch (err) {
@@ -176,7 +176,7 @@ class BeAMateProvider extends ChangeNotifier{
     error = '';
     _uploadPostLoader = true;
     try {
-      var data = await _beAMateService.postBeAMate(body);
+      var data = await _beAMateService!.postBeAMate(body);
     } catch (err) {
       _setError(err);
       return false;
@@ -189,17 +189,17 @@ class BeAMateProvider extends ChangeNotifier{
   Future<bool> activeBeAMatePost(int postId, int index, bool isActive) async {
     error = '';
     _likeAPostLoader = true;
-    beAMatePostsModelData.data.result[index].toggleLoader=true;
+    beAMatePostsModelData.data!.result![index].toggleLoader=true;
     var data;
     try {
-      data = await _beAMateService.activeBeAMatePost(postId, {"is_active": isActive});
+      data = await _beAMateService!.activeBeAMatePost(postId, {"is_active": isActive});
       _beAMateActiveData = data;
     } catch (err) {
       _setError(err);
       return false;
     } finally {
       _likeAPostLoader = false;
-      beAMatePostsModelData.data.result[index].toggleLoader=false;
+      beAMatePostsModelData.data!.result![index].toggleLoader=false;
 
     }
     notifyListeners();
@@ -212,7 +212,7 @@ class BeAMateProvider extends ChangeNotifier{
     // beAMatePostsModelData.data.result[index].bookmarkLoader=true;
     var data;
     try {
-      data = await _beAMateService.bookmarkBeAMatePost(postId);
+      data = await _beAMateService!.bookmarkBeAMatePost(postId);
       // _bookmarkPostData = data;
     } catch (err) {
       _setError(err);
@@ -230,7 +230,7 @@ class BeAMateProvider extends ChangeNotifier{
     _fetchCommentsLoader = true;
     var data;
     try {
-      data = await _beAMateService.fetchCommentsOfBeAMatePostById(commentId);
+      data = await _beAMateService!.fetchCommentsOfBeAMatePostById(commentId);
       // _commentFetchData=data;
     } catch (err) {
       _setError(err);
@@ -245,7 +245,7 @@ class BeAMateProvider extends ChangeNotifier{
     _fetchCommentsLoader = true;
     var data;
     try {
-      data = await _beAMateService.fetchCommentsOfBeAMatePost(postId);
+      data = await _beAMateService!.fetchCommentsOfBeAMatePost(postId);
       // _commentFetchData=data;
     } catch (err) {
       _setError(err);
@@ -257,7 +257,7 @@ class BeAMateProvider extends ChangeNotifier{
 
 
 
-  Future<bool> commentBeAMatePost({int postId, File imageFile, String content, String isAnonymous, int parentId}) async {
+  Future<bool> commentBeAMatePost({required int postId, required File imageFile, required String content, required String isAnonymous, required int parentId}) async {
     error = '';
     _postCommentsLoader = true;
     var data;
@@ -294,7 +294,7 @@ class BeAMateProvider extends ChangeNotifier{
     _postShareLoader=true;
     var data;
     try {
-      data = await _beAMateService.shareBeAMatePost(body,postId);
+      data = await _beAMateService!.shareBeAMatePost(body,postId);
     } catch (err) {
       _setError(err);
       return false;
@@ -305,7 +305,7 @@ class BeAMateProvider extends ChangeNotifier{
 
   }
 
-  Future deleteCommentsOfBeAMatePost(int commentId, int index, {bool isReply=false, int replyIndex}) async {
+  Future deleteCommentsOfBeAMatePost(int commentId, int index, {bool isReply=false, int? replyIndex}) async {
     error = '';
     if(isReply){
       // _commentFetchData.data.result[index].replies[replyIndex].isDeleting=true;
@@ -314,7 +314,7 @@ class BeAMateProvider extends ChangeNotifier{
     }
     var data;
     try {
-      data = await _beAMateService.deleteCommentsOfBeAMatePost(commentId);
+      data = await _beAMateService!.deleteCommentsOfBeAMatePost(commentId);
     } catch (err) {
       _setError(err);
       return false;
@@ -334,7 +334,7 @@ class BeAMateProvider extends ChangeNotifier{
     // beAMatePostsModelData.data.result[index].deleteLoader=true;
     var data;
     try {
-      data = await _beAMateService.deleteBeAMatePost(postId);
+      data = await _beAMateService!.deleteBeAMatePost(postId);
     } catch (err) {
       _setError(err);
       return false;

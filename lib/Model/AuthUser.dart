@@ -1,23 +1,23 @@
 class AuthUser {
-  String id;
-  String email;
-  String firstName;
-  String lastName;
-  String displayName;
-  String phoneNumber;
-  String photoUrl;
-  String coverPhotoUrl;
-  int universityId;
-  String university;
-  String about;
-  String societies;
-  String achievements;
-  int totalFollowers;
-  int totalFollowings;
-  String firebaseUid;
-  int totalFeeds;
-  int totalFeedComments;
-  bool isNotify;
+  String? id;
+  String? email;
+  String? firstName;
+  String? lastName;
+  String? displayName;
+  String? phoneNumber;
+  String? photoUrl;
+  String? coverPhotoUrl;
+  int? universityId;
+  String? university;
+  String? about;
+  String? societies;
+  String? achievements;
+  int? totalFollowers;
+  int? totalFollowings;
+  String? firebaseUid;
+  int? totalFeeds;
+  int? totalFeedComments;
+  bool? isNotify;
 
   AuthUser(
       {this.id,

@@ -1,7 +1,7 @@
 class BeAMatePostActiveModel {
-  bool success;
-  Data data;
-  String message;
+  bool? success;
+  Data? data;
+  String? message;
 
   BeAMatePostActiveModel({this.success, this.data, this.message});
 
@@ -15,7 +15,7 @@ class BeAMatePostActiveModel {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['success'] = this.success;
     if (this.data != null) {
-      data['data'] = this.data.toJson();
+      data['data'] = this.data?.toJson();
     }
     data['message'] = this.message;
     return data;
@@ -23,18 +23,18 @@ class BeAMatePostActiveModel {
 }
 
 class Data {
-  int id;
-  int userId;
-  String title;
-  String description;
-  String fromDate;
-  String toDate;
-  String timeFrom;
-  String timeTo;
-  String portfolioLink;
-  String status;
-  String createdAt;
-  String updatedAt;
+  int? id;
+  int? userId;
+  String? title;
+  String? description;
+  String? fromDate;
+  String? toDate;
+  String? timeFrom;
+  String? timeTo;
+  String? portfolioLink;
+  String? status;
+  String? createdAt;
+  String? updatedAt;
 
   Data(
       {this.id,

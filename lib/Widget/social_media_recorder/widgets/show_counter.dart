@@ -5,12 +5,12 @@ import '../provider/sound_record_notifier.dart';
 /// Used this class to show counter and mic Icon
 class ShowCounter extends StatelessWidget {
   final SoundRecordNotifier soundRecorderState;
-  final TextStyle counterTextStyle;
-  final Color counterBackGroundColor;
+  final TextStyle? counterTextStyle;
+  final Color? counterBackGroundColor;
   // ignore: sort_constructors_first
   const ShowCounter({
-    this.soundRecorderState,
-    Key key,
+    required this.soundRecorderState,
+    Key? key,
     this.counterTextStyle,
     this.counterBackGroundColor,
   }) : super(key: key);

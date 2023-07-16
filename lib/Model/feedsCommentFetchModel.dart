@@ -1,7 +1,7 @@
 class FeedsCommentFetchModel {
-  bool success;
-  Data data;
-  String message;
+  bool? success;
+  Data? data;
+  String? message;
 
   FeedsCommentFetchModel({this.success, this.data, this.message});
 
@@ -15,7 +15,7 @@ class FeedsCommentFetchModel {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['success'] = this.success;
     if (this.data != null) {
-      data['data'] = this.data.toJson();
+      data['data'] = this.data?.toJson();
     }
     data['message'] = this.message;
     return data;
@@ -23,17 +23,17 @@ class FeedsCommentFetchModel {
 }
 
 class Data {
-  List<Result> result;
-  Pagination pagination;
-  int commentsCount;
+  List<Result>? result;
+  Pagination? pagination;
+  int? commentsCount;
 
   Data({this.result, this.pagination, this.commentsCount});
 
   Data.fromJson(Map<String, dynamic> json) {
     if (json['result'] != null) {
-      result = new List<Result>();
+      result = [];
       json['result'].forEach((v) {
-        result.add(new Result.fromJson(v));
+        result?.add(new Result.fromJson(v));
       });
     }
     pagination = json['pagination'] != null
@@ -45,10 +45,10 @@ class Data {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     if (this.result != null) {
-      data['result'] = this.result.map((v) => v.toJson()).toList();
+      data['result'] = this.result?.map((v) => v.toJson()).toList();
     }
     if (this.pagination != null) {
-      data['pagination'] = this.pagination.toJson();
+      data['pagination'] = this.pagination?.toJson();
     }
     data['comments_count'] = this.commentsCount;
     return data;
@@ -56,16 +56,16 @@ class Data {
 }
 
 class Result {
-  int id;
-  int feedId;
-  int userId;
+  int? id;
+  int? feedId;
+  int? userId;
   Null parentId;
-  String content;
-  String createdAt;
-  String updatedAt;
-  User user;
-  List<Replies> replies;
-  bool isDeleting = false;
+  String? content;
+  String? createdAt;
+  String? updatedAt;
+  User? user;
+  List<Replies>? replies;
+  bool? isDeleting = false;
 
 
   Result(
@@ -90,9 +90,9 @@ class Result {
     updatedAt = json['updated_at'];
     user = json['user'] != null ? new User.fromJson(json['user']) : null;
     if (json['replies'] != null) {
-      replies = new List<Replies>();
+      replies = [];
       json['replies'].forEach((v) {
-        replies.add(new Replies.fromJson(v));
+        replies?.add(new Replies.fromJson(v));
       });
     }
   }
@@ -107,22 +107,22 @@ class Result {
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;
     if (this.user != null) {
-      data['user'] = this.user.toJson();
+      data['user'] = this.user?.toJson();
     }
     if (this.replies != null) {
-      data['replies'] = this.replies.map((v) => v.toJson()).toList();
+      data['replies'] = this.replies?.map((v) => v.toJson()).toList();
     }
     return data;
   }
 }
 
 class User {
-  String uuid;
-  String firstName;
-  String lastName;
-  String displayName;
-  String firebaseUid;
-  String profilePhoto;
+  String? uuid;
+  String? firstName;
+  String? lastName;
+  String? displayName;
+  String? firebaseUid;
+  String? profilePhoto;
 
   User(
       {this.uuid,
@@ -154,15 +154,15 @@ class User {
 }
 
 class Replies {
-  int id;
-  int feedId;
-  int userId;
-  int parentId;
-  String content;
-  String createdAt;
-  String updatedAt;
-  User user;
-  bool isDeleting = false;
+  int? id;
+  int? feedId;
+  int? userId;
+  int? parentId;
+  String? content;
+  String? createdAt;
+  String? updatedAt;
+  User? user;
+  bool? isDeleting = false;
 
   Replies(
       {this.id,
@@ -196,19 +196,19 @@ class Replies {
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;
     if (this.user != null) {
-      data['user'] = this.user.toJson();
+      data['user'] = this.user?.toJson();
     }
     return data;
   }
 }
 
 class Pagination {
-  int total;
-  int count;
-  int perPage;
-  int currentPage;
-  int totalPages;
-  bool morePages;
+  int? total;
+  int? count;
+  int? perPage;
+  int? currentPage;
+  int? totalPages;
+  bool? morePages;
 
   Pagination(
       {this.total,

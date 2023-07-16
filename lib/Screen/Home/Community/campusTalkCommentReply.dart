@@ -29,15 +29,15 @@ class CampusTalkCommentReply extends StatefulWidget {
   final bool isSearch;
   final postModel.User user;
 
-  const CampusTalkCommentReply({Key key,
+  const CampusTalkCommentReply({Key? key,
     this.isTrending = false,
     this.isLatest = false,
     this.isForums = false,
     this.isYourCampus = false,
     this.isListCard = false,
     this.isSearch = false,
-    this.user,
-    this.commentId, this.commentIndex, this.postId, this.postIndex, this.isBookmarkedPage=false, this.isUserProfile=false}) : super(key: key);
+    required this.user,
+    required this.commentId, required this.commentIndex, required this.postId, required this.postIndex, this.isBookmarkedPage=false, this.isUserProfile=false}) : super(key: key);
 
   @override
   _CampusTalkCommentReplyState createState() => _CampusTalkCommentReplyState();
@@ -47,7 +47,7 @@ class _CampusTalkCommentReplyState extends State<CampusTalkCommentReply> {
   FocusNode focusNode = FocusNode();
   TextEditingController messageEditingController = new TextEditingController();
   bool messageSentCheck = false;
-  XFile imageFile;
+  XFile? imageFile;
   bool isLoading = false;
   bool isAnonymous = false;
   final picker = ImagePicker();
@@ -130,7 +130,7 @@ class _CampusTalkCommentReplyState extends State<CampusTalkCommentReply> {
                 child: Consumer<CampusTalkProvider>(
                   builder: (context, campusLiveProvider, child) {
                     if (!campusLiveProvider.fetchCommentsLoader && campusLiveProvider.commentFetchData != null) {
-                      Result result = campusLiveProvider.commentFetchData.data.result[widget.commentIndex];
+                      Result result = campusLiveProvider.commentFetchData!.data!.result![widget.commentIndex];
                       return ListView(
                         padding: EdgeInsets.only(top: 20),
                         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -144,36 +144,36 @@ class _CampusTalkCommentReplyState extends State<CampusTalkCommentReply> {
                                 Container(
                                   child: GestureDetector(
                                     onTap: (){
-                                      if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == result.user.uuid) {
+                                      if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == result.user!.uuid) {
                                         Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                       } else {
                                         Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                          "id": result.user.uuid,
-                                          "name": result.user.displayName,
-                                          "photoUrl": result.user.profilePhoto,
-                                          "firebaseUid": result.user.firebaseUid
+                                          "id": result.user!.uuid,
+                                          "name": result.user!.displayName,
+                                          "photoUrl": result.user!.profilePhoto,
+                                          "firebaseUid": result.user!.firebaseUid
                                         });
                                       }
                                     },
                                     child: ListTile(
                                       horizontalTitleGap: 1,
                                       dense: true,
-                                      leading: result.user.profilePhoto != null?
+                                      leading: result.user!.profilePhoto != null?
                                       ClipOval(
                                         child: Image.network(
-                                          result.user.profilePhoto,
+                                          result.user!.profilePhoto!,
                                           height: 28,
                                           width: 28,
                                           fit: BoxFit.cover,
                                         ),
                                       ):CircleAvatar(
                                         radius: 14,
-                                        child: Text(result.user.displayName[0]),
+                                        child: Text(result.user!.displayName![0]),
                                       ),
                                       title: Padding(
                                         padding: const EdgeInsets.only(top: 10),
                                         child: buildEmojiAndText(
-                                          content: result.content,
+                                          content: result.content!,
                                           textStyle: TextStyle(
                                             fontWeight: FontWeight.w400,
                                             letterSpacing: 0.1,
@@ -187,7 +187,7 @@ class _CampusTalkCommentReplyState extends State<CampusTalkCommentReply> {
                                       subtitle: Padding(
                                         padding: const EdgeInsets.only(top: 5),
                                         child: Text(
-                                          DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(result.createdAt, true)),
+                                          DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(result.createdAt!, true)),
                                           style: TextStyle(
                                             fontSize: 12,
                                             color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
@@ -213,9 +213,9 @@ class _CampusTalkCommentReplyState extends State<CampusTalkCommentReply> {
                                           ),
                                         ),
                                       ),
-                                      Text(result.replies.isEmpty?"":result.replies.length>1?
-                                      "   •   ${result.replies.length} Replies":
-                                      "   •   ${result.replies.length} Reply",
+                                      Text(result.replies!.isEmpty?"":result.replies!.length>1?
+                                      "   •   ${result.replies!.length} Replies":
+                                      "   •   ${result.replies!.length} Reply",
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontFamily: 'Poppins',
@@ -227,11 +227,11 @@ class _CampusTalkCommentReplyState extends State<CampusTalkCommentReply> {
                                     ],
                                   ),
                                 ),
-                                result.replies.isNotEmpty?
+                                result.replies!.isNotEmpty?
                                 ListView.builder(
                                   shrinkWrap: true,
                                   physics: ScrollPhysics(),
-                                  itemCount: result.replies.length,
+                                  itemCount: result.replies!.length,
                                   itemBuilder: (context, index) {
                                     return Padding(
                                       padding: EdgeInsets.fromLTRB(40, 0, 0, 5),
@@ -241,15 +241,15 @@ class _CampusTalkCommentReplyState extends State<CampusTalkCommentReply> {
                                           Expanded(
                                             child: InkWell(
                                               onTap: () {
-                                                if (result.replies[index].isAnonymous == 0) {
-                                                  if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == result.replies[index].user.uuid) {
+                                                if (result.replies![index].isAnonymous == 0) {
+                                                  if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == result.replies![index].user!.uuid) {
                                                     Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                   } else {
                                                     Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                      "id": result.replies[index].user.uuid,
-                                                      "name": result.replies[index].user.displayName,
-                                                      "photoUrl": result.replies[index].user.profilePhoto,
-                                                      "firebaseUid": result.replies[index].user.firebaseUid
+                                                      "id": result.replies![index].user!.uuid,
+                                                      "name": result.replies![index].user!.displayName,
+                                                      "photoUrl": result.replies![index].user!.profilePhoto,
+                                                      "firebaseUid": result.replies![index].user!.firebaseUid
                                                     });
                                                   }
                                                 }
@@ -258,7 +258,7 @@ class _CampusTalkCommentReplyState extends State<CampusTalkCommentReply> {
                                                 horizontalTitleGap: 1,
                                                 dense: true,
                                                 leading:
-                                                result.replies[index].isAnonymous == 1 ?
+                                                result.replies![index].isAnonymous == 1 ?
                                                 ClipOval(
                                                   child: Image.asset(
                                                     "lib/asset/logo.png",
@@ -267,22 +267,22 @@ class _CampusTalkCommentReplyState extends State<CampusTalkCommentReply> {
                                                     fit: BoxFit.fitWidth,
                                                   ),
                                                 ):
-                                                result.replies[index].user.profilePhoto != null?
+                                                result.replies![index].user!.profilePhoto != null?
                                                 ClipOval(
                                                   child: Image.network(
-                                                    result.replies[index].user.profilePhoto,
+                                                    result.replies![index].user!.profilePhoto!,
                                                     height: 28,
                                                     width: 28,
                                                     fit: BoxFit.cover,
                                                   ),
                                                 ):CircleAvatar(
                                                   radius: 14,
-                                                  child: Text(result.replies[index].user.displayName[0],),
+                                                  child: Text(result.replies![index].user!.displayName![0],),
                                                 ),
                                                 title: Padding(
                                                   padding: const EdgeInsets.only(top: 10),
                                                   child: buildEmojiAndText(
-                                                    content: result.replies[index].content,
+                                                    content: result.replies![index].content!,
                                                     textStyle: TextStyle(
                                                       fontWeight: FontWeight.w400,
                                                       letterSpacing: 0.1,
@@ -296,7 +296,7 @@ class _CampusTalkCommentReplyState extends State<CampusTalkCommentReply> {
                                                 subtitle: Padding(
                                                   padding: const EdgeInsets.only(top: 5),
                                                   child: Text(
-                                                    DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(result.createdAt, true)),
+                                                    DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(result.createdAt!, true)),
                                                     style: TextStyle(
                                                       fontSize: 12,
                                                       color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
@@ -304,10 +304,10 @@ class _CampusTalkCommentReplyState extends State<CampusTalkCommentReply> {
                                                   ),
                                                 ),
                                                 trailing: Visibility(
-                                                    visible: Provider.of<AuthUserProvider>(context, listen: false).authUser.id == result.replies[index].user.uuid,
+                                                    visible: Provider.of<AuthUserProvider>(context, listen: false).authUser.id == result.replies![index].user!.uuid,
                                                     child: Consumer<CampusTalkProvider>(
                                                       builder: (context, value, child) {
-                                                        if(value.commentFetchData.data.result[widget.commentIndex].replies[index].isDeleting){
+                                                        if(value.commentFetchData!.data!.result![widget.commentIndex].replies![index].isDeleting!){
                                                           return SizedBox(
                                                             height: 14,
                                                             width: 14,
@@ -319,10 +319,10 @@ class _CampusTalkCommentReplyState extends State<CampusTalkCommentReply> {
                                                         }else{
                                                           return InkWell(
                                                             onTap: () async {
-                                                              bool updated = await Provider.of<CampusTalkProvider>(context, listen: false).deleteCommentsOfACampusTalk(value.commentFetchData.data.result[widget.commentIndex].replies[index].id, widget.commentIndex, isReply: true, replyIndex: index);
+                                                              bool updated = await Provider.of<CampusTalkProvider>(context, listen: false).deleteCommentsOfACampusTalk(value.commentFetchData!.data!.result![widget.commentIndex].replies![index].id!, widget.commentIndex, isReply: true, replyIndex: index);
                                                               if (updated) {
                                                                 if(widget.isBookmarkedPage){
-                                                                  --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsBookmarkData.data.result[widget.postIndex].commentsCount;
+                                                                  --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsBookmarkData.data!.result![widget.postIndex].commentsCount;
                                                                 }
                                                                 if(widget.isUserProfile){
                                                                   --Provider.of<CampusTalkProvider>(context, listen: false).campusTalkByUserPostsResultsList[widget.postIndex].commentsCount;
@@ -464,7 +464,7 @@ class _CampusTalkCommentReplyState extends State<CampusTalkCommentReply> {
 
                           if (updated) {
                             if(widget.isBookmarkedPage){
-                              ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsBookmarkData.data.result[widget.postIndex].commentsCount;
+                              ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsBookmarkData.data!.result![widget.postIndex].commentsCount;
                             }
                             if(widget.isUserProfile){
                               ++Provider.of<CampusTalkProvider>(context, listen: false).campusTalkByUserPostsResultsList[widget.postIndex].commentsCount;

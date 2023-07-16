@@ -1,7 +1,7 @@
 class FindAMatePostActiveModel {
-  bool success;
-  Data data;
-  String message;
+  bool? success;
+  Data? data;
+  String? message;
 
   FindAMatePostActiveModel({this.success, this.data, this.message});
 
@@ -15,7 +15,7 @@ class FindAMatePostActiveModel {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['success'] = this.success;
     if (this.data != null) {
-      data['data'] = this.data.toJson();
+      data['data'] = this.data?.toJson();
     }
     data['message'] = this.message;
     return data;
@@ -23,17 +23,17 @@ class FindAMatePostActiveModel {
 }
 
 class Data {
-  int id;
-  int userId;
-  String title;
-  String description;
-  String fromDate;
-  String toDate;
-  String timeFrom;
-  String timeTo;
-  String status;
-  String createdAt;
-  String updatedAt;
+  int? id;
+  int? userId;
+  String? title;
+  String? description;
+  String? fromDate;
+  String? toDate;
+  String? timeFrom;
+  String? timeTo;
+  String? status;
+  String? createdAt;
+  String? updatedAt;
 
   Data(
       {this.id,

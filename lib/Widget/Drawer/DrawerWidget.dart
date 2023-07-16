@@ -70,7 +70,7 @@ class DrawerWidget extends StatelessWidget {
                               padding: const EdgeInsets.only(left: 15),
                               child: Selector<AuthUserProvider, String>(
                                 selector: (ctx, authUserProvider) =>
-                                authUserProvider.authUser.displayName,
+                                authUserProvider.authUser.displayName!,
                                 builder: (ctx, data, _) {
                                   return Text(data, style: TextStyle(
                                       fontSize: 22,

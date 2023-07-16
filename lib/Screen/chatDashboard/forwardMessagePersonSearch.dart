@@ -14,7 +14,7 @@ import '../../groupChat/services/database_service.dart';
 
 class ForwardMessagePersonSearch extends StatefulWidget {
   final Map messageData;
-  const ForwardMessagePersonSearch({Key key, this.messageData}) : super(key: key);
+  const ForwardMessagePersonSearch({Key? key, required this.messageData}) : super(key: key);
 
   @override
   _ForwardMessagePersonSearchState createState() => _ForwardMessagePersonSearchState();
@@ -22,10 +22,10 @@ class ForwardMessagePersonSearch extends StatefulWidget {
 
 class _ForwardMessagePersonSearchState extends State<ForwardMessagePersonSearch> {
   ThemeController themeController = Get.find<ThemeController>();
-  QuerySnapshot searchResultSnapshot;
+  late QuerySnapshot searchResultSnapshot;
   bool isLoading = true;
   bool hasUserSearched = false;
-  User _user = FirebaseAuth.instance.currentUser;
+  User _user = FirebaseAuth.instance.currentUser!;
   String searchedName="";
   List<UserListModel> userList = [];
 
@@ -137,13 +137,13 @@ class _ForwardMessagePersonSearchState extends State<ForwardMessagePersonSearch>
             physics: ScrollPhysics(),
             addAutomaticKeepAlives: true,
             itemBuilder: (context, index) {
-              return StreamBuilder(
+              return StreamBuilder<QuerySnapshot>(
                 stream: DatabaseService().getPeerChatUserDetail(userList[index].uid),
                 builder: (context, snapshot) {
                   if(snapshot.hasData) {
                     return ListView.builder(
                         shrinkWrap: true,
-                        itemCount: snapshot.data.docs.length,
+                        itemCount: snapshot.data!.docs.length,
                         physics: ScrollPhysics(),
                         itemBuilder: (context, index1) {
                           return Visibility(
@@ -153,10 +153,10 @@ class _ForwardMessagePersonSearchState extends State<ForwardMessagePersonSearch>
                               onTap: (){
                                 String personChatIdLocal;
 
-                                if (_user.uid.hashCode <= snapshot.data.docs[index1].data()["uid"].hashCode) {
-                                  personChatIdLocal = '${_user.uid}-${snapshot.data.docs[index1].data()["uid"]}';
+                                if (_user.uid.hashCode <= snapshot.data!.docs[index1].get('uid').hashCode) {
+                                  personChatIdLocal = '${_user.uid}-${snapshot.data!.docs[index1].get('uid')}';
                                 } else {
-                                  personChatIdLocal = '${snapshot.data.docs[index1].data()["uid"]}-${_user.uid}';
+                                  personChatIdLocal = '${snapshot.data!.docs[index1].get('uid')}-${_user.uid}';
                                 }
 
                                 int type;
@@ -182,7 +182,7 @@ class _ForwardMessagePersonSearchState extends State<ForwardMessagePersonSearch>
                                 String fileName = widget.messageData["fileName"];
                                 int fileSize = widget.messageData["fileSize"];
 
-                                Map<String, dynamic> chatMessageMapLocal = {'idFrom': _user.uid, 'idTo': snapshot.data.docs[index1].data()["uid"], 'timestamp': DateTime.now().millisecondsSinceEpoch.toString(), 'content': message.trim(), 'type': type,"isForwarded":true};
+                                Map<String, dynamic> chatMessageMapLocal = {'idFrom': _user.uid, 'idTo': snapshot.data!.docs[index1].get('uid'), 'timestamp': DateTime.now().millisecondsSinceEpoch.toString(), 'content': message.trim(), 'type': type,"isForwarded":true};
 
                                 if (fileExtension!=null) {
                                   chatMessageMapLocal['fileExtension'] = fileExtension;
@@ -274,7 +274,7 @@ class _ForwardMessagePersonSearchState extends State<ForwardMessagePersonSearch>
     );
   }
 
-  Future<void> _showSendAlertDialogPersonalMessage({@required Map messageData, @required String personChatId}) async {
+  Future<void> _showSendAlertDialogPersonalMessage({required Map messageData, required String personChatId}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,

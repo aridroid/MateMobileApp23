@@ -8,11 +8,11 @@ class LockRecord extends StatefulWidget {
   final SoundRecordNotifier soundRecorderState;
   // ignore: sort_constructors_first
 
-  final Widget lockIcon;
+  final Widget? lockIcon;
   const LockRecord({
-    this.lockIcon,
-    this.soundRecorderState,
-    Key key,
+    required this.lockIcon,
+    required this.soundRecorderState,
+    Key? key,
   }) : super(key: key);
   @override
   _LockRecordState createState() => _LockRecordState();

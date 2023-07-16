@@ -28,30 +28,30 @@ import 'package:mate_app/Model/campusTalkTypeModel.dart' as campusTalkTypeModel;
 import 'package:http/http.dart'as http;
 
 class EditCampusTalk extends StatefulWidget {
-  final String title,description,anonymousUser;
-  final int id,isAnonymous;
-  final bool isBookmarkedPage;
-  final bool isUserProfile;
-  final bool isTrending;
-  final bool isLatest;
-  final bool isForums;
-  final bool isYourCampus;
-  final bool isListCard;
-  final bool isSearch;
-  final postModel.User user;
-  final List<CampusTalkTypes> campusTalkTypes;
-  final String image;
-  final String video;
-  final String audio;
-  const EditCampusTalk({Key key, this.title, this.description, this.anonymousUser, this.isAnonymous, this.id,
+  final String? title,description,anonymousUser;
+  final int? id,isAnonymous;
+  final bool? isBookmarkedPage;
+  final bool? isUserProfile;
+  final bool? isTrending;
+  final bool? isLatest;
+  final bool? isForums;
+  final bool? isYourCampus;
+  final bool? isListCard;
+  final bool? isSearch;
+  final postModel.User? user;
+  final List<CampusTalkTypes>? campusTalkTypes;
+  final String? image;
+  final String? video;
+  final String? audio;
+  const EditCampusTalk({Key? key, this.title, this.description, this.anonymousUser, this.isAnonymous, this.id,
     this.isTrending = false,
     this.isLatest = false,
     this.isForums = false,
     this.isYourCampus = false,
     this.isListCard = false,
     this.isBookmarkedPage = false,
-    this.isUserProfile = false, this.user,this.isSearch = false,this.campusTalkTypes,
-    this.image,this.video,this.audio
+    this.isUserProfile = false, this.user,this.isSearch = false, this.campusTalkTypes,
+     this.image, this.video, this.audio
 
   }) : super(key: key);
 
@@ -62,16 +62,16 @@ class EditCampusTalk extends StatefulWidget {
 class _EditCampusTalkState extends State<EditCampusTalk> {
   final _formKey = GlobalKey<FormState>();
   FocusNode focusNode= FocusNode();
-  String _description;
-  String _title;
-  String anonymousUser;
+  late String _description;
+  late String _title;
+  late String anonymousUser;
   bool isAnonymous=false;
   bool isToggleAvailable = true;
   ThemeController themeController = Get.find<ThemeController>();
   int titleLength = 0;
   int descriptionLength = 0;
   bool isLoading = false;
-  int _id;
+  late int _id;
   List<String> typeName = [];
   String token = "";
   List<campusTalkTypeModel.Data> type = [];
@@ -84,29 +84,29 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
   bool videoDeleted = false;
   bool audioDeleted = false;
   final picker = ImagePicker();
-  File _image;
-  File _video;
-  File _audio;
-  String _base64encodedImage;
-  String _base64encodedVideo;
-  String _base64encodedAudio;
+  File? _image;
+  File? _video;
+  File? _audio;
+  String? _base64encodedImage;
+  String? _base64encodedVideo;
+  String? _base64encodedAudio;
   bool isPausedRecording = false;
   bool isPlaying = false;
-  Duration currentDuration;
+  Duration? currentDuration;
   AudioPlayer _audioPlayer = AudioPlayer();
   bool showDeleteIcon = true;
 
   @override
   void initState() {
     focusNode.requestFocus();
-    _id = widget.id;
-    _title = widget.title;
-    _description = widget.description;
+    _id = widget.id!;
+    _title = widget.title!;
+    _description = widget.description!;
     isAnonymous = widget.isAnonymous==1?true:false;
     isToggleAvailable = !isAnonymous;
     anonymousUser = widget.anonymousUser??"";
-    for(int i=0;i<widget.campusTalkTypes.length;i++){
-      typeName.add(widget.campusTalkTypes[i].type.name);
+    for(int i=0;i<widget.campusTalkTypes!.length;i++){
+      typeName.add(widget.campusTalkTypes![i].type!.name!);
     }
     _imageUrl = widget.image??"";
     _videoUrl = widget.video??"";
@@ -129,7 +129,7 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
     type = await _campusTalkService.getType(token: token);
     for(int i=0;i<type.length;i++){
       typeSelected.add(false);
@@ -188,7 +188,7 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
         isPlaying = false;
       });
       if(_audio!=null){
-        _audioPlayer.setFilePath(_audio.path);
+        _audioPlayer.setFilePath(_audio!.path);
       }else{
         var dir = await getApplicationDocumentsDirectory();
         var filePathAndName = dir.path + "/audios/" +_audioUrl.split("/").last + ".mp3";
@@ -346,10 +346,10 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
                             },
                             onSaved: (value) {
                               print('onSaved Title = $value');
-                              _title = value;
+                              _title = value!;
                             },
                             validator: (value) {
-                              if(value.isEmpty){
+                              if(value!.isEmpty){
                                 return "Please Enter Title";
                               }else
                                 return null;
@@ -405,10 +405,10 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
                             },
                             onSaved: (value) {
                               print('onSaved lastName = $value');
-                              _description = value;
+                              _description = value!;
                             },
                             validator: (value) {
-                              if(value.isEmpty){
+                              if(value!.isEmpty){
                                 return "Please Type Description";
                               }else
                                 return null;
@@ -436,7 +436,7 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
                                 value: isAnonymous,
                                 onChanged: (newValue) {
                                   if(isToggleAvailable){
-                                    isAnonymous=newValue;
+                                    isAnonymous=newValue!;
                                     setState(() {});
                                   }
                                 },
@@ -622,7 +622,7 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
                                     Row(
                                       children: [
                                         currentDuration!=null?
-                                        Text(currentDuration.inMinutes.toString().padLeft(2,'0') +":"+ currentDuration.inSeconds.toString().padLeft(2,"0"),
+                                        Text(currentDuration!.inMinutes.toString().padLeft(2,'0') +":"+ currentDuration!.inSeconds.toString().padLeft(2,"0"),
                                           style: TextStyle(
                                             fontFamily: 'Poppins',
                                             fontWeight: FontWeight.w500,
@@ -748,7 +748,7 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
                                   clipBehavior: Clip.hardEdge,
                                   child: _imageUrl!=""?
                                   Image.network(_imageUrl,fit: BoxFit.fill):
-                                  Image.file(_image,fit: BoxFit.fill),
+                                  Image.file(_image!,fit: BoxFit.fill),
                                 ),
                               ),
                               Positioned(
@@ -790,7 +790,7 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
                                 margin: EdgeInsets.only(top: 30),
                                 child: _videoUrl!=""?
                                 VideoThumbnail(videoUrl: _videoUrl):
-                                VideoThumbnailFile(videoUrl: _video),
+                                VideoThumbnailFile(videoUrl: _video!),
                               ),
                               Positioned(
                                 top: 18,
@@ -852,7 +852,7 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
                                         themeController.isDarkMode? MateColors.appThemeDark:MateColors.appThemeLight:
                                         themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
                                       ),
-                                      child: Text(type[index].name,
+                                      child: Text(type[index].name!,
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontFamily: "Poppins",
@@ -916,7 +916,7 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
                 ],
               ),
               onPressed: () {
-                if(_formKey.currentState.validate()) _submitForm(context);
+                if(_formKey.currentState!.validate()) _submitForm(context);
               },
             ),
           ),
@@ -927,16 +927,16 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
 
   void _submitForm(BuildContext context) async {
     FocusScope.of(context).unfocus();
-    bool validated = _formKey.currentState.validate();
+    bool validated = _formKey.currentState!.validate();
     if (validated) {
       setState(() {
         isLoading = true;
       });
-      _formKey.currentState.save();
+      _formKey.currentState!.save();
       List<String> uuid = [];
       for(int i=0;i<typeSelected.length;i++){
         if(typeSelected[i]){
-          uuid.add(type[i].uuid);
+          uuid.add(type[i].uuid!);
         }
       }
       bool posted= await Provider.of<CampusTalkProvider>(context, listen: false).updateACampusTalkPost(
@@ -958,21 +958,21 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
       });
       if(posted){
         final campusTalkProvider = Provider.of<CampusTalkProvider>(context, listen: false);
-        if (widget.isBookmarkedPage) {
+        if (widget.isBookmarkedPage!) {
           campusTalkProvider.fetchCampusTalkPostBookmarkedList();
-        } else if (widget.isUserProfile) {
-          campusTalkProvider.fetchCampusTalkByAuthUser(widget.user.uuid, page: 1);
-        } else if(widget.isTrending){
+        } else if (widget.isUserProfile!) {
+          campusTalkProvider.fetchCampusTalkByAuthUser(widget.user!.uuid!, page: 1);
+        } else if(widget.isTrending!){
           campusTalkProvider.fetchCampusTalkPostTendingList(page: 1);
-        } else if(widget.isLatest){
+        } else if(widget.isLatest!){
           campusTalkProvider.fetchCampusTalkPostTLatestList(page: 1);
-        }else if(widget.isForums){
+        }else if(widget.isForums!){
           campusTalkProvider.fetchCampusTalkPostForumsList(page: 1);
-        }else if(widget.isYourCampus){
+        }else if(widget.isYourCampus!){
           campusTalkProvider.fetchCampusTalkPostYourCampusList(page: 1);
-        }else if(widget.isListCard){
+        }else if(widget.isListCard!){
           campusTalkProvider.fetchCampusTalkPostListCard();
-        }else if(widget.isListCard){
+        }else if(widget.isListCard!){
           Get.back();
         }
         Navigator.pop(context);
@@ -980,7 +980,7 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
     }
   }
 
-  InputDecoration _customInputDecoration({@required String labelText, IconData icon}) {
+  InputDecoration _customInputDecoration({required String labelText, IconData? icon}) {
     return InputDecoration(
       hintStyle: TextStyle(
         fontSize: 16,
@@ -1295,8 +1295,8 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
     }else{
       final pickedFile = await FilePicker.platform.pickFiles(type: FileType.audio);
       if (pickedFile != null) {
-        _audio = File(pickedFile.paths.first);
-        var audio = _audio.readAsBytesSync();
+        _audio = File(pickedFile.paths.first!);
+        var audio = _audio!.readAsBytesSync();
         //_base64encodedAudio = base64Encode(audio);
         _base64encodedAudio = pickedFile.paths.first;
         _audioUrl = "";
@@ -1315,7 +1315,7 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
 
   Record recordMp3 = Record();
   bool _isAcceptedPermission = false;
-  Timer _timer;
+  Timer? _timer;
   int second = 0;
   int minute = 0;
   bool isRecordingPaused = false;
@@ -1349,7 +1349,7 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
   }
 
   Future<String> getFilePath() async {
-    auth.User _user = auth.FirebaseAuth.instance.currentUser;
+    auth.User _user = auth.FirebaseAuth.instance.currentUser!;
     Directory appDocDir = await getApplicationDocumentsDirectory();
     String appDocPath = appDocDir.path + "/" + _user.uid + ".m4a";
     if(File(appDocPath).existsSync()){
@@ -1393,12 +1393,12 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
     isRecordingAudioFromMic = false;
     second = 0;
     minute = 0;
-    _timer.cancel();
+    _timer!.cancel();
 
-    String pickedFile = await recordMp3.stop();
+    String? pickedFile = await recordMp3.stop();
     if (pickedFile != null) {
       _audio = File(pickedFile);
-      var audio = _audio.readAsBytesSync();
+      var audio = _audio!.readAsBytesSync();
       //_base64encodedAudio = base64Encode(audio);
       _base64encodedAudio = pickedFile;
       _audioUrl = "";
@@ -1417,7 +1417,7 @@ class _EditCampusTalkState extends State<EditCampusTalk> {
     isRecordingAudioFromMic = false;
     second = 0;
     minute = 0;
-    _timer.cancel();
+    _timer!.cancel();
     setState(() {});
   }
 

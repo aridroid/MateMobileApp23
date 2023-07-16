@@ -10,7 +10,7 @@ import '../../groupChat/services/database_service.dart';
 import '../chat1/screens/chat.dart';
 
 class SearchPerson extends StatefulWidget {
-  const SearchPerson({Key key}) : super(key: key);
+  const SearchPerson({Key? key}) : super(key: key);
 
   @override
   _SearchPersonState createState() => _SearchPersonState();
@@ -19,10 +19,10 @@ class SearchPerson extends StatefulWidget {
 class _SearchPersonState extends State<SearchPerson> {
   TextEditingController searchEditingController = new TextEditingController();
   FocusNode focusNode = FocusNode();
-  QuerySnapshot searchResultSnapshot;
+  late QuerySnapshot searchResultSnapshot;
   bool isLoading = true;
   bool hasUserSearched = false;
-  User _user = FirebaseAuth.instance.currentUser;
+  User _user = FirebaseAuth.instance.currentUser!;
   String searchedName="";
   ThemeController themeController = Get.find<ThemeController>();
 

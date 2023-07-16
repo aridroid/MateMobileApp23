@@ -1,7 +1,7 @@
 class CampusTalkPostsModel {
-  bool success;
-  Data data;
-  String message;
+  bool? success;
+  Data? data;
+  String? message;
 
   CampusTalkPostsModel({this.success, this.data, this.message});
 
@@ -15,7 +15,7 @@ class CampusTalkPostsModel {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['success'] = this.success;
     if (this.data != null) {
-      data['data'] = this.data.toJson();
+      data['data'] = this.data?.toJson();
     }
     data['message'] = this.message;
     return data;
@@ -23,16 +23,16 @@ class CampusTalkPostsModel {
 }
 
 class Data {
-  List<Result> result;
-  Pagination pagination;
+  List<Result>? result;
+  Pagination? pagination;
 
   Data({this.result, this.pagination});
 
   Data.fromJson(Map<String, dynamic> json) {
     if (json['result'] != null) {
-      result = new List<Result>();
+      result = [];
       json['result'].forEach((v) {
-        result.add(new Result.fromJson(v));
+        result?.add(new Result.fromJson(v));
       });
     }
     pagination = json['pagination'] != null
@@ -43,41 +43,41 @@ class Data {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     if (this.result != null) {
-      data['result'] = this.result.map((v) => v.toJson()).toList();
+      data['result'] = this.result?.map((v) => v.toJson()).toList();
     }
     if (this.pagination != null) {
-      data['pagination'] = this.pagination.toJson();
+      data['pagination'] = this.pagination?.toJson();
     }
     return data;
   }
 }
 
 class Result {
-  int id;
-  int userId;
-  String url;
-  String photoUrl;
-  String videoUrl;
-  String audioUrl;
-  String title;
-  String description;
-  String status;
-  String createdAt;
-  String updatedAt;
-  int isAnonymous;
-  String anonymousUser;
-  int bookmarksCount;
-  int likesCount;
-  int dislikesCount;
-  int commentsCount;
-  User user;
-  IsBookmarked isBookmarked;
-  IsLiked isLiked;
-  IsLiked isDisliked;
+  int? id;
+  int? userId;
+  String? url;
+  String? photoUrl;
+  String? videoUrl;
+  String? audioUrl;
+  String? title;
+  String? description;
+  String? status;
+  String? createdAt;
+  String? updatedAt;
+  int? isAnonymous;
+  String? anonymousUser;
+  int? bookmarksCount;
+  late int likesCount;
+  late int dislikesCount;
+  late int commentsCount;
+  User? user;
+  IsBookmarked? isBookmarked;
+  IsLiked? isLiked;
+  IsLiked? isDisliked;
   bool bookmarkLoader=false;
   bool deleteLoader=false;
   bool upVoteLoader=false;
-  List<CampusTalkTypes> campusTalkTypes;
+  List<CampusTalkTypes>? campusTalkTypes;
   bool isPlaying = false;
   bool isPaused = false;
   bool isLoadingAudio = false;
@@ -97,20 +97,20 @@ class Result {
         this.isAnonymous,
         this.anonymousUser,
         this.bookmarksCount,
-        this.likesCount,
-        this.dislikesCount,
-        this.commentsCount,
+        required this.likesCount,
+        required this.dislikesCount,
+        required this.commentsCount,
         this.user,
         this.isBookmarked,
         this.isLiked,
         this.isDisliked,
-        this.bookmarkLoader,
-        this.deleteLoader,
-        this.upVoteLoader,
+        required this.bookmarkLoader,
+        required this.deleteLoader,
+        required this.upVoteLoader,
         this.campusTalkTypes,
-        this.isPlaying,
-        this.isPaused,
-        this.isLoadingAudio,
+        required this.isPlaying,
+        required this.isPaused,
+        required this.isLoadingAudio,
       });
 
   Result.fromJson(Map<String, dynamic> json) {
@@ -144,7 +144,7 @@ class Result {
     if (json['campus_talk_types'] != null) {
       campusTalkTypes = <CampusTalkTypes>[];
       json['campus_talk_types'].forEach((v) {
-        campusTalkTypes.add(new CampusTalkTypes.fromJson(v));
+        campusTalkTypes?.add(new CampusTalkTypes.fromJson(v));
       });
     }
 
@@ -170,33 +170,33 @@ class Result {
     data['dislikes_count'] = this.dislikesCount;
     data['comments_count'] = this.commentsCount;
     if (this.user != null) {
-      data['user'] = this.user.toJson();
+      data['user'] = this.user?.toJson();
     }
     if (this.isBookmarked != null) {
-      data['is_bookmarked'] = this.isBookmarked.toJson();
+      data['is_bookmarked'] = this.isBookmarked?.toJson();
     }
     if (this.isLiked != null) {
-      data['is_liked'] = this.isLiked.toJson();
+      data['is_liked'] = this.isLiked?.toJson();
     }
     if (this.isDisliked != null) {
-      data['is_disliked'] = this.isDisliked.toJson();
+      data['is_disliked'] = this.isDisliked?.toJson();
     }
     if (this.campusTalkTypes != null) {
       data['campus_talk_types'] =
-          this.campusTalkTypes.map((v) => v.toJson()).toList();
+          this.campusTalkTypes?.map((v) => v.toJson()).toList();
     }
     return data;
   }
 }
 
 class User {
-  String uuid;
-  String firstName;
-  String lastName;
-  String displayName;
-  String firebaseUid;
-  String profilePhoto;
-  String university;
+  String? uuid;
+  String? firstName;
+  String? lastName;
+  String? displayName;
+  String? firebaseUid;
+  String? profilePhoto;
+  String? university;
 
   User(
       {this.uuid,
@@ -231,11 +231,11 @@ class User {
 }
 
 class IsBookmarked {
-  int id;
-  int postId;
-  int userId;
-  String createdAt;
-  String updatedAt;
+  int? id;
+  int? postId;
+  int? userId;
+  String? createdAt;
+  String? updatedAt;
 
   IsBookmarked(
       {this.id, this.postId, this.userId, this.createdAt, this.updatedAt});
@@ -260,11 +260,11 @@ class IsBookmarked {
 }
 
 class IsLiked {
-  int id;
-  int postId;
-  int userId;
-  String createdAt;
-  String updatedAt;
+  int? id;
+  int? postId;
+  int? userId;
+  String? createdAt;
+  String? updatedAt;
 
   IsLiked(
       {this.id, this.postId, this.userId, this.createdAt, this.updatedAt});
@@ -289,12 +289,12 @@ class IsLiked {
 }
 
 class Pagination {
-  int total;
-  int count;
-  int perPage;
-  int currentPage;
-  int totalPages;
-  bool morePages;
+  int? total;
+  int? count;
+  int? perPage;
+  int? currentPage;
+  int? totalPages;
+  bool? morePages;
 
   Pagination(
       {this.total,
@@ -326,12 +326,12 @@ class Pagination {
 }
 
 class CampusTalkTypes {
-  int id;
-  int campusTalkId;
-  int campusTalkTypeId;
-  String createdAt;
-  String updatedAt;
-  Type type;
+  int? id;
+  int? campusTalkId;
+  int? campusTalkTypeId;
+  String? createdAt;
+  String? updatedAt;
+  Type? type;
 
   CampusTalkTypes(
       {this.id,
@@ -358,16 +358,16 @@ class CampusTalkTypes {
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;
     if (this.type != null) {
-      data['type'] = this.type.toJson();
+      data['type'] = this.type?.toJson();
     }
     return data;
   }
 }
 
 class Type {
-  int id;
-  String uuid;
-  String name;
+  int? id;
+  String? uuid;
+  String? name;
   Null deletedAt;
 
   Type({this.id, this.uuid, this.name, this.deletedAt});

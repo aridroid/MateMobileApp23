@@ -1,7 +1,7 @@
 class CampusLivePostBookmarkModel {
-  bool success;
-  Data data;
-  String message;
+  bool? success;
+  Data? data;
+  String? message;
 
   CampusLivePostBookmarkModel({this.success, this.data, this.message});
 
@@ -15,7 +15,7 @@ class CampusLivePostBookmarkModel {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['success'] = this.success;
     if (this.data != null) {
-      data['data'] = this.data.toJson();
+      data['data'] = this.data?.toJson();
     }
     data['message'] = this.message;
     return data;
@@ -23,11 +23,11 @@ class CampusLivePostBookmarkModel {
 }
 
 class Data {
-  int userId;
-  String postId;
-  String updatedAt;
-  String createdAt;
-  int id;
+  int? userId;
+  String? postId;
+  String? updatedAt;
+  String? createdAt;
+  int? id;
 
   Data({this.userId, this.postId, this.updatedAt, this.createdAt, this.id});
 

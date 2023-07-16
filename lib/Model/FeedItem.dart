@@ -1,35 +1,35 @@
 class FeedItem {
-  String id;
-  int feedId;
-  int feedTypeId;
-  String title;
-  String description;
-  String location;
-  String hyperlinkText;
-  String hyperlink;
-  String start;
-  String end;
-  String created;
-  String type;
-  List<FeedTypes> feedTypes;
-  User user;
-  List<Media> media;
-  List<Media> mediaOther;
-  IsLiked isLiked;
-  bool isBookmarked;
-  bool isFollowed;
-  List<LikeCount> likeCount;
-  int bookmarkCount;
-  String feedCreatedAt;
-  String feedUpdatedAt;
-  IsShared isShared;
-  int shareCount;
-  int commentCount;
-  bool likeLoader=false;
-  bool bookmarkLoader=false;
-  bool isPlaying = false;
-  bool isPaused = false;
-  bool isLoadingAudio = false;
+  String? id;
+  int? feedId;
+  int? feedTypeId;
+  String? title;
+  String? description;
+  String? location;
+  String? hyperlinkText;
+  String? hyperlink;
+  String? start;
+  String? end;
+  String? created;
+  String? type;
+  List<FeedTypes>? feedTypes;
+  User? user;
+  List<Media>? media;
+  List<Media>? mediaOther;
+  IsLiked? isLiked;
+  bool? isBookmarked;
+  bool? isFollowed;
+  List<LikeCount>? likeCount;
+  int? bookmarkCount;
+  String? feedCreatedAt;
+  String? feedUpdatedAt;
+  IsShared? isShared;
+  int? shareCount;
+  late int commentCount;
+  bool? likeLoader=false;
+  bool? bookmarkLoader=false;
+  bool? isPlaying = false;
+  bool? isPaused = false;
+  bool? isLoadingAudio = false;
 
   FeedItem(
       {this.id,
@@ -57,7 +57,7 @@ class FeedItem {
         this.feedUpdatedAt,
         this.isShared,
         this.shareCount,
-        this.commentCount,
+        required this.commentCount,
         this.likeLoader,
         this.bookmarkLoader,
         this.isLoadingAudio,
@@ -83,15 +83,15 @@ class FeedItem {
         ? new IsShared.fromJson(json['is_shared'])
         : null;
     if (json['media'] != null) {
-      media = new List<Media>();
+      media = [];
       json['media'].forEach((v) {
-        media.add(new Media.fromJson(v));
+        media?.add(new Media.fromJson(v));
       });
     }
     if (json['media_other'] != null) {
-      mediaOther = new List<Media>();
+      mediaOther = [];
       json['media_other'].forEach((v) {
-        mediaOther.add(new Media.fromJson(v));
+        mediaOther?.add(new Media.fromJson(v));
       });
     }
     isLiked = json['is_liked'] != null
@@ -101,16 +101,16 @@ class FeedItem {
     isFollowed = json['is_followed'];
 
     if (json['like_count'] != null) {
-      likeCount = new List<LikeCount>();
+      likeCount = [];
       json['like_count'].forEach((v) {
-        likeCount.add(new LikeCount.fromJson(v));
+        likeCount?.add(new LikeCount.fromJson(v));
       });
     }
     bookmarkCount = json['bookmark_count'];
     if (json['feed_types'] != null) {
-      feedTypes = new List<FeedTypes>();
+      feedTypes = [];
       json['feed_types'].forEach((v) {
-        feedTypes.add(new FeedTypes.fromJson(v));
+        feedTypes?.add(new FeedTypes.fromJson(v));
       });
     }
     feedCreatedAt = json['feed_created_at'];
@@ -132,31 +132,31 @@ class FeedItem {
     data['created'] = this.created;
     data['type'] = this.type;
     if (this.feedTypes != null) {
-      data['feed_types'] = this.feedTypes.map((v) => v.toJson()).toList();
+      data['feed_types'] = this.feedTypes?.map((v) => v.toJson()).toList();
     }
     if (this.user != null) {
-      data['user'] = this.user.toJson();
+      data['user'] = this.user?.toJson();
     }
     if (this.media != null) {
-      data['media'] = this.media.map((v) => v.toJson()).toList();
+      data['media'] = this.media?.map((v) => v.toJson()).toList();
     }
     if (this.mediaOther != null) {
-      data['media_other'] = this.mediaOther.map((v) => v.toJson()).toList();
+      data['media_other'] = this.mediaOther?.map((v) => v.toJson()).toList();
     }
 
     if (this.isLiked != null) {
-      data['is_liked'] = this.isLiked.toJson();
+      data['is_liked'] = this.isLiked?.toJson();
     }
     data['is_bookmarked'] = this.isBookmarked;
     data['is_followed'] = this.isFollowed;
     if (this.likeCount != null) {
-      data['like_count'] = this.likeCount.map((v) => v.toJson()).toList();
+      data['like_count'] = this.likeCount?.map((v) => v.toJson()).toList();
     }
     data['bookmark_count'] = this.bookmarkCount;
     data['feed_created_at'] = this.feedCreatedAt;
     data['feed_updated_at'] = this.feedUpdatedAt;
     if (this.isShared != null) {
-      data['is_shared'] = this.isShared.toJson();
+      data['is_shared'] = this.isShared?.toJson();
     }
 
 
@@ -167,12 +167,12 @@ class FeedItem {
 }
 
 class IsLiked {
-  int id;
-  int feedId;
-  int userId;
-  int emojiValue;
-  String createdAt;
-  String updatedAt;
+  int? id;
+  int? feedId;
+  int? userId;
+  int? emojiValue;
+  String? createdAt;
+  String? updatedAt;
 
   IsLiked(
       {this.id,
@@ -205,10 +205,10 @@ class IsLiked {
 
 
 class LikeCount {
-  int emojiValue;
-  int count;
+  int? emojiValue;
+  late int count;
 
-  LikeCount({this.emojiValue, this.count});
+  LikeCount({this.emojiValue, required this.count});
 
   LikeCount.fromJson(Map<String, dynamic> json) {
     emojiValue = json['emoji_value'];
@@ -225,26 +225,26 @@ class LikeCount {
 
 
 class IsShared {
-  String id;
-  int feedId;
-  String title;
-  String description;
-  String location;
+  String? id;
+  int? feedId;
+  String? title;
+  String? description;
+  String? location;
   dynamic start;
   dynamic end;
-  String created;
-  List<FeedTypes> feedTypes;
-  User user;
-  List<Media> media;
+  String? created;
+  List<FeedTypes>? feedTypes;
+  User? user;
+  List<Media>? media;
   // IsLiked isLiked;
-  bool isBookmarked;
+  bool? isBookmarked;
   // int likeCount;
-  int bookmarkCount;
-  String feedCreatedAt;
-  String feedUpdatedAt;
+  int? bookmarkCount;
+  String? feedCreatedAt;
+  String? feedUpdatedAt;
   // dynamic isShared;
-  int shareCount;
-  int commentCount;
+  int? shareCount;
+  int? commentCount;
 
   IsShared(
       {this.id,
@@ -278,16 +278,16 @@ class IsShared {
     end = json['end'];
     created = json['created'];
     if (json['feed_types'] != null) {
-      feedTypes = new List<FeedTypes>();
+      feedTypes = [];
       json['feed_types'].forEach((v) {
-        feedTypes.add(new FeedTypes.fromJson(v));
+        feedTypes?.add(new FeedTypes.fromJson(v));
       });
     }
     user = json['user'] != null ? new User.fromJson(json['user']) : null;
     if (json['media'] != null) {
-      media = new List<Media>();
+      media = [];
       json['media'].forEach((v) {
-        media.add(new Media.fromJson(v));
+        media?.add(new Media.fromJson(v));
       });
     }
     // isLiked = json['is_liked'];
@@ -312,13 +312,13 @@ class IsShared {
     data['end'] = this.end;
     data['created'] = this.created;
     if (this.feedTypes != null) {
-      data['feed_types'] = this.feedTypes.map((v) => v.toJson()).toList();
+      data['feed_types'] = this.feedTypes?.map((v) => v.toJson()).toList();
     }
     if (this.user != null) {
-      data['user'] = this.user.toJson();
+      data['user'] = this.user?.toJson();
     }
     if (this.media != null) {
-      data['media'] = this.media.map((v) => v.toJson()).toList();
+      data['media'] = this.media?.map((v) => v.toJson()).toList();
     }
     // data['is_liked'] = this.isLiked;
     data['is_bookmarked'] = this.isBookmarked;
@@ -334,11 +334,11 @@ class IsShared {
 }
 
 class User {
-  String id;
-  String name;
-  String photoUrl;
-  String firebaseUid;
-  String university;
+  String? id;
+  String? name;
+  String? photoUrl;
+  String? firebaseUid;
+  String? university;
 
   User({this.id, this.name, this.photoUrl, this.firebaseUid,this.university});
 
@@ -362,7 +362,7 @@ class User {
 }
 
 class Media {
-  String url;
+  String? url;
 
   Media({this.url});
 
@@ -403,12 +403,12 @@ class Media {
 }*/
 
 class FeedTypes {
-  int id;
-  int feedId;
-  int feedTypeId;
-  String createdAt;
-  String updatedAt;
-  Type type;
+  int? id;
+  int? feedId;
+  int? feedTypeId;
+  String? createdAt;
+  String? updatedAt;
+  Type? type;
 
   FeedTypes(
       {this.id,
@@ -435,18 +435,18 @@ class FeedTypes {
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;
     if (this.type != null) {
-      data['type'] = this.type.toJson();
+      data['type'] = this.type?.toJson();
     }
     return data;
   }
 }
 
 class Type {
-  int id;
-  String uuid;
-  String name;
-  int status;
-  String deletedAt;
+  int? id;
+  String? uuid;
+  String? name;
+  int? status;
+  String? deletedAt;
 
   Type({this.id, this.uuid, this.name, this.deletedAt, this.status});
 
@@ -470,10 +470,10 @@ class Type {
 }
 
 class Links {
-  String first;
-  String last;
+  String? first;
+  String? last;
   Null prev;
-  String next;
+  String? next;
 
   Links({this.first, this.last, this.prev, this.next});
 
@@ -495,14 +495,14 @@ class Links {
 }
 
 class Meta {
-  int currentPage;
-  int from;
-  int lastPage;
-  List<Links> links;
-  String path;
-  int perPage;
-  int to;
-  int total;
+  int? currentPage;
+  int? from;
+  int? lastPage;
+  List<Links>? links;
+  String? path;
+  int? perPage;
+  int? to;
+  int? total;
 
   Meta(
       {this.currentPage,
@@ -519,9 +519,9 @@ class Meta {
     from = json['from'];
     lastPage = json['last_page'];
     if (json['links'] != null) {
-      links = new List<Links>();
+      links = [];
       json['links'].forEach((v) {
-        links.add(new Links.fromJson(v));
+        links?.add(new Links.fromJson(v));
       });
     }
     path = json['path'];
@@ -536,7 +536,7 @@ class Meta {
     data['from'] = this.from;
     data['last_page'] = this.lastPage;
     if (this.links != null) {
-      data['links'] = this.links.map((v) => v.toJson()).toList();
+      data['links'] = this.links?.map((v) => v.toJson()).toList();
     }
     data['path'] = this.path;
     data['per_page'] = this.perPage;

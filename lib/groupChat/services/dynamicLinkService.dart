@@ -5,7 +5,7 @@ bool isDynamicLinkHit=true;
 class DynamicLinkService {
 
   ///Build a dynamic link firebase
-  static Future<String> buildDynamicLink({String userName, String groupId, String groupName, String groupIcon}) async {
+  static Future<String> buildDynamicLink({required String userName, required String groupId, required String groupName, required String groupIcon}) async {
     FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
     String url = "https://matechat.page.link";
     print(groupId);
@@ -35,7 +35,7 @@ class DynamicLinkService {
 
 
 
-  static Future<String> buildDynamicLinkCampusTalk({String id}) async {
+  static Future<String> buildDynamicLinkCampusTalk({required String id}) async {
     FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
     String url = "https://matechat.page.link";
     print(id);
@@ -64,7 +64,7 @@ class DynamicLinkService {
     return dynamicUrl.shortUrl.toString();
   }
 
-  static Future<String> buildDynamicLinkEvent({String id}) async {
+  static Future<String> buildDynamicLinkEvent({required String id}) async {
     FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
     String url = "https://matechat.page.link";
     print(id);
@@ -85,7 +85,7 @@ class DynamicLinkService {
   }
 
 
-  static Future<String> buildDynamicLinkFeed({String id}) async {
+  static Future<String> buildDynamicLinkFeed({required String id}) async {
     FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
     String url = "https://matechat.page.link";
     print(id);

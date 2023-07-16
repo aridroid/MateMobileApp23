@@ -39,7 +39,7 @@ import '../chat1/screens/chat.dart';
 
 class FeedDetailsViaNotification extends StatefulWidget{
   int feedId;
-  FeedDetailsViaNotification({this.feedId,});
+  FeedDetailsViaNotification({required this.feedId,});
 
   @override
   State<StatefulWidget> createState() => FeedDetailsViaNotificationState();
@@ -49,7 +49,7 @@ class FeedDetailsViaNotificationState extends State<FeedDetailsViaNotification>{
   ThemeController themeController = Get.find<ThemeController>();
   TextEditingController messageEditingController = new TextEditingController();
   bool messageSentCheck = false;
-  ClientId _credentials;
+  late ClientId _credentials;
 
   @override
   void initState() {
@@ -130,32 +130,32 @@ class FeedDetailsViaNotificationState extends State<FeedDetailsViaNotification>{
                   // ),
                   HomeRowForFeedDetailsNotification(
                     isFeedDetailsPage: true,
-                    id: feedProvider.feedItemDetails.id,
+                    id: feedProvider.feedItemDetails.id!,
                     feedId: widget.feedId,
-                    title: feedProvider.feedItemDetails.title,
-                    feedType: feedProvider.feedItemDetails.feedTypes,
-                    start: feedProvider.feedItemDetails.start,
-                    end: feedProvider.feedItemDetails.end,
+                    title: feedProvider.feedItemDetails.title!,
+                    feedType: feedProvider.feedItemDetails.feedTypes!,
+                    start: feedProvider.feedItemDetails.start!,
+                    end: feedProvider.feedItemDetails.end!,
                     //calenderDate: feedProvider.feedItemDetails.start,
-                    description: feedProvider.feedItemDetails.description,
-                    created: feedProvider.feedItemDetails.created,
+                    description: feedProvider.feedItemDetails.description!,
+                    created: feedProvider.feedItemDetails.created!,
                     user: feedProvider.feedItemDetails.user,
-                    location: feedProvider.feedItemDetails.location,
-                    hyperlinkText: feedProvider.feedItemDetails.hyperlinkText,
-                    hyperlink: feedProvider.feedItemDetails.hyperlink,
-                    media: feedProvider.feedItemDetails.media,
-                    isLiked: feedProvider.feedItemDetails.isLiked,
+                    location: feedProvider.feedItemDetails.location!,
+                    hyperlinkText: feedProvider.feedItemDetails.hyperlinkText!,
+                    hyperlink: feedProvider.feedItemDetails.hyperlink!,
+                    media: feedProvider.feedItemDetails.media!,
+                    isLiked: feedProvider.feedItemDetails.isLiked!,
                     //liked: feedProvider.feedItemDetails.,
-                    bookMarked: feedProvider.feedItemDetails.isBookmarked,
-                    likeCount: feedProvider.feedItemDetails.likeCount,
-                    bookmarkCount: feedProvider.feedItemDetails.bookmarkCount,
-                    shareCount: feedProvider.feedItemDetails.shareCount,
-                    commentCount: feedProvider.feedItemDetails.commentCount,
-                    isShared: feedProvider.feedItemDetails.isShared,
+                    bookMarked: feedProvider.feedItemDetails.isBookmarked!,
+                    likeCount: feedProvider.feedItemDetails.likeCount!,
+                    bookmarkCount: feedProvider.feedItemDetails.bookmarkCount!,
+                    shareCount: feedProvider.feedItemDetails.shareCount!,
+                    commentCount: feedProvider.feedItemDetails.commentCount!,
+                    isShared: feedProvider.feedItemDetails.isShared!,
                     //indexVal: feedProvider.feedItemDetails.indexVal,
                     navigateToDetailsPage: false,
                     //pageType: feedProvider.feedItemDetails.pageType,
-                    mediaOther: feedProvider.feedItemDetails.mediaOther,
+                    mediaOther: feedProvider.feedItemDetails.mediaOther!,
                   ),
                   _messageSendWidget(),
                    _comments(),
@@ -249,7 +249,7 @@ class FeedDetailsViaNotificationState extends State<FeedDetailsViaNotification>{
             reverse: true,
             physics: ScrollPhysics(),
             padding: EdgeInsets.fromLTRB(16, 10, 16, 16),
-            itemCount: feedProvider.commentFetchData.data.result.length,
+            itemCount: feedProvider.commentFetchData!.data!.result!.length,
             itemBuilder: (context, index) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -257,36 +257,36 @@ class FeedDetailsViaNotificationState extends State<FeedDetailsViaNotification>{
                   Container(
                     child: GestureDetector(
                       onTap: (){
-                        if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == feedProvider.commentFetchData.data.result[index].user.uuid) {
+                        if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == feedProvider.commentFetchData!.data!.result![index].user!.uuid) {
                           Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                         } else {
                           Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                            "id": feedProvider.commentFetchData.data.result[index].user.uuid,
-                            "name": feedProvider.commentFetchData.data.result[index].user.displayName,
-                            "photoUrl": feedProvider.commentFetchData.data.result[index].user.profilePhoto,
-                            "firebaseUid": feedProvider.commentFetchData.data.result[index].user.firebaseUid
+                            "id": feedProvider.commentFetchData!.data!.result![index].user!.uuid,
+                            "name": feedProvider.commentFetchData!.data!.result![index].user!.displayName,
+                            "photoUrl": feedProvider.commentFetchData!.data!.result![index].user!.profilePhoto,
+                            "firebaseUid": feedProvider.commentFetchData!.data!.result![index].user!.firebaseUid
                           });
                         }
                       },
                       child: ListTile(
                         horizontalTitleGap: 1,
                         dense: true,
-                        leading: feedProvider.commentFetchData.data.result[index].user.profilePhoto != null?
+                        leading: feedProvider.commentFetchData!.data!.result![index].user!.profilePhoto != null?
                         ClipOval(
                           child: Image.network(
-                            feedProvider.commentFetchData.data.result[index].user.profilePhoto,
+                            feedProvider.commentFetchData!.data!.result![index].user!.profilePhoto!,
                             height: 28,
                             width: 28,
                             fit: BoxFit.cover,
                           ),
                         ):CircleAvatar(
                           radius: 14,
-                          child: Text(feedProvider.commentFetchData.data.result[index].user.displayName[0]),
+                          child: Text(feedProvider.commentFetchData!.data!.result![index].user!.displayName![0]),
                         ),
                         title: Padding(
                           padding: const EdgeInsets.only(top: 10),
                           child: buildEmojiAndText(
-                            content:  feedProvider.commentFetchData.data.result[index].content,
+                            content:  feedProvider.commentFetchData!.data!.result![index].content!,
                             textStyle: TextStyle(
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.w400,
@@ -300,7 +300,7 @@ class FeedDetailsViaNotificationState extends State<FeedDetailsViaNotification>{
                         subtitle: Padding(
                           padding: const EdgeInsets.only(top: 5),
                           child: Text(
-                            DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(feedProvider.commentFetchData.data.result[index].createdAt, true)),
+                            DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(feedProvider.commentFetchData!.data!.result![index].createdAt!, true)),
                             style: TextStyle(
                               fontSize: 12,
                               color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
@@ -318,7 +318,7 @@ class FeedDetailsViaNotificationState extends State<FeedDetailsViaNotification>{
                           onTap: ()=> Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => FeedCommentsReply(
                                 feedIndex: 0,//widget.indexVal,
-                                commentId: feedProvider.commentFetchData.data.result[index].id,
+                                commentId: feedProvider.commentFetchData!.data!.result![index].id!,
                                 commentIndex: index,
                                 feedId: widget.feedId,
                               ))),
@@ -332,9 +332,9 @@ class FeedDetailsViaNotificationState extends State<FeedDetailsViaNotification>{
                             ),
                           ),
                         ),
-                        Text(feedProvider.commentFetchData.data.result[index].replies.isEmpty?"":feedProvider.commentFetchData.data.result[index].replies.length>1?
-                        "   •   ${feedProvider.commentFetchData.data.result[index].replies.length} Replies":
-                        "   •   ${feedProvider.commentFetchData.data.result[index].replies.length} Reply",
+                        Text(feedProvider.commentFetchData!.data!.result![index].replies!.isEmpty?"":feedProvider.commentFetchData!.data!.result![index].replies!.length>1?
+                        "   •   ${feedProvider.commentFetchData!.data!.result![index].replies!.length} Replies":
+                        "   •   ${feedProvider.commentFetchData!.data!.result![index].replies!.length} Reply",
                           style: TextStyle(
                             fontSize: 12,
                             fontFamily: 'Poppins',
@@ -345,10 +345,10 @@ class FeedDetailsViaNotificationState extends State<FeedDetailsViaNotification>{
                         ),
                         Spacer(),
                         Visibility(
-                            visible: Provider.of<AuthUserProvider>(context, listen: false).authUser.id == feedProvider.commentFetchData.data.result[index].user.uuid,
+                            visible: Provider.of<AuthUserProvider>(context, listen: false).authUser.id == feedProvider.commentFetchData!.data!.result![index].user!.uuid,
                             child: Consumer<FeedProvider>(
                               builder: (context, value, child) {
-                                if(value.commentFetchData.data.result[index].isDeleting){
+                                if(value.commentFetchData!.data!.result![index].isDeleting!){
                                   return SizedBox(
                                     height: 14,
                                     width: 14,
@@ -360,7 +360,7 @@ class FeedDetailsViaNotificationState extends State<FeedDetailsViaNotification>{
                                 }else{
                                   return InkWell(
                                     onTap: () async{
-                                      bool updated = await Provider.of<FeedProvider>(context, listen: false).deleteCommentsOfAFeed(value.commentFetchData.data.result[index].id, index);
+                                      bool updated = await Provider.of<FeedProvider>(context, listen: false).deleteCommentsOfAFeed(value.commentFetchData!.data!.result![index].id!, index);
 
                                       if (updated) {
                                         --Provider.of<FeedProvider>(context, listen: false).feedItemDetails.commentCount;
@@ -383,14 +383,14 @@ class FeedDetailsViaNotificationState extends State<FeedDetailsViaNotification>{
                     ),
                   ),
                   Visibility(
-                    visible: feedProvider.commentFetchData.data.result[index].replies.length>1,
+                    visible: feedProvider.commentFetchData!.data!.result![index].replies!.length>1,
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(58, 10, 5, 0),
                       child: InkWell(
                         onTap: ()=> Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => FeedCommentsReply(
                               feedIndex: 0,//widget.indexVal,
-                              commentId: feedProvider.commentFetchData.data.result[index].id,
+                              commentId: feedProvider.commentFetchData!.data!.result![index].id!,
                               commentIndex: index,
                               feedId: widget.feedId,
                             ))),
@@ -407,7 +407,7 @@ class FeedDetailsViaNotificationState extends State<FeedDetailsViaNotification>{
                       ),
                     ),
                   ),
-                  feedProvider.commentFetchData.data.result[index].replies.isNotEmpty?
+                  feedProvider.commentFetchData!.data!.result![index].replies!.isNotEmpty?
                   Padding(
                     padding: EdgeInsets.fromLTRB(40, 0, 0, 5),
                     child: Row(
@@ -416,36 +416,36 @@ class FeedDetailsViaNotificationState extends State<FeedDetailsViaNotification>{
                         Expanded(
                           child: InkWell(
                             onTap: () {
-                              if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == feedProvider.commentFetchData.data.result[index].replies.last.user.uuid) {
+                              if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.uuid) {
                                 Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                               } else {
                                 Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                  "id": feedProvider.commentFetchData.data.result[index].replies.last.user.uuid,
-                                  "name": feedProvider.commentFetchData.data.result[index].replies.last.user.displayName,
-                                  "photoUrl": feedProvider.commentFetchData.data.result[index].replies.last.user.profilePhoto,
-                                  "firebaseUid": feedProvider.commentFetchData.data.result[index].replies.last.user.firebaseUid
+                                  "id": feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.uuid,
+                                  "name": feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.displayName,
+                                  "photoUrl": feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.profilePhoto,
+                                  "firebaseUid": feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.firebaseUid
                                 });
                               }
                             },
                             child: ListTile(
                               horizontalTitleGap: 1,
                               dense: true,
-                              leading: feedProvider.commentFetchData.data.result[index].replies.last.user.profilePhoto != null ?
+                              leading: feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.profilePhoto != null ?
                               ClipOval(
                                 child: Image.network(
-                                  feedProvider.commentFetchData.data.result[index].replies.last.user.profilePhoto,
+                                  feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.profilePhoto!,
                                   height: 28,
                                   width: 28,
                                   fit: BoxFit.cover,
                                 ),
                               ):CircleAvatar(
                                 radius: 14,
-                                child: Text(feedProvider.commentFetchData.data.result[index].replies.last.user.displayName[0],),
+                                child: Text(feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.displayName![0],),
                               ),
                               title: Padding(
                                 padding: const EdgeInsets.only(top: 10),
                                 child: buildEmojiAndText(
-                                  content: feedProvider.commentFetchData.data.result[index].replies.last.content,
+                                  content: feedProvider.commentFetchData!.data!.result![index].replies!.last.content!,
                                   textStyle: TextStyle(
                                     fontFamily: 'Poppins',
                                     fontWeight: FontWeight.w400,
@@ -459,7 +459,7 @@ class FeedDetailsViaNotificationState extends State<FeedDetailsViaNotification>{
                               subtitle: Padding(
                                 padding: const EdgeInsets.only(top: 5),
                                 child: Text(
-                                  DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(feedProvider.commentFetchData.data.result[index].replies.last.createdAt, true)),
+                                  DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(feedProvider.commentFetchData!.data!.result![index].replies!.last.createdAt!, true)),
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
@@ -501,14 +501,14 @@ class FeedDetailsViaNotificationState extends State<FeedDetailsViaNotification>{
 
 
 class HomeRowForFeedDetailsNotification extends StatefulWidget {
-  String previousPageUserId;
-  String previousPageFeedId;
+  String? previousPageUserId;
+  String? previousPageFeedId;
   String id;
   int feedId;
   String title;
   String start;
   String end;
-  String calenderDate;
+  String? calenderDate;
   String description;
   String created;
   var user;
@@ -519,10 +519,10 @@ class HomeRowForFeedDetailsNotification extends StatefulWidget {
   final List mediaOther;
   bool bookMarked;
   bool isFollowed;
-  IsLiked isLiked;
-  bool liked;
-  List feedType;
-  int indexVal;
+  IsLiked? isLiked;
+  bool? liked;
+  List? feedType;
+  int? indexVal;
   bool isBookmarkedPage;
   bool isFeedDetailsPage;
   List<LikeCount> likeCount;
@@ -531,39 +531,39 @@ class HomeRowForFeedDetailsNotification extends StatefulWidget {
   int commentCount;
   IsShared isShared;
   bool navigateToDetailsPage;
-  String pageType;
+  String? pageType;
 
   HomeRowForFeedDetailsNotification(
-      {this.previousPageUserId,
+      { this.previousPageUserId,
         this.previousPageFeedId,
-        this.id,
-        this.feedId,
-        this.title,
+        required this.id,
+        required this.feedId,
+        required this.title,
         this.feedType,
-        this.start,
-        this.end,
+        required this.start,
+        required this.end,
         this.calenderDate,
-        this.description,
-        this.created,
+        required this.description,
+        required this.created,
         this.user,
-        this.location,
-        this.hyperlinkText,
-        this.hyperlink,
-        this.media,
+        required this.location,
+        required this.hyperlinkText,
+        required this.hyperlink,
+        required this.media,
         this.isLiked,
         this.liked,
-        this.bookMarked,
+        required this.bookMarked,
         this.isFollowed=false,
         this.indexVal,
-        this.likeCount,
-        this.bookmarkCount,
-        this.commentCount,
-        this.shareCount,
+        required this.likeCount,
+        required this.bookmarkCount,
+        required this.commentCount,
+        required this.shareCount,
         this.isBookmarkedPage = false,
         this.isFeedDetailsPage = false,
         this.navigateToDetailsPage = true,
         this.pageType,
-        this.isShared, this.mediaOther});
+        required this.isShared, required this.mediaOther});
 
   @override
   _HomeRowForFeedDetailsNotificationState createState() =>
@@ -576,28 +576,28 @@ class _HomeRowForFeedDetailsNotificationState extends State<HomeRowForFeedDetail
   final String title;
   final String startTime;
   final String endTime;
-  final String calenderDate;
+  final String? calenderDate;
   final String description;
   final String created;
   var user;
   final String location;
   final List media;
   final List mediaOther;
-  final List feedType;
+  final List? feedType;
   bool bookMarked;
-  bool liked;
-  auth.User _currentUser = auth.FirebaseAuth.instance.currentUser;
+  bool? liked;
+  auth.User _currentUser = auth.FirebaseAuth.instance.currentUser!;
   _HomeRowForFeedDetailsNotificationState(this.id, this.feedId, this.title, this.feedType, this.startTime, this.endTime, this.calenderDate, this.description, this.created, this.user, this.location, this.media, this.liked, this.bookMarked, this.mediaOther);
 
-  ClientId _credentials;
-  IsLiked isLiked;
+  late ClientId _credentials;
+  late IsLiked isLiked;
   ThemeController themeController = Get.find<ThemeController>();
-  String token;
-  FeedProvider feedProvider;
+  late String token;
+  late FeedProvider feedProvider;
 
   @override
   void initState() {
-    isLiked = widget.isLiked;
+    isLiked = widget.isLiked!;
     feedProvider = Provider.of<FeedProvider>(context, listen: false);
     super.initState();
     getStoredValue();
@@ -611,7 +611,7 @@ class _HomeRowForFeedDetailsNotificationState extends State<HomeRowForFeedDetail
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
   }
 
   final audioPlayer = AudioPlayer();
@@ -817,13 +817,13 @@ class _HomeRowForFeedDetailsNotificationState extends State<HomeRowForFeedDetail
                     event.description = description; //Setting summary of object
 
                     gCal.EventDateTime start = new gCal.EventDateTime(); //Setting start time
-                    start.dateTime = DateTime.parse(calenderDate).toLocal();
+                    start.dateTime = DateTime.parse(calenderDate!).toLocal();
                     start.timeZone = "GMT+05:00";
                     event.start = start;
 
                     gCal.EventDateTime end = new gCal.EventDateTime(); //setting end time
                     end.timeZone = "GMT+05:00";
-                    end.dateTime = DateTime.parse(calenderDate).toLocal();
+                    end.dateTime = DateTime.parse(calenderDate!).toLocal();
                     event.end = end;
 
                     insertEvent(event);
@@ -833,7 +833,7 @@ class _HomeRowForFeedDetailsNotificationState extends State<HomeRowForFeedDetail
                         MaterialPageRoute(
                             builder: (context) => Chat(peerUuid: user.id, currentUserId: _currentUser.uid, peerId: user.firebaseUid, peerAvatar: user.photoUrl, peerName: user.name)));
                   } else if (index == 2) {
-                    _showFollowAlertDialog(feedId: widget.feedId, indexVal: widget.indexVal);
+                    _showFollowAlertDialog(feedId: widget.feedId, indexVal: widget.indexVal!);
                   } else if (index == 3) {
                     // Map<String, dynamic> body;
                     // Provider.of<ExternalShareProvider>(context,listen: false).externalSharePost(body);
@@ -846,7 +846,7 @@ class _HomeRowForFeedDetailsNotificationState extends State<HomeRowForFeedDetail
                     }
                   }
                   else if (index == 4) {
-                    _showDeleteAlertDialog(feedId: widget.feedId, indexVal: widget.indexVal);
+                    _showDeleteAlertDialog(feedId: widget.feedId, indexVal: widget.indexVal!);
                   } else if (index == 5) {
                     Navigator.push(
                         context,
@@ -930,12 +930,12 @@ class _HomeRowForFeedDetailsNotificationState extends State<HomeRowForFeedDetail
             margin: EdgeInsets.only(left: 16,top: 6),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: feedType.length,
+              itemCount: feedType!.length,
               itemBuilder: (context, index) => Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: InkWell(
                   onTap: () {
-                    final page = FeedSearch(text: feedType[index].type.name,);
+                    final page = FeedSearch(text: feedType![index].type.name,);
                     Navigator.push(context,MaterialPageRoute(builder: (context) => page ));
                   },
                   child: Container(
@@ -946,7 +946,7 @@ class _HomeRowForFeedDetailsNotificationState extends State<HomeRowForFeedDetail
                     child: Padding(
                       padding: const EdgeInsets.only(left: 15,right: 15),
                       child: Center(
-                        child: Text("${feedType[index].type.name}",
+                        child: Text("${feedType![index].type.name}",
                           style: TextStyle(
                             fontFamily: "Poppins",
                             fontSize: 15,
@@ -1083,7 +1083,7 @@ class _HomeRowForFeedDetailsNotificationState extends State<HomeRowForFeedDetail
                       widget.likeCount[0].count++;
                       widget.isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
                     }else if(response == 'Feed Unliked successfully'){
-                      if(widget.isLiked.emojiValue==0){
+                      if(widget.isLiked!.emojiValue==0){
                         widget.likeCount[0].count--;
                         widget.isLiked = null;
                       }else{
@@ -1141,7 +1141,7 @@ class _HomeRowForFeedDetailsNotificationState extends State<HomeRowForFeedDetail
                       widget.likeCount[1].count++;
                       widget.isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
                     }else if(response == 'Feed Unliked successfully'){
-                      if(widget.isLiked.emojiValue==1){
+                      if(widget.isLiked!.emojiValue==1){
                         widget.likeCount[1].count--;
                         widget.isLiked = null;
                       }else{
@@ -1295,7 +1295,7 @@ class _HomeRowForFeedDetailsNotificationState extends State<HomeRowForFeedDetail
               GestureDetector(
                 onTap: (){
                   if(isLoadingAudio==false){
-                    isPlaying ? pauseAudio(widget.indexVal): startAudio(mediaOther[i].url);
+                    isPlaying ? pauseAudio(widget.indexVal!): startAudio(mediaOther[i].url);
                   }
                 },
                 child: Container(
@@ -1339,22 +1339,22 @@ class _HomeRowForFeedDetailsNotificationState extends State<HomeRowForFeedDetail
           contentPadding: EdgeInsets.fromLTRB(12, 4, 10, 0),
           leading: InkWell(
             onTap: () {
-              if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == isShared.user.id) {
+              if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == isShared.user!.id) {
                 Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
               } else {
                 Navigator.of(context).pushNamed(UserProfileScreen.routeName,
-                    arguments: {"id": isShared.user.id, "name": isShared.user.name, "photoUrl": isShared.user.photoUrl, "firebaseUid": isShared.user.firebaseUid});
+                    arguments: {"id": isShared.user!.id, "name": isShared.user!.name, "photoUrl": isShared.user!.photoUrl, "firebaseUid": isShared.user!.firebaseUid});
               }
             },
-            child: isShared.user.photoUrl.length == 0
+            child: isShared.user!.photoUrl!.length == 0
                 ? ClipOval(
               child: Text(
-                isShared.user.name[0],
+                isShared.user!.name![0],
               ),
             )
                 : ClipOval(
               child: Image.network(
-                isShared.user.photoUrl,
+                isShared.user!.photoUrl!,
                 height: 45,
                 width: 38,
                 fit: BoxFit.cover,
@@ -1363,18 +1363,18 @@ class _HomeRowForFeedDetailsNotificationState extends State<HomeRowForFeedDetail
           ),
           title: InkWell(
               onTap: () {
-                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == isShared.user.id) {
+                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == isShared.user!.id) {
                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                 } else {
                   Navigator.of(context).pushNamed(UserProfileScreen.routeName,
-                      arguments: {"id": isShared.user.id, "name": isShared.user.name, "photoUrl": isShared.user.photoUrl, "firebaseUid": isShared.user.firebaseUid});
+                      arguments: {"id": isShared.user!.id, "name": isShared.user!.name, "photoUrl": isShared.user!.photoUrl, "firebaseUid": isShared.user!.firebaseUid});
                 }
               },
               child: Row(
                 children: [
                   Expanded(
                     child: Text(
-                      isShared.user.name,
+                      isShared.user!.name!,
                       style: TextStyle(fontFamily: 'Quicksand', color: Colors.white, fontSize: 13.2),
                       overflow: TextOverflow.clip,
                     ),
@@ -1389,7 +1389,7 @@ class _HomeRowForFeedDetailsNotificationState extends State<HomeRowForFeedDetail
             height: 27,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: isShared.feedTypes.length,
+              itemCount: isShared.feedTypes!.length,
               itemBuilder: (context, index) => Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: InkWell(
@@ -1397,7 +1397,7 @@ class _HomeRowForFeedDetailsNotificationState extends State<HomeRowForFeedDetail
                     Navigator.of(context).pushReplacement(MaterialPageRoute(
                         builder: (context) => HomeScreen(
                           index: 1,
-                          feedTypeName: isShared.feedTypes[index].type.name,
+                          feedTypeName: isShared.feedTypes![index].type!.name!,
                         )));
                   },
                   child: Container(
@@ -1408,7 +1408,7 @@ class _HomeRowForFeedDetailsNotificationState extends State<HomeRowForFeedDetail
                       borderRadius: BorderRadius.circular(12.0),
                     ),
                     child: Text(
-                      '${isShared.feedTypes[index].type.name}',
+                      '${isShared.feedTypes![index].type!.name}',
                       style: TextStyle(color: Colors.black, fontSize: 10),
                     ),
                   ),
@@ -1419,22 +1419,22 @@ class _HomeRowForFeedDetailsNotificationState extends State<HomeRowForFeedDetail
         ),
         Padding(
           padding: const EdgeInsets.only(bottom: 8.0, left: 60, right: 15),
-          child: Text(isShared.title, textAlign: TextAlign.left, style: TextStyle(fontSize: 15.0, fontFamily: 'Quicksand', fontWeight: FontWeight.w700, color: MateColors.activeIcons)),
+          child: Text(isShared.title!, textAlign: TextAlign.left, style: TextStyle(fontSize: 15.0, fontFamily: 'Quicksand', fontWeight: FontWeight.w700, color: MateColors.activeIcons)),
         ),
         Padding(
           padding: const EdgeInsets.only(bottom: 12.0, left: 60, right: 15),
           child: Text(
-            isShared.description,
+            isShared.description!,
             style: TextStyle(color: Colors.white, fontSize: 12),
             textAlign: TextAlign.left,
           ),
         ),
-        ..._buildMedia(context, isShared.media),
+        ..._buildMedia(context, isShared.media!),
       ]),
     );
   }
 
-  _showDeleteAlertDialog({@required int feedId, @required int indexVal,}) async {
+  _showDeleteAlertDialog({required int feedId, required int indexVal,}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -1465,7 +1465,7 @@ class _HomeRowForFeedDetailsNotificationState extends State<HomeRowForFeedDetail
     );
   }
 
-  _showFollowAlertDialog({@required int feedId, @required int indexVal,}) async {
+  _showFollowAlertDialog({required int feedId, required int indexVal,}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!

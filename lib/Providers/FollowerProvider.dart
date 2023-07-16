@@ -4,26 +4,26 @@ import 'package:mate_app/Services/FollowerService.dart';
 import 'package:flutter/material.dart';
 
 class FollowerProvider with ChangeNotifier {
-  FollowerService _followerService;
-  Map<String, dynamic> _validationError;
+  FollowerService _followerService = FollowerService();
+  late Map<String, dynamic> _validationError;
   List<User> _followers = [];
   List<User> _followings = [];
 
-  FollowerProvider() {
-    _followerService = FollowerService();
-  }
+  // FollowerProvider() {
+  //   _followerService = FollowerService();
+  // }
 
   String _error = "";
   bool _followingLoader = false;
   bool _followerLoader = false;
 
   ///getters
-  get followingLoaderStatus => _followingLoader;
-  get followerLoaderStatus => _followerLoader;
+  bool get followingLoaderStatus => _followingLoader;
+  bool get followerLoaderStatus => _followerLoader;
 
   get error => _error;
-  get validationErrors => _validationError;
-  get followers => _followers;
+  Map<String, dynamic> get validationErrors => _validationError;
+  List<User> get followers => _followers;
   List<User> get followings => _followings;
 
   set followers(List<User> f) {

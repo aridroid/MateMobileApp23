@@ -5,7 +5,7 @@ import '../../asset/Colors/MateColors.dart';
 import '../../controller/theme_controller.dart';
 
 class MarketPlaceDashboard extends StatefulWidget {
-  const MarketPlaceDashboard({Key key}) : super(key: key);
+  const MarketPlaceDashboard({Key? key}) : super(key: key);
 
   @override
   State<MarketPlaceDashboard> createState() => _MarketPlaceDashboardState();

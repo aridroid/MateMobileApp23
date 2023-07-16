@@ -12,12 +12,12 @@ import 'package:flutter/material.dart';
 
 class AboutProvider with ChangeNotifier {
   /// initialization
-  AboutService _aboutService;
+  AboutService _aboutService = AboutService();
 
   ///constructor
-  AboutProvider() {
-    _aboutService = AboutService();
-  }
+  // AboutProvider() {
+  //   _aboutService = AboutService();
+  // }
 
   Future<void> fetchAboutSection() async {
     notifyListeners();

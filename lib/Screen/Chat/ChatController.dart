@@ -14,13 +14,13 @@ import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ChatController extends GetxController {
-  StudyGroup _studyGroup;
-  FirebaseFirestore _firestore;
-  FirebaseStorage _firebaseStorage;
-  CollectionReference _messageCollectionReference;
-  GetStorage _getStorage;
-  AuthUser _userData;
-  ChatListener chatListener;
+  late StudyGroup _studyGroup;
+  late FirebaseFirestore _firestore;
+  late FirebaseStorage _firebaseStorage;
+  late CollectionReference _messageCollectionReference;
+  late GetStorage _getStorage;
+  late AuthUser _userData;
+  late ChatListener chatListener;
 
   @override
   void onInit() {
@@ -33,7 +33,7 @@ class ChatController extends GetxController {
   }
 
   String getUserId() {
-    return _userData.id;
+    return _userData.id!;
   }
 
   @override
@@ -60,7 +60,7 @@ class ChatController extends GetxController {
       querySnaps.docChanges.forEach((docChange) {
         if (docChange.type == DocumentChangeType.added) {
           var data = docChange.doc.data();
-          Message message = Message.fromMap(data);
+          Message message = Message.fromMap(data!);
           message.id = docChange.doc.id;
           messageList.add(message);
         } else if (docChange.type == DocumentChangeType.modified) {
@@ -71,8 +71,8 @@ class ChatController extends GetxController {
   }
 
   void sendMessage(String msg) async {
-    Message message = Message(_userData.id, _userData.displayName,
-        _userData.photoUrl, msg, Timestamp.now(), TEXT_MESSAGE);
+    Message message = Message(_userData.id!, _userData.displayName!,
+        _userData.photoUrl!, msg, Timestamp.now(), TEXT_MESSAGE);
     await _messageCollectionReference.add(message.toMap()).then((value) {
       print("Message has send");
     });

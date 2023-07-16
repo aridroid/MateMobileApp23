@@ -199,7 +199,7 @@ class _SignupWithEmail2State extends State<SignupWithEmail2> {
                             ),
                             value: is18,
                             onChanged: (newValue) {
-                              is18=newValue;
+                              is18=newValue!;
                               setState(() {});
                             },
                             controlAffinity: ListTileControlAffinity.trailing,
@@ -223,7 +223,7 @@ class _SignupWithEmail2State extends State<SignupWithEmail2> {
                             if(val==false){
                               showEulaPopup(context,"signup");
                             }else{
-                              if(formKey.currentState.validate()){
+                              if(formKey.currentState!.validate()){
                                 if(is18){
                                   setState(() {
                                     isLoadingSignup = true;
@@ -290,8 +290,8 @@ class _SignupWithEmail2State extends State<SignupWithEmail2> {
       ],
     );
   }
-  String validateEmail(String value) {
-    if (value.isEmpty) {
+  String? validateEmail(String? value) {
+    if (value!.isEmpty) {
       return "Email Is Required";
     } else if (!GetUtils.isEmail(value)) {
       return "Invalid Email Id";
@@ -300,8 +300,8 @@ class _SignupWithEmail2State extends State<SignupWithEmail2> {
     }
   }
 
-  String validatePassword(String value) {
-    if(value.isEmpty){
+  String? validatePassword(String? value) {
+    if(value!.isEmpty){
       return "Password is Required";
     }else if(value.length <6){
       return "Password must contain minimum six digit";

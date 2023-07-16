@@ -16,7 +16,7 @@ class GroupDescriptionShowPage extends StatefulWidget {
   final String descriptionCreatorName;
   final String descriptionCreatorImage;
   final int descriptionCreationTime;
-  const GroupDescriptionShowPage({Key key,this.groupId,this.description, this.descriptionCreatorName, this.descriptionCreatorImage, this.descriptionCreationTime,}) : super(key: key);
+  const GroupDescriptionShowPage({Key? key,required this.groupId,required this.description, required this.descriptionCreatorName, required this.descriptionCreatorImage, required this.descriptionCreationTime,}) : super(key: key);
 
   @override
   _GroupDescriptionShowPageState createState() => _GroupDescriptionShowPageState();

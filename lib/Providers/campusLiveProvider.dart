@@ -18,15 +18,15 @@ class CampusLiveProvider extends ChangeNotifier{
   /// initialization
 
   // String campusLivePostData;
-  CampusLiveService _campusLiveService;
+  CampusLiveService _campusLiveService = CampusLiveService();
   String _apiError = "";
   Map<String, dynamic> _validationErrors = Map();
-  CampusLivePostsModel campusLivePostsModelData;
-  CampusLivePostsModel campusLivePostsBookmarkData;
-  CampusLivePostsModel campusLiveByAuthUserData;
-  CampusLivePostLikeModel _likePostData;
-  CampusLivePostBookmarkModel _bookmarkPostData;
-  CampusLiveCommentFetchModel _commentFetchData;
+  late CampusLivePostsModel campusLivePostsModelData;
+  late CampusLivePostsModel campusLivePostsBookmarkData;
+  late CampusLivePostsModel campusLiveByAuthUserData;
+  late CampusLivePostLikeModel _likePostData;
+  late CampusLivePostBookmarkModel _bookmarkPostData;
+  late CampusLiveCommentFetchModel _commentFetchData;
 
   /// initializing loader status
   bool _livePostLoader = false;
@@ -41,9 +41,9 @@ class CampusLiveProvider extends ChangeNotifier{
 
 
   ///constructor
-  CampusLiveProvider() {
-    _campusLiveService = CampusLiveService();
-  }
+  // CampusLiveProvider() {
+  //   _campusLiveService = CampusLiveService();
+  // }
 
 
   ///getters
@@ -189,7 +189,7 @@ class CampusLiveProvider extends ChangeNotifier{
           includeAudio: true,
           // duration: 30,
         ).then((value) async{
-          var filenames = await MultipartFile.fromFile(File(value.path).path,
+          var filenames = await MultipartFile.fromFile(File(value!.path!).path,
               filename: videoFile.path);
 
           FormData formData =
@@ -216,7 +216,7 @@ class CampusLiveProvider extends ChangeNotifier{
   Future<bool> likeAPost(int postId, int index) async {
     error = '';
     _likeAPostLoader = true;
-    campusLivePostsModelData.data.result[index].likeLoader=true;
+    campusLivePostsModelData.data!.result![index].likeLoader=true;
     var data;
     try {
         data = await _campusLiveService.likeAPost(postId);
@@ -226,7 +226,7 @@ class CampusLiveProvider extends ChangeNotifier{
       return false;
     } finally {
       _likeAPostLoader = false;
-      campusLivePostsModelData.data.result[index].likeLoader=false;
+      campusLivePostsModelData.data!.result![index].likeLoader=false;
 
     }
     notifyListeners();
@@ -236,7 +236,7 @@ class CampusLiveProvider extends ChangeNotifier{
   Future bookmarkAPost(int postId, int index) async {
     error = '';
     _bookmarkAPostLoader = true;
-    campusLivePostsModelData.data.result[index].bookmarkLoader=true;
+    campusLivePostsModelData.data!.result![index].bookmarkLoader=true;
     var data;
     try {
         data = await _campusLiveService.bookmarkAPost(postId);
@@ -245,7 +245,7 @@ class CampusLiveProvider extends ChangeNotifier{
       _setError(err);
     } finally {
       _bookmarkAPostLoader = false;
-      campusLivePostsModelData.data.result[index].bookmarkLoader=false;
+      campusLivePostsModelData.data!.result![index].bookmarkLoader=false;
 
     }
     notifyListeners();
@@ -315,7 +315,7 @@ class CampusLiveProvider extends ChangeNotifier{
           includeAudio: true,
           // duration: 30,
         ).then((value) async{
-          var filenames = await MultipartFile.fromFile(File(value.path).path,
+          var filenames = await MultipartFile.fromFile(File(value!.path!).path,
               filename: videoFile.path);
 
           FormData formData =
@@ -389,12 +389,12 @@ class CampusLiveProvider extends ChangeNotifier{
 
 
 
-  Future deleteCommentsOfAPost(int commentId, int index, {bool isReply=false, int replyIndex}) async {
+  Future deleteCommentsOfAPost(int commentId, int index, {bool isReply=false, required int replyIndex}) async {
     error = '';
     if(isReply){
-    _commentFetchData.data.result[index].replies[replyIndex].isDeleting=true;
+    _commentFetchData.data!.result![index].replies![replyIndex].isDeleting=true;
     }else{
-      _commentFetchData.data.result[index].isDeleting=true;
+      _commentFetchData.data!.result![index].isDeleting=true;
     }
     var data;
     try {
@@ -404,9 +404,9 @@ class CampusLiveProvider extends ChangeNotifier{
       return false;
     } finally {
       if(isReply){
-        _commentFetchData.data.result[index].replies[replyIndex].isDeleting=true;
+        _commentFetchData.data!.result![index].replies![replyIndex].isDeleting=true;
       }else{
-        _commentFetchData.data.result[index].isDeleting=true;
+        _commentFetchData.data!.result![index].isDeleting=true;
       }
     }
     return true;
@@ -415,7 +415,7 @@ class CampusLiveProvider extends ChangeNotifier{
 
   Future<bool> deleteAPost(int postId, int index) async {
     error = '';
-    campusLivePostsModelData.data.result[index].deleteLoader=true;
+    campusLivePostsModelData.data!.result![index].deleteLoader=true;
     var data;
     try {
       data = await _campusLiveService.deleteAPost(postId);
@@ -423,7 +423,7 @@ class CampusLiveProvider extends ChangeNotifier{
       _setError(err);
       return false;
     } finally {
-      campusLivePostsModelData.data.result[index].deleteLoader=false;
+      campusLivePostsModelData.data!.result![index].deleteLoader=false;
     }
     return true;
     // notifyListeners();

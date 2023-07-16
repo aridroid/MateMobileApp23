@@ -39,43 +39,43 @@ import 'package:http/http.dart'as http;
 import '../video_thumbnail.dart';
 
 class HomeRow extends StatefulWidget {
-  String previousPageUserId;
-  String previousPageFeedId;
-  String id;
-  int feedId;
-  String title;
-  String start;
-  String end;
-  String calenderDate;
-  String description;
-  String created;
+  String? previousPageUserId;
+  String? previousPageFeedId;
+  String? id;
+  int? feedId;
+  String? title;
+  String? start;
+  String? end;
+  String? calenderDate;
+  String? description;
+  String? created;
   var user;
-  String location;
-  String hyperlinkText;
-  String hyperlink;
-  List media;
-  final List mediaOther;
-  bool bookMarked;
-  bool isFollowed;
-  IsLiked isLiked;
-  bool liked;
-  List feedType;
-  int indexVal;
-  bool isBookmarkedPage;
-  bool isFeedDetailsPage;
-  List<LikeCount> likeCount;
-  int bookmarkCount;
-  int shareCount;
-  int commentCount;
-  IsShared isShared;
-  bool navigateToDetailsPage;
-  String pageType;
-  bool showUniversityTag;
-  final bool isPlaying;
-  final bool isPaused;
-  final bool isLoadingAudio;
-  Function(String url,int index) startAudio;
-  Function(int index) pauseAudio;
+  String? location;
+  String? hyperlinkText;
+  String? hyperlink;
+  List? media;
+  final List? mediaOther;
+  bool? bookMarked;
+  bool? isFollowed;
+  IsLiked? isLiked;
+  bool? liked;
+  List? feedType;
+  int? indexVal;
+  bool? isBookmarkedPage;
+  bool? isFeedDetailsPage;
+  List<LikeCount>? likeCount;
+  int? bookmarkCount;
+  int? shareCount;
+  int? commentCount;
+  IsShared? isShared;
+  bool? navigateToDetailsPage;
+  String? pageType;
+  bool? showUniversityTag;
+  final bool? isPlaying;
+  final bool? isPaused;
+  final bool? isLoadingAudio;
+  Function(String url,int index)? startAudio;
+  Function(int index)? pauseAudio;
 
   HomeRow(
       {this.previousPageUserId,
@@ -118,29 +118,29 @@ class HomeRow extends StatefulWidget {
 }
 
 class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
-  final String id;
-  final int feedId;
-  final String title;
-  final String startTime;
-  final String endTime;
-  final String calenderDate;
-  final String description;
-  final String created;
+  final String? id;
+  final int? feedId;
+  final String? title;
+  final String? startTime;
+  final String? endTime;
+  final String? calenderDate;
+  final String? description;
+  final String? created;
   var user;
-  final String location;
-  final List media;
-  final List mediaOther;
-  final List feedType;
-  bool bookMarked;
-  bool liked;
-  bool showUniversityTag;
-  auth.User _currentUser = auth.FirebaseAuth.instance.currentUser;
+  final String? location;
+  final List? media;
+  final List? mediaOther;
+  final List? feedType;
+  bool? bookMarked;
+  bool? liked;
+  bool? showUniversityTag;
+  auth.User? _currentUser = auth.FirebaseAuth.instance.currentUser;
   _HomeRowState(this.id, this.feedId, this.title, this.feedType, this.startTime, this.endTime, this.calenderDate, this.description, this.created, this.user, this.location, this.media, this.liked, this.bookMarked,this.showUniversityTag, this.mediaOther);
 
-  ClientId _credentials;
-  String token;
+  late ClientId _credentials;
+  late String token;
   ThemeController themeController = Get.find<ThemeController>();
-  FeedProvider feedProvider;
+  late FeedProvider feedProvider;
 
   @override
   void initState() {
@@ -157,7 +157,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
   }
 
   @override
@@ -234,13 +234,13 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                   event.description = description; //Setting summary of object
 
                   gCal.EventDateTime start = new gCal.EventDateTime(); //Setting start time
-                  start.dateTime = DateTime.parse(calenderDate).toLocal();
+                  start.dateTime = DateTime.parse(calenderDate!).toLocal();
                   start.timeZone = "GMT+05:00";
                   event.start = start;
 
                   gCal.EventDateTime end = new gCal.EventDateTime(); //setting end time
                   end.timeZone = "GMT+05:00";
-                  end.dateTime = DateTime.parse(calenderDate).toLocal();
+                  end.dateTime = DateTime.parse(calenderDate!).toLocal();
                   event.end = end;
 
                   insertEvent(event);
@@ -248,17 +248,17 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => Chat(peerUuid: user.id, currentUserId: _currentUser.uid, peerId: user.firebaseUid, peerAvatar: user.photoUrl, peerName: user.name)));
+                          builder: (context) => Chat(peerUuid: user.id, currentUserId: _currentUser!.uid, peerId: user.firebaseUid, peerAvatar: user.photoUrl, peerName: user.name)));
                 } else if (index == 2) {
-                  _showFollowAlertDialog(feedId: widget.feedId, indexVal: widget.indexVal);
+                  _showFollowAlertDialog(feedId: widget.feedId!, indexVal: widget.indexVal!);
                 }else if (index == 4) {
-                  _showDeleteAlertDialog(feedId: widget.feedId, indexVal: widget.indexVal);
+                  _showDeleteAlertDialog(feedId: widget.feedId!, indexVal: widget.indexVal!);
                 } else if (index == 5) {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => ReportPage(
-                          moduleId: widget.feedId,
+                          moduleId: widget.feedId!,
                           moduleType: "Feed",
                         ),
                       ));
@@ -270,10 +270,10 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                     description: widget.description,
                     link: widget.hyperlink,
                     linkText: widget.hyperlinkText,
-                    imageUrl: widget.media.isNotEmpty?widget.media[0].url:"",
+                    imageUrl: widget.media!.isNotEmpty?widget.media![0].url:"",
                     feedType: widget.feedType,
-                    videoUrl: widget.mediaOther.isNotEmpty? widget.mediaOther[0].url.contains(".mp4")?widget.mediaOther[0].url:"":"",
-                    audioUrl: widget.mediaOther.isNotEmpty? !widget.mediaOther[0].url.contains(".mp4")?widget.mediaOther[0].url:"":"",
+                    videoUrl: widget.mediaOther!.isNotEmpty? widget.mediaOther![0].url.contains(".mp4")?widget.mediaOther![0].url:"":"",
+                    audioUrl: widget.mediaOther!.isNotEmpty? !widget.mediaOther![0].url.contains(".mp4")?widget.mediaOther![0].url:"":"",
                   ),));
                 }else if (index == 7) {
                   // Map<String, dynamic> body;
@@ -320,7 +320,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                   value: 2,
                   height: 40,
                   child: Text(
-                    widget.isFollowed?"Unfollow Post":"Follow Post",
+                    widget.isFollowed!?"Unfollow Post":"Follow Post",
                     textAlign: TextAlign.start,
                     style: TextStyle(
                       color: themeController.isDarkMode?Colors.white:Colors.black,
@@ -330,7 +330,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                     ),
                   ),
                 ),
-                (!widget.isFeedDetailsPage && widget.user.id != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user.id)) ?
+                (!widget.isFeedDetailsPage! && widget.user.id != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user.id)) ?
                 PopupMenuItem(
                   value: 4,
                   height: 40,
@@ -368,7 +368,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                     ),
                   ),
                 ),
-                (!widget.isFeedDetailsPage && widget.user.id != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user.id)) ?
+                (!widget.isFeedDetailsPage! && widget.user.id != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user.id)) ?
                 PopupMenuItem(
                   value: 6,
                   height: 40,
@@ -416,7 +416,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
               color: themeController.isDarkMode?MateColors.dividerDark:MateColors.dividerLight,
             ),
           ),
-          if(showUniversityTag)
+          if(showUniversityTag!)
           Container(
             height: 28.0,
             margin: EdgeInsets.only(left: 16,top: 6,bottom: 2,right: 16),
@@ -442,12 +442,12 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
             margin: EdgeInsets.only(left: 16,top: 6),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: feedType.length,
+              itemCount: feedType!.length,
               itemBuilder: (context, index) => Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: InkWell(
                   onTap: () {
-                    final page = FeedSearch(text: feedType[index].type.name,);
+                    final page = FeedSearch(text: feedType![index].type.name,);
                     Navigator.push(context,MaterialPageRoute(builder: (context) => page ));
                   },
                   child: Container(
@@ -458,7 +458,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 15,right: 15),
                       child: Center(
-                        child: Text("${feedType[index].type.name}",
+                        child: Text("${feedType![index].type.name}",
                           style: TextStyle(
                             fontFamily: "Poppins",
                             fontSize: 15,
@@ -474,11 +474,11 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
           ),
           InkWell(
             onTap: () async{
-              if (widget.navigateToDetailsPage) {
+              if (widget.navigateToDetailsPage!) {
                await Navigator.push(context,
                     MaterialPageRoute(
                       builder: (context) => FeedDetailsFullScreen(
-                          isFeedDetailsPage: widget.isFeedDetailsPage,
+                          isFeedDetailsPage: widget.isFeedDetailsPage!,
                           id: widget.id,
                           feedId: widget.feedId,
                           title: widget.title,
@@ -513,7 +513,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                 Padding(
                   padding: EdgeInsets.only(left: 16,top: 20),
                   child: buildEmojiAndText(
-                    content: title,
+                    content: title!,
                     textStyle: TextStyle(
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.w700,
@@ -528,9 +528,9 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
           ),
           Padding(
             padding: EdgeInsets.only(left: 16,top: 10,right: 10),
-            child: REGEX_EMOJI.allMatches(description).isNotEmpty?
+            child: REGEX_EMOJI.allMatches(description!).isNotEmpty?
             buildEmojiAndText(
-              content: description,
+              content: description!,
               textStyle: TextStyle(
                 fontFamily: 'Poppins',
                 fontWeight: FontWeight.w400,
@@ -548,7 +548,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                 else
                   throw "Could not launch ${link.url}";
               },
-              text: description,
+              text: description!,
               style: TextStyle(
                 fontSize: 14,
                 fontFamily: 'Poppins',
@@ -569,8 +569,8 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
             onTap: () async{
-              if (await canLaunch(widget.hyperlink))
-                await launch(widget.hyperlink);
+              if (await canLaunch(widget.hyperlink!))
+                await launch(widget.hyperlink!);
               else
                 Fluttertoast.showToast(msg: " Could not launch given URL '${widget.hyperlink}'", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
               throw "Could not launch ${widget.hyperlink}";
@@ -578,7 +578,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
             child: Padding(
               padding: EdgeInsets.only(left: 16,top: 10,right: 10),
               child: Text(
-                widget.hyperlinkText,
+                widget.hyperlinkText!,
                 style: TextStyle(
                   fontSize: 14,
                   fontFamily: 'Poppins',
@@ -587,9 +587,9 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
               ),
             ),
           ):SizedBox(),
-          ..._buildMedia(context, media),
-          ..._buildMediaOther(context, mediaOther),
-          widget.isShared != null ? _sharedWidget(widget.isShared) : SizedBox(),
+          ..._buildMedia(context, media!),
+          ..._buildMediaOther(context, mediaOther!),
+          widget.isShared != null ? _sharedWidget(widget.isShared!) : SizedBox(),
           location!=null?
           Padding(
             padding: const EdgeInsets.only(top: 16.0, left: 16, bottom: 5),
@@ -622,114 +622,114 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                 InkWell(
                   onTap: (){
                     if(widget.pageType == "TimeLineMyCampus"){
-                      if(feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.feedListMyCampus[widget.indexVal!].likeCount![0].count!=0 || feedProvider.feedListMyCampus[widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }else if(widget.pageType == "TimeLineGlobal"){
-                      if(feedProvider.feedList[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedList[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.feedList[widget.indexVal!].likeCount![0].count!=0 || feedProvider.feedList[widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }else if(widget.pageType == "User"){
-                      if(feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![0].count!=0 || feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }else if(widget.pageType == "Bookmark"){
-                      if(feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count!=0 || feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![0].count!=0 || feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }else if(widget.pageType == "Search"){
-                      if(feedProvider.feedItem[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedItem[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.feedItem[widget.indexVal!].likeCount![0].count!=0 || feedProvider.feedItem[widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }else if(widget.pageType == "BookmarkMyCampus"){
-                      if(feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count!=0 || feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![0].count!=0 || feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }
                   },
                   onDoubleTap: ()async{
                     print(widget.pageType);
-                    String response = await FeedService().likeFeed(feedId, 0, token);
+                    String response = await FeedService().likeFeed(feedId!, 0, token);
                     if(response == "Feed Liked successfully"){
                       if(widget.pageType == "TimeLineMyCampus"){
-                        feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count++;
-                        feedProvider.feedListMyCampus[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                        feedProvider.feedListMyCampus[widget.indexVal!].likeCount![0].count++;
+                        feedProvider.feedListMyCampus[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
                       }else if(widget.pageType == "TimeLineGlobal"){
-                        feedProvider.feedList[widget.indexVal].likeCount[0].count++;
-                        feedProvider.feedList[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                        feedProvider.feedList[widget.indexVal!].likeCount![0].count++;
+                        feedProvider.feedList[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
                       }else if(widget.pageType == "User"){
-                        feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count++;
-                        feedProvider.feedItemListOfUser[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                        feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![0].count++;
+                        feedProvider.feedItemListOfUser[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
                       }else if(widget.pageType == "Bookmark"){
-                        feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count++;
-                        feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                        feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![0].count++;
+                        feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
                       }else if(widget.pageType == "Search"){
-                        feedProvider.feedItem[widget.indexVal].likeCount[0].count++;
-                        feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                        feedProvider.feedItem[widget.indexVal!].likeCount![0].count++;
+                        feedProvider.feedItem[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
                       }else if(widget.pageType == "BookmarkMyCampus"){
-                        feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count++;
-                        feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                        feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![0].count++;
+                        feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
                       }
                     }else if(response == 'Feed Unliked successfully'){
                       if(widget.pageType == "TimeLineMyCampus"){
-                        if(feedProvider.feedListMyCampus[widget.indexVal].isLiked.emojiValue==0){
-                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count--;
-                          feedProvider.feedListMyCampus[widget.indexVal].isLiked = null;
+                        if(feedProvider.feedListMyCampus[widget.indexVal!].isLiked!.emojiValue==0){
+                          feedProvider.feedListMyCampus[widget.indexVal!].likeCount![0].count--;
+                          feedProvider.feedListMyCampus[widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 0, token);
-                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count++;
-                          feedProvider.feedListMyCampus[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
-                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count--;
+                          await FeedService().likeFeed(feedId!, 0, token);
+                          feedProvider.feedListMyCampus[widget.indexVal!].likeCount![0].count++;
+                          feedProvider.feedListMyCampus[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.feedListMyCampus[widget.indexVal!].likeCount![1].count--;
                         }
                       }else if(widget.pageType == "TimeLineGlobal"){
-                        if(feedProvider.feedList[widget.indexVal].isLiked.emojiValue==0){
-                          feedProvider.feedList[widget.indexVal].likeCount[0].count--;
-                          feedProvider.feedList[widget.indexVal].isLiked = null;
+                        if(feedProvider.feedList[widget.indexVal!].isLiked!.emojiValue==0){
+                          feedProvider.feedList[widget.indexVal!].likeCount![0].count--;
+                          feedProvider.feedList[widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 0, token);
-                          feedProvider.feedList[widget.indexVal].likeCount[0].count++;
-                          feedProvider.feedList[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
-                          feedProvider.feedList[widget.indexVal].likeCount[1].count--;
+                          await FeedService().likeFeed(feedId!, 0, token);
+                          feedProvider.feedList[widget.indexVal!].likeCount![0].count++;
+                          feedProvider.feedList[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.feedList[widget.indexVal!].likeCount![1].count--;
                         }
                       }else if(widget.pageType == "User"){
-                        if(feedProvider.feedItemListOfUser[widget.indexVal].isLiked.emojiValue==0){
-                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count--;
-                          feedProvider.feedItemListOfUser[widget.indexVal].isLiked = null;
+                        if(feedProvider.feedItemListOfUser[widget.indexVal!].isLiked!.emojiValue==0){
+                          feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![0].count--;
+                          feedProvider.feedItemListOfUser[widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 0, token);
-                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count++;
-                          feedProvider.feedItemListOfUser[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
-                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count--;
+                          await FeedService().likeFeed(feedId!, 0, token);
+                          feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![0].count++;
+                          feedProvider.feedItemListOfUser[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![1].count--;
                         }
                       }else if(widget.pageType == "Bookmark"){
-                        if(feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked.emojiValue==0){
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count--;
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = null;
+                        if(feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].isLiked!.emojiValue==0){
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![0].count--;
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 0, token);
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count++;
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count--;
+                          await FeedService().likeFeed(feedId!, 0, token);
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![0].count++;
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![1].count--;
                         }
                       }else if(widget.pageType == "Search"){
-                        if(feedProvider.feedItem[widget.indexVal].isLiked.emojiValue==0){
-                          feedProvider.feedItem[widget.indexVal].likeCount[0].count--;
-                          feedProvider.feedItem[widget.indexVal].isLiked = null;
+                        if(feedProvider.feedItem[widget.indexVal!].isLiked!.emojiValue==0){
+                          feedProvider.feedItem[widget.indexVal!].likeCount![0].count--;
+                          feedProvider.feedItem[widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 0, token);
-                          feedProvider.feedItem[widget.indexVal].likeCount[0].count++;
-                          feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
-                          feedProvider.feedItem[widget.indexVal].likeCount[1].count--;
+                          await FeedService().likeFeed(feedId!, 0, token);
+                          feedProvider.feedItem[widget.indexVal!].likeCount![0].count++;
+                          feedProvider.feedItem[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.feedItem[widget.indexVal!].likeCount![1].count--;
                         }
                       }else if(widget.pageType == "BookmarkMyCampus"){
-                        if(feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked.emojiValue==0){
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count--;
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = null;
+                        if(feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].isLiked!.emojiValue==0){
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![0].count--;
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 0, token);
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count++;
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count--;
+                          await FeedService().likeFeed(feedId!, 0, token);
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![0].count++;
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![1].count--;
                         }
                       }
                     }
@@ -758,18 +758,18 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                         ),
                         Text(
                           widget.pageType == "TimeLineMyCampus"?
-                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count.toString():
+                          feedProvider.feedListMyCampus[widget.indexVal!].likeCount![0].count.toString():
                           widget.pageType == "TimeLineGlobal"?
-                          feedProvider.feedList[widget.indexVal].likeCount[0].count.toString():
+                          feedProvider.feedList[widget.indexVal!].likeCount![0].count.toString():
                           widget.pageType == "User"?
-                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count.toString():
+                          feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![0].count.toString():
                           widget.pageType == "Bookmark"?
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count.toString():
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![0].count.toString():
                           widget.pageType == "BookmarkMyCampus"?
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count.toString():
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![0].count.toString():
                           widget.pageType == "Search"?
-                          feedProvider.feedItem[widget.indexVal].likeCount[0].count.toString():
-                          widget.likeCount[0].count.toString(),
+                          feedProvider.feedItem[widget.indexVal!].likeCount![0].count.toString():
+                          widget.likeCount![0].count.toString(),
                           style: TextStyle(
                             fontFamily: "Poppins",
                             fontSize: 15,
@@ -783,114 +783,114 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                 InkWell(
                   onTap: (){
                     if(widget.pageType == "TimeLineMyCampus"){
-                      if(feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.feedListMyCampus[widget.indexVal!].likeCount![0].count!=0 || feedProvider.feedListMyCampus[widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }else if(widget.pageType == "TimeLineGlobal"){
-                      if(feedProvider.feedList[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedList[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.feedList[widget.indexVal!].likeCount![0].count!=0 || feedProvider.feedList[widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }else if(widget.pageType == "User"){
-                      if(feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![0].count!=0 || feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }else if(widget.pageType == "Bookmark"){
-                      if(feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count!=0 || feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![0].count!=0 || feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }else if(widget.pageType == "Search"){
-                      if(feedProvider.feedItem[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedItem[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.feedItem[widget.indexVal!].likeCount![0].count!=0 || feedProvider.feedItem[widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }else if(widget.pageType == "BookmarkMyCampus"){
-                      if(feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count!=0 || feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![0].count!=0 || feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }
                   },
                   onDoubleTap: ()async{
                     print(widget.pageType);
-                    String response = await FeedService().likeFeed(feedId, 1, token);
+                    String response = await FeedService().likeFeed(feedId!, 1, token);
                     if(response == "Feed Liked successfully"){
                       if(widget.pageType == "TimeLineMyCampus"){
-                        feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count++;
-                        feedProvider.feedListMyCampus[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                        feedProvider.feedListMyCampus[widget.indexVal!].likeCount![1].count++;
+                        feedProvider.feedListMyCampus[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
                       }else if(widget.pageType == "TimeLineGlobal"){
-                        feedProvider.feedList[widget.indexVal].likeCount[1].count++;
-                        feedProvider.feedList[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                        feedProvider.feedList[widget.indexVal!].likeCount![1].count++;
+                        feedProvider.feedList[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
                       }else if(widget.pageType == "User"){
-                        feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count++;
-                        feedProvider.feedItemListOfUser[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                        feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![1].count++;
+                        feedProvider.feedItemListOfUser[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
                       }else if(widget.pageType == "Bookmark"){
-                        feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count++;
-                        feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                        feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![1].count++;
+                        feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
                       }else if(widget.pageType == "Search"){
-                        feedProvider.feedItem[widget.indexVal].likeCount[1].count++;
-                        feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                        feedProvider.feedItem[widget.indexVal!].likeCount![1].count++;
+                        feedProvider.feedItem[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
                       }else if(widget.pageType == "BookmarkMyCampus"){
-                        feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count++;
-                        feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                        feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![1].count++;
+                        feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
                       }
                     }else if(response == 'Feed Unliked successfully'){
                       if(widget.pageType == "TimeLineMyCampus"){
-                        if(feedProvider.feedListMyCampus[widget.indexVal].isLiked.emojiValue==1){
-                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count--;
-                          feedProvider.feedListMyCampus[widget.indexVal].isLiked = null;
+                        if(feedProvider.feedListMyCampus[widget.indexVal!].isLiked!.emojiValue==1){
+                          feedProvider.feedListMyCampus[widget.indexVal!].likeCount![1].count--;
+                          feedProvider.feedListMyCampus[widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 1, token);
-                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count++;
-                          feedProvider.feedListMyCampus[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
-                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count--;
+                          await FeedService().likeFeed(feedId!, 1, token);
+                          feedProvider.feedListMyCampus[widget.indexVal!].likeCount![1].count++;
+                          feedProvider.feedListMyCampus[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.feedListMyCampus[widget.indexVal!].likeCount![0].count--;
                         }
                       }else if(widget.pageType == "TimeLineGlobal"){
-                        if(feedProvider.feedList[widget.indexVal].isLiked.emojiValue==1){
-                          feedProvider.feedList[widget.indexVal].likeCount[1].count--;
-                          feedProvider.feedList[widget.indexVal].isLiked = null;
+                        if(feedProvider.feedList[widget.indexVal!].isLiked!.emojiValue==1){
+                          feedProvider.feedList[widget.indexVal!].likeCount![1].count--;
+                          feedProvider.feedList[widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 1, token);
-                          feedProvider.feedList[widget.indexVal].likeCount[1].count++;
-                          feedProvider.feedList[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
-                          feedProvider.feedList[widget.indexVal].likeCount[0].count--;
+                          await FeedService().likeFeed(feedId!, 1, token);
+                          feedProvider.feedList[widget.indexVal!].likeCount![1].count++;
+                          feedProvider.feedList[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.feedList[widget.indexVal!].likeCount![0].count--;
                         }
                       }else if(widget.pageType == "User"){
-                        if(feedProvider.feedItemListOfUser[widget.indexVal].isLiked.emojiValue==1){
-                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count--;
-                          feedProvider.feedItemListOfUser[widget.indexVal].isLiked = null;
+                        if(feedProvider.feedItemListOfUser[widget.indexVal!].isLiked!.emojiValue==1){
+                          feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![1].count--;
+                          feedProvider.feedItemListOfUser[widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 1, token);
-                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count++;
-                          feedProvider.feedItemListOfUser[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
-                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count--;
+                          await FeedService().likeFeed(feedId!, 1, token);
+                          feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![1].count++;
+                          feedProvider.feedItemListOfUser[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![0].count--;
                         }
                       }else if(widget.pageType == "Bookmark"){
-                        if(feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked.emojiValue==1){
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count--;
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = null;
+                        if(feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].isLiked!.emojiValue==1){
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![1].count--;
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 1, token);
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count++;
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count--;
+                          await FeedService().likeFeed(feedId!, 1, token);
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![1].count++;
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![0].count--;
                         }
                       }else if(widget.pageType == "Search"){
-                        if(feedProvider.feedItem[widget.indexVal].isLiked.emojiValue==1){
-                          feedProvider.feedItem[widget.indexVal].likeCount[1].count--;
-                          feedProvider.feedItem[widget.indexVal].isLiked = null;
+                        if(feedProvider.feedItem[widget.indexVal!].isLiked!.emojiValue==1){
+                          feedProvider.feedItem[widget.indexVal!].likeCount![1].count--;
+                          feedProvider.feedItem[widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 1, token);
-                          feedProvider.feedItem[widget.indexVal].likeCount[1].count++;
-                          feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
-                          feedProvider.feedItem[widget.indexVal].likeCount[0].count--;
+                          await FeedService().likeFeed(feedId!, 1, token);
+                          feedProvider.feedItem[widget.indexVal!].likeCount![1].count++;
+                          feedProvider.feedItem[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.feedItem[widget.indexVal!].likeCount![0].count--;
                         }
                       }else if(widget.pageType == "BookmarkMyCampus"){
-                        if(feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked.emojiValue==1){
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count--;
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = null;
+                        if(feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].isLiked!.emojiValue==1){
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![1].count--;
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 1, token);
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count++;
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count--;
+                          await FeedService().likeFeed(feedId!, 1, token);
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![1].count++;
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![0].count--;
                         }
                       }
                     }
@@ -919,18 +919,18 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                         ),
                         Text(
                           widget.pageType == "TimeLineMyCampus"?
-                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count.toString():
+                          feedProvider.feedListMyCampus[widget.indexVal!].likeCount![1].count.toString():
                           widget.pageType == "TimeLineGlobal"?
-                          feedProvider.feedList[widget.indexVal].likeCount[1].count.toString():
+                          feedProvider.feedList[widget.indexVal!].likeCount![1].count.toString():
                           widget.pageType == "User"?
-                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count.toString():
+                          feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![1].count.toString():
                           widget.pageType == "Bookmark"?
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count.toString():
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![1].count.toString():
                           widget.pageType == "BookmarkMyCampus"?
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count.toString():
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![1].count.toString():
                           widget.pageType == "Search"?
-                          feedProvider.feedItem[widget.indexVal].likeCount[1].count.toString():
-                          widget.likeCount[0].count.toString(),
+                          feedProvider.feedItem[widget.indexVal!].likeCount![1].count.toString():
+                          widget.likeCount![0].count.toString(),
                           style: TextStyle(
                             fontFamily: "Poppins",
                             fontSize: 15,
@@ -951,7 +951,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                   child: InkWell(
                     onTap: (){
                       Navigator.push(context, MaterialPageRoute(builder: (context) =>
-                          FeedComments(feedIndex: widget.indexVal, feedId: feedId,)));
+                          FeedComments(feedIndex: widget.indexVal!, feedId: feedId!,)));
                     },
                     child: Container(
                       height: 39,
@@ -987,8 +987,8 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                 Consumer<FeedProvider>(
                   builder: (context, value, child) {
                     if (value.feedItemsBookmarkData != null) {
-                      if (widget.isBookmarkedPage && !bookMarked) {
-                        value.bookmarkByUserData.data.feeds.removeAt(widget.indexVal);
+                      if (widget.isBookmarkedPage! && !bookMarked!) {
+                        value.bookmarkByUserData!.data!.feeds!.removeAt(widget.indexVal!);
                         Future.delayed(Duration.zero, () => Provider.of<FeedProvider>(context, listen: false).allBookmarkedFeed());
                       }
                     }
@@ -996,9 +996,9 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                       padding: const EdgeInsets.only(right: 16,left: 10,top: 25),
                       child: InkWell(
                         onTap: (){
-                          Provider.of<FeedProvider>(context, listen: false).bookmarkAFeed(feedId, widget.indexVal);
+                          Provider.of<FeedProvider>(context, listen: false).bookmarkAFeed(feedId!, widget.indexVal!);
                           setState(() {
-                            bookMarked=!bookMarked;
+                            bookMarked=!bookMarked!;
                           });
                         },
                         child: Container(
@@ -1008,7 +1008,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                             color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
                             shape: BoxShape.circle,
                           ),
-                          child: bookMarked?
+                          child: bookMarked!?
                           Padding(
                             padding: const EdgeInsets.all(11.0),
                             child: Image.asset("lib/asset/icons/bookmarkColor.png",
@@ -1094,7 +1094,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
               GestureDetector(
                 onTap: (){
                   if(widget.isLoadingAudio==false){
-                    widget.isPlaying ? widget.pauseAudio(widget.indexVal): widget.startAudio(mediaOther[i].url,widget.indexVal);
+                    widget.isPlaying! ? widget.pauseAudio!(widget.indexVal!): widget.startAudio!(mediaOther[i].url,widget.indexVal!);
                   }
                 },
                 child: Container(
@@ -1106,7 +1106,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                     color: themeController.isDarkMode?Colors.white.withOpacity(0.23):Colors.white.withOpacity(0.5),
                   ),
                   alignment: Alignment.center,
-                  child: widget.isLoadingAudio?
+                  child: widget.isLoadingAudio!?
                   Center(
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
@@ -1114,7 +1114,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                     ),
                   ):
                   Icon(
-                    widget.isPlaying?
+                    widget.isPlaying!?
                     Icons.pause:Icons.play_arrow,
                     size: 25,
                     color: themeController.isDarkMode?Color(0xFF67AE8C):Color(0xFF049571),
@@ -1138,22 +1138,22 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
           contentPadding: EdgeInsets.fromLTRB(12, 4, 10, 0),
           leading: InkWell(
             onTap: () {
-              if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == isShared.user.id) {
+              if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == isShared.user!.id) {
                 Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
               } else {
                 Navigator.of(context).pushNamed(UserProfileScreen.routeName,
-                    arguments: {"id": isShared.user.id, "name": isShared.user.name, "photoUrl": isShared.user.photoUrl, "firebaseUid": isShared.user.firebaseUid});
+                    arguments: {"id": isShared.user!.id, "name": isShared.user!.name, "photoUrl": isShared.user!.photoUrl, "firebaseUid": isShared.user!.firebaseUid});
               }
             },
-            child: isShared.user.photoUrl.length == 0
+            child: isShared.user!.photoUrl!.length == 0
                 ? ClipOval(
                     child: Text(
-                      isShared.user.name[0],
+                      isShared.user!.name![0],
                     ),
                   )
                 : ClipOval(
                     child: Image.network(
-                      isShared.user.photoUrl,
+                      isShared.user!.photoUrl!,
                       height: 45,
                       width: 38,
                       fit: BoxFit.cover,
@@ -1162,18 +1162,18 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
           ),
           title: InkWell(
               onTap: () {
-                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == isShared.user.id) {
+                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == isShared.user!.id) {
                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                 } else {
                   Navigator.of(context).pushNamed(UserProfileScreen.routeName,
-                      arguments: {"id": isShared.user.id, "name": isShared.user.name, "photoUrl": isShared.user.photoUrl, "firebaseUid": isShared.user.firebaseUid});
+                      arguments: {"id": isShared.user!.id, "name": isShared.user!.name, "photoUrl": isShared.user!.photoUrl, "firebaseUid": isShared.user!.firebaseUid});
                 }
               },
               child: Row(
                 children: [
                   Expanded(
                     child: Text(
-                      isShared.user.name,
+                      isShared.user!.name!,
                       style: TextStyle(fontFamily: 'Quicksand', color: Colors.white, fontSize: 13.2),
                       overflow: TextOverflow.clip,
                     ),
@@ -1188,7 +1188,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
             height: 27,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: isShared.feedTypes.length,
+              itemCount: isShared.feedTypes!.length,
               itemBuilder: (context, index) => Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: InkWell(
@@ -1196,7 +1196,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                     Navigator.of(context).pushReplacement(MaterialPageRoute(
                         builder: (context) => HomeScreen(
                               index: 1,
-                              feedTypeName: isShared.feedTypes[index].type.name,
+                              feedTypeName: isShared.feedTypes![index].type!.name!,
                             )));
                   },
                   child: Container(
@@ -1207,7 +1207,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                       borderRadius: BorderRadius.circular(12.0),
                     ),
                     child: Text(
-                      '${isShared.feedTypes[index].type.name}',
+                      '${isShared.feedTypes![index].type!.name}',
                       style: TextStyle(color: Colors.black, fontSize: 10),
                     ),
                   ),
@@ -1218,22 +1218,22 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
         ),
         Padding(
           padding: const EdgeInsets.only(bottom: 8.0, left: 60, right: 15),
-          child: Text(isShared.title, textAlign: TextAlign.left, style: TextStyle(fontSize: 15.0, fontFamily: 'Quicksand', fontWeight: FontWeight.w700, color: MateColors.activeIcons)),
+          child: Text(isShared.title!, textAlign: TextAlign.left, style: TextStyle(fontSize: 15.0, fontFamily: 'Quicksand', fontWeight: FontWeight.w700, color: MateColors.activeIcons)),
         ),
         Padding(
           padding: const EdgeInsets.only(bottom: 12.0, left: 60, right: 15),
           child: Text(
-            isShared.description,
+            isShared.description!,
             style: TextStyle(color: Colors.white, fontSize: 12),
             textAlign: TextAlign.left,
           ),
         ),
-        ..._buildMedia(context, isShared.media),
+        ..._buildMedia(context, isShared.media!),
       ]),
     );
   }
 
-  _showDeleteAlertDialog({@required int feedId, @required int indexVal,}) async {
+  _showDeleteAlertDialog({required int feedId, required int indexVal,}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -1251,7 +1251,7 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
                   Future.delayed(Duration(seconds: 0), () {
                     // Provider.of<FeedProvider>(context, listen: false).fetchCampusLivePostList();
                     // Navigator.pop(context);
-                    if (widget.isBookmarkedPage) {
+                    if (widget.isBookmarkedPage!) {
                       Navigator.pop(context);
                       feedProvider.allBookmarkedFeed();
                     } else {
@@ -1279,14 +1279,14 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
     );
   }
 
-  _showFollowAlertDialog({@required int feedId, @required int indexVal,}) async {
+  _showFollowAlertDialog({required int feedId, required int indexVal,}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
           title: new Text("Are you sure?"),
-          content: new Text(widget.isFollowed?"You want to Unfollow this post":"You want to follow this post"),
+          content: new Text(widget.isFollowed!?"You want to Unfollow this post":"You want to follow this post"),
           actions: <Widget>[
             CupertinoDialogAction(
               isDefaultAction: true,
@@ -1298,26 +1298,26 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
               )
                   :Text("Yes"),
               onPressed: () async {
-                if(widget.isFollowed){
+                if(widget.isFollowed!){
                   Map<String, dynamic> body = {"post_id": widget.feedId, "post_type": "Feed"};
-                  bool unFollowDone = await feedProvider.unFollowAFeed(body, widget.feedId);
+                  bool unFollowDone = await feedProvider.unFollowAFeed(body, widget.feedId!);
                   if (unFollowDone) {
-                    if (widget.isBookmarkedPage) {
-                      feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isFollowed=false;
+                    if (widget.isBookmarkedPage!) {
+                      feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].isFollowed=false;
                     }else{
-                      feedProvider.feedList[widget.indexVal].isFollowed=false;
+                      feedProvider.feedList[widget.indexVal!].isFollowed=false;
                     }
                     widget.isFollowed=false;
                     Navigator.pop(context);
                   }
                 }else{
                   Map<String, dynamic> body = {"post_id": widget.feedId, "post_type": "Feed"};
-                  bool followDone = await feedProvider.followAFeed(body, widget.feedId);
+                  bool followDone = await feedProvider.followAFeed(body, widget.feedId!);
                   if (followDone) {
-                    if (widget.isBookmarkedPage) {
-                      feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isFollowed=true;
+                    if (widget.isBookmarkedPage!) {
+                      feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].isFollowed=true;
                     }else{
-                      feedProvider.feedList[widget.indexVal].isFollowed=true;
+                      feedProvider.feedList[widget.indexVal!].isFollowed=true;
                     }
                     widget.isFollowed=true;
                     Navigator.pop(context);
@@ -1367,37 +1367,37 @@ class _HomeRowState extends State<HomeRow> with SingleTickerProviderStateMixin {
 }
 
 class HomeRowForFeedDetails extends StatefulWidget {
-  String previousPageUserId;
-  String previousPageFeedId;
-  String id;
-  int feedId;
-  String title;
-  String start;
-  String end;
-  String calenderDate;
-  String description;
-  String created;
+  String? previousPageUserId;
+  String? previousPageFeedId;
+  String? id;
+  int? feedId;
+  String? title;
+  String? start;
+  String? end;
+  String? calenderDate;
+  String? description;
+  String? created;
   var user;
-  String location;
-  String hyperlinkText;
-  String hyperlink;
-  List media;
-  final List mediaOther;
-  bool bookMarked;
-  bool isFollowed;
-  IsLiked isLiked;
-  bool liked;
-  List feedType;
-  int indexVal;
-  bool isBookmarkedPage;
-  bool isFeedDetailsPage;
-  List<LikeCount> likeCount;
-  int bookmarkCount;
-  int shareCount;
-  int commentCount;
-  IsShared isShared;
-  bool navigateToDetailsPage;
-  String pageType;
+  String? location;
+  String? hyperlinkText;
+  String? hyperlink;
+  List? media;
+  final List? mediaOther;
+  bool? bookMarked;
+  bool? isFollowed;
+  IsLiked? isLiked;
+  bool? liked;
+  List? feedType;
+  int? indexVal;
+  bool? isBookmarkedPage;
+  bool? isFeedDetailsPage;
+  List<LikeCount>? likeCount;
+  int? bookmarkCount;
+  int? shareCount;
+  int? commentCount;
+  IsShared? isShared;
+  bool? navigateToDetailsPage;
+  String? pageType;
 
   HomeRowForFeedDetails(
       {this.previousPageUserId,
@@ -1437,29 +1437,29 @@ class HomeRowForFeedDetails extends StatefulWidget {
 }
 
 class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with SingleTickerProviderStateMixin {
-  final String id;
-  final int feedId;
-  final String title;
-  final String startTime;
-  final String endTime;
-  final String calenderDate;
-  final String description;
-  final String created;
+  final String? id;
+  final int? feedId;
+  final String? title;
+  final String? startTime;
+  final String? endTime;
+  final String? calenderDate;
+  final String? description;
+  final String? created;
   var user;
-  final String location;
-  final List media;
-  final List mediaOther;
-  final List feedType;
-  bool bookMarked;
-  bool liked;
-  auth.User _currentUser = auth.FirebaseAuth.instance.currentUser;
+  final String? location;
+  final List? media;
+  final List? mediaOther;
+  final List? feedType;
+  bool? bookMarked;
+  bool? liked;
+  auth.User? _currentUser = auth.FirebaseAuth.instance.currentUser;
   _HomeRowForFeedDetailsState(this.id, this.feedId, this.title, this.feedType, this.startTime, this.endTime, this.calenderDate, this.description, this.created, this.user, this.location, this.media, this.liked, this.bookMarked, this.mediaOther);
 
-  ClientId _credentials;
-  IsLiked isLiked;
+  late ClientId _credentials;
+  IsLiked? isLiked;
   ThemeController themeController = Get.find<ThemeController>();
-  String token;
-  FeedProvider feedProvider;
+  late String token;
+  late FeedProvider feedProvider;
 
   @override
   void initState() {
@@ -1477,7 +1477,7 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
   }
 
   final audioPlayer = AudioPlayer();
@@ -1683,13 +1683,13 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                     event.description = description; //Setting summary of object
 
                     gCal.EventDateTime start = new gCal.EventDateTime(); //Setting start time
-                    start.dateTime = DateTime.parse(calenderDate).toLocal();
+                    start.dateTime = DateTime.parse(calenderDate!).toLocal();
                     start.timeZone = "GMT+05:00";
                     event.start = start;
 
                     gCal.EventDateTime end = new gCal.EventDateTime(); //setting end time
                     end.timeZone = "GMT+05:00";
-                    end.dateTime = DateTime.parse(calenderDate).toLocal();
+                    end.dateTime = DateTime.parse(calenderDate!).toLocal();
                     event.end = end;
 
                     insertEvent(event);
@@ -1697,9 +1697,9 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => Chat(peerUuid: user.id, currentUserId: _currentUser.uid, peerId: user.firebaseUid, peerAvatar: user.photoUrl, peerName: user.name)));
+                            builder: (context) => Chat(peerUuid: user.id, currentUserId: _currentUser!.uid, peerId: user.firebaseUid, peerAvatar: user.photoUrl, peerName: user.name)));
                   } else if (index == 2) {
-                    _showFollowAlertDialog(feedId: widget.feedId, indexVal: widget.indexVal);
+                    _showFollowAlertDialog(feedId: widget.feedId!, indexVal: widget.indexVal!);
                   } else if (index == 3) {
                     // Map<String, dynamic> body;
                     // Provider.of<ExternalShareProvider>(context,listen: false).externalSharePost(body);
@@ -1712,13 +1712,13 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                     }
                   }
                   else if (index == 4) {
-                    _showDeleteAlertDialog(feedId: widget.feedId, indexVal: widget.indexVal);
+                    _showDeleteAlertDialog(feedId: widget.feedId!, indexVal: widget.indexVal!);
                   } else if (index == 5) {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => ReportPage(
-                            moduleId: widget.feedId,
+                            moduleId: widget.feedId!,
                             moduleType: "Feed",
                           ),
                         ));
@@ -1757,7 +1757,7 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                     value: 2,
                     height: 40,
                     child: Text(
-                      widget.isFollowed?"Unfollow Post":"Follow Post",
+                      widget.isFollowed!?"Unfollow Post":"Follow Post",
                       textAlign: TextAlign.start,
                       style: TextStyle(
                         color: themeController.isDarkMode?Colors.white:Colors.black,
@@ -1796,12 +1796,12 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
             margin: EdgeInsets.only(left: 16,top: 6),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: feedType.length,
+              itemCount: feedType!.length,
               itemBuilder: (context, index) => Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: InkWell(
                   onTap: () {
-                    final page = FeedSearch(text: feedType[index].type.name,);
+                    final page = FeedSearch(text: feedType![index].type.name,);
                     Navigator.push(context,MaterialPageRoute(builder: (context) => page ));
                   },
                   child: Container(
@@ -1812,7 +1812,7 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                     child: Padding(
                       padding: const EdgeInsets.only(left: 15,right: 15),
                       child: Center(
-                        child: Text("${feedType[index].type.name}",
+                        child: Text("${feedType![index].type.name}",
                           style: TextStyle(
                             fontFamily: "Poppins",
                             fontSize: 15,
@@ -1831,7 +1831,7 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
               Padding(
                 padding: EdgeInsets.only(left: 16,top: 20),
                 child: buildEmojiAndText(
-                  content: title,
+                  content: title!,
                   textStyle: TextStyle(
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.w700,
@@ -1845,9 +1845,9 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
           ),
           Padding(
             padding: EdgeInsets.only(left: 16,top: 10,right: 10),
-            child: REGEX_EMOJI.allMatches(description).isNotEmpty?
+            child: REGEX_EMOJI.allMatches(description!).isNotEmpty?
             buildEmojiAndText(
-              content: description,
+              content: description!,
               textStyle: TextStyle(
                 fontFamily: 'Poppins',
                 fontWeight: FontWeight.w400,
@@ -1865,7 +1865,7 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                 else
                   throw "Could not launch ${link.url}";
               },
-              text: description,
+              text: description!,
               style: TextStyle(
                 fontSize: 14,
                 fontFamily: 'Poppins',
@@ -1886,8 +1886,8 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
             onTap: () async{
-              if (await canLaunch(widget.hyperlink))
-                await launch(widget.hyperlink);
+              if (await canLaunch(widget.hyperlink!))
+                await launch(widget.hyperlink!);
               else
                 Fluttertoast.showToast(msg: " Could not launch given URL '${widget.hyperlink}'", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
               throw "Could not launch ${widget.hyperlink}";
@@ -1895,7 +1895,7 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
             child: Padding(
               padding: EdgeInsets.only(left: 16,top: 10,right: 10),
               child: Text(
-                widget.hyperlinkText,
+                widget.hyperlinkText!,
                 style: TextStyle(
                   fontSize: 14,
                   fontFamily: 'Poppins',
@@ -1904,9 +1904,9 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
               ),
             ),
           ):SizedBox(),
-          ..._buildMedia(context, media),
-          ..._buildMediaOther(context, mediaOther),
-          widget.isShared != null ? _sharedWidget(widget.isShared) : SizedBox(),
+          ..._buildMedia(context, media!),
+          ..._buildMediaOther(context, mediaOther!),
+          widget.isShared != null ? _sharedWidget(widget.isShared!) : SizedBox(),
           location!=null?
           Padding(
             padding: const EdgeInsets.only(top: 16.0, left: 16, bottom: 5),
@@ -1939,114 +1939,114 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                 InkWell(
                   onTap: (){
                     if(widget.pageType == "TimeLineMyCampus"){
-                      if(feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.feedListMyCampus[widget.indexVal!].likeCount![0].count!=0 || feedProvider.feedListMyCampus[widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }else if(widget.pageType == "TimeLineGlobal"){
-                      if(feedProvider.feedList[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedList[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.feedList[widget.indexVal!].likeCount![0].count!=0 || feedProvider.feedList[widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }else if(widget.pageType == "User"){
-                      if(feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![0].count!=0 || feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }else if(widget.pageType == "Bookmark"){
-                      if(feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count!=0 || feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![0].count!=0 || feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }else if(widget.pageType == "Search"){
-                      if(feedProvider.feedItem[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedItem[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.feedItem[widget.indexVal!].likeCount![0].count!=0 || feedProvider.feedItem[widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }else if(widget.pageType == "BookmarkMyCampus"){
-                      if(feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count!=0 || feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![0].count!=0 || feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }
                   },
                   onDoubleTap: ()async{
                     print(widget.pageType);
-                    String response = await FeedService().likeFeed(feedId, 0, token);
+                    String response = await FeedService().likeFeed(feedId!, 0, token);
                     if(response == "Feed Liked successfully"){
                       if(widget.pageType == "TimeLineMyCampus"){
-                        feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count++;
-                        feedProvider.feedListMyCampus[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                        feedProvider.feedListMyCampus[widget.indexVal!].likeCount![0].count++;
+                        feedProvider.feedListMyCampus[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
                       }else if(widget.pageType == "TimeLineGlobal"){
-                        feedProvider.feedList[widget.indexVal].likeCount[0].count++;
-                        feedProvider.feedList[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                        feedProvider.feedList[widget.indexVal!].likeCount![0].count++;
+                        feedProvider.feedList[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
                       }else if(widget.pageType == "User"){
-                        feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count++;
-                        feedProvider.feedItemListOfUser[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                        feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![0].count++;
+                        feedProvider.feedItemListOfUser[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
                       }else if(widget.pageType == "Bookmark"){
-                        feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count++;
-                        feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                        feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![0].count++;
+                        feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
                       }else if(widget.pageType == "Search"){
-                        feedProvider.feedItem[widget.indexVal].likeCount[0].count++;
-                        feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                        feedProvider.feedItem[widget.indexVal!].likeCount![0].count++;
+                        feedProvider.feedItem[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
                       }else if(widget.pageType == "BookmarkMyCampus"){
-                        feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count++;
-                        feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                        feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![0].count++;
+                        feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
                       }
                     }else if(response == 'Feed Unliked successfully'){
                       if(widget.pageType == "TimeLineMyCampus"){
-                        if(feedProvider.feedListMyCampus[widget.indexVal].isLiked.emojiValue==0){
-                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count--;
-                          feedProvider.feedListMyCampus[widget.indexVal].isLiked = null;
+                        if(feedProvider.feedListMyCampus[widget.indexVal!].isLiked!.emojiValue==0){
+                          feedProvider.feedListMyCampus[widget.indexVal!].likeCount![0].count--;
+                          feedProvider.feedListMyCampus[widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 0, token);
-                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count++;
-                          feedProvider.feedListMyCampus[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
-                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count--;
+                          await FeedService().likeFeed(feedId!, 0, token);
+                          feedProvider.feedListMyCampus[widget.indexVal!].likeCount![0].count++;
+                          feedProvider.feedListMyCampus[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.feedListMyCampus[widget.indexVal!].likeCount![1].count--;
                         }
                       }else if(widget.pageType == "TimeLineGlobal"){
-                        if(feedProvider.feedList[widget.indexVal].isLiked.emojiValue==0){
-                          feedProvider.feedList[widget.indexVal].likeCount[0].count--;
-                          feedProvider.feedList[widget.indexVal].isLiked = null;
+                        if(feedProvider.feedList[widget.indexVal!].isLiked!.emojiValue==0){
+                          feedProvider.feedList[widget.indexVal!].likeCount![0].count--;
+                          feedProvider.feedList[widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 0, token);
-                          feedProvider.feedList[widget.indexVal].likeCount[0].count++;
-                          feedProvider.feedList[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
-                          feedProvider.feedList[widget.indexVal].likeCount[1].count--;
+                          await FeedService().likeFeed(feedId!, 0, token);
+                          feedProvider.feedList[widget.indexVal!].likeCount![0].count++;
+                          feedProvider.feedList[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.feedList[widget.indexVal!].likeCount![1].count--;
                         }
                       }else if(widget.pageType == "User"){
-                        if(feedProvider.feedItemListOfUser[widget.indexVal].isLiked.emojiValue==0){
-                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count--;
-                          feedProvider.feedItemListOfUser[widget.indexVal].isLiked = null;
+                        if(feedProvider.feedItemListOfUser[widget.indexVal!].isLiked!.emojiValue==0){
+                          feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![0].count--;
+                          feedProvider.feedItemListOfUser[widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 0, token);
-                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count++;
-                          feedProvider.feedItemListOfUser[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
-                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count--;
+                          await FeedService().likeFeed(feedId!, 0, token);
+                          feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![0].count++;
+                          feedProvider.feedItemListOfUser[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![1].count--;
                         }
                       }else if(widget.pageType == "Bookmark"){
-                        if(feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked.emojiValue==0){
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count--;
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = null;
+                        if(feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].isLiked!.emojiValue==0){
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![0].count--;
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 0, token);
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count++;
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count--;
+                          await FeedService().likeFeed(feedId!, 0, token);
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![0].count++;
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![1].count--;
                         }
                       }else if(widget.pageType == "Search"){
-                        if(feedProvider.feedItem[widget.indexVal].isLiked.emojiValue==0){
-                          feedProvider.feedItem[widget.indexVal].likeCount[0].count--;
-                          feedProvider.feedItem[widget.indexVal].isLiked = null;
+                        if(feedProvider.feedItem[widget.indexVal!].isLiked!.emojiValue==0){
+                          feedProvider.feedItem[widget.indexVal!].likeCount![0].count--;
+                          feedProvider.feedItem[widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 0, token);
-                          feedProvider.feedItem[widget.indexVal].likeCount[0].count++;
-                          feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
-                          feedProvider.feedItem[widget.indexVal].likeCount[1].count--;
+                          await FeedService().likeFeed(feedId!, 0, token);
+                          feedProvider.feedItem[widget.indexVal!].likeCount![0].count++;
+                          feedProvider.feedItem[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.feedItem[widget.indexVal!].likeCount![1].count--;
                         }
                       }else if(widget.pageType == "BookmarkMyCampus"){
-                        if(feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked.emojiValue==0){
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count--;
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = null;
+                        if(feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].isLiked!.emojiValue==0){
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![0].count--;
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 0, token);
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count++;
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count--;
+                          await FeedService().likeFeed(feedId!, 0, token);
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![0].count++;
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 0,createdAt: "",updatedAt: "");
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![1].count--;
                         }
                       }
                     }
@@ -2075,18 +2075,18 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                         ),
                         Text(
                           widget.pageType == "TimeLineMyCampus"?
-                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count.toString():
+                          feedProvider.feedListMyCampus[widget.indexVal!].likeCount![0].count.toString():
                           widget.pageType == "TimeLineGlobal"?
-                          feedProvider.feedList[widget.indexVal].likeCount[0].count.toString():
+                          feedProvider.feedList[widget.indexVal!].likeCount![0].count.toString():
                           widget.pageType == "User"?
-                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count.toString():
+                          feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![0].count.toString():
                           widget.pageType == "Bookmark"?
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count.toString():
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![0].count.toString():
                           widget.pageType == "BookmarkMyCampus"?
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count.toString():
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![0].count.toString():
                           widget.pageType == "Search"?
-                          feedProvider.feedItem[widget.indexVal].likeCount[0].count.toString():
-                          widget.likeCount[0].count.toString(),
+                          feedProvider.feedItem[widget.indexVal!].likeCount![0].count.toString():
+                          widget.likeCount![0].count.toString(),
                           style: TextStyle(
                             fontFamily: "Poppins",
                             fontSize: 15,
@@ -2100,114 +2100,114 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                 InkWell(
                   onTap: (){
                     if(widget.pageType == "TimeLineMyCampus"){
-                      if(feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.feedListMyCampus[widget.indexVal!].likeCount![0].count!=0 || feedProvider.feedListMyCampus[widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }else if(widget.pageType == "TimeLineGlobal"){
-                      if(feedProvider.feedList[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedList[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.feedList[widget.indexVal!].likeCount![0].count!=0 || feedProvider.feedList[widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }else if(widget.pageType == "User"){
-                      if(feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![0].count!=0 || feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }else if(widget.pageType == "Bookmark"){
-                      if(feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count!=0 || feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![0].count!=0 || feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }else if(widget.pageType == "Search"){
-                      if(feedProvider.feedItem[widget.indexVal].likeCount[0].count!=0 || feedProvider.feedItem[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.feedItem[widget.indexVal!].likeCount![0].count!=0 || feedProvider.feedItem[widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }else if(widget.pageType == "BookmarkMyCampus"){
-                      if(feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count!=0 || feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count!=0){
-                        Get.to(() => FeedLikesDetails(feedId: widget.feedId,));
+                      if(feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![0].count!=0 || feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![1].count!=0){
+                        Get.to(() => FeedLikesDetails(feedId: widget.feedId!,));
                       }
                     }
                   },
                   onDoubleTap: ()async{
                     print(widget.pageType);
-                    String response = await FeedService().likeFeed(feedId, 1, token);
+                    String response = await FeedService().likeFeed(feedId!, 1, token);
                     if(response == "Feed Liked successfully"){
                       if(widget.pageType == "TimeLineMyCampus"){
-                        feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count++;
-                        feedProvider.feedListMyCampus[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                        feedProvider.feedListMyCampus[widget.indexVal!].likeCount![1].count++;
+                        feedProvider.feedListMyCampus[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
                       }else if(widget.pageType == "TimeLineGlobal"){
-                        feedProvider.feedList[widget.indexVal].likeCount[1].count++;
-                        feedProvider.feedList[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                        feedProvider.feedList[widget.indexVal!].likeCount![1].count++;
+                        feedProvider.feedList[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
                       }else if(widget.pageType == "User"){
-                        feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count++;
-                        feedProvider.feedItemListOfUser[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                        feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![1].count++;
+                        feedProvider.feedItemListOfUser[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
                       }else if(widget.pageType == "Bookmark"){
-                        feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count++;
-                        feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                        feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![1].count++;
+                        feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
                       }else if(widget.pageType == "Search"){
-                        feedProvider.feedItem[widget.indexVal].likeCount[1].count++;
-                        feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                        feedProvider.feedItem[widget.indexVal!].likeCount![1].count++;
+                        feedProvider.feedItem[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
                       }else if(widget.pageType == "BookmarkMyCampus"){
-                        feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count++;
-                        feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                        feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![1].count++;
+                        feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
                       }
                     }else if(response == 'Feed Unliked successfully'){
                       if(widget.pageType == "TimeLineMyCampus"){
-                        if(feedProvider.feedListMyCampus[widget.indexVal].isLiked.emojiValue==1){
-                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count--;
-                          feedProvider.feedListMyCampus[widget.indexVal].isLiked = null;
+                        if(feedProvider.feedListMyCampus[widget.indexVal!].isLiked!.emojiValue==1){
+                          feedProvider.feedListMyCampus[widget.indexVal!].likeCount![1].count--;
+                          feedProvider.feedListMyCampus[widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 1, token);
-                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count++;
-                          feedProvider.feedListMyCampus[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
-                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[0].count--;
+                          await FeedService().likeFeed(feedId!, 1, token);
+                          feedProvider.feedListMyCampus[widget.indexVal!].likeCount![1].count++;
+                          feedProvider.feedListMyCampus[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.feedListMyCampus[widget.indexVal!].likeCount![0].count--;
                         }
                       }else if(widget.pageType == "TimeLineGlobal"){
-                        if(feedProvider.feedList[widget.indexVal].isLiked.emojiValue==1){
-                          feedProvider.feedList[widget.indexVal].likeCount[1].count--;
-                          feedProvider.feedList[widget.indexVal].isLiked = null;
+                        if(feedProvider.feedList[widget.indexVal!].isLiked!.emojiValue==1){
+                          feedProvider.feedList[widget.indexVal!].likeCount![1].count--;
+                          feedProvider.feedList[widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 1, token);
-                          feedProvider.feedList[widget.indexVal].likeCount[1].count++;
-                          feedProvider.feedList[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
-                          feedProvider.feedList[widget.indexVal].likeCount[0].count--;
+                          await FeedService().likeFeed(feedId!, 1, token);
+                          feedProvider.feedList[widget.indexVal!].likeCount![1].count++;
+                          feedProvider.feedList[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.feedList[widget.indexVal!].likeCount![0].count--;
                         }
                       }else if(widget.pageType == "User"){
-                        if(feedProvider.feedItemListOfUser[widget.indexVal].isLiked.emojiValue==1){
-                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count--;
-                          feedProvider.feedItemListOfUser[widget.indexVal].isLiked = null;
+                        if(feedProvider.feedItemListOfUser[widget.indexVal!].isLiked!.emojiValue==1){
+                          feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![1].count--;
+                          feedProvider.feedItemListOfUser[widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 1, token);
-                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count++;
-                          feedProvider.feedItemListOfUser[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
-                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[0].count--;
+                          await FeedService().likeFeed(feedId!, 1, token);
+                          feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![1].count++;
+                          feedProvider.feedItemListOfUser[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![0].count--;
                         }
                       }else if(widget.pageType == "Bookmark"){
-                        if(feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked.emojiValue==1){
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count--;
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = null;
+                        if(feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].isLiked!.emojiValue==1){
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![1].count--;
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 1, token);
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count++;
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[0].count--;
+                          await FeedService().likeFeed(feedId!, 1, token);
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![1].count++;
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![0].count--;
                         }
                       }else if(widget.pageType == "Search"){
-                        if(feedProvider.feedItem[widget.indexVal].isLiked.emojiValue==1){
-                          feedProvider.feedItem[widget.indexVal].likeCount[1].count--;
-                          feedProvider.feedItem[widget.indexVal].isLiked = null;
+                        if(feedProvider.feedItem[widget.indexVal!].isLiked!.emojiValue==1){
+                          feedProvider.feedItem[widget.indexVal!].likeCount![1].count--;
+                          feedProvider.feedItem[widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 1, token);
-                          feedProvider.feedItem[widget.indexVal].likeCount[1].count++;
-                          feedProvider.feedItem[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
-                          feedProvider.feedItem[widget.indexVal].likeCount[0].count--;
+                          await FeedService().likeFeed(feedId!, 1, token);
+                          feedProvider.feedItem[widget.indexVal!].likeCount![1].count++;
+                          feedProvider.feedItem[widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.feedItem[widget.indexVal!].likeCount![0].count--;
                         }
                       }else if(widget.pageType == "BookmarkMyCampus"){
-                        if(feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked.emojiValue==1){
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count--;
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = null;
+                        if(feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].isLiked!.emojiValue==1){
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![1].count--;
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].isLiked = null;
                         }else{
-                          await FeedService().likeFeed(feedId, 1, token);
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count++;
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[0].count--;
+                          await FeedService().likeFeed(feedId!, 1, token);
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![1].count++;
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].isLiked = IsLiked(feedId: 0,userId: 0,id: 0,emojiValue: 1,createdAt: "",updatedAt: "");
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![0].count--;
                         }
                       }
                     }
@@ -2236,18 +2236,18 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                         ),
                         Text(
                           widget.pageType == "TimeLineMyCampus"?
-                          feedProvider.feedListMyCampus[widget.indexVal].likeCount[1].count.toString():
+                          feedProvider.feedListMyCampus[widget.indexVal!].likeCount![1].count.toString():
                           widget.pageType == "TimeLineGlobal"?
-                          feedProvider.feedList[widget.indexVal].likeCount[1].count.toString():
+                          feedProvider.feedList[widget.indexVal!].likeCount![1].count.toString():
                           widget.pageType == "User"?
-                          feedProvider.feedItemListOfUser[widget.indexVal].likeCount[1].count.toString():
+                          feedProvider.feedItemListOfUser[widget.indexVal!].likeCount![1].count.toString():
                           widget.pageType == "Bookmark"?
-                          feedProvider.bookmarkByUserData.data.feeds[widget.indexVal].likeCount[1].count.toString():
+                          feedProvider.bookmarkByUserData!.data!.feeds![widget.indexVal!].likeCount![1].count.toString():
                           widget.pageType == "BookmarkMyCampus"?
-                          feedProvider.bookmarkByUserDataMycampus.data.feeds[widget.indexVal].likeCount[1].count.toString():
+                          feedProvider.bookmarkByUserDataMycampus.data!.feeds![widget.indexVal!].likeCount![1].count.toString():
                           widget.pageType == "Search"?
-                          feedProvider.feedItem[widget.indexVal].likeCount[1].count.toString():
-                          widget.likeCount[0].count.toString(),
+                          feedProvider.feedItem[widget.indexVal!].likeCount![1].count.toString():
+                          widget.likeCount![0].count.toString(),
                           style: TextStyle(
                             fontFamily: "Poppins",
                             fontSize: 15,
@@ -2266,8 +2266,8 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                 Consumer<FeedProvider>(
                   builder: (context, value, child) {
                     if (value.feedItemsBookmarkData != null) {
-                      if (widget.isBookmarkedPage && !bookMarked) {
-                        value.bookmarkByUserData.data.feeds.removeAt(widget.indexVal);
+                      if (widget.isBookmarkedPage! && !bookMarked!) {
+                        value.bookmarkByUserData!.data!.feeds!.removeAt(widget.indexVal!);
                         Future.delayed(Duration.zero, () => Provider.of<FeedProvider>(context, listen: false).allBookmarkedFeed());
                       }
                     }
@@ -2275,9 +2275,9 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                       padding: const EdgeInsets.only(right: 16,left: 10,top: 25),
                       child: InkWell(
                         onTap: (){
-                          Provider.of<FeedProvider>(context, listen: false).bookmarkAFeed(feedId, widget.indexVal);
+                          Provider.of<FeedProvider>(context, listen: false).bookmarkAFeed(feedId!, widget.indexVal!);
                           setState(() {
-                            bookMarked=!bookMarked;
+                            bookMarked=!bookMarked!;
                           });
                         },
                         child: Container(
@@ -2287,7 +2287,7 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                             color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
                             shape: BoxShape.circle,
                           ),
-                          child: bookMarked?
+                          child: bookMarked!?
                           Padding(
                             padding: const EdgeInsets.all(11.0),
                             child: Image.asset("lib/asset/icons/bookmarkColor.png",
@@ -2373,7 +2373,7 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
               GestureDetector(
                 onTap: (){
                   if(isLoadingAudio==false){
-                    isPlaying ? pauseAudio(widget.indexVal): startAudio(mediaOther[i].url);
+                    isPlaying ? pauseAudio(widget.indexVal!): startAudio(mediaOther[i].url);
                   }
                 },
                 child: Container(
@@ -2417,22 +2417,22 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
           contentPadding: EdgeInsets.fromLTRB(12, 4, 10, 0),
           leading: InkWell(
             onTap: () {
-              if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == isShared.user.id) {
+              if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == isShared.user!.id) {
                 Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
               } else {
                 Navigator.of(context).pushNamed(UserProfileScreen.routeName,
-                    arguments: {"id": isShared.user.id, "name": isShared.user.name, "photoUrl": isShared.user.photoUrl, "firebaseUid": isShared.user.firebaseUid});
+                    arguments: {"id": isShared.user!.id, "name": isShared.user!.name, "photoUrl": isShared.user!.photoUrl, "firebaseUid": isShared.user!.firebaseUid});
               }
             },
-            child: isShared.user.photoUrl.length == 0
+            child: isShared.user!.photoUrl!.length == 0
                 ? ClipOval(
               child: Text(
-                isShared.user.name[0],
+                isShared.user!.name![0],
               ),
             )
                 : ClipOval(
               child: Image.network(
-                isShared.user.photoUrl,
+                isShared.user!.photoUrl!,
                 height: 45,
                 width: 38,
                 fit: BoxFit.cover,
@@ -2441,18 +2441,18 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
           ),
           title: InkWell(
               onTap: () {
-                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == isShared.user.id) {
+                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == isShared.user!.id) {
                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                 } else {
                   Navigator.of(context).pushNamed(UserProfileScreen.routeName,
-                      arguments: {"id": isShared.user.id, "name": isShared.user.name, "photoUrl": isShared.user.photoUrl, "firebaseUid": isShared.user.firebaseUid});
+                      arguments: {"id": isShared.user!.id, "name": isShared.user!.name, "photoUrl": isShared.user!.photoUrl, "firebaseUid": isShared.user!.firebaseUid});
                 }
               },
               child: Row(
                 children: [
                   Expanded(
                     child: Text(
-                      isShared.user.name,
+                      isShared.user!.name!,
                       style: TextStyle(fontFamily: 'Quicksand', color: Colors.white, fontSize: 13.2),
                       overflow: TextOverflow.clip,
                     ),
@@ -2467,7 +2467,7 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
             height: 27,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: isShared.feedTypes.length,
+              itemCount: isShared.feedTypes!.length,
               itemBuilder: (context, index) => Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: InkWell(
@@ -2475,7 +2475,7 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                     Navigator.of(context).pushReplacement(MaterialPageRoute(
                         builder: (context) => HomeScreen(
                           index: 1,
-                          feedTypeName: isShared.feedTypes[index].type.name,
+                          feedTypeName: isShared.feedTypes![index].type!.name!,
                         )));
                   },
                   child: Container(
@@ -2486,7 +2486,7 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                       borderRadius: BorderRadius.circular(12.0),
                     ),
                     child: Text(
-                      '${isShared.feedTypes[index].type.name}',
+                      '${isShared.feedTypes![index].type!.name}',
                       style: TextStyle(color: Colors.black, fontSize: 10),
                     ),
                   ),
@@ -2497,22 +2497,22 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
         ),
         Padding(
           padding: const EdgeInsets.only(bottom: 8.0, left: 60, right: 15),
-          child: Text(isShared.title, textAlign: TextAlign.left, style: TextStyle(fontSize: 15.0, fontFamily: 'Quicksand', fontWeight: FontWeight.w700, color: MateColors.activeIcons)),
+          child: Text(isShared.title!, textAlign: TextAlign.left, style: TextStyle(fontSize: 15.0, fontFamily: 'Quicksand', fontWeight: FontWeight.w700, color: MateColors.activeIcons)),
         ),
         Padding(
           padding: const EdgeInsets.only(bottom: 12.0, left: 60, right: 15),
           child: Text(
-            isShared.description,
+            isShared.description!,
             style: TextStyle(color: Colors.white, fontSize: 12),
             textAlign: TextAlign.left,
           ),
         ),
-        ..._buildMedia(context, isShared.media),
+        ..._buildMedia(context, isShared.media!),
       ]),
     );
   }
 
-  _showDeleteAlertDialog({@required int feedId, @required int indexVal,}) async {
+  _showDeleteAlertDialog({required int feedId, required int indexVal,}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -2528,7 +2528,7 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                 bool isDeleted = await Provider.of<FeedProvider>(context, listen: false).deleteAFeed(feedId);
                 if (isDeleted) {
                   Future.delayed(Duration(seconds: 0), () {
-                    if (widget.isBookmarkedPage) {
+                    if (widget.isBookmarkedPage!) {
                       Navigator.pop(context);
                       Provider.of<FeedProvider>(context, listen: false).allBookmarkedFeed();
                     } else {
@@ -2554,7 +2554,7 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
     );
   }
 
-  _showFollowAlertDialog({@required int feedId, @required int indexVal,}) async {
+  _showFollowAlertDialog({required int feedId, required int indexVal,}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -2563,7 +2563,7 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
           builder: (context, value, child) {
             return CupertinoAlertDialog(
               title: new Text("Are you sure?"),
-              content: new Text(widget.isFollowed?"You want to Unfollow this post":"You want to follow this post"),
+              content: new Text(widget.isFollowed!?"You want to Unfollow this post":"You want to follow this post"),
               actions: <Widget>[
                 CupertinoDialogAction(
                   isDefaultAction: true,
@@ -2574,14 +2574,14 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
                     ),
                   ) :Text("Yes"),
                   onPressed: () async {
-                    if(widget.isFollowed){
+                    if(widget.isFollowed!){
                       Map<String, dynamic> body = {"post_id": widget.feedId, "post_type": "Feed"};
-                      bool unFollowDone = await Provider.of<FeedProvider>(context, listen: false).unFollowAFeed(body, widget.feedId);
+                      bool unFollowDone = await Provider.of<FeedProvider>(context, listen: false).unFollowAFeed(body, widget.feedId!);
                       if (unFollowDone) {
-                        if (widget.isBookmarkedPage) {
-                          value.bookmarkByUserData.data.feeds[widget.indexVal].isFollowed=false;
+                        if (widget.isBookmarkedPage!) {
+                          value.bookmarkByUserData!.data!.feeds![widget.indexVal!].isFollowed=false;
                         }else{
-                          value.feedList[widget.indexVal].isFollowed=false;
+                          value.feedList[widget.indexVal!].isFollowed=false;
                         }
                         widget.isFollowed=false;
                         Navigator.pop(context);
@@ -2589,12 +2589,12 @@ class _HomeRowForFeedDetailsState extends State<HomeRowForFeedDetails> with Sing
 
                     }else{
                       Map<String, dynamic> body = {"post_id": widget.feedId, "post_type": "Feed"};
-                      bool followDone = await Provider.of<FeedProvider>(context, listen: false).followAFeed(body, widget.feedId);
+                      bool followDone = await Provider.of<FeedProvider>(context, listen: false).followAFeed(body, widget.feedId!);
                       if (followDone) {
-                        if (widget.isBookmarkedPage) {
-                          value.bookmarkByUserData.data.feeds[widget.indexVal].isFollowed=true;
+                        if (widget.isBookmarkedPage!) {
+                          value.bookmarkByUserData!.data!.feeds![widget.indexVal!].isFollowed=true;
                         }else{
-                          value.feedList[widget.indexVal].isFollowed=true;
+                          value.feedList[widget.indexVal!].isFollowed=true;
                         }
                         widget.isFollowed=true;
                         Navigator.pop(context);

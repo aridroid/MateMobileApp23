@@ -88,7 +88,7 @@ class _FollowersScreenState extends State<FollowersScreen> {
 class FollowersScreenData extends StatefulWidget {
   final String searchText;
 
-  const FollowersScreenData({Key key, this.searchText}) : super(key: key);
+  const FollowersScreenData({Key? key, required this.searchText}) : super(key: key);
 
   @override
   _FollowersScreenDataState createState() => _FollowersScreenDataState();
@@ -116,7 +116,7 @@ class _FollowersScreenDataState extends State<FollowersScreenData> {
           itemCount: followerProvider.followers.length,
           itemBuilder: (ctx, index) {
             return Visibility(
-              visible: widget.searchText.isNotEmpty? followerProvider.followers[index].name.toLowerCase().contains(widget.searchText.trim().toLowerCase()): true,
+              visible: widget.searchText.isNotEmpty? followerProvider.followers[index].name!.toLowerCase().contains(widget.searchText.trim().toLowerCase()): true,
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 8.0, left: 8.0, right: 8.0),
                 child: InkWell(
@@ -131,10 +131,10 @@ class _FollowersScreenDataState extends State<FollowersScreenData> {
                   child: ListTile(
                     leading: CircleAvatar(
                       backgroundImage: NetworkImage(
-                        followerProvider.followers[index].photoUrl,
+                        followerProvider.followers[index].photoUrl!,
                       ),
                     ),
-                    title: Text(followerProvider.followers[index].name,
+                    title: Text(followerProvider.followers[index].name!,
                         style: TextStyle(
                             fontFamily: 'Quicksand',
                             color: MateColors.activeIcons,

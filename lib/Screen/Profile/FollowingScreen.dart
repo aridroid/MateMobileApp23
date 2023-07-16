@@ -13,7 +13,7 @@ import 'package:sizer/sizer.dart';
 class FollowingScreen extends StatefulWidget {
   static final String routeName = '/following';
 
-  const FollowingScreen({Key key}) : super(key: key);
+  const FollowingScreen({Key? key}) : super(key: key);
 
   @override
   _FollowingScreenState createState() => _FollowingScreenState();
@@ -86,7 +86,7 @@ class _FollowingScreenState extends State<FollowingScreen> {
 class FollowingScreenData extends StatefulWidget {
   final String searchText;
 
-  const FollowingScreenData({Key key, this.searchText}) : super(key: key);
+  const FollowingScreenData({Key? key, required this.searchText}) : super(key: key);
 
   @override
   _FollowingScreenDataState createState() => _FollowingScreenDataState();
@@ -114,7 +114,7 @@ class _FollowingScreenDataState extends State<FollowingScreenData> {
           itemCount: followerProvider.followings.length,
           itemBuilder: (ctx, index) {
             return Visibility(
-              visible: widget.searchText.isNotEmpty? followerProvider.followings[index].name.toLowerCase().contains(widget.searchText.trim().toLowerCase()): true,
+              visible: widget.searchText.isNotEmpty? followerProvider.followings[index].name!.toLowerCase().contains(widget.searchText.trim().toLowerCase()): true,
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 8.0, left: 8.0, right: 8.0),
                 child: InkWell(
@@ -129,10 +129,10 @@ class _FollowingScreenDataState extends State<FollowingScreenData> {
                   child: ListTile(
                     leading: CircleAvatar(
                       backgroundImage: NetworkImage(
-                        followerProvider.followings[index].photoUrl,
+                        followerProvider.followings[index].photoUrl!,
                       ),
                     ),
-                    title: Text(followerProvider.followings[index].name,
+                    title: Text(followerProvider.followings[index].name!,
                         style: TextStyle(
                             fontFamily: 'Quicksand',
                             color: MateColors.activeIcons,

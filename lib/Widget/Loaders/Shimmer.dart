@@ -423,7 +423,7 @@ Widget aboutSectionLoader() {
 
 
 class GroupLoader extends StatelessWidget {
-  const GroupLoader({Key key}) : super(key: key);
+  const GroupLoader({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

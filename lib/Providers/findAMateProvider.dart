@@ -11,14 +11,14 @@ class FindAMateProvider extends ChangeNotifier{
 
   /// initialization
 
-  FindAMateService _findAMateService;
+  FindAMateService _findAMateService = FindAMateService();
   String _apiError = "";
   Map<String, dynamic> _validationErrors = Map();
-  fampm.FindAMatePostsModel _findAMatePostsModelData;
+  late fampm.FindAMatePostsModel _findAMatePostsModelData;
   List<fampm.Result> _findAMatePostsDataList = [];
-  fampm.FindAMatePostsModel findAMatePostsBookmarkData;
+  late fampm.FindAMatePostsModel findAMatePostsBookmarkData;
   // FindAMatePostsModel findAMateByAuthUserData;
-  FindAMatePostActiveModel _findAMateActiveData;
+  late FindAMatePostActiveModel _findAMateActiveData;
   // FindAMatePostBookmarkModel _bookmarkPostData;
   // FindAMateCommentFetchModel _commentFetchData;
 
@@ -34,9 +34,9 @@ class FindAMateProvider extends ChangeNotifier{
 
 
   ///constructor
-  FindAMateProvider() {
-    _findAMateService = FindAMateService();
-  }
+  // FindAMateProvider() {
+  //   _findAMateService = FindAMateService();
+  // }
 
 
   ///getters
@@ -94,7 +94,7 @@ class FindAMateProvider extends ChangeNotifier{
 
   /// methods
 
-  Future<void> fetchFindAMatePostList({int page, bool paginationCheck=false,}) async {
+  Future<void> fetchFindAMatePostList({required int page, bool paginationCheck=false,}) async {
     error = '';
     _findAMatePostLoader = true;
 
@@ -111,8 +111,8 @@ class FindAMateProvider extends ChangeNotifier{
         _findAMatePostsModelData = data;
 
         List<fampm.Result> rawFeedList = [];
-        for (int i = 0; i < _findAMatePostsModelData.data.result.length; i++) {
-          rawFeedList.add(_findAMatePostsModelData.data.result[i]);
+        for (int i = 0; i < _findAMatePostsModelData.data!.result!.length; i++) {
+          rawFeedList.add(_findAMatePostsModelData.data!.result![i]);
         }
 
 
@@ -190,7 +190,7 @@ class FindAMateProvider extends ChangeNotifier{
   Future<bool> activeFindAMatePost(int postId, int index, bool isActive) async {
     error = '';
     _likeAPostLoader = true;
-    findAMatePostsModelData.data.result[index].toggleLoader=true;
+    findAMatePostsModelData.data!.result![index].toggleLoader=true;
     var data;
     try {
       data = await _findAMateService.activeFindAMatePost(postId, {"is_active": isActive});
@@ -200,7 +200,7 @@ class FindAMateProvider extends ChangeNotifier{
       return false;
     } finally {
       _likeAPostLoader = false;
-      findAMatePostsModelData.data.result[index].toggleLoader=false;
+      findAMatePostsModelData.data!.result![index].toggleLoader=false;
 
     }
     notifyListeners();
@@ -258,7 +258,7 @@ class FindAMateProvider extends ChangeNotifier{
 
 
 
-  Future<bool> commentFindAMatePost({int postId, File imageFile, String content, String isAnonymous, int parentId}) async {
+  Future<bool> commentFindAMatePost({required int postId, required File imageFile, required String content, required String isAnonymous, required int parentId}) async {
     error = '';
     _postCommentsLoader = true;
     var data;
@@ -306,7 +306,7 @@ class FindAMateProvider extends ChangeNotifier{
 
   }
 
-  Future deleteCommentsOfFindAMatePost(int commentId, int index, {bool isReply=false, int replyIndex}) async {
+  Future deleteCommentsOfFindAMatePost(int commentId, int index, {bool isReply=false, required int replyIndex}) async {
     error = '';
     if(isReply){
       // _commentFetchData.data.result[index].replies[replyIndex].isDeleting=true;

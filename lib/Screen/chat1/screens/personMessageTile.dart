@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -49,24 +50,24 @@ class PersonMessageTile extends StatefulWidget {
   final String photo;
   final String personChatId;
   final int fileSizeFull;
-  Function(String message,String name,bool selected) selectMessage;
+  Function(String message,String name,bool selected,bool isAudio) selectMessage;
   final String previousMessage;
   final String previousSender;
-  final String roomId;
+  final String? roomId;
   final bool isAudio;
   final bool isPlaying;
   final bool isPaused;
   final bool isLoadingAudio;
   Function(String url,int index) startAudio;
   Function(int index) pauseAudio;
-  Duration duration;
-  Duration currentDuration;
+  Duration? duration;
+  Duration? currentDuration;
   Function(String personChatId,String messageId,String previousMessage) editMessage;
   final bool showDate;
   Function() showDateToggle;
   Function() onEmojiKeyboardToggle;
-  Function(String messageId,List<dynamic> messageReaction) onPlusIconCall;
-  PersonMessageTile({this.showDate,this.showDateToggle,this.editMessage,this.currentDuration,this.duration,this.pauseAudio,this.startAudio,this.isForwarded,this.message, this.sender, this.sentByMe, this.messageTime, this.isImage = false, this.isFile = false, this.fileExtension, this.fileName, this.fileSize, this.fileSizeUnit, this.index, this.date, this.time,this.messageReaction, this.messageId, this.userId, this.displayName, this.photo, this.personChatId, this.fileSizeFull, this.previousMessage, this.previousSender,this.selectMessage, this.roomId, this.isAudio, this.isPlaying, this.isPaused, this.isLoadingAudio,this.onEmojiKeyboardToggle,this.onPlusIconCall});
+  Function(String messageId,List<dynamic> messageReaction)? onPlusIconCall;
+  PersonMessageTile({required this.showDate,required this.showDateToggle,required this.editMessage,this.currentDuration,this.duration,required this.pauseAudio,required this.startAudio,required this.isForwarded,required this.message, required this.sender, required this.sentByMe, required this.messageTime, this.isImage = false, this.isFile = false, required this.fileExtension, required this.fileName, required this.fileSize, required this.fileSizeUnit, required this.index, required this.date, required this.time,required this.messageReaction, required this.messageId, required this.userId, required this.displayName, required this.photo, required this.personChatId, required this.fileSizeFull, required this.previousMessage, required this.previousSender,required this.selectMessage, this.roomId, required this.isAudio, required this.isPlaying, required this.isPaused, required this.isLoadingAudio,required this.onEmojiKeyboardToggle, this.onPlusIconCall});
 
   @override
   State<PersonMessageTile> createState() => _PersonMessageTileState();
@@ -265,7 +266,7 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
               Vibration.vibrate(
                   pattern: [1, 150, 1, 150], intensities: [100, 100]
               );
-              widget.selectMessage(widget.message.trim(),widget.sender,true);
+              widget.selectMessage(widget.message.trim(),widget.sender,true,widget.isAudio);
             }
           },
           showDateToggle: widget.showDateToggle,
@@ -623,7 +624,7 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                 ),
                 backgroundColor: Colors.white.withOpacity(0.15),
                 onPressed: (){
-                  widget.selectMessage(widget.message.trim(),widget.sender,true);
+                  widget.selectMessage(widget.message.trim(),widget.sender,true,widget.isAudio);
                 },
               ),
               FocusedMenuItem(
@@ -681,8 +682,8 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                   backgroundColor: Colors.white.withOpacity(0.15),
                   onPressed: ()async{
                     SharedPreferences preferences = await SharedPreferences.getInstance();
-                    String token = preferences.getString("token");
-                    bool response = await CommunityTabService().reportPersonalMessage(roomId: widget.roomId, messageId: widget.messageId, uid: widget.userId, token: token,);
+                    String token = preferences.getString("tokenApp")!;
+                    bool response = await CommunityTabService().reportPersonalMessage(roomId: widget.roomId!, messageId: widget.messageId, uid: widget.userId, token: token,);
                     if(response){
                       Fluttertoast.showToast(msg: "Your feedback added successfully", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
                     }else{
@@ -1098,22 +1099,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                   itemBuilder: (context, index) {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
-                                    return FutureBuilder(
+                                    return FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -1151,22 +1152,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==0?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -1205,22 +1206,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==1?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -1259,22 +1260,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==2?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -1313,22 +1314,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==3?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -1367,22 +1368,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==4?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -1421,22 +1422,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==5?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -1475,22 +1476,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==6?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -1529,22 +1530,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==7?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -1583,22 +1584,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==8?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -1637,22 +1638,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==9?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -1691,22 +1692,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==10?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -1745,22 +1746,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==11?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -1799,22 +1800,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==12?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -1853,22 +1854,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==13?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -1907,22 +1908,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==14?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -1961,22 +1962,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==15?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -2015,22 +2016,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==16?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -2069,22 +2070,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==17?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -2123,22 +2124,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==18?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -2177,22 +2178,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==19?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -2231,22 +2232,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==20?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -2285,22 +2286,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==21?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -2339,22 +2340,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==22?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -2393,22 +2394,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==23?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -2447,22 +2448,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==24?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -2501,22 +2502,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==25?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -2555,22 +2556,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==26?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -2609,22 +2610,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==27?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -2663,22 +2664,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==28?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -2717,22 +2718,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==29?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -2771,22 +2772,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==30?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -2825,22 +2826,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==31?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -2879,22 +2880,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==32?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -2933,22 +2934,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==33?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -2987,22 +2988,22 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                                     List<String> split = widget.messageReaction[index].toString().split("_____");
                                     print(widget.messageReaction.length);
                                     return int.parse(split[3])==34?
-                                    FutureBuilder(
+                                    FutureBuilder<DocumentSnapshot>(
                                       future: DatabaseService().getUsersDetails(widget.messageReaction[index].toString().split("_____")[0]),
                                       builder: (context, snapshot1) {
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: InkWell(
                                             onTap: (){
-                                              if (snapshot1.data.data()['uuid'] != null) {
-                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data.data()['uuid']) {
+                                              if (snapshot1.data!.get('uuid') != null) {
+                                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == snapshot1.data!.get('uuid')) {
                                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                                 } else {
                                                   Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                    "id": snapshot1.data.data()['uuid'],
-                                                    "name": snapshot1.data.data()['displayName'],
-                                                    "photoUrl": snapshot1.data.data()['photoURL'],
-                                                    "firebaseUid": snapshot1.data.data()['uid']
+                                                    "id": snapshot1.data!.get('uuid'),
+                                                    "name": snapshot1.data!.get('displayName'),
+                                                    "photoUrl": snapshot1.data!.get('photoURL'),
+                                                    "firebaseUid": snapshot1.data!.get('uid')
                                                   });
                                                 }
                                               }
@@ -3366,7 +3367,7 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                 child: Row(
                   children: [
                     widget.currentDuration!=null?
-                    Text(widget.currentDuration.inMinutes.toString().padLeft(2,'0') +":"+ widget.currentDuration.inSeconds.toString().padLeft(2,"0"),
+                    Text(widget.currentDuration!.inMinutes.toString().padLeft(2,'0') +":"+ widget.currentDuration!.inSeconds.toString().padLeft(2,"0"),
                       style: TextStyle(
                         color: widget.sentByMe?
                         themeController.isDarkMode? MateColors.blackTextColor: Colors.black:
@@ -3375,7 +3376,7 @@ class _PersonMessageTileState extends State<PersonMessageTile> {
                     ):Offstage(),
                     SizedBox(width: MediaQuery.of(context).size.width*0.13,),
                     widget.duration!=null?
-                    Text(widget.duration.inMinutes.toString().padLeft(2,'0') +":"+ widget.duration.inSeconds.toString().padLeft(2,"0"),
+                    Text(widget.duration!.inMinutes.toString().padLeft(2,'0') +":"+ widget.duration!.inSeconds.toString().padLeft(2,"0"),
                       style: TextStyle(
                         color: widget.sentByMe?
                         themeController.isDarkMode? MateColors.blackTextColor: Colors.black:

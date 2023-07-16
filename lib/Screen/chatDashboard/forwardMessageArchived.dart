@@ -14,7 +14,7 @@ import '../../groupChat/services/database_service.dart';
 
 class ForwardMessageArchiveView extends StatefulWidget {
   final Map messageData;
-  const ForwardMessageArchiveView({Key key, this.messageData}) : super(key: key);
+  const ForwardMessageArchiveView({Key? key, required this.messageData}) : super(key: key);
 
   @override
   State<ForwardMessageArchiveView> createState() => _ForwardMessageArchiveViewState();
@@ -22,8 +22,8 @@ class ForwardMessageArchiveView extends StatefulWidget {
 
 class _ForwardMessageArchiveViewState extends State<ForwardMessageArchiveView> {
   ThemeController themeController = Get.find<ThemeController>();
-  User _user = FirebaseAuth.instance.currentUser;
-  String personChatId;
+  User _user = FirebaseAuth.instance.currentUser!;
+  late String personChatId;
 
   @override
   Widget build(BuildContext context) {
@@ -79,13 +79,13 @@ class _ForwardMessageArchiveViewState extends State<ForwardMessageArchiveView> {
                     Container(
                       padding: EdgeInsets.only(top: 0),
                       child: StreamBuilder<DocumentSnapshot>(
-                          stream: DatabaseService().getLastChatMessage(chatProvider.archiveList[indexMain].roomId),
+                          stream: DatabaseService().getLastChatMessage(chatProvider.archiveList[indexMain].roomId!),
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
                               return InkWell(
                                 onTap: (){
                                   _showSendAlertDialog(
-                                    groupId: chatProvider.archiveList[indexMain].roomId,
+                                    groupId: chatProvider.archiveList[indexMain].roomId!,
                                     messageData: widget.messageData,
                                     userImage: _user.photoURL,
                                   );
@@ -94,21 +94,21 @@ class _ForwardMessageArchiveViewState extends State<ForwardMessageArchiveView> {
                                   margin: EdgeInsets.only(left: 10),
                                   child: ListTile(
                                     dense: true,
-                                    leading: snapshot.data['groupIcon'] != "" ? CircleAvatar(
+                                    leading: snapshot.data!['groupIcon'] != "" ? CircleAvatar(
                                       radius: 24,
                                       backgroundColor: MateColors.activeIcons,
-                                      backgroundImage: NetworkImage(snapshot.data['groupIcon']),
+                                      backgroundImage: NetworkImage(snapshot.data!['groupIcon']),
                                     ):
                                     CircleAvatar(
                                       radius: 24,
                                       backgroundColor: MateColors.activeIcons,
-                                      child: Text(snapshot.data['groupName'].substring(0, 1).toUpperCase(),
+                                      child: Text(snapshot.data!['groupName'].substring(0, 1).toUpperCase(),
                                           textAlign: TextAlign.center,
                                           style: TextStyle(color: themeController.isDarkMode?Colors.black:Colors.white, fontSize: 12.5.sp, fontWeight: FontWeight.bold)),
                                     ),
                                     title: Padding(
-                                      padding: EdgeInsets.only(top: snapshot.data['recentMessageSender'] != "" ? 0:10),
-                                      child: Text(snapshot.data['groupName'],
+                                      padding: EdgeInsets.only(top: snapshot.data!['recentMessageSender'] != "" ? 0:10),
+                                      child: Text(snapshot.data!['groupName'],
                                         style: TextStyle(
                                           fontFamily: "Poppins",
                                           fontSize: 15.0,
@@ -123,8 +123,8 @@ class _ForwardMessageArchiveViewState extends State<ForwardMessageArchiveView> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            snapshot.data['recentMessageSender'] != "" ?
-                                            "${snapshot.data['recentMessageSender']}" :
+                                            snapshot.data!['recentMessageSender'] != "" ?
+                                            "${snapshot.data!['recentMessageSender']}" :
                                             "Send first message to this group",
                                             style: TextStyle(
                                               fontFamily: "Poppins",
@@ -132,27 +132,27 @@ class _ForwardMessageArchiveViewState extends State<ForwardMessageArchiveView> {
                                               letterSpacing: 0.1,
                                               fontWeight: FontWeight.w400,
                                               color: themeController.isDarkMode?
-                                              chatProvider.archiveList[indexMain].unreadMessages >0?
+                                              chatProvider.archiveList[indexMain].unreadMessages! >0?
                                               Colors.white: MateColors.subTitleTextDark:
-                                              chatProvider.archiveList[indexMain].unreadMessages >0?
+                                              chatProvider.archiveList[indexMain].unreadMessages! >0?
                                               MateColors.blackTextColor:
                                               MateColors.subTitleTextLight,
                                             ),
                                             overflow: TextOverflow.clip,
                                           ),
                                           Text(
-                                            snapshot.data.data().toString().contains('isAudio') && snapshot.data['isAudio']?
+                                            snapshot.data!.data().toString().contains('isAudio') && snapshot.data!['isAudio']?
                                             "Audio" :
-                                            "${snapshot.data.data().toString().contains('isImage')?snapshot.data['isImage'] != null ? snapshot.data['isImage'] ? " 🖼️ Image" : snapshot.data['isGif'] != null ? snapshot.data['isGif'] ? " 🖼️ GIF File" : snapshot.data['isFile'] ? "File" : snapshot.data['recentMessage'] : snapshot.data['recentMessage'] : snapshot.data['recentMessage']: snapshot.data['recentMessage']}",
+                                            "${snapshot.data!.data().toString().contains('isImage')?snapshot.data!['isImage'] != null ? snapshot.data!['isImage'] ? " 🖼️ Image" : snapshot.data!['isGif'] != null ? snapshot.data!['isGif'] ? " 🖼️ GIF File" : snapshot.data!['isFile'] ? "File" : snapshot.data!['recentMessage'] : snapshot.data!['recentMessage'] : snapshot.data!['recentMessage']: snapshot.data!['recentMessage']}",
                                             style: TextStyle(
                                               fontFamily: "Poppins",
                                               fontSize: 14.0,
                                               letterSpacing: 0.1,
                                               fontWeight: FontWeight.w400,
                                               color: themeController.isDarkMode?
-                                              chatProvider.archiveList[indexMain].unreadMessages >0?
+                                              chatProvider.archiveList[indexMain].unreadMessages! >0?
                                               Colors.white: MateColors.subTitleTextDark:
-                                              chatProvider.archiveList[indexMain].unreadMessages >0?
+                                              chatProvider.archiveList[indexMain].unreadMessages! >0?
                                               MateColors.blackTextColor:
                                               MateColors.subTitleTextLight,
                                             ),
@@ -161,7 +161,7 @@ class _ForwardMessageArchiveViewState extends State<ForwardMessageArchiveView> {
                                         ],
                                       ),
                                     ),
-                                    trailing: chatProvider.archiveList[indexMain].unreadMessages >0?
+                                    trailing: chatProvider.archiveList[indexMain].unreadMessages! >0?
                                     Container(
                                       height: 20,
                                       width: 20,
@@ -188,21 +188,21 @@ class _ForwardMessageArchiveViewState extends State<ForwardMessageArchiveView> {
                               return Container();
                           }),
                     ):
-                    StreamBuilder(
-                        stream: DatabaseService().getPeerChatUserDetail(chatProvider.archiveList[indexMain].receiverUid),
+                    StreamBuilder<QuerySnapshot>(
+                        stream: DatabaseService().getPeerChatUserDetail(chatProvider.archiveList[indexMain].receiverUid!),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             return ListView.builder(
                                 shrinkWrap: true,
-                                itemCount: snapshot.data.docs.length,
+                                itemCount: snapshot.data!.docs.length,
                                 physics: ScrollPhysics(),
                                 itemBuilder: (context, index) {
                                   if (_user.uid.hashCode <= {
-                                    snapshot.data.docs[index].data()["uid"]
+                                    snapshot.data!.docs[index].get('uid')
                                   }.hashCode) {
-                                    personChatId = '${_user.uid}-${snapshot.data.docs[index].data()["uid"]}';
+                                    personChatId = '${_user.uid}-${snapshot.data!.docs[index].get('uid')}';
                                   } else {
-                                    personChatId = '${snapshot.data.docs[index].data()["uid"]}-${_user.uid}';
+                                    personChatId = '${snapshot.data!.docs[index].get('uid')}-${_user.uid}';
                                   }
                                   return Padding(
                                     padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 2.0),
@@ -210,7 +210,7 @@ class _ForwardMessageArchiveViewState extends State<ForwardMessageArchiveView> {
                                       onTap: (){
                                         String personChatIdLocal;
 
-                                        personChatIdLocal = chatProvider.archiveList[indexMain].roomId;
+                                        personChatIdLocal = chatProvider.archiveList[indexMain].roomId!;
 
 
                                         // if (_user.uid.hashCode <= {snapshot.data.docs[index].data()["uid"]}.hashCode) {
@@ -243,7 +243,7 @@ class _ForwardMessageArchiveViewState extends State<ForwardMessageArchiveView> {
                                         String fileName = widget.messageData["fileName"];
                                         int fileSize = widget.messageData["fileSize"];
 
-                                        Map<String, dynamic> chatMessageMapLocal = {'idFrom': _user.uid, 'idTo': snapshot.data.docs[index].data()["uid"], 'timestamp': DateTime.now().millisecondsSinceEpoch.toString(), 'content': message.trim(), 'type': type,"isForwarded":true};
+                                        Map<String, dynamic> chatMessageMapLocal = {'idFrom': _user.uid, 'idTo': snapshot.data!.docs[index].get('uid'), 'timestamp': DateTime.now().millisecondsSinceEpoch.toString(), 'content': message.trim(), 'type': type,"isForwarded":true};
 
                                         if (fileExtension!=null) {
                                           chatMessageMapLocal['fileExtension'] = fileExtension;
@@ -255,7 +255,7 @@ class _ForwardMessageArchiveViewState extends State<ForwardMessageArchiveView> {
                                           chatMessageMapLocal['fileSize'] = fileSize;
                                         }
 
-                                        print(snapshot.data.docs[index].data()["uid"]);
+                                        print(snapshot.data!.docs[index].get('uid'));
                                         print(personChatIdLocal);
                                         print(chatMessageMapLocal);
                                         _showSendAlertDialogPersonalMessage(messageData: chatMessageMapLocal,personChatId: personChatIdLocal);
@@ -263,12 +263,12 @@ class _ForwardMessageArchiveViewState extends State<ForwardMessageArchiveView> {
                                       leading: CircleAvatar(
                                         radius: 24,
                                         backgroundColor: MateColors.activeIcons,
-                                        backgroundImage: NetworkImage(snapshot.data.docs[index].data()["photoURL"]),
+                                        backgroundImage: NetworkImage(snapshot.data!.docs[index].get('photoURL')),
                                       ),
                                       title: Row(
                                         children: [
                                           Text(
-                                            snapshot.data.docs[index].data()["displayName"],
+                                            snapshot.data!.docs[index].get('displayName'),
                                             style: TextStyle(
                                               fontFamily: "Poppins",
                                               fontSize: 15.0,
@@ -277,7 +277,7 @@ class _ForwardMessageArchiveViewState extends State<ForwardMessageArchiveView> {
                                               color: themeController.isDarkMode?Colors.white:MateColors.blackTextColor,
                                             ),
                                           ),
-                                          chatProvider.archiveList[indexMain].isMuted?
+                                          chatProvider.archiveList[indexMain].isMuted!?
                                           Padding(
                                             padding: EdgeInsets.only(left: 10),
                                             child: Image.asset("lib/asset/icons/mute.png",
@@ -288,28 +288,27 @@ class _ForwardMessageArchiveViewState extends State<ForwardMessageArchiveView> {
                                           ):Offstage(),
                                         ],
                                       ),
-                                      subtitle: StreamBuilder(
+                                      subtitle: StreamBuilder<QuerySnapshot>(
                                           stream: FirebaseFirestore.instance.collection('messages').doc(personChatId).collection(personChatId).orderBy('timestamp', descending: true).limit(1).snapshots(),
                                           builder: (context, snapshot) {
                                             if (snapshot.hasData) {
-                                              print(snapshot.data.docs);
-                                              if (snapshot.data.docs.length > 0) {
+                                              if (snapshot.data!.docs.length > 0) {
                                                 return Text(
-                                                  snapshot.data.docs[0].data()['type'] == 4?
+                                                  snapshot.data!.docs[0].get('type') == 4?
                                                   "Audio" :
-                                                  snapshot.data.docs[0].data()['type'] == 0 ?
-                                                  "${snapshot.data.docs[0].data()['content']}" : snapshot.data.docs[0].data()['type'] == 1 ?
+                                                  snapshot.data!.docs[0].get('type') == 0 ?
+                                                  "${snapshot.data!.docs[0].get('content')}" : snapshot.data!.docs[0].get('type') == 1 ?
                                                   "🖼️ Image" :
-                                                  snapshot.data.docs[0].data()['fileName'],
+                                                  snapshot.data!.docs[0].get('fileName'),
                                                   style: TextStyle(
                                                     fontFamily: "Poppins",
                                                     fontSize: 14.0,
                                                     letterSpacing: 0.1,
                                                     fontWeight: FontWeight.w400,
                                                     color: themeController.isDarkMode?
-                                                    chatProvider.archiveList[indexMain].unreadMessages >0?
+                                                    chatProvider.archiveList[indexMain].unreadMessages! >0?
                                                     Colors.white: MateColors.subTitleTextDark:
-                                                    chatProvider.archiveList[indexMain].unreadMessages >0?
+                                                    chatProvider.archiveList[indexMain].unreadMessages! >0?
                                                     MateColors.blackTextColor:
                                                     MateColors.subTitleTextLight,
                                                   ),
@@ -328,7 +327,7 @@ class _ForwardMessageArchiveViewState extends State<ForwardMessageArchiveView> {
                                                 overflow: TextOverflow.ellipsis,
                                               );
                                           }),
-                                      trailing: chatProvider.archiveList[indexMain].unreadMessages >0 && chatProvider.archiveList[indexMain].isMuted==false?
+                                      trailing: chatProvider.archiveList[indexMain].unreadMessages! >0 && chatProvider.archiveList[indexMain].isMuted==false?
                                       Container(
                                         height: 20,
                                         width: 20,
@@ -365,7 +364,7 @@ class _ForwardMessageArchiveViewState extends State<ForwardMessageArchiveView> {
   }
 
 
-  Future<void> _showSendAlertDialog({@required Map messageData, @required String groupId,@required userImage}) async {
+  Future<void> _showSendAlertDialog({required Map messageData, required String groupId,required userImage}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -394,7 +393,7 @@ class _ForwardMessageArchiveViewState extends State<ForwardMessageArchiveView> {
     );
   }
 
-  Future<void> _showSendAlertDialogPersonalMessage({@required Map messageData, @required String personChatId}) async {
+  Future<void> _showSendAlertDialogPersonalMessage({required Map messageData, required String personChatId}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,

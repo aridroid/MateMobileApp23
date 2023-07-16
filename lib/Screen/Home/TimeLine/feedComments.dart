@@ -18,7 +18,7 @@ class FeedComments extends StatefulWidget {
   final int feedIndex;
   final int feedId;
 
-  const FeedComments({Key key, this.feedId, this.feedIndex}) : super(key: key);
+  const FeedComments({Key? key, required this.feedId, required this.feedIndex}) : super(key: key);
 
   @override
   _CampusLivePostCommentsState createState() => _CampusLivePostCommentsState();
@@ -106,7 +106,7 @@ class _CampusLivePostCommentsState extends State<FeedComments> {
                             reverse: true,
                             physics: ScrollPhysics(),
                             padding: EdgeInsets.fromLTRB(16, 10, 16, 16),
-                            itemCount: feedProvider.commentFetchData.data.result.length,
+                            itemCount: feedProvider.commentFetchData!.data!.result!.length,
                             itemBuilder: (context, index) {
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,36 +114,36 @@ class _CampusLivePostCommentsState extends State<FeedComments> {
                                   Container(
                                     child: GestureDetector(
                                       onTap: (){
-                                        if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == feedProvider.commentFetchData.data.result[index].user.uuid) {
+                                        if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == feedProvider.commentFetchData!.data!.result![index].user!.uuid) {
                                           Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                         } else {
                                           Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                            "id": feedProvider.commentFetchData.data.result[index].user.uuid,
-                                            "name": feedProvider.commentFetchData.data.result[index].user.displayName,
-                                            "photoUrl": feedProvider.commentFetchData.data.result[index].user.profilePhoto,
-                                            "firebaseUid": feedProvider.commentFetchData.data.result[index].user.firebaseUid
+                                            "id": feedProvider.commentFetchData!.data!.result![index].user!.uuid,
+                                            "name": feedProvider.commentFetchData!.data!.result![index].user!.displayName,
+                                            "photoUrl": feedProvider.commentFetchData!.data!.result![index].user!.profilePhoto,
+                                            "firebaseUid": feedProvider.commentFetchData!.data!.result![index].user!.firebaseUid
                                           });
                                         }
                                       },
                                       child: ListTile(
                                         horizontalTitleGap: 1,
                                         dense: true,
-                                        leading: feedProvider.commentFetchData.data.result[index].user.profilePhoto != null?
+                                        leading: feedProvider.commentFetchData!.data!.result![index].user!.profilePhoto != null?
                                         ClipOval(
                                           child: Image.network(
-                                            feedProvider.commentFetchData.data.result[index].user.profilePhoto,
+                                            feedProvider.commentFetchData!.data!.result![index].user!.profilePhoto!,
                                             height: 28,
                                             width: 28,
                                             fit: BoxFit.cover,
                                           ),
                                         ):CircleAvatar(
                                           radius: 14,
-                                          child: Text(feedProvider.commentFetchData.data.result[index].user.displayName[0]),
+                                          child: Text(feedProvider.commentFetchData!.data!.result![index].user!.displayName![0]),
                                         ),
                                         title: Padding(
                                           padding: const EdgeInsets.only(top: 10),
                                           child: buildEmojiAndText(
-                                            content:  feedProvider.commentFetchData.data.result[index].content,
+                                            content:  feedProvider.commentFetchData!.data!.result![index].content!,
                                             textStyle: TextStyle(
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w400,
@@ -157,7 +157,7 @@ class _CampusLivePostCommentsState extends State<FeedComments> {
                                         subtitle: Padding(
                                           padding: const EdgeInsets.only(top: 5),
                                           child: Text(
-                                            DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(feedProvider.commentFetchData.data.result[index].createdAt, true)),
+                                            DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(feedProvider.commentFetchData!.data!.result![index].createdAt!, true)),
                                             style: TextStyle(
                                               fontSize: 12,
                                               color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
@@ -175,7 +175,7 @@ class _CampusLivePostCommentsState extends State<FeedComments> {
                                           onTap: ()=> Navigator.of(context).push(MaterialPageRoute(
                                               builder: (context) => FeedCommentsReply(
                                                 feedIndex: widget.feedIndex,
-                                                commentId: feedProvider.commentFetchData.data.result[index].id,
+                                                commentId: feedProvider.commentFetchData!.data!.result![index].id!,
                                                 commentIndex: index,
                                                 feedId: widget.feedId,
                                               ))),
@@ -189,9 +189,9 @@ class _CampusLivePostCommentsState extends State<FeedComments> {
                                             ),
                                           ),
                                         ),
-                                        Text(feedProvider.commentFetchData.data.result[index].replies.isEmpty?"":feedProvider.commentFetchData.data.result[index].replies.length>1?
-                                        "   •   ${feedProvider.commentFetchData.data.result[index].replies.length} Replies":
-                                        "   •   ${feedProvider.commentFetchData.data.result[index].replies.length} Reply",
+                                        Text(feedProvider.commentFetchData!.data!.result![index].replies!.isEmpty?"":feedProvider.commentFetchData!.data!.result![index].replies!.length>1?
+                                        "   •   ${feedProvider.commentFetchData!.data!.result![index].replies!.length} Replies":
+                                        "   •   ${feedProvider.commentFetchData!.data!.result![index].replies!.length} Reply",
                                           style: TextStyle(
                                             fontSize: 14,
                                             fontFamily: 'Poppins',
@@ -202,10 +202,10 @@ class _CampusLivePostCommentsState extends State<FeedComments> {
                                         ),
                                         Spacer(),
                                         Visibility(
-                                            visible: Provider.of<AuthUserProvider>(context, listen: false).authUser.id == feedProvider.commentFetchData.data.result[index].user.uuid,
+                                            visible: Provider.of<AuthUserProvider>(context, listen: false).authUser.id == feedProvider.commentFetchData!.data!.result![index].user!.uuid,
                                             child: Consumer<FeedProvider>(
                                               builder: (context, value, child) {
-                                                if(value.commentFetchData.data.result[index].isDeleting){
+                                                if(value.commentFetchData!.data!.result![index].isDeleting!){
                                                   return SizedBox(
                                                     height: 14,
                                                     width: 14,
@@ -217,7 +217,7 @@ class _CampusLivePostCommentsState extends State<FeedComments> {
                                                 }else{
                                                   return InkWell(
                                                     onTap: () async{
-                                                      bool updated = await Provider.of<FeedProvider>(context, listen: false).deleteCommentsOfAFeed(value.commentFetchData.data.result[index].id, index);
+                                                      bool updated = await Provider.of<FeedProvider>(context, listen: false).deleteCommentsOfAFeed(value.commentFetchData!.data!.result![index].id!, index);
 
                                                       if (updated) {
                                                         --Provider.of<FeedProvider>(context, listen: false).feedList[widget.feedIndex].commentCount;
@@ -240,14 +240,14 @@ class _CampusLivePostCommentsState extends State<FeedComments> {
                                     ),
                                   ),
                                   Visibility(
-                                    visible: feedProvider.commentFetchData.data.result[index].replies.length>1,
+                                    visible: feedProvider.commentFetchData!.data!.result![index].replies!.length>1,
                                     child: Padding(
                                       padding: EdgeInsets.fromLTRB(58, 10, 5, 0),
                                       child: InkWell(
                                         onTap: ()=> Navigator.of(context).push(MaterialPageRoute(
                                             builder: (context) => FeedCommentsReply(
                                               feedIndex: widget.feedIndex,
-                                              commentId: feedProvider.commentFetchData.data.result[index].id,
+                                              commentId: feedProvider.commentFetchData!.data!.result![index].id!,
                                               commentIndex: index,
                                               feedId: widget.feedId,
                                             ))),
@@ -264,7 +264,7 @@ class _CampusLivePostCommentsState extends State<FeedComments> {
                                       ),
                                     ),
                                   ),
-                                  feedProvider.commentFetchData.data.result[index].replies.isNotEmpty?
+                                  feedProvider.commentFetchData!.data!.result![index].replies!.isNotEmpty?
                                   Padding(
                                     padding: EdgeInsets.fromLTRB(40, 0, 0, 5),
                                     child: Row(
@@ -273,36 +273,36 @@ class _CampusLivePostCommentsState extends State<FeedComments> {
                                         Expanded(
                                           child: InkWell(
                                             onTap: () {
-                                              if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == feedProvider.commentFetchData.data.result[index].replies.last.user.uuid) {
+                                              if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.uuid) {
                                                 Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                               } else {
                                                 Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                                  "id": feedProvider.commentFetchData.data.result[index].replies.last.user.uuid,
-                                                  "name": feedProvider.commentFetchData.data.result[index].replies.last.user.displayName,
-                                                  "photoUrl": feedProvider.commentFetchData.data.result[index].replies.last.user.profilePhoto,
-                                                  "firebaseUid": feedProvider.commentFetchData.data.result[index].replies.last.user.firebaseUid
+                                                  "id": feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.uuid,
+                                                  "name": feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.displayName,
+                                                  "photoUrl": feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.profilePhoto,
+                                                  "firebaseUid": feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.firebaseUid
                                                 });
                                               }
                                             },
                                             child: ListTile(
                                               horizontalTitleGap: 1,
                                               dense: true,
-                                              leading: feedProvider.commentFetchData.data.result[index].replies.last.user.profilePhoto != null ?
+                                              leading: feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.profilePhoto != null ?
                                               ClipOval(
                                                 child: Image.network(
-                                                  feedProvider.commentFetchData.data.result[index].replies.last.user.profilePhoto,
+                                                  feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.profilePhoto!,
                                                   height: 28,
                                                   width: 28,
                                                   fit: BoxFit.cover,
                                                 ),
                                               ):CircleAvatar(
                                                 radius: 14,
-                                                child: Text(feedProvider.commentFetchData.data.result[index].replies.last.user.displayName[0],),
+                                                child: Text(feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.displayName![0],),
                                               ),
                                               title: Padding(
                                                 padding: const EdgeInsets.only(top: 10),
                                                 child: buildEmojiAndText(
-                                                  content: feedProvider.commentFetchData.data.result[index].replies.last.content,
+                                                  content: feedProvider.commentFetchData!.data!.result![index].replies!.last.content!,
                                                   textStyle: TextStyle(
                                                     fontFamily: 'Poppins',
                                                     fontWeight: FontWeight.w400,
@@ -316,7 +316,7 @@ class _CampusLivePostCommentsState extends State<FeedComments> {
                                               subtitle: Padding(
                                                 padding: const EdgeInsets.only(top: 5),
                                                 child: Text(
-                                                  DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(feedProvider.commentFetchData.data.result[index].replies.last.createdAt, true)),
+                                                  DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(feedProvider.commentFetchData!.data!.result![index].replies!.last.createdAt!, true)),
                                                   style: TextStyle(
                                                     fontSize: 12,
                                                     color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),

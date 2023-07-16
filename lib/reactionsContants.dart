@@ -318,9 +318,9 @@ Container _buildReactionsIcon(String path, Text text) {
 // ];
 
 List<Color> reactionIconBGColors = [
-  Colors.orange[50],
-  Colors.red[50],
+  Colors.orange[50]!,
+  Colors.red[50]!,
   Colors.white,
-  Colors.yellow[50],
-  Colors.blue[50],
+  Colors.yellow[50]!,
+  Colors.blue[50]!,
 ];

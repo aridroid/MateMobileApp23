@@ -33,13 +33,13 @@ class StudyGroupsScreen extends StatelessWidget {
                     child: Text("${index + 1}"),
                   ),
                   title: Text(
-                    studyGroupProvider.studyGrops[index].name,
+                    studyGroupProvider.studyGrops[index].name!,
                     style: TextStyle(
                       color: Colors.white,
                     ),
                   ),
                   subtitle: Text(
-                    "${studyGroupProvider.studyGrops[index].members.length} member",
+                    "${studyGroupProvider.studyGrops[index].members!.length} member",
                     style: TextStyle(
                       color: Colors.grey,
                     ),

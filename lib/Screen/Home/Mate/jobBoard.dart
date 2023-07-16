@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import '../../../controller/theme_controller.dart';
 
 class JobBoard extends StatefulWidget {
-  const JobBoard({Key key}) : super(key: key);
+  const JobBoard({Key? key}) : super(key: key);
 
   @override
   State<JobBoard> createState() => _JobBoardState();

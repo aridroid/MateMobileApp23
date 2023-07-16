@@ -17,35 +17,35 @@ import '../../../controller/theme_controller.dart';
 import 'feedCommentsReply.dart';
 
 class FeedDetailsFullScreen extends StatefulWidget{
-  String previousPageUserId;
-  String previousPageFeedId;
-  String id;
-  int feedId;
-  String title;
-  String start;
-  String end;
-  String calenderDate;
-  String description;
-  String created;
+  String? previousPageUserId;
+  String? previousPageFeedId;
+  String? id;
+  int? feedId;
+  String? title;
+  String? start;
+  String? end;
+  String? calenderDate;
+  String? description;
+  String? created;
   var user;
-  String location;
-  String hyperlinkText;
-  String hyperlink;
-  List media;
-  List mediaOther;
-  bool bookMarked;
-  IsLiked isLiked;
-  bool liked;
-  List feedType;
-  int indexVal;
-  bool isBookmarkedPage;
-  bool isFeedDetailsPage;
-  List<LikeCount> likeCount;
-  int bookmarkCount;
-  int shareCount;
-  int commentCount;
-  IsShared isShared;
-  String pageType;
+  String? location;
+  String? hyperlinkText;
+  String? hyperlink;
+  List? media;
+  List? mediaOther;
+  bool? bookMarked;
+  IsLiked? isLiked;
+  bool? liked;
+  List? feedType;
+  int? indexVal;
+  bool? isBookmarkedPage;
+  bool? isFeedDetailsPage;
+  List<LikeCount>? likeCount;
+  int? bookmarkCount;
+  int? shareCount;
+  int? commentCount;
+  IsShared? isShared;
+  String? pageType;
 
   FeedDetailsFullScreen(
       {this.previousPageUserId,
@@ -87,7 +87,7 @@ class FeedDetailsFullScreenState extends State<FeedDetailsFullScreen>{
   ThemeController themeController = Get.find<ThemeController>();
   TextEditingController messageEditingController = new TextEditingController();
   bool messageSentCheck = false;
-  ClientId _credentials;
+  late ClientId _credentials;
 
   @override
   void initState() {
@@ -98,7 +98,7 @@ class FeedDetailsFullScreenState extends State<FeedDetailsFullScreen>{
       _credentials = new ClientId("237545926078-99q5c35ugs0b49spmhf1ru0ghie7opnp.apps.googleusercontent.com", "");
     }
     Future.delayed(Duration(seconds: 0), () {
-      Provider.of<FeedProvider>(context, listen: false).fetchCommentsOfAFeed(widget.feedId);
+      Provider.of<FeedProvider>(context, listen: false).fetchCommentsOfAFeed(widget.feedId!);
     });
   }
 
@@ -206,13 +206,13 @@ class FeedDetailsFullScreenState extends State<FeedDetailsFullScreen>{
                         messageSentCheck = true;
                       });
                       Map<String, dynamic> body = {"content": messageEditingController.text.trim()};
-                      bool updated = await Provider.of<FeedProvider>(context, listen: false).commentAFeed(body, widget.feedId);
+                      bool updated = await Provider.of<FeedProvider>(context, listen: false).commentAFeed(body, widget.feedId!);
 
                       if (updated) {
-                        ++Provider.of<FeedProvider>(context, listen: false).feedList[widget.indexVal].commentCount;
+                        ++Provider.of<FeedProvider>(context, listen: false).feedList[widget.indexVal!].commentCount;
                         messageEditingController.text = "";
                         Future.delayed(Duration(seconds: 0), () {
-                          Provider.of<FeedProvider>(context, listen: false).fetchCommentsOfAFeed(widget.feedId);
+                          Provider.of<FeedProvider>(context, listen: false).fetchCommentsOfAFeed(widget.feedId!);
                         });
                       }
                       setState(() {
@@ -247,7 +247,7 @@ class FeedDetailsFullScreenState extends State<FeedDetailsFullScreen>{
             reverse: true,
             physics: ScrollPhysics(),
             padding: EdgeInsets.fromLTRB(16, 10, 16, 16),
-            itemCount: feedProvider.commentFetchData.data.result.length,
+            itemCount: feedProvider.commentFetchData!.data!.result!.length,
             itemBuilder: (context, index) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -255,36 +255,36 @@ class FeedDetailsFullScreenState extends State<FeedDetailsFullScreen>{
                   Container(
                     child: GestureDetector(
                       onTap: (){
-                        if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == feedProvider.commentFetchData.data.result[index].user.uuid) {
+                        if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == feedProvider.commentFetchData!.data!.result![index].user!.uuid) {
                           Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                         } else {
                           Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                            "id": feedProvider.commentFetchData.data.result[index].user.uuid,
-                            "name": feedProvider.commentFetchData.data.result[index].user.displayName,
-                            "photoUrl": feedProvider.commentFetchData.data.result[index].user.profilePhoto,
-                            "firebaseUid": feedProvider.commentFetchData.data.result[index].user.firebaseUid
+                            "id": feedProvider.commentFetchData!.data!.result![index].user!.uuid,
+                            "name": feedProvider.commentFetchData!.data!.result![index].user!.displayName,
+                            "photoUrl": feedProvider.commentFetchData!.data!.result![index].user!.profilePhoto,
+                            "firebaseUid": feedProvider.commentFetchData!.data!.result![index].user!.firebaseUid
                           });
                         }
                       },
                       child: ListTile(
                         horizontalTitleGap: 1,
                         dense: true,
-                        leading: feedProvider.commentFetchData.data.result[index].user.profilePhoto != null?
+                        leading: feedProvider.commentFetchData!.data!.result![index].user!.profilePhoto != null?
                         ClipOval(
                           child: Image.network(
-                            feedProvider.commentFetchData.data.result[index].user.profilePhoto,
+                            feedProvider.commentFetchData!.data!.result![index].user!.profilePhoto!,
                             height: 28,
                             width: 28,
                             fit: BoxFit.cover,
                           ),
                         ):CircleAvatar(
                           radius: 14,
-                          child: Text(feedProvider.commentFetchData.data.result[index].user.displayName[0]),
+                          child: Text(feedProvider.commentFetchData!.data!.result![index].user!.displayName![0]),
                         ),
                         title: Padding(
                           padding: const EdgeInsets.only(top: 10),
                           child: buildEmojiAndText(
-                            content:  feedProvider.commentFetchData.data.result[index].content,
+                            content:  feedProvider.commentFetchData!.data!.result![index].content!,
                             textStyle: TextStyle(
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.w400,
@@ -298,7 +298,7 @@ class FeedDetailsFullScreenState extends State<FeedDetailsFullScreen>{
                         subtitle: Padding(
                           padding: const EdgeInsets.only(top: 5),
                           child: Text(
-                            DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(feedProvider.commentFetchData.data.result[index].createdAt, true)),
+                            DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(feedProvider.commentFetchData!.data!.result![index].createdAt!, true)),
                             style: TextStyle(
                               fontSize: 12,
                               color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
@@ -315,10 +315,10 @@ class FeedDetailsFullScreenState extends State<FeedDetailsFullScreen>{
                         InkWell(
                           onTap: ()=> Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => FeedCommentsReply(
-                                feedIndex: widget.indexVal,
-                                commentId: feedProvider.commentFetchData.data.result[index].id,
+                                feedIndex: widget.indexVal!,
+                                commentId: feedProvider.commentFetchData!.data!.result![index].id!,
                                 commentIndex: index,
-                                feedId: widget.feedId,
+                                feedId: widget.feedId!,
                               ))),
                           child: Text("Reply",
                             style: TextStyle(
@@ -330,9 +330,9 @@ class FeedDetailsFullScreenState extends State<FeedDetailsFullScreen>{
                             ),
                           ),
                         ),
-                        Text(feedProvider.commentFetchData.data.result[index].replies.isEmpty?"":feedProvider.commentFetchData.data.result[index].replies.length>1?
-                        "   •   ${feedProvider.commentFetchData.data.result[index].replies.length} Replies":
-                        "   •   ${feedProvider.commentFetchData.data.result[index].replies.length} Reply",
+                        Text(feedProvider.commentFetchData!.data!.result![index].replies!.isEmpty?"":feedProvider.commentFetchData!.data!.result![index].replies!.length>1?
+                        "   •   ${feedProvider.commentFetchData!.data!.result![index].replies!.length} Replies":
+                        "   •   ${feedProvider.commentFetchData!.data!.result![index].replies!.length} Reply",
                           style: TextStyle(
                             fontSize: 12,
                             fontFamily: 'Poppins',
@@ -343,10 +343,10 @@ class FeedDetailsFullScreenState extends State<FeedDetailsFullScreen>{
                           ),
                         Spacer(),
                         Visibility(
-                            visible: Provider.of<AuthUserProvider>(context, listen: false).authUser.id == feedProvider.commentFetchData.data.result[index].user.uuid,
+                            visible: Provider.of<AuthUserProvider>(context, listen: false).authUser.id == feedProvider.commentFetchData!.data!.result![index].user!.uuid,
                             child: Consumer<FeedProvider>(
                               builder: (context, value, child) {
-                                if(value.commentFetchData.data.result[index].isDeleting){
+                                if(value.commentFetchData!.data!.result![index].isDeleting!){
                                   return SizedBox(
                                     height: 14,
                                     width: 14,
@@ -358,13 +358,13 @@ class FeedDetailsFullScreenState extends State<FeedDetailsFullScreen>{
                                 }else{
                                   return InkWell(
                                     onTap: () async{
-                                      bool updated = await Provider.of<FeedProvider>(context, listen: false).deleteCommentsOfAFeed(value.commentFetchData.data.result[index].id, index);
+                                      bool updated = await Provider.of<FeedProvider>(context, listen: false).deleteCommentsOfAFeed(value.commentFetchData!.data!.result![index].id!, index);
 
                                       if (updated) {
-                                        --Provider.of<FeedProvider>(context, listen: false).feedList[widget.indexVal].commentCount;
+                                        --Provider.of<FeedProvider>(context, listen: false).feedList[widget.indexVal!].commentCount;
 
                                         Future.delayed(Duration(seconds: 0), () {
-                                          Provider.of<FeedProvider>(context, listen: false).fetchCommentsOfAFeed(widget.feedId);
+                                          Provider.of<FeedProvider>(context, listen: false).fetchCommentsOfAFeed(widget.feedId!);
                                         });
                                       }
                                     },
@@ -381,16 +381,16 @@ class FeedDetailsFullScreenState extends State<FeedDetailsFullScreen>{
                     ),
                   ),
                   Visibility(
-                    visible: feedProvider.commentFetchData.data.result[index].replies.length>1,
+                    visible: feedProvider.commentFetchData!.data!.result![index].replies!.length>1,
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(58, 10, 5, 0),
                       child: InkWell(
                         onTap: ()=> Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => FeedCommentsReply(
-                              feedIndex: widget.indexVal,
-                              commentId: feedProvider.commentFetchData.data.result[index].id,
+                              feedIndex: widget.indexVal!,
+                              commentId: feedProvider.commentFetchData!.data!.result![index].id!,
                               commentIndex: index,
-                              feedId: widget.feedId,
+                              feedId: widget.feedId!,
                             ))),
                         child: Text(
                           "Show previous replies...",
@@ -405,7 +405,7 @@ class FeedDetailsFullScreenState extends State<FeedDetailsFullScreen>{
                       ),
                     ),
                   ),
-                  feedProvider.commentFetchData.data.result[index].replies.isNotEmpty?
+                  feedProvider.commentFetchData!.data!.result![index].replies!.isNotEmpty?
                   Padding(
                     padding: EdgeInsets.fromLTRB(40, 0, 0, 5),
                     child: Row(
@@ -414,36 +414,36 @@ class FeedDetailsFullScreenState extends State<FeedDetailsFullScreen>{
                         Expanded(
                           child: InkWell(
                             onTap: () {
-                              if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == feedProvider.commentFetchData.data.result[index].replies.last.user.uuid) {
+                              if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.uuid) {
                                 Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                               } else {
                                 Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                                  "id": feedProvider.commentFetchData.data.result[index].replies.last.user.uuid,
-                                  "name": feedProvider.commentFetchData.data.result[index].replies.last.user.displayName,
-                                  "photoUrl": feedProvider.commentFetchData.data.result[index].replies.last.user.profilePhoto,
-                                  "firebaseUid": feedProvider.commentFetchData.data.result[index].replies.last.user.firebaseUid
+                                  "id": feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.uuid,
+                                  "name": feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.displayName,
+                                  "photoUrl": feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.profilePhoto,
+                                  "firebaseUid": feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.firebaseUid
                                 });
                               }
                             },
                             child: ListTile(
                               horizontalTitleGap: 1,
                               dense: true,
-                              leading: feedProvider.commentFetchData.data.result[index].replies.last.user.profilePhoto != null ?
+                              leading: feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.profilePhoto != null ?
                               ClipOval(
                                 child: Image.network(
-                                  feedProvider.commentFetchData.data.result[index].replies.last.user.profilePhoto,
+                                  feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.profilePhoto!,
                                   height: 28,
                                   width: 28,
                                   fit: BoxFit.cover,
                                 ),
                               ):CircleAvatar(
                                 radius: 14,
-                                child: Text(feedProvider.commentFetchData.data.result[index].replies.last.user.displayName[0],),
+                                child: Text(feedProvider.commentFetchData!.data!.result![index].replies!.last.user!.displayName![0],),
                               ),
                               title: Padding(
                                 padding: const EdgeInsets.only(top: 10),
                                 child: buildEmojiAndText(
-                                  content: feedProvider.commentFetchData.data.result[index].replies.last.content,
+                                  content: feedProvider.commentFetchData!.data!.result![index].replies!.last.content!,
                                   textStyle: TextStyle(
                                     fontFamily: 'Poppins',
                                     fontWeight: FontWeight.w400,
@@ -457,7 +457,7 @@ class FeedDetailsFullScreenState extends State<FeedDetailsFullScreen>{
                               subtitle: Padding(
                                 padding: const EdgeInsets.only(top: 5),
                                 child: Text(
-                                  DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(feedProvider.commentFetchData.data.result[index].replies.last.createdAt, true)),
+                                  DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(feedProvider.commentFetchData!.data!.result![index].replies!.last.createdAt!, true)),
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),

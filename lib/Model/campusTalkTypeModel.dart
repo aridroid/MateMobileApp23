@@ -1,7 +1,7 @@
 class CampusTalkTypeModel {
-  bool success;
-  String message;
-  List<Data> data;
+  bool? success;
+  String? message;
+  List<Data>? data;
 
   CampusTalkTypeModel({this.success, this.message, this.data});
 
@@ -11,7 +11,7 @@ class CampusTalkTypeModel {
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
-        data.add(new Data.fromJson(v));
+        data?.add(new Data.fromJson(v));
       });
     }
   }
@@ -21,16 +21,16 @@ class CampusTalkTypeModel {
     data['success'] = this.success;
     data['message'] = this.message;
     if (this.data != null) {
-      data['data'] = this.data.map((v) => v.toJson()).toList();
+      data['data'] = this.data?.map((v) => v.toJson()).toList();
     }
     return data;
   }
 }
 
 class Data {
-  int id;
-  String uuid;
-  String name;
+  int? id;
+  String? uuid;
+  String? name;
 
   Data({this.id, this.uuid, this.name});
 

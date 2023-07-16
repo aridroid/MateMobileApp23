@@ -24,17 +24,17 @@ import '../HomeScreen.dart';
 import 'package:http/http.dart'as http;
 
 class EditFeedPost extends StatefulWidget {
-  final int id;
-  final String title;
-  final String description;
-  final String link;
-  final String linkText;
-  final String imageUrl;
-  final String videoUrl;
-  final String audioUrl;
-  final List feedType;
+  final int? id;
+  final String? title;
+  final String? description;
+  final String? link;
+  final String? linkText;
+  final String? imageUrl;
+  final String? videoUrl;
+  final String? audioUrl;
+  final List? feedType;
   static final String routeName = 'create-post';
-  const EditFeedPost({Key key, this.id, this.title, this.description, this.link, this.linkText, this.imageUrl, this.feedType, this.videoUrl, this.audioUrl}) : super(key: key);
+  const EditFeedPost({Key? key, this.id, this.title, this.description, this.link, this.linkText, this.imageUrl, this.feedType, this.videoUrl, this.audioUrl}) : super(key: key);
 
   @override
   _EditFeedPostState createState() => _EditFeedPostState();
@@ -46,26 +46,26 @@ class _EditFeedPostState extends State<EditFeedPost> {
   FocusNode _descriptionFocusNode = FocusNode();
   FocusNode _locationFocusNode = FocusNode();
   ScrollController _scrollController = ScrollController();
-  int _id;
-  String _title;
-  String _description;
-  String _location;
-  String _hyperlinkText;
-  String _hyperlink;
+  int? _id;
+  String? _title;
+  String? _description;
+  String? _location;
+  String? _hyperlinkText;
+  String? _hyperlink;
   TextEditingController _otherFeedType = new TextEditingController(text: "");
-  File _image;
-  String _base64encodedImage;
-  File _video;
-  String _base64encodedVideo;
-  File _audio;
-  String _base64encodedAudio;
+  File? _image;
+  String? _base64encodedImage;
+  File? _video;
+  String? _base64encodedVideo;
+  File? _audio;
+  String? _base64encodedAudio;
   final picker = ImagePicker();
   List<bool> feedTypeChek = [];
   bool feedTypeOtherCheck = false;
   List<String> feedTypeId = [];
   bool feedInsertFirstCheck=true;
-  DateTime _startDate;
-  DateTime _endDate;
+  DateTime? _startDate;
+  DateTime? _endDate;
   ThemeController themeController = Get.find<ThemeController>();
   int titleLength= 0;
   int descriptionLength= 0;
@@ -106,20 +106,20 @@ class _EditFeedPostState extends State<EditFeedPost> {
     _imageUrl = widget.imageUrl??"";
     _videoUrl = widget.videoUrl??"";
     _audioUrl = widget.audioUrl??"";
-    for(int i=0;i<widget.feedType.length;i++){
-      feedTypeName.add(widget.feedType[i].type.name);
+    for(int i=0;i<widget.feedType!.length;i++){
+      feedTypeName.add(widget.feedType![i].type.name);
     }
     setState(() {});
   }
 
   void _submitForm(BuildContext context) async {
     FocusScope.of(context).unfocus();
-    bool validated = _formKey.currentState.validate();
+    bool validated = _formKey.currentState!.validate();
     if (validated) {
       setState(() {
         isLoading = true;
       });
-      _formKey.currentState.save();
+      _formKey.currentState!.save();
       List<String> feedTypeIdFinal = [];
       for(int i=0;i<feedTypeChek.length;i++){
         if(feedTypeChek[i]){
@@ -129,8 +129,8 @@ class _EditFeedPostState extends State<EditFeedPost> {
       bool updated = await Provider.of<FeedProvider>(context, listen: false).updateFeed(
           id: feedTypeIdFinal.isNotEmpty? feedTypeIdFinal : null,
           feedTypeOther: (feedTypeOtherCheck==true)?_otherFeedType.text.trim():null,
-          title: _title,
-          description: _description,
+          title: _title!,
+          description: _description!,
           location: _location,
           hyperlink: _hyperlink,
           hyperlinkText: _hyperlinkText,
@@ -139,7 +139,7 @@ class _EditFeedPostState extends State<EditFeedPost> {
           image: _base64encodedImage != null ? _base64encodedImage : null,
           audio: _base64encodedAudio !=null ? _base64encodedAudio :null,
           video: _base64encodedVideo !=null ? _base64encodedVideo : null,
-          feedId: _id,
+          feedId: _id!,
           mediaDeleted: mediaDeleted && (_image==null && _video==null && _audio==null),
       );
       if (updated) {
@@ -152,7 +152,7 @@ class _EditFeedPostState extends State<EditFeedPost> {
     }
   }
 
-  InputDecoration _customInputDecoration({@required String labelText, IconData icon,bool isSuffix=false}) {
+  InputDecoration _customInputDecoration({required String labelText, IconData? icon,bool isSuffix=false}) {
     return InputDecoration(
       hintStyle: TextStyle(
         fontSize: 16,
@@ -191,7 +191,7 @@ class _EditFeedPostState extends State<EditFeedPost> {
               ),
               onPressed: (){
                 FocusScope.of(context).unfocus();
-                _formKey.currentState.save();
+                _formKey.currentState!.save();
                 if (feedTypeChek.any((element) => element == true || feedTypeOtherCheck)) {
                   if(feedTypeOtherCheck && _otherFeedType.text.trim().isEmpty){
                     Fluttertoast.showToast(msg: " Enter Other Feed Type ", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
@@ -229,7 +229,7 @@ class _EditFeedPostState extends State<EditFeedPost> {
 
   bool isPausedRecording = false;
   bool isPlaying = false;
-  Duration currentDuration;
+  Duration? currentDuration;
   AudioPlayer _audioPlayer = AudioPlayer();
   bool showDeleteIcon = true;
 
@@ -279,7 +279,7 @@ class _EditFeedPostState extends State<EditFeedPost> {
         isPlaying = false;
       });
       if(_audio!=null){
-        _audioPlayer.setFilePath(_audio.path);
+        _audioPlayer.setFilePath(_audio!.path);
       }else{
         var dir = await getApplicationDocumentsDirectory();
         var filePathAndName = dir.path + "/audios/" +_audioUrl.split("/").last + ".mp3";
@@ -456,7 +456,7 @@ class _EditFeedPostState extends State<EditFeedPost> {
                                     _title = value;
                                   },
                                   validator: (value) {
-                                    if (value.length == 0) {
+                                    if (value!.length == 0) {
                                       return "Title field is Required";
                                     }else {
                                       return null;
@@ -654,7 +654,7 @@ class _EditFeedPostState extends State<EditFeedPost> {
                                           Row(
                                             children: [
                                               currentDuration!=null?
-                                              Text(currentDuration.inMinutes.toString().padLeft(2,'0') +":"+ currentDuration.inSeconds.toString().padLeft(2,"0"),
+                                              Text(currentDuration!.inMinutes.toString().padLeft(2,'0') +":"+ currentDuration!.inSeconds.toString().padLeft(2,"0"),
                                                 style: TextStyle(
                                                   fontFamily: 'Poppins',
                                                   fontWeight: FontWeight.w500,
@@ -803,7 +803,7 @@ class _EditFeedPostState extends State<EditFeedPost> {
                                     _description = value;
                                   },
                                   validator: (value) {
-                                    if (value.length == 0) {
+                                    if (value!.length == 0) {
                                       return "Description field is Required";
                                     }else {
                                       return null;
@@ -949,17 +949,17 @@ class _EditFeedPostState extends State<EditFeedPost> {
                                       if(feedInsertFirstCheck){
                                         feedProvider.feedTypeList.forEach((element) {
                                           feedTypeChek.add(false);
-                                          feedTypeId.add(element.id);
+                                          feedTypeId.add(element.id!);
                                         });
                                         feedInsertFirstCheck=false;
                                         Future.delayed(Duration(seconds: 1),(){
                                           print(feedTypeName);
                                           List<String> mainName = [];
                                           for(int i=0;i<feedProvider.feedTypeList.length;i++){
-                                            mainName.add(feedProvider.feedTypeList[i].name);
+                                            mainName.add(feedProvider.feedTypeList[i].name!);
                                             if(feedTypeName.contains(feedProvider.feedTypeList[i].name)){
                                               feedTypeChek[i] = true;
-                                              feedTypeId[i] = feedProvider.feedTypeList[i].id;
+                                              feedTypeId[i] = feedProvider.feedTypeList[i].id!;
                                             }
                                           }
                                           for(int i=0;i<feedTypeName.length;i++){
@@ -1017,7 +1017,7 @@ class _EditFeedPostState extends State<EditFeedPost> {
                                                     themeController.isDarkMode? MateColors.appThemeDark:MateColors.appThemeLight:
                                                     themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
                                                   ),
-                                                  child: Text(feedProvider.feedTypeList[index].name,
+                                                  child: Text(feedProvider.feedTypeList[index].name!,
                                                     style: TextStyle(
                                                       fontSize: 14,
                                                       fontFamily: "Poppins",
@@ -1096,7 +1096,7 @@ class _EditFeedPostState extends State<EditFeedPost> {
                                           margin: EdgeInsets.only(left: 0, bottom: 10),
                                           child: _image != null?
                                           Image.file(
-                                            _image,
+                                            _image!,
                                             fit: BoxFit.fill,
                                           ):Image.network(_imageUrl,fit: BoxFit.fill,)
                                       ),
@@ -1153,7 +1153,7 @@ class _EditFeedPostState extends State<EditFeedPost> {
                                           padding: EdgeInsets.all(5),
                                           margin: EdgeInsets.only(left: 0, bottom: 10),
                                           child: _video != null?
-                                          VideoThumbnailFile(videoUrl: _video):
+                                          VideoThumbnailFile(videoUrl: _video!):
                                           VideoThumbnail(videoUrl: _videoUrl)
                                       ),
                                     ),
@@ -1358,7 +1358,7 @@ class _EditFeedPostState extends State<EditFeedPost> {
     final pickedFile = await picker.getImage(source: option == 0?ImageSource.camera:ImageSource.gallery,imageQuality: 70);
     if (pickedFile != null) {
       _image = File(pickedFile.path);
-      var img = _image.readAsBytesSync();
+      var img = _image!.readAsBytesSync();
       _base64encodedImage = base64Encode(img);
       _video = null;
       _base64encodedVideo = null;
@@ -1463,7 +1463,7 @@ class _EditFeedPostState extends State<EditFeedPost> {
     final pickedFile = await picker.getVideo(source: option==0?ImageSource.camera:ImageSource.gallery,);
     if (pickedFile != null) {
       _video = File(pickedFile.path);
-      var video = _video.readAsBytesSync();
+      var video = _video!.readAsBytesSync();
       _base64encodedVideo = base64Encode(video);
       _image = null;
       _base64encodedImage = null;
@@ -1570,8 +1570,8 @@ class _EditFeedPostState extends State<EditFeedPost> {
     }else{
       final pickedFile = await FilePicker.platform.pickFiles(type: FileType.audio);
       if (pickedFile != null) {
-        _audio = File(pickedFile.paths.first);
-        var audio = _audio.readAsBytesSync();
+        _audio = File(pickedFile.paths.first!);
+        var audio = _audio!.readAsBytesSync();
         _base64encodedAudio = base64Encode(audio);
         _image = null;
         _base64encodedImage = null;
@@ -1592,7 +1592,7 @@ class _EditFeedPostState extends State<EditFeedPost> {
 
   Record recordMp3 = Record();
   bool _isAcceptedPermission = false;
-  Timer _timer;
+  Timer? _timer;
   int second = 0;
   int minute = 0;
   bool isRecordingPaused = false;
@@ -1626,7 +1626,7 @@ class _EditFeedPostState extends State<EditFeedPost> {
   }
 
   Future<String> getFilePath() async {
-    User _user = FirebaseAuth.instance.currentUser;
+    User _user = FirebaseAuth.instance.currentUser!;
     Directory appDocDir = await getApplicationDocumentsDirectory();
     String appDocPath = appDocDir.path + "/" + _user.uid + ".m4a";
     if(File(appDocPath).existsSync()){
@@ -1670,12 +1670,12 @@ class _EditFeedPostState extends State<EditFeedPost> {
     isRecordingAudioFromMic = false;
     second = 0;
     minute = 0;
-    _timer.cancel();
+    _timer!.cancel();
 
-    String pickedFile = await recordMp3.stop();
+    String? pickedFile = await recordMp3.stop();
     if (pickedFile != null) {
       _audio = File(pickedFile);
-      var audio = _audio.readAsBytesSync();
+      var audio = _audio!.readAsBytesSync();
       _base64encodedAudio = base64Encode(audio);
       _image = null;
       _base64encodedImage = null;
@@ -1696,7 +1696,7 @@ class _EditFeedPostState extends State<EditFeedPost> {
     isRecordingAudioFromMic = false;
     second = 0;
     minute = 0;
-    _timer.cancel();
+    _timer!.cancel();
     setState(() {});
   }
 

@@ -18,7 +18,7 @@ import 'campusTalkDetailsFullScreen.dart';
 import 'createCampusTalkPost.dart';
 
 class CampusDashboard extends StatefulWidget {
-  const CampusDashboard({Key key}) : super(key: key);
+  const CampusDashboard({Key? key}) : super(key: key);
 
   @override
   State<CampusDashboard> createState() => _CampusDashboardState();
@@ -77,7 +77,7 @@ class _CampusDashboardState extends State<CampusDashboard> {
     swipeWidget.clear();
     var list = Provider.of<CampusTalkProvider>(context, listen: false).campusTalkPostsResultsListCard;
     for(int i=0;i<list.length;i++){
-      swipeWidget.add(cardItem(list[i].title, list[i].description, list[i]));
+      swipeWidget.add(cardItem(list[i].title!, list[i].description!, list[i]));
     }
   }
 
@@ -93,7 +93,7 @@ class _CampusDashboardState extends State<CampusDashboard> {
             isAnonymous: list.isAnonymous,
             anonymousUser: list.anonymousUser,
             url: list.url,
-            createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(list.createdAt, true))}",
+            createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(list.createdAt!, true))}",
             rowIndex: 0,
             isBookmarked: list.isBookmarked,
             isLiked: list.isLiked,

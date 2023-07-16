@@ -4,7 +4,7 @@ import 'package:mate_app/Services/UserClassService.dart';
 import 'package:flutter/material.dart';
 
 class UserClassProvider with ChangeNotifier {
-  UserClassService _userClassService;
+  UserClassService _userClassService =  UserClassService();
   bool _joinClassLoader = false;
   Map<String, dynamic> _validationErrors = Map<String, dynamic>();
   String _apiError = "";
@@ -68,9 +68,9 @@ class UserClassProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  UserClassProvider() {
-    _userClassService = UserClassService();
-  }
+  // UserClassProvider() {
+  //   _userClassService = UserClassService();
+  // }
 
   Future<void> userClasses() async {
     //auth user
@@ -97,9 +97,9 @@ class UserClassProvider with ChangeNotifier {
   }
 
   Future<void> joinClass(
-      {@required int courseId,
-      @required String semester,
-      @required int year}) async {
+      {required int courseId,
+      required String semester,
+      required int year}) async {
     error = "";
     joinClassLoaderStatus = true;
     validationErrors = Map();
@@ -122,9 +122,9 @@ class UserClassProvider with ChangeNotifier {
   }
 
   Future<bool> addAssignment(
-      {@required String classId,
-      @required String name,
-      @required String dueDate}) async {
+      {required String classId,
+      required String name,
+      required String dueDate}) async {
     error = "";
     assignmentAddLoaderStatus = true;
     try {

@@ -9,14 +9,14 @@ import 'package:provider/provider.dart';
 
 class FeedLikesDetails extends StatefulWidget {
   final int feedId;
-  const FeedLikesDetails({Key key, this.feedId}) : super(key: key);
+  const FeedLikesDetails({Key? key, required this.feedId}) : super(key: key);
 
   @override
   _FeedLikesDetailsState createState() => _FeedLikesDetailsState();
 }
 
 class _FeedLikesDetailsState extends State<FeedLikesDetails> with TickerProviderStateMixin{
-  TabController _tabController;
+  late TabController _tabController;
   List<Widget> _containers = [];
   List<Tab> _tabList = [];
   int totalTab=0;
@@ -29,11 +29,11 @@ class _FeedLikesDetailsState extends State<FeedLikesDetails> with TickerProvider
       FeedProvider fp = Provider.of<FeedProvider>(context, listen: false);
       fp.fetchLikeDetailsOfAFeed(widget.feedId).then((value) {
         _containers.add(mainList(fp));
-        _tabList.add(Tab(text: "ALL  ${fp.likeDetailsFetchData.data.result.length} "));
+        _tabList.add(Tab(text: "ALL  ${fp.likeDetailsFetchData!.data!.result!.length} "));
 
         for (int i = 0; i < reactionTexts.length; i++) {
-          print(fp.likeDetailsFetchData.emojiGroups["$i"]);
-          if(fp.likeDetailsFetchData.emojiGroups["$i"]!=null){
+          print(fp.likeDetailsFetchData!.emojiGroups["$i"]);
+          if(fp.likeDetailsFetchData!.emojiGroups["$i"]!=null){
             totalTab++;
             _tabList.add(Tab(
               child: Row(
@@ -43,11 +43,11 @@ class _FeedLikesDetailsState extends State<FeedLikesDetails> with TickerProvider
                     reactionImages[i],
                     width: 16,
                   ),
-                  Text("   ${fp.likeDetailsFetchData.emojiGroups["$i"].length}"),
+                  Text("   ${fp.likeDetailsFetchData!.emojiGroups["$i"].length}"),
                 ],
               ),
             ));
-          _containers.add(subList(fp.likeDetailsFetchData.emojiGroups["$i"]));
+          _containers.add(subList(fp.likeDetailsFetchData!.emojiGroups["$i"]));
           }
         }
         _tabController = TabController(length: totalTab+1, vsync: this);
@@ -166,7 +166,7 @@ class _FeedLikesDetailsState extends State<FeedLikesDetails> with TickerProvider
   Widget mainList(FeedProvider feedProvider){
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: feedProvider.likeDetailsFetchData.data.result.length,
+      itemCount: feedProvider.likeDetailsFetchData!.data!.result!.length,
       padding: EdgeInsets.only(top: 16),
       itemBuilder: (context, index) {
         return Padding(
@@ -174,10 +174,10 @@ class _FeedLikesDetailsState extends State<FeedLikesDetails> with TickerProvider
           child: InkWell(
             onTap: (){
               Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {
-                "id": feedProvider.likeDetailsFetchData.data.result[index].user.uuid,
-                "name": feedProvider.likeDetailsFetchData.data.result[index].user.displayName,
-                "photoUrl": feedProvider.likeDetailsFetchData.data.result[index].user.profilePhoto,
-                "firebaseUid": feedProvider.likeDetailsFetchData.data.result[index].user.firebaseUid
+                "id": feedProvider.likeDetailsFetchData!.data!.result![index].user!.uuid,
+                "name": feedProvider.likeDetailsFetchData!.data!.result![index].user!.displayName,
+                "photoUrl": feedProvider.likeDetailsFetchData!.data!.result![index].user!.profilePhoto,
+                "firebaseUid": feedProvider.likeDetailsFetchData!.data!.result![index].user!.firebaseUid
               });
             },
             child: ListTile(
@@ -188,7 +188,7 @@ class _FeedLikesDetailsState extends State<FeedLikesDetails> with TickerProvider
                   CircleAvatar(
                     radius: 22,
                     backgroundImage: NetworkImage(
-                      feedProvider.likeDetailsFetchData.data.result[index].user.profilePhoto,
+                      feedProvider.likeDetailsFetchData!.data!.result![index].user!.profilePhoto!,
                     ),
                   ),
                   Positioned(
@@ -198,14 +198,14 @@ class _FeedLikesDetailsState extends State<FeedLikesDetails> with TickerProvider
                       radius: 10,
                       backgroundColor: MateColors.line,
                       child: Image.asset(
-                        reactionImages[feedProvider.likeDetailsFetchData.data.result[index].emojiValue],
+                        reactionImages[feedProvider.likeDetailsFetchData!.data!.result![index].emojiValue!],
                         width: 14,
                       ),
                     ),
                   )
                 ],
               ),
-              title: Text(feedProvider.likeDetailsFetchData.data.result[index].user.displayName,
+              title: Text(feedProvider.likeDetailsFetchData!.data!.result![index].user!.displayName!,
                 style: TextStyle(
                   fontSize: 15,
                   fontFamily: "Poppins",

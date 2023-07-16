@@ -25,7 +25,7 @@ import 'package:http/http.dart'as http;
 class FeedSearch extends StatefulWidget {
   static final String routes = '/feedSearch';
   final String text;
-  FeedSearch({this.text});
+  FeedSearch({required this.text});
 
   @override
   _FeedSearchState createState() => _FeedSearchState();
@@ -33,18 +33,18 @@ class FeedSearch extends StatefulWidget {
 
 class _FeedSearchState extends State<FeedSearch> {
   ThemeController themeController = Get.find<ThemeController>();
-  ScrollController _scrollController;
+  late ScrollController _scrollController;
   int page = 1;
   bool enterFutureBuilder = false;
-  String userId;
+  String? userId;
   FeedService _feedService = FeedService();
-  TextEditingController _textEditingController;
+  late TextEditingController _textEditingController;
   String token = "";
   List<bool> selected = [];
   bool isLoading = false;
   bool normalSearch = false;
   String valueController = "";
-  FeedProvider feedProvider;
+  late FeedProvider feedProvider;
 
   @override
   void initState() {
@@ -73,7 +73,7 @@ class _FeedSearchState extends State<FeedSearch> {
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
     if(widget.text!=""){
       fetchData();
     }
@@ -109,7 +109,7 @@ class _FeedSearchState extends State<FeedSearch> {
     });
   }
 
-  Timer _throttle;
+  Timer? _throttle;
   _onSearchChanged() {
     if (_throttle?.isActive??false) _throttle?.cancel();
     _throttle = Timer(const Duration(milliseconds: 200), () {
@@ -362,7 +362,7 @@ class _FeedSearchState extends State<FeedSearch> {
                               isLoading = true;
                               normalSearch = false;
                               setState(() {});
-                              _textEditingController.text = feedProvider.feedTypeList[index].name;
+                              _textEditingController.text = feedProvider.feedTypeList[index].name!;
                               fetchData();
                             },
                             child: Container(
@@ -373,7 +373,7 @@ class _FeedSearchState extends State<FeedSearch> {
                               child: Center(
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 25),
-                                  child: Text(feedProvider.feedTypeList[index].name,
+                                  child: Text(feedProvider.feedTypeList[index].name!,
                                     style: TextStyle(
                                       fontFamily: "Poppins",
                                       fontSize: 15,

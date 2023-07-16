@@ -9,7 +9,7 @@ import '../Model/eventCateoryModel.dart';
 
 class EventService{
 
-  Future<String> createEvent({String title,String desc,String location,String date,String time,String token,String photo,String video,String linkText,String link,String endTime,String locationOption,int typeId})async{
+  Future<String> createEvent({String? title, String? desc,String? location, String? date,String? time,String? token,String? photo,String? video,String? linkText,String? link,String? endTime,String? locationOption,int? typeId})async{
     String result = "";
     Map data = {
       "title": title,
@@ -32,19 +32,19 @@ class EventService{
     };
     debugPrint("https://api.mateapp.us/api/events");
     debugPrint(json.encode(data));
-    log(token);
+    log(token!);
 
 
     Map<String, String> headers = { "Authorization": "Bearer " + token};
     final request = new http.MultipartRequest('POST', Uri.parse("https://api.mateapp.us/api/events"));
     request.headers.addAll(headers);
 
-    request.fields['title'] = title;
-    request.fields['description'] = desc;
-    request.fields['location'] = location;
-    request.fields['date'] = date;
-    request.fields['time'] = time;
-    request.fields['location_opt'] = locationOption;
+    request.fields['title'] = title!;
+    request.fields['description'] = desc!;
+    request.fields['location'] = location!;
+    request.fields['date'] = date!;
+    request.fields['time'] = time!;
+    request.fields['location_opt'] = locationOption!;
     request.fields['type_id'] = typeId.toString();
     if(linkText!=null)
       request.fields['hyperlinkText'] = linkText;
@@ -74,7 +74,7 @@ class EventService{
     return result;
   }
 
-  Future<String> updateEvent({int id,String title,String desc,String location,String date,String time,String token,String photo,String video,String linkText,String link,String endTime,bool isImageDeleted,bool isVideoDeleted,String locationOption,int typeId})async{
+  Future<String> updateEvent({int? id,String? title,String? desc,String? location,String? date,String? time,String? token,String? photo,String? video,String? linkText,String? link,String? endTime,bool? isImageDeleted,bool? isVideoDeleted,String? locationOption,int? typeId})async{
     String result = "";
     Map data = {
       "title": title,
@@ -94,26 +94,26 @@ class EventService{
         "hyperlink":link,
       if(endTime!=null)
         "end_time" : endTime,
-      if(isImageDeleted)
+      if(isImageDeleted!)
         "delete_photo":true,
-      if(isVideoDeleted)
+      if(isVideoDeleted!)
         "delete_video":true,
     };
     debugPrint("https://api.mateapp.us/api/event/$id/update");
     debugPrint(json.encode(data));
-    log(token);
+    log(token!);
 
 
     Map<String, String> headers = { "Authorization": "Bearer " + token};
     final request = new http.MultipartRequest('POST', Uri.parse("https://api.mateapp.us/api/event/$id/update"));
     request.headers.addAll(headers);
 
-    request.fields['title'] = title;
-    request.fields['description'] = desc;
-    request.fields['location'] = location;
-    request.fields['date'] = date;
-    request.fields['time'] = time;
-    request.fields['location_opt'] = locationOption;
+    request.fields['title'] = title!;
+    request.fields['description'] = desc!;
+    request.fields['location'] = location!;
+    request.fields['date'] = date!;
+    request.fields['time'] = time!;
+    request.fields['location_opt'] = locationOption!;
     request.fields['type_id'] = typeId.toString();
     if(linkText!=null)
       request.fields['hyperlinkText'] = linkText;
@@ -146,8 +146,8 @@ class EventService{
 
 
 
-  Future<EventListingModel> getEventListing({String token,int page,String filterDate,int filterType,String filterLocation})async{
-    EventListingModel eventListingModel;
+  Future<EventListingModel> getEventListing({required String token,required int page,required String filterDate,required int filterType,required String filterLocation})async{
+    late EventListingModel eventListingModel;
     debugPrint(token);
     try {
 
@@ -192,8 +192,8 @@ class EventService{
     return eventListingModel;
   }
 
-  Future<EventListingModel> getEventListingBookmark({String token,int page})async{
-    EventListingModel eventListingModel;
+  Future<EventListingModel?> getEventListingBookmark({required String token,required int page})async{
+    EventListingModel? eventListingModel;
     debugPrint("https://api.mateapp.us/api/event/bookmarkbyuser?page=$page");
     debugPrint(token);
     try {
@@ -214,8 +214,8 @@ class EventService{
     return eventListingModel;
   }
 
-  Future<EventListingModel> getEventListingLocal({String token,int page})async{
-    EventListingModel eventListingModel;
+  Future<EventListingModel?> getEventListingLocal({required String token,required int page})async{
+    EventListingModel? eventListingModel;
     debugPrint("https://api.mateapp.us/api/events?myevents=1&page=$page");
     debugPrint(token);
     try {
@@ -237,8 +237,8 @@ class EventService{
   }
 
 
-  Future<EventListingModel> getSearch({String token,int page,String text})async{
-    EventListingModel eventListingModel;
+  Future<EventListingModel?> getSearch({required String token,required int page,required String text})async{
+    EventListingModel? eventListingModel;
     debugPrint("https://api.mateapp.us/api/events?event_name=$text&page=$page");
     debugPrint(token);
     try {
@@ -259,8 +259,8 @@ class EventService{
     return eventListingModel;
   }
 
-  Future<EventListingModel> getSearchLocal({String token,int page,String text})async{
-    EventListingModel eventListingModel;
+  Future<EventListingModel?> getSearchLocal({required String token,required int page,required String text})async{
+    EventListingModel? eventListingModel;
     debugPrint("https://api.mateapp.us/api/events?myevents=1&event_name=$text&page=$page");
     debugPrint(token);
     try {
@@ -283,7 +283,7 @@ class EventService{
 
 
 
-  Future<bool> comment({String content,int id,String token})async{
+  Future<bool> comment({required String content,required int id,required String token})async{
     bool result = false;
     debugPrint("https://api.mateapp.us/api/event/$id/comment");
     log(token);
@@ -312,8 +312,8 @@ class EventService{
     return result;
   }
 
-  Future<EventCommentListingModel> getComment({String token,int page,int id})async{
-    EventCommentListingModel eventCommentListingModel;
+  Future<EventCommentListingModel?> getComment({required String token,required int page,required int id})async{
+    EventCommentListingModel? eventCommentListingModel;
     debugPrint("https://api.mateapp.us/api/event/$id/comment?page=$page");
     debugPrint(token);
     try {
@@ -336,7 +336,7 @@ class EventService{
   }
 
 
-  Future<bool> bookMark({int id,String token})async{
+  Future<bool> bookMark({required int id,required String token})async{
     bool result = false;
     debugPrint("https://api.mateapp.us/api/event/$id/bookmark");
     log(token);
@@ -361,7 +361,7 @@ class EventService{
     return result;
   }
 
-  Future<bool> reaction({int id,String reaction,String token})async{
+  Future<bool> reaction({required int id,required String reaction,required String token})async{
     bool result = false;
     debugPrint("https://api.mateapp.us/api/event/$id/react");
     log(token);
@@ -393,7 +393,7 @@ class EventService{
 
 
 
-  Future<dynamic> commentReply({String content,int id,String token,int parentId})async{
+  Future<dynamic> commentReply({required String content,required int id,required String token,required int parentId})async{
     dynamic result = false;
     debugPrint("https://api.mateapp.us/api/event/$id/comment");
     log(token);
@@ -427,7 +427,7 @@ class EventService{
 
 
 
-  Future<bool> deleteComment({int id,String token})async{
+  Future<bool> deleteComment({required int id,required String token})async{
     bool result = false;
     debugPrint("https://api.mateapp.us/api/event/comment/$id/delete");
     log(token);
@@ -454,7 +454,7 @@ class EventService{
 
 
 
-  Future<bool> deleteEvent({int id,String token})async{
+  Future<bool> deleteEvent({required int id,required String token})async{
     bool result = false;
     debugPrint("https://api.mateapp.us/api/event/$id/delete");
     log(token);
@@ -479,7 +479,7 @@ class EventService{
     return result;
   }
 
-  Future<EventCategoryModel> getCategory({String token})async{
+  Future<EventCategoryModel> getCategory({required String token})async{
     EventCategoryModel eventCategoryModel = EventCategoryModel(data: [],success: false,message: "");
     debugPrint("https://api.mateapp.us/api/events/types");
     debugPrint(token);

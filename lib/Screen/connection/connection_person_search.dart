@@ -13,7 +13,7 @@ import '../../groupChat/services/database_service.dart';
 
 
 class ConnectionPersonSearch extends StatefulWidget {
-  const ConnectionPersonSearch({Key key}) : super(key: key);
+  const ConnectionPersonSearch({Key? key}) : super(key: key);
 
   @override
   _ConnectionPersonSearchState createState() => _ConnectionPersonSearchState();
@@ -22,13 +22,13 @@ class ConnectionPersonSearch extends StatefulWidget {
 class _ConnectionPersonSearchState extends State<ConnectionPersonSearch> {
   TextEditingController searchEditingController = new TextEditingController();
   FocusNode focusNode = FocusNode();
-  QuerySnapshot searchResultSnapshot;
+  late QuerySnapshot searchResultSnapshot;
   bool isLoading = true;
   bool hasUserSearched = false;
-  User _user = FirebaseAuth.instance.currentUser;
+  User _user = FirebaseAuth.instance.currentUser!;
   String searchedName="";
   ThemeController themeController = Get.find<ThemeController>();
-  String token;
+  late String token;
 
   @override
   void initState() {
@@ -52,7 +52,7 @@ class _ConnectionPersonSearchState extends State<ConnectionPersonSearch> {
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
   }
 
   @override
@@ -239,7 +239,7 @@ class _ConnectionPersonSearchState extends State<ConnectionPersonSearch> {
     );
   }
 
-  _showAddConnectionAlertDialog({@required String uid, @required String name,@required String uuid})async{
+  _showAddConnectionAlertDialog({required String uid, required String name,required String uuid})async{
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!

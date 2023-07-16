@@ -27,56 +27,54 @@ import '../../mediaViewer.dart';
 import '../../video_thumbnail.dart';
 
 class CampusTalkRow extends StatefulWidget {
-  final User user;
-  final int talkId;
-  final String url;
-  final String title;
-  final String description;
-  final int isAnonymous;
-  final String anonymousUser;
-  final String createdAt;
-  final int rowIndex;
-  final IsBookmarked isBookmarked;
-  final IsLiked isLiked;
-  final IsLiked isDisLiked;
-  int likesCount;
-  int disLikeCount;
-  int commentsCount;
-  final bool isBookmarkedPage;
-  final bool isUserProfile;
-  final bool navigateToDetailsPage;
-  final bool isTrending;
-  final bool isLatest;
-  final bool isForums;
-  final bool isYourCampus;
-  final bool isListCard;
-  final bool isSearch;
-  final List<CampusTalkTypes> campusTalkType;
-  final String image;
-  final String video;
-  final String audio;
-  final bool isPlaying;
-  final bool isPaused;
-  final bool isLoadingAudio;
-  Function(String url,int index) startAudio;
-  Function(int index) pauseAudio;
+  final User? user;
+  final int? talkId;
+  final String? url;
+  final String? title;
+  final String? description;
+  final int? isAnonymous;
+  final String? anonymousUser;
+  final String? createdAt;
+  final int? rowIndex;
+  final IsBookmarked? isBookmarked;
+  final IsLiked? isLiked;
+  final IsLiked? isDisLiked;
+  int? likesCount;
+  int? disLikeCount;
+  int? commentsCount;
+  final bool? isBookmarkedPage;
+  final bool? isUserProfile;
+  final bool? navigateToDetailsPage;
+  final bool? isTrending;
+  final bool? isLatest;
+  final bool? isForums;
+  final bool? isYourCampus;
+  final bool? isListCard;
+  final bool? isSearch;
+  final List<CampusTalkTypes>? campusTalkType;
+  final String? image;
+  final String? video;
+  final String? audio;
+  final bool? isPlaying;
+  final bool? isPaused;
+  final bool? isLoadingAudio;
+  Function(String url,int index)? startAudio;
+  Function(int index)? pauseAudio;
 
   CampusTalkRow(
-      {Key key,
-      this.user,
-      this.talkId,
-      this.url,
-      this.title,
-      this.description,
-      this.isAnonymous,
-      this.anonymousUser,
-      this.createdAt,
-      this.rowIndex,
-      this.isBookmarked,
-      this.isLiked,
-      this.likesCount,
+      {Key? key, this.user, this.talkId,
+       this.url,
+       this.title,
+       this.description,
+       this.isAnonymous,
+       this.anonymousUser,
+       this.createdAt,
+       this.rowIndex,
+       this.isBookmarked,
+       this.isLiked,
+       this.likesCount,
         this.disLikeCount,
-      this.commentsCount,
+        this.commentsCount,
       this.isBookmarkedPage = false,
       this.isUserProfile = false,
       this.navigateToDetailsPage = true,
@@ -86,13 +84,13 @@ class CampusTalkRow extends StatefulWidget {
         this.isYourCampus = false,
         this.isListCard = false,
         this.isSearch = false,
-        this.campusTalkType, this.isDisLiked,
-        this.image,this.video,this.audio,
-        this.isPlaying,
-        this.isPaused,
-        this.isLoadingAudio,
-        this.startAudio,
-        this.pauseAudio,
+         this.campusTalkType,  this.isDisLiked,
+         this.image, this.video, this.audio,
+         this.isPlaying,
+         this.isPaused,
+         this.isLoadingAudio,
+         this.startAudio,
+         this.pauseAudio,
       })
       : super(key: key);
 
@@ -101,20 +99,20 @@ class CampusTalkRow extends StatefulWidget {
 }
 
 class _CampusTalkRowState extends State<CampusTalkRow> {
-  final User user;
-  final int talkId;
-  final String url;
-  final String title;
-  final String description;
-  final int isAnonymous;
-  final String createdAt;
-  final int rowIndex;
+  final User? user;
+  final int? talkId;
+  final String? url;
+  final String? title;
+  final String? description;
+  final int? isAnonymous;
+  final String? createdAt;
+  final int? rowIndex;
   _CampusTalkRowState(this.user, this.talkId, this.url, this.title, this.description, this.isAnonymous, this.createdAt, this.rowIndex);
 
-  bool bookMarked;
-  bool liked;
-  bool disLiked;
-  CampusTalkProvider campusTalkProvider;
+  late bool bookMarked;
+  late bool liked;
+  late bool disLiked;
+  late CampusTalkProvider campusTalkProvider;
 
   @override
   void initState() {
@@ -142,17 +140,17 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
             InkWell(
               onTap: () {
                 if (isAnonymous == 0) {
-                  if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == user.uuid) {
+                  if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == user!.uuid) {
                     Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                   } else {
-                    Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": user.uuid, "name": user.displayName, "photoUrl": user.profilePhoto, "firebaseUid": user.firebaseUid});
+                    Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": user!.uuid, "name": user!.displayName, "photoUrl": user!.profilePhoto, "firebaseUid": user!.firebaseUid});
                   }
                 }
               },
               child: CircleAvatar(
                 radius: 20,
                 backgroundImage: NetworkImage(
-                  user.profilePhoto,
+                  user!.profilePhoto!,
                 ),
               ),
             ):
@@ -161,10 +159,10 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
             title: InkWell(
                 onTap: () {
                   if (isAnonymous == 0) {
-                    if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == user.uuid) {
+                    if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == user!.uuid) {
                       Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                     } else {
-                      Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": user.uuid, "name": user.displayName, "photoUrl": user.profilePhoto, "firebaseUid": user.firebaseUid});
+                      Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": user!.uuid, "name": user!.displayName, "photoUrl": user!.profilePhoto, "firebaseUid": user!.firebaseUid});
                     }
                   }
                 },
@@ -173,7 +171,7 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                   child: Row(
                     children: [
                       Text(
-                        isAnonymous == 0 ? user.displayName : "Anonymous",
+                        isAnonymous == 0 ? user!.displayName! : "Anonymous",
                         style: TextStyle(
                           fontSize: 15,
                           fontFamily: 'Poppins',
@@ -187,8 +185,8 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                           child: Padding(
                             padding: const EdgeInsets.only(left: 5,right: 0),
                             child: Text(
-                                user.university!=null?
-                              "@ ${user.university}":
+                                user!.university!=null?
+                              "@ ${user!.university}":
                               "@ Others",
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
@@ -223,20 +221,20 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                   // Map<String, dynamic> body;
                   // externalShareProvider.externalSharePost(body);
                   // modalSheetToShare();
-                  String response  = await DynamicLinkService.buildDynamicLinkCampusTalk(
+                  String? response  = await DynamicLinkService.buildDynamicLinkCampusTalk(
                     id: widget.talkId.toString(),
                   );
                   if(response!=null){
                     Share.share(response);
                   }
                 } else if (index == 1) {
-                  _showDeleteAlertDialog(postId: widget.talkId, rowIndex: widget.rowIndex);
+                  _showDeleteAlertDialog(postId: widget.talkId!, rowIndex: widget.rowIndex!);
                 } else if (index == 2) {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => ReportPage(
-                          moduleId: widget.talkId,
+                          moduleId: widget.talkId!,
                           moduleType: "DiscussionForum",
                         ),
                       ));
@@ -265,7 +263,7 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                         ),
                       ));
                 }else if (index == 4) {
-                  _showHideAlertDialog(postId: widget.talkId, rowIndex: widget.rowIndex);
+                  _showHideAlertDialog(postId: widget.talkId!, rowIndex: widget.rowIndex!);
                 }
               },
               itemBuilder: (context) => [
@@ -283,7 +281,7 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                       ),
                     ),
                   ),
-                (widget.user.uuid != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user.uuid)) ?
+                (widget.user!.uuid != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user!.uuid)) ?
                 PopupMenuItem(
                   value: 1,
                   height: 40,
@@ -321,7 +319,7 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                     ),
                   ),
                 ),
-                (widget.user.uuid != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user.uuid))?
+                (widget.user!.uuid != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == widget.user!.uuid))?
                 PopupMenuItem(
                   value: 3,
                   height: 40,
@@ -344,7 +342,7 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                     width: 0,
                   ),
                 ),
-                (widget.user.uuid != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id != widget.user.uuid))?
+                (widget.user!.uuid != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id != widget.user!.uuid))?
                 PopupMenuItem(
                   value: 4,
                   height: 40,
@@ -378,11 +376,11 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
             ),
           ),
           Container(
-            height: widget.campusTalkType.isNotEmpty?39:0,
+            height: widget.campusTalkType!.isNotEmpty?39:0,
             margin: EdgeInsets.only(left: 16,top: 6),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: widget.campusTalkType.length,
+              itemCount: widget.campusTalkType!.length,
               itemBuilder: (context, index) => Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: InkWell(
@@ -395,7 +393,7 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 15,right: 15),
                       child: Center(
-                        child: Text("${widget.campusTalkType[index].type.name}",
+                        child: Text("${widget.campusTalkType![index].type!.name!}",
                           style: TextStyle(
                             fontFamily: "Poppins",
                             fontSize: 15,
@@ -419,7 +417,7 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                     highlightColor: Colors.transparent,
                     onTap: () => _navigateToDetailsPage(),
                     child: buildEmojiAndText(
-                      content: title,
+                      content: title!,
                       textStyle: TextStyle(
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w700,
@@ -444,7 +442,7 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                 Padding(
                   padding: EdgeInsets.fromLTRB(0, 0, 14, 0),
                   child: buildEmojiAndText(
-                    content: description,
+                    content: description!,
                     textStyle: TextStyle(
                       fontSize: 14,
                       fontFamily: 'Poppins',
@@ -483,7 +481,7 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                 GestureDetector(
                   onTap: (){
                     if(widget.isLoadingAudio==false){
-                      widget.isPlaying ? widget.pauseAudio(widget.rowIndex): widget.startAudio(widget.audio,widget.rowIndex);
+                      widget.isPlaying! ? widget.pauseAudio!(widget.rowIndex!): widget.startAudio!(widget.audio!,widget.rowIndex!);
                     }
                   },
                   child: Container(
@@ -495,7 +493,7 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                       color: themeController.isDarkMode?Colors.white.withOpacity(0.23):Colors.white.withOpacity(0.5),
                     ),
                     alignment: Alignment.center,
-                    child: widget.isLoadingAudio?
+                    child: widget.isLoadingAudio!?
                     Center(
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
@@ -503,7 +501,7 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                       ),
                     ):
                     Icon(
-                      widget.isPlaying?
+                      widget.isPlaying!?
                       Icons.pause:Icons.play_arrow,
                       size: 25,
                       color: themeController.isDarkMode?Color(0xFF67AE8C):Color(0xFF049571),
@@ -536,22 +534,22 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                                 .size
                                 .width / 1.2,
                             child: InkWell(
-                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => MediaViewer(url: widget.image,))),
+                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => MediaViewer(url: widget.image!,))),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(12.0),
                                 clipBehavior: Clip.hardEdge,
                                 child: Image.network(
-                                  widget.image,
+                                  widget.image!,
                                   fit: BoxFit.cover,
                                 ),
                               ),
                             ),
                           ),
                         ) : widget.video != null ?
-                        VideoThumbnail(videoUrl: widget.video, isLeftPadding: false,) : Container();
+                        VideoThumbnail(videoUrl: widget.video!, isLeftPadding: false,) : Container();
                     } else {
                       return widget.video != null ?
-                      VideoThumbnail(videoUrl: widget.video) : Container();
+                      VideoThumbnail(videoUrl: widget.video!) : Container();
                     }
                   }
               ),
@@ -602,42 +600,42 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                             onTap: () async {
                               liked=!liked;
                               bool likedDone = await Provider.of<CampusTalkProvider>(context, listen: false).upVoteAPost(
-                                widget.talkId,
-                                widget.rowIndex,
-                                isBookmarkedPage: widget.isBookmarkedPage,
-                                isUserProfile: widget.isUserProfile,
-                                isTrending: widget.isTrending,
-                                isLatest: widget.isLatest,
-                                isForums: widget.isForums,
-                                isYourCampus: widget.isYourCampus,
-                                isListCard: widget.isListCard,
-                                isSearch: widget.isSearch,
+                                widget.talkId!,
+                                widget.rowIndex!,
+                                isBookmarkedPage: widget.isBookmarkedPage!,
+                                isUserProfile: widget.isUserProfile!,
+                                isTrending: widget.isTrending!,
+                                isLatest: widget.isLatest!,
+                                isForums: widget.isForums!,
+                                isYourCampus: widget.isYourCampus!,
+                                isListCard: widget.isListCard!,
+                                isSearch: widget.isSearch!,
 
                               );
                               if (likedDone && liked) {
-                                if(widget.isUserProfile){
-                                  ++value.campusTalkByUserPostsResultsList[widget.rowIndex].likesCount;
+                                if(widget.isUserProfile!){
+                                  ++value.campusTalkByUserPostsResultsList[widget.rowIndex!].likesCount;
                                 }
-                                if(widget.isBookmarkedPage){
-                                  ++value.campusTalkPostsBookmarkData.data.result[widget.rowIndex].likesCount;
+                                if(widget.isBookmarkedPage!){
+                                  ++value.campusTalkPostsBookmarkData.data!.result![widget.rowIndex!].likesCount;
                                 }
-                                if(widget.isTrending){
-                                  ++value.campusTalkPostsResultsTrendingList[widget.rowIndex].likesCount;
+                                if(widget.isTrending!){
+                                  ++value.campusTalkPostsResultsTrendingList[widget.rowIndex!].likesCount;
                                 }
-                                if(widget.isLatest){
-                                  ++value.campusTalkPostsResultsLatestList[widget.rowIndex].likesCount;
+                                if(widget.isLatest!){
+                                  ++value.campusTalkPostsResultsLatestList[widget.rowIndex!].likesCount;
                                 }
-                                if(widget.isForums){
-                                  ++value.campusTalkPostsResultsForumsList[widget.rowIndex].likesCount;
+                                if(widget.isForums!){
+                                  ++value.campusTalkPostsResultsForumsList[widget.rowIndex!].likesCount;
                                 }
-                                if(widget.isYourCampus){
-                                  ++value.campusTalkPostsResultsYourCampusList[widget.rowIndex].likesCount;
+                                if(widget.isYourCampus!){
+                                  ++value.campusTalkPostsResultsYourCampusList[widget.rowIndex!].likesCount;
                                 }
-                                if(widget.isListCard){
-                                  ++value.campusTalkPostsResultsListCard[widget.rowIndex].likesCount;
+                                if(widget.isListCard!){
+                                  ++value.campusTalkPostsResultsListCard[widget.rowIndex!].likesCount;
                                 }
-                                if(widget.isSearch){
-                                  ++value.campusTalkBySearchResultsList[widget.rowIndex].likesCount;
+                                if(widget.isSearch!){
+                                  ++value.campusTalkBySearchResultsList[widget.rowIndex!].likesCount;
                                 }
                                 setState(() {});
                               }
@@ -684,41 +682,41 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                             onTap: () async {
                               disLiked=!disLiked;
                               bool likedDone = await Provider.of<CampusTalkProvider>(context, listen: false).downVoteAPost(
-                                widget.talkId,
-                                widget.rowIndex,
-                                isBookmarkedPage: widget.isBookmarkedPage,
-                                isUserProfile: widget.isUserProfile,
-                                isTrending: widget.isTrending,
-                                isLatest: widget.isLatest,
-                                isForums: widget.isForums,
-                                isYourCampus: widget.isYourCampus,
-                                isListCard: widget.isListCard,
-                                isSearch: widget.isSearch,
+                                widget.talkId!,
+                                widget.rowIndex!,
+                                isBookmarkedPage: widget.isBookmarkedPage!,
+                                isUserProfile: widget.isUserProfile!,
+                                isTrending: widget.isTrending!,
+                                isLatest: widget.isLatest!,
+                                isForums: widget.isForums!,
+                                isYourCampus: widget.isYourCampus!,
+                                isListCard: widget.isListCard!,
+                                isSearch: widget.isSearch!,
                               );
                               if (likedDone && disLiked) {
-                                if(widget.isUserProfile){
-                                  ++value.campusTalkByUserPostsResultsList[widget.rowIndex].dislikesCount;
+                                if(widget.isUserProfile!){
+                                  ++value.campusTalkByUserPostsResultsList[widget.rowIndex!].dislikesCount;
                                 }
-                                if(widget.isBookmarkedPage){
-                                  ++value.campusTalkPostsBookmarkData.data.result[widget.rowIndex].dislikesCount;
+                                if(widget.isBookmarkedPage!){
+                                  ++value.campusTalkPostsBookmarkData.data!.result![widget.rowIndex!].dislikesCount;
                                 }
-                                if(widget.isTrending){
-                                  ++value.campusTalkPostsResultsTrendingList[widget.rowIndex].dislikesCount;
+                                if(widget.isTrending!){
+                                  ++value.campusTalkPostsResultsTrendingList[widget.rowIndex!].dislikesCount;
                                 }
-                                if(widget.isLatest){
-                                  ++value.campusTalkPostsResultsLatestList[widget.rowIndex].dislikesCount;
+                                if(widget.isLatest!){
+                                  ++value.campusTalkPostsResultsLatestList[widget.rowIndex!].dislikesCount;
                                 }
-                                if(widget.isForums){
-                                  ++value.campusTalkPostsResultsForumsList[widget.rowIndex].dislikesCount;
+                                if(widget.isForums!){
+                                  ++value.campusTalkPostsResultsForumsList[widget.rowIndex!].dislikesCount;
                                 }
-                                if(widget.isYourCampus){
-                                  ++value.campusTalkPostsResultsYourCampusList[widget.rowIndex].dislikesCount;
+                                if(widget.isYourCampus!){
+                                  ++value.campusTalkPostsResultsYourCampusList[widget.rowIndex!].dislikesCount;
                                 }
-                                if(widget.isListCard){
-                                  ++value.campusTalkPostsResultsListCard[widget.rowIndex].dislikesCount;
+                                if(widget.isListCard!){
+                                  ++value.campusTalkPostsResultsListCard[widget.rowIndex!].dislikesCount;
                                 }
-                                if(widget.isSearch){
-                                  ++value.campusTalkBySearchResultsList[widget.rowIndex].dislikesCount;
+                                if(widget.isSearch!){
+                                  ++value.campusTalkBySearchResultsList[widget.rowIndex!].dislikesCount;
                                 }
                                 setState(() {});
                               }
@@ -734,16 +732,16 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                       onTap: (){
                         Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => CampusTalkComments(
-                            postId: talkId,
-                            postIndex: widget.rowIndex,
-                            isUserProfile: widget.isUserProfile,
-                            isBookmarkedPage: widget.isBookmarkedPage,
-                            isTrending: widget.isTrending,
-                            isLatest: widget.isLatest,
-                            isForums: widget.isForums,
-                            isYourCampus: widget.isYourCampus,
-                            isListCard: widget.isListCard,
-                            user: widget.user,
+                            postId: talkId!,
+                            postIndex: widget.rowIndex!,
+                            isUserProfile: widget.isUserProfile!,
+                            isBookmarkedPage: widget.isBookmarkedPage!,
+                            isTrending: widget.isTrending!,
+                            isLatest: widget.isLatest!,
+                            isForums: widget.isForums!,
+                            isYourCampus: widget.isYourCampus!,
+                            isListCard: widget.isListCard!,
+                            user: widget.user!,
                           ),
                         ));
                       },
@@ -783,17 +781,17 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
                         return InkWell(
                           onTap: ()async{
                             bookMarked=!bookMarked;
-                            bool isBookmarked = await Provider.of<CampusTalkProvider>(context, listen: false).bookmarkAPost(widget.talkId, widget.rowIndex,
-                                isBookmarkedPage: widget.isBookmarkedPage,
-                                isUserProfile: widget.isUserProfile,
-                              isTrending: widget.isTrending,
-                              isLatest: widget.isLatest,
-                              isForums: widget.isForums,
-                              isYourCampus: widget.isYourCampus,
-                              isListCard: widget.isListCard,
-                              isSearch: widget.isSearch,
+                            bool isBookmarked = await Provider.of<CampusTalkProvider>(context, listen: false).bookmarkAPost(widget.talkId!, widget.rowIndex!,
+                                isBookmarkedPage: widget.isBookmarkedPage!,
+                                isUserProfile: widget.isUserProfile!,
+                              isTrending: widget.isTrending!,
+                              isLatest: widget.isLatest!,
+                              isForums: widget.isForums!,
+                              isYourCampus: widget.isYourCampus!,
+                              isListCard: widget.isListCard!,
+                              isSearch: widget.isSearch!,
                             );
-                            if (widget.isBookmarkedPage) {
+                            if (widget.isBookmarkedPage!) {
                               if (isBookmarked) {
                                 Future.delayed(Duration(seconds: 0), () {
                                   Provider.of<CampusTalkProvider>(context, listen: false).fetchCampusTalkPostBookmarkedList();
@@ -850,7 +848,7 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
   }
 
   _navigateToDetailsPage() {
-    if (widget.navigateToDetailsPage) {
+    if (widget.navigateToDetailsPage!) {
       Navigator.push(
           context,
           MaterialPageRoute(
@@ -867,7 +865,7 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
               isBookmarked: widget.isBookmarked,
               isLiked: widget.isLiked,
               likesCount: widget.likesCount,
-              commentsCount: widget.commentsCount,
+              commentsCount: widget.commentsCount!,
               isBookmarkedPage: widget.isBookmarkedPage,
               isUserProfile: widget.isUserProfile,
               isTrending: widget.isTrending,
@@ -887,8 +885,8 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
   }
 
   _showDeleteAlertDialog({
-    @required int postId,
-    @required int rowIndex,
+    required int postId,
+    required int rowIndex,
   }) async {
     return showDialog<void>(
       context: context,
@@ -902,24 +900,24 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
               isDefaultAction: true,
               child: Text("Yes"),
               onPressed: () async {
-                bool isDeleted = await campusTalkProvider.deleteACampusTalk(talkId, rowIndex);
+                bool isDeleted = await campusTalkProvider.deleteACampusTalk(talkId!, rowIndex);
                 if (isDeleted) {
                   Future.delayed(Duration(seconds: 0), () {
-                    if (widget.isBookmarkedPage) {
+                    if (widget.isBookmarkedPage!) {
                       campusTalkProvider.fetchCampusTalkPostBookmarkedList();
-                    } else if (widget.isUserProfile) {
-                      campusTalkProvider.fetchCampusTalkByAuthUser(user.uuid, page: 1);
-                    } else if(widget.isTrending){
+                    } else if (widget.isUserProfile!) {
+                      campusTalkProvider.fetchCampusTalkByAuthUser(user!.uuid!, page: 1);
+                    } else if(widget.isTrending!){
                       campusTalkProvider.fetchCampusTalkPostTendingList(page: 1);
-                    } else if(widget.isLatest){
+                    } else if(widget.isLatest!){
                       campusTalkProvider.fetchCampusTalkPostTLatestList(page: 1);
-                    }else if(widget.isForums){
+                    }else if(widget.isForums!){
                       campusTalkProvider.fetchCampusTalkPostForumsList(page: 1);
-                    }else if(widget.isYourCampus){
+                    }else if(widget.isYourCampus!){
                       campusTalkProvider.fetchCampusTalkPostYourCampusList(page: 1);
-                    }else if(widget.isListCard){
+                    }else if(widget.isListCard!){
                       campusTalkProvider.fetchCampusTalkPostListCard();
-                    }else if(widget.isSearch){
+                    }else if(widget.isSearch!){
                       Get.back();
                     }
                     Navigator.pop(context);
@@ -939,8 +937,8 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
   }
 
   _showHideAlertDialog({
-    @required int postId,
-    @required int rowIndex,
+    required int postId,
+    required int rowIndex,
   }) async {
     return showDialog<void>(
       context: context,
@@ -954,24 +952,24 @@ class _CampusTalkRowState extends State<CampusTalkRow> {
               isDefaultAction: true,
               child: Text("Yes"),
               onPressed: () async {
-                bool isHide = await campusTalkProvider.hideACampusTalk(talkId, rowIndex);
+                bool isHide = await campusTalkProvider.hideACampusTalk(talkId!, rowIndex);
                 if (isHide) {
                   Future.delayed(Duration(seconds: 0), () {
-                    if (widget.isBookmarkedPage) {
+                    if (widget.isBookmarkedPage!) {
                       campusTalkProvider.fetchCampusTalkPostBookmarkedList();
-                    } else if (widget.isUserProfile) {
-                      campusTalkProvider.fetchCampusTalkByAuthUser(user.uuid, page: 1);
-                    } else if(widget.isTrending){
+                    } else if (widget.isUserProfile!) {
+                      campusTalkProvider.fetchCampusTalkByAuthUser(user!.uuid!, page: 1);
+                    } else if(widget.isTrending!){
                       campusTalkProvider.fetchCampusTalkPostTendingList(page: 1);
-                    } else if(widget.isLatest){
+                    } else if(widget.isLatest!){
                       campusTalkProvider.fetchCampusTalkPostTLatestList(page: 1);
-                    }else if(widget.isForums){
+                    }else if(widget.isForums!){
                       campusTalkProvider.fetchCampusTalkPostForumsList(page: 1);
-                    }else if(widget.isYourCampus){
+                    }else if(widget.isYourCampus!){
                       campusTalkProvider.fetchCampusTalkPostYourCampusList(page: 1);
-                    }else if(widget.isListCard){
+                    }else if(widget.isListCard!){
                       campusTalkProvider.fetchCampusTalkPostListCard();
-                    }else if(widget.isSearch){
+                    }else if(widget.isSearch!){
                       Get.back();
                     }
                     Navigator.pop(context);

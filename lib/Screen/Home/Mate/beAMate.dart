@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class BeAMateScreen extends StatefulWidget {
-  const BeAMateScreen({Key key}) : super(key: key);
+  const BeAMateScreen({Key? key}) : super(key: key);
 
   @override
   _BeAMateScreenState createState() => _BeAMateScreenState();
@@ -27,15 +27,15 @@ class _BeAMateScreenState extends State<BeAMateScreen> {
 
 
 class BeAMate extends StatefulWidget {
-  const BeAMate({Key key}) : super(key: key);
+  const BeAMate({Key? key}) : super(key: key);
 
   @override
   _BeAMateState createState() => _BeAMateState();
 }
 
 class _BeAMateState extends State<BeAMate> {
-  ScrollController _scrollController;
-  int _page;
+  late ScrollController _scrollController;
+  late int _page;
 
   void _scrollListener() {
     if (_scrollController.position.atEdge) {
@@ -107,20 +107,20 @@ class _BeAMateState extends State<BeAMate> {
             itemBuilder: (context, index) {
               Result beAMateData = beAMateProvider.beAMatePostsDataList[index];
               return BeAMateRow(
-                beAMateId: beAMateData.id,
-                description: beAMateData.description,
-                title: beAMateData.title,
+                beAMateId: beAMateData.id!,
+                description: beAMateData.description!,
+                title: beAMateData.title!,
                 portfolioLink: beAMateData.portfolioLink,
                 fromDate: beAMateData.fromDate,
                 toDate: beAMateData.toDate,
                 fromTime: beAMateData.timeFrom,
                 toTime: beAMateData.timeTo,
-                user: beAMateData.user,
+                user: beAMateData.user!,
                 hyperlinkText: beAMateData.hyperLinkText,
                 hyperlink: beAMateData.hyperLink,
-                createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(beAMateData.createdAt, true))}",
+                createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(beAMateData.createdAt!, true))}",
                 rowIndex: index,
-                isActive: beAMateData.isActive,
+                isActive: beAMateData.isActive!,
               );
             },
           ),

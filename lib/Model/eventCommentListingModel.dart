@@ -203,9 +203,9 @@ class EventCommentListingModel {
     this.message,
   });
 
-  bool success;
-  Data data;
-  String message;
+  bool? success;
+  Data? data;
+  String? message;
 
   factory EventCommentListingModel.fromJson(Map<String, dynamic> json) => EventCommentListingModel(
     success: json["success"],
@@ -215,7 +215,7 @@ class EventCommentListingModel {
 
   Map<String, dynamic> toJson() => {
     "success": success,
-    "data": data.toJson(),
+    "data": data?.toJson(),
     "message": message,
   };
 }
@@ -227,9 +227,9 @@ class Data {
     this.commentsCount,
   });
 
-  List<Result> result;
-  Pagination pagination;
-  int commentsCount;
+  List<Result>? result;
+  Pagination? pagination;
+  int? commentsCount;
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
     result: List<Result>.from(json["result"].map((x) => Result.fromJson(x))),
@@ -238,8 +238,8 @@ class Data {
   );
 
   Map<String, dynamic> toJson() => {
-    "result": List<dynamic>.from(result.map((x) => x.toJson())),
-    "pagination": pagination.toJson(),
+    "result": List<dynamic>.from(result!.map((x) => x.toJson())),
+    "pagination": pagination?.toJson(),
     "comments_count": commentsCount,
   };
 }
@@ -254,12 +254,12 @@ class Pagination {
     this.morePages,
   });
 
-  int total;
-  int count;
-  int perPage;
-  int currentPage;
-  int totalPages;
-  bool morePages;
+  int? total;
+  int? count;
+  int? perPage;
+  int? currentPage;
+  int? totalPages;
+  bool? morePages;
 
   factory Pagination.fromJson(Map<String, dynamic> json) => Pagination(
     total: json["total"],
@@ -296,18 +296,18 @@ class Result {
     this.isDeleting = false
   });
 
-  int id;
-  int parentId;
-  int eventId;
-  int userId;
-  String content;
-  String status;
-  DateTime createdAt;
-  DateTime updatedAt;
-  int repliesCount;
-  User user;
-  List<Result> replies;
-  bool isDeleting;
+  int? id;
+  int? parentId;
+  int? eventId;
+  int? userId;
+  String? content;
+  String? status;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+  int? repliesCount;
+  User? user;
+  List<Result>? replies;
+  bool? isDeleting;
 
   factory Result.fromJson(Map<String, dynamic> json) => Result(
     id: json["id"],
@@ -330,11 +330,11 @@ class Result {
     "user_id": userId,
     "content": content,
     "status": status,
-    "created_at": createdAt.toIso8601String(),
-    "updated_at": updatedAt.toIso8601String(),
+    "created_at": createdAt?.toIso8601String(),
+    "updated_at": updatedAt?.toIso8601String(),
     "replies_count": repliesCount == null ? null : repliesCount,
-    "user": user.toJson(),
-    "replies": replies == null ? null : List<dynamic>.from(replies.map((x) => x.toJson())),
+    "user": user?.toJson(),
+    "replies": replies == null ? null : List<dynamic>.from(replies!.map((x) => x.toJson())),
   };
 }
 
@@ -348,12 +348,12 @@ class User {
     this.profilePhoto,
   });
 
-  String uuid;
+  String? uuid;
   dynamic firstName;
   dynamic lastName;
-  String displayName;
-  String firebaseUid;
-  String profilePhoto;
+  String? displayName;
+  String? firebaseUid;
+  String? profilePhoto;
 
   factory User.fromJson(Map<String, dynamic> json) => User(
     uuid: json["uuid"],

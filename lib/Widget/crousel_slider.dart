@@ -4,7 +4,7 @@ import 'package:mate_app/asset/Colors/MateColors.dart';
 
 class ImageSliderWithIndicator extends StatefulWidget {
   final List<Widget> list;
-  const ImageSliderWithIndicator({Key key, this.list}) : super(key: key);
+  const ImageSliderWithIndicator({Key? key, required this.list}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {

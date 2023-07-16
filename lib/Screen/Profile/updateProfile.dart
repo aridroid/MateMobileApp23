@@ -25,11 +25,11 @@ class UpdateProfile extends StatefulWidget {
   final String photoUrl;
   final String coverPhotoUrl;
   final String fullName;
-  final int universityId;
-  final String about;
+  final int? universityId;
+  final String? about;
   final String uuid;
   final bool isGoToHome;
-  const UpdateProfile({Key key,this.isGoToHome = false ,this.photoUrl, this.coverPhotoUrl, this.fullName, this.universityId, this.about, this.uuid}) : super(key: key);
+  const UpdateProfile({Key? key,this.isGoToHome = false ,required this.photoUrl, required this.coverPhotoUrl, required this.fullName, this.universityId, this.about, required this.uuid}) : super(key: key);
 
   @override
   _UpdateProfileState createState() => _UpdateProfileState();
@@ -37,23 +37,23 @@ class UpdateProfile extends StatefulWidget {
 
 class _UpdateProfileState extends State<UpdateProfile> {
   ThemeController themeController = Get.find<ThemeController>();
-  TextEditingController fullNameController;
-  TextEditingController aboutController;
+  late TextEditingController fullNameController;
+  TextEditingController? aboutController;
   TextEditingController universityController = TextEditingController();
   String imageSource = "Camera";
   final picker = ImagePicker();
   String profileImage ="";
   String coverImage= "";
-  File _profileImage;
-  File _coverImage;
-  String _base64encodedImageForProfilePic;
-  String _base64encodedImageForCoverPIc;
+  File? _profileImage;
+  File? _coverImage;
+  String? _base64encodedImageForProfilePic;
+  String? _base64encodedImageForCoverPIc;
   final formKey = GlobalKey<FormState>();
   AuthUserService authUserService = AuthUserService();
   bool isLoading = false;
-  String universityId;
+  String? universityId;
   List<Datum> universityList = [];
-  String token;
+  late String token;
 
   @override
   void initState(){
@@ -73,13 +73,13 @@ class _UpdateProfileState extends State<UpdateProfile> {
       Future.delayed(Duration(seconds: 0), () async{
         await Provider.of<AuthUserProvider>(context, listen: false).getUserInfo(widget.uuid);
         if(Provider.of<AuthUserProvider>(context, listen: false).userAboutDataLoader==false){
-          aboutController.text = Provider.of<AuthUserProvider>(context, listen: false).userAboutData.data.about??"";
+          aboutController!.text = Provider.of<AuthUserProvider>(context, listen: false).userAboutData!.data!.about??"";
           setState(() {});
         }
       });
     }
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
     log(token);
     universityList = await authUserService.getUniversityList(token: token);
     print(universityList);
@@ -87,8 +87,8 @@ class _UpdateProfileState extends State<UpdateProfile> {
       universityId = widget.universityId.toString();
       print(universityId);
       for(int i=0;i<universityList.length;i++){
-        if(universityList[i].id == int.parse(universityId)){
-          universityController.text = universityList[i].name;
+        if(universityList[i].id == int.parse(universityId!)){
+          universityController.text = universityList[i].name!;
         }
       }
     }
@@ -293,7 +293,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                               },
                               showSearchBox: true,
                               items: universityList,
-                              itemAsString: (Datum u) => u.name,
+                              itemAsString: (Datum? u) => u!.name!,
                               dropdownSearchDecoration: InputDecoration(
                                 hintText: universityController.text.isEmpty?"Pick one":universityController.text,
                                 hintStyle: TextStyle(
@@ -306,7 +306,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                 border: InputBorder.none,
                               ),
                               onChanged: (value){
-                                universityController.text = value.name;
+                                universityController.text = value!.name!;
                                 for(int i=0;i<universityList.length;i++){
                                   if(universityList[i].name == value.name){
                                     universityId = universityList[i].id.toString();
@@ -440,9 +440,9 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                               ),
                               onPressed: ()async{
-                                if(formKey.currentState.validate()){
+                                if(formKey.currentState!.validate()){
                                   if(universityId!=""||universityId!=null){
-                                    String firstName,lastName;
+                                    String? firstName,lastName;
                                     var names;
                                     if(fullNameController.text.contains(" ")){
                                       names = fullNameController.text.split(' ');
@@ -470,18 +470,18 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                     });
                                     if(profileImage!=""){
                                       if(!profileImage.contains("http")){
-                                        Provider.of<AuthUserProvider>(context, listen: false).updatePhoto(imageFile: _base64encodedImageForProfilePic);
+                                        Provider.of<AuthUserProvider>(context, listen: false).updatePhoto(imageFile: _base64encodedImageForProfilePic!);
                                       }
                                     }
                                     if(coverImage!=""){
                                       if(!coverImage.contains("http")){
-                                        Provider.of<AuthUserProvider>(context, listen: false).updateCoverPhoto(imageFile: _base64encodedImageForCoverPIc);
+                                        Provider.of<AuthUserProvider>(context, listen: false).updateCoverPhoto(imageFile: _base64encodedImageForCoverPIc!);
                                       }
                                     }
-                                    if(aboutController.text!=null && aboutController.text!=""){
+                                    if(aboutController!.text!=null && aboutController!.text!=""){
                                       Map<String, dynamic> _body = {
                                         "uuid": widget.uuid,
-                                        "about": aboutController.text,
+                                        "about": aboutController!.text,
                                       };
                                       await Provider.of<AuthUserProvider>(context, listen: false).updateUserInfo(_body);
                                       Provider.of<AuthUserProvider>(context, listen: false).getUserInfo(widget.uuid);
@@ -494,10 +494,10 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                       Provider.of<AuthUserProvider>(context, listen: false).getUserInfo(widget.uuid);
                                     }
                                     String response = await authUserService.updateUserProfile(
-                                      firstName: firstName,
-                                      lastName: lastName,
+                                      firstName: firstName!,
+                                      lastName: lastName!,
                                       displayName: fullNameController.text,
-                                      universityId: universityId,
+                                      universityId: universityId!,
                                       token: token,
                                     );
                                     if(response=="User profile updated."){
@@ -733,7 +733,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
   }
 
   Future _getProfileImage(int option) async {
-    PickedFile pickImage;
+    PickedFile? pickImage;
     if (option == 1) {
       pickImage = await picker.getImage(source: ImageSource.gallery, imageQuality: 50);
     } else
@@ -742,12 +742,12 @@ class _UpdateProfileState extends State<UpdateProfile> {
     if (pickImage != null) {
 
       setState(() {
-        profileImage = pickImage.path;
+        profileImage = pickImage!.path;
       });
 
       _profileImage = File(pickImage.path);
 
-      var img = _profileImage.readAsBytesSync();
+      var img = _profileImage!.readAsBytesSync();
 
       _base64encodedImageForProfilePic = base64Encode(img);
 
@@ -933,7 +933,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
   }
 
   Future _getCoverImage(int option) async {
-    PickedFile pickImage;
+    PickedFile? pickImage;
     if (option == 1) {
       pickImage = await picker.getImage(source: ImageSource.gallery, imageQuality: 50);
     } else
@@ -941,12 +941,12 @@ class _UpdateProfileState extends State<UpdateProfile> {
 
     if (pickImage != null) {
       setState(() {
-        coverImage = pickImage.path;
+        coverImage = pickImage!.path;
       });
 
       _coverImage = File(pickImage.path);
 
-      var img = _coverImage.readAsBytesSync();
+      var img = _coverImage!.readAsBytesSync();
 
       _base64encodedImageForCoverPIc = base64Encode(img);
 
@@ -960,8 +960,8 @@ class _UpdateProfileState extends State<UpdateProfile> {
   }
 
 
-  String validateTextField(String value) {
-    if(value.isEmpty){
+  String? validateTextField(String? value) {
+    if(value!.isEmpty){
       return "This field is required";
     }
     return null;

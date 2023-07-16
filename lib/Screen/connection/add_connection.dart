@@ -23,17 +23,17 @@ class AddConnection extends StatefulWidget {
 
 class _AddConnectionState extends State<AddConnection> {
   ThemeController themeController = Get.find<ThemeController>();
-  QuerySnapshot searchResultSnapshot;
+  late QuerySnapshot searchResultSnapshot;
   bool isLoading = true;
   bool hasUserSearched = false;
-  User _user = FirebaseAuth.instance.currentUser;
+  User _user = FirebaseAuth.instance.currentUser!;
   String searchedName="";
   List<UserListModel> userList = [];
-  String token;
+  late String token;
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
+    token = preferences.getString("tokenApp")!;
   }
 
   @override
@@ -270,7 +270,7 @@ class _AddConnectionState extends State<AddConnection> {
       );
   }
 
-  _showAddConnectionAlertDialog({@required String uid, @required String name,@required String uuid})async{
+  _showAddConnectionAlertDialog({required String uid, required String name,required String uuid})async{
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!

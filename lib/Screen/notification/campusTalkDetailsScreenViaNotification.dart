@@ -29,8 +29,8 @@ import '../Report/reportPage.dart';
 
 class CampusTalkDetailsScreenViaNotification extends StatefulWidget{
   int campusId;
-  CampusTalkDetailsScreenViaNotification({Key key,
-    this.campusId,
+  CampusTalkDetailsScreenViaNotification({Key? key,
+    required this.campusId,
   }) : super(key: key);
 
   @override
@@ -41,40 +41,40 @@ class CampusTalkDetailsScreenViaNotification extends StatefulWidget{
 
 class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNotification>{
   ThemeController themeController = Get.find<ThemeController>();
-  bool liked;
-  bool bookMarked;
-  bool disLiked;
-  CampusTalkProvider campusTalkProvider;
+  bool? liked;
+  bool? bookMarked;
+  bool? disLiked;
+  CampusTalkProvider? campusTalkProvider;
 
-  User user;
-  int talkId;
-  String url;
-  String title;
-  String description;
-  int isAnonymous;
-  String anonymousUser;
-  String createdAt;
-  int rowIndex;
-  IsBookmarked isBookmarked;
-  IsLiked isLiked;
-  IsLiked isDisLiked;
-  int likesCount;
-  int disLikeCount;
-  int commentsCount;
-  bool isBookmarkedPage;
-  bool isUserProfile;
-  bool isTrending;
-  bool isLatest;
-  bool isForums;
-  bool isYourCampus;
-  bool isListCard;
-  bool isSearch;
-  String image;
-  String video;
-  String audio;
-  String token = "";
-  bool isLoading = true;
-  campusTalk.Result result;
+  User? user;
+  int? talkId;
+  String? url;
+  String? title;
+  String? description;
+  int? isAnonymous;
+  String? anonymousUser;
+  String? createdAt;
+  int? rowIndex;
+  IsBookmarked? isBookmarked;
+  IsLiked? isLiked;
+  IsLiked? isDisLiked;
+  int? likesCount;
+  int? disLikeCount;
+  int? commentsCount;
+  bool? isBookmarkedPage;
+  bool? isUserProfile;
+  bool? isTrending;
+  bool? isLatest;
+  bool? isForums;
+  bool? isYourCampus;
+  bool? isListCard;
+  bool? isSearch;
+  String? image;
+  String? video;
+  String? audio;
+  String? token = "";
+  bool? isLoading = true;
+  campusTalk.Result? result;
 
   final audioPlayer = AudioPlayer();
   bool isPlaying = false;
@@ -205,11 +205,11 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
 
   getStoredValue()async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    token = preferences.getString("token");
-    result = await _notificationService.getCampusDetails(token: token,id: widget.campusId);
-    bookMarked = (result.isBookmarked == null) ? false : true;
-    liked = (result.isLiked == null) ? false : true;
-    disLiked = (result.isDisliked == null) ? false : true;
+    token = preferences.getString("tokenApp");
+    result = await _notificationService.getCampusDetails(token: token!,id: widget.campusId);
+    bookMarked = (result!.isBookmarked == null) ? false : true;
+    liked = (result!.isLiked == null) ? false : true;
+    disLiked = (result!.isDisliked == null) ? false : true;
     setState(() {
       isLoading = false;
     });
@@ -239,7 +239,7 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
               fit: BoxFit.cover,
             ),
           ),
-          child: isLoading?
+          child: isLoading!?
           Padding(
             padding: const EdgeInsets.only(top: 80),
             child: timelineLoader(),
@@ -269,21 +269,21 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
                             child: Icon(Icons.arrow_back,color: MateColors.activeIcons,),
                           ),
                           SizedBox(width: 10,),
-                          result.isAnonymous == 0 ?
+                          result!.isAnonymous == 0 ?
                           InkWell(
                             onTap: () {
-                              if (result.isAnonymous == 0) {
-                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == result.user.uuid) {
+                              if (result!.isAnonymous == 0) {
+                                if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == result!.user!.uuid) {
                                   Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                                 } else {
-                                  Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": result.user.uuid, "name": result.user.displayName, "photoUrl": result.user.profilePhoto, "firebaseUid": result.user.firebaseUid});
+                                  Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": result!.user!.uuid, "name": result!.user!.displayName, "photoUrl": result!.user!.profilePhoto, "firebaseUid": result!.user!.firebaseUid});
                                 }
                               }
                             },
                             child: CircleAvatar(
                               radius: 20,
                               backgroundImage: NetworkImage(
-                                result.user.profilePhoto,
+                                result!.user!.profilePhoto!,
                               ),
                             ),
                           ):
@@ -293,14 +293,14 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
                           ),
                         ],
                       ),
-                      horizontalTitleGap: result.isAnonymous == 0?10:0,
+                      horizontalTitleGap: result!.isAnonymous == 0?10:0,
                       title: InkWell(
                           onTap: () {
-                            if (result.isAnonymous == 0) {
-                              if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == result.user.uuid) {
+                            if (result!.isAnonymous == 0) {
+                              if (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == result!.user!.uuid) {
                                 Navigator.of(context).pushNamed(ProfileScreen.profileScreenRoute);
                               } else {
-                                Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": result.user.uuid, "name": result.user.displayName, "photoUrl": result.user.profilePhoto, "firebaseUid": result.user.firebaseUid});
+                                Navigator.of(context).pushNamed(UserProfileScreen.routeName, arguments: {"id": result!.user!.uuid, "name": result!.user!.displayName, "photoUrl": result!.user!.profilePhoto, "firebaseUid": result!.user!.firebaseUid});
                               }
                             }
                           },
@@ -309,7 +309,7 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
                             child: Row(
                               children: [
                                 Text(
-                                  result.isAnonymous == 0 ? result.user.displayName : "Anonymous",// widget.anonymousUser ??
+                                  result!.isAnonymous == 0 ? result!.user!.displayName! : "Anonymous",// widget.anonymousUser ??
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontFamily: 'Poppins',
@@ -318,13 +318,13 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
                                   ),
                                   overflow: TextOverflow.clip,
                                 ),
-                                if(result.isAnonymous == 1)
+                                if(result!.isAnonymous == 1)
                                   Expanded(
                                     child: Padding(
                                       padding: const EdgeInsets.only(left: 5,right: 0),
                                       child: Text(
-                                        result.user.university!=null?
-                                        "@ ${result.user.university}":
+                                        result!.user!.university!=null?
+                                        "@ ${result!.user!.university}":
                                         "@ Others",
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
@@ -340,7 +340,7 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
                             ),
                           )),
                       subtitle: Text(
-                        "${result.createdAt}",
+                        "${result!.createdAt}",
                         style: TextStyle(
                           fontSize: 14,
                           color: themeController.isDarkMode?MateColors.helpingTextDark:Colors.black.withOpacity(0.72),
@@ -393,7 +393,7 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
                               ),
                             ),
                           ),
-                          (result.user.uuid != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == result.user.uuid)) ?
+                          (result!.user!.uuid != null && (Provider.of<AuthUserProvider>(context, listen: false).authUser.id == result!.user!.uuid)) ?
                           PopupMenuItem(
                             value: 1,
                             height: 40,
@@ -447,7 +447,7 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
                         splashColor: Colors.transparent,
                         highlightColor: Colors.transparent,
                         child: buildEmojiAndText(
-                          content: result.title,
+                          content: result!.title!,
                           textStyle: TextStyle(
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w700,
@@ -465,11 +465,11 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
                         highlightColor: Colors.transparent,
                         child: SizedBox(
                           width: double.infinity,
-                          child: result.description != null ?
+                          child: result!.description != null ?
                           Padding(
                             padding: EdgeInsets.fromLTRB(0, 0, 14, 0),
                             child: buildEmojiAndText(
-                              content: result.description,
+                              content: result!.description!,
                               textStyle: TextStyle(
                                 fontSize: 14,
                                 fontFamily: 'Poppins',
@@ -485,7 +485,7 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
                       ),
                     ),
 
-                    if(result.audioUrl!=null)
+                    if(result!.audioUrl!=null)
                       Container(
                         height: 82,
                         margin: EdgeInsets.only(top: 16,left: 16,right: 16),
@@ -508,7 +508,7 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
                             GestureDetector(
                               onTap: (){
                                 if(isLoadingAudio==false){
-                                  isPlaying ? pauseAudio(0): startAudio(result.audioUrl);
+                                  isPlaying ? pauseAudio(0): startAudio(result!.audioUrl!);
                                 }
                               },
                               child: Container(
@@ -539,7 +539,7 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
                         ),
                       ),
 
-                    if(result.photoUrl!=null || result.videoUrl!=null)
+                    if(result!.photoUrl!=null || result!.videoUrl!=null)
                       Container(
                         height: 150,
                         margin: EdgeInsets.only(bottom: 0.0, left: 16, right: 16, top: 10),
@@ -547,33 +547,33 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
                             scrollDirection: Axis.horizontal,
                             shrinkWrap: true,
                             physics: BouncingScrollPhysics(),
-                            itemCount: result.photoUrl!=null && result.videoUrl!=null? 2 : result.photoUrl!=null?1:result.videoUrl!=null?1:0,
+                            itemCount: result!.photoUrl!=null && result!.videoUrl!=null? 2 : result!.photoUrl!=null?1:result!.videoUrl!=null?1:0,
                             itemBuilder: (context,indexSwipe){
                               if(indexSwipe==0){
                                 return
-                                  result.photoUrl!=null?
+                                  result!.photoUrl!=null?
                                   Padding(
                                     padding: const EdgeInsets.only(bottom: 0.0, left: 0, right: 0, top: 10),
                                     child: Container(
                                       height: 150,
                                       width: MediaQuery.of(context).size.width/1.1,
                                       child: InkWell(
-                                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>MediaViewer(url: result.photoUrl,))),
+                                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>MediaViewer(url: result!.photoUrl!,))),
                                         child: ClipRRect(
                                           borderRadius: BorderRadius.circular(12.0),
                                           clipBehavior: Clip.hardEdge,
                                           child: Image.network(
-                                            result.photoUrl,
+                                            result!.photoUrl!,
                                             fit: BoxFit.cover,
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ):result.videoUrl!=null?
-                                  VideoThumbnail(videoUrl: result.videoUrl,isLeftPadding: false,):Container();
+                                  ):result!.videoUrl!=null?
+                                  VideoThumbnail(videoUrl: result!.videoUrl!,isLeftPadding: false,):Container();
                               }else{
-                                return  result.videoUrl!=null?
-                                VideoThumbnail(videoUrl: result.videoUrl):Container();
+                                return  result!.videoUrl!=null?
+                                VideoThumbnail(videoUrl: result!.videoUrl!):Container();
                               }
                             }
                         ),
@@ -593,7 +593,7 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
                                         height: 32,
                                         width: 64,
                                         decoration: BoxDecoration(
-                                          color: liked ?themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight:
+                                          color: liked! ?themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight:
                                           themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
                                           borderRadius: BorderRadius.circular(16),
                                         ),
@@ -604,28 +604,28 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
                                               height: 20,
                                               width: 13,
                                               color:  themeController.isDarkMode?
-                                              liked? Colors.black:Colors.white:
-                                              liked? Colors.white: Colors.black,
+                                              liked!? Colors.black:Colors.white:
+                                              liked!? Colors.white: Colors.black,
                                             ),
                                             SizedBox(width: 5,),
-                                            Text("${result.likesCount}",
+                                            Text("${result!.likesCount}",
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w400,
                                                 fontSize: 14,
                                                 fontFamily: 'Poppins',
                                                 color: themeController.isDarkMode?
-                                                liked? Colors.black:Colors.white:
-                                                liked? Colors.white: Colors.black,
+                                                liked!? Colors.black:Colors.white:
+                                                liked!? Colors.white: Colors.black,
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
                                       onTap: () async {
-                                        liked=!liked;
+                                        liked=!liked!;
                                         bool likedDone = await Provider.of<CampusTalkProvider>(context, listen: false).upVoteAPostCommentSingle(commentId: widget.campusId);
-                                        if (likedDone && liked) {
-                                          ++result.likesCount;
+                                        if (likedDone && liked!) {
+                                          ++result!.likesCount;
                                           setState(() {});
                                         }
                                       }
@@ -640,7 +640,7 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
                                         height: 32,
                                         width: 64,
                                         decoration: BoxDecoration(
-                                          color: disLiked ?themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight:
+                                          color: disLiked! ?themeController.isDarkMode?MateColors.appThemeDark:MateColors.appThemeLight:
                                           themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
                                           borderRadius: BorderRadius.circular(16),
                                         ),
@@ -651,30 +651,30 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
                                               height: 20,
                                               width: 13,
                                               color:  themeController.isDarkMode?
-                                              disLiked? Colors.black:Colors.white:
-                                              disLiked? Colors.white: Colors.black,
+                                              disLiked!? Colors.black:Colors.white:
+                                              disLiked!? Colors.white: Colors.black,
                                             ),
                                             SizedBox(width: 5,),
-                                            Text("${result.dislikesCount}",
+                                            Text("${result!.dislikesCount}",
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w400,
                                                 fontSize: 14,
                                                 fontFamily: 'Poppins',
                                                 color: themeController.isDarkMode?
-                                                disLiked? Colors.black:Colors.white:
-                                                disLiked? Colors.white: Colors.black,
+                                                disLiked!? Colors.black:Colors.white:
+                                                disLiked!? Colors.white: Colors.black,
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
                                       onTap: () async {
-                                        disLiked=!disLiked;
+                                        disLiked=!disLiked!;
                                         bool likedDone = await Provider.of<CampusTalkProvider>(context, listen: false).downVoteAPostSingle(
                                           widget.campusId,
                                         );
-                                        if (likedDone && disLiked) {
-                                          ++result.dislikesCount;
+                                        if (likedDone && disLiked!) {
+                                          ++result!.dislikesCount;
                                           setState(() {});
                                         }
                                       }
@@ -695,7 +695,7 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
                                       isBookmarkedPage: false,
                                       isListCard: false,
                                       isYourCampus: false,
-                                      user: result.user,
+                                      user: result!.user!,
                                       isForums: false,
                                       isLatest: false,
                                       isTrending: false,
@@ -721,7 +721,7 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
                                         ),
                                       ),
                                       Text(
-                                        result.commentsCount==null?"0":result.commentsCount.toString(),
+                                        result!.commentsCount==null?"0":result!.commentsCount.toString(),
                                         style: TextStyle(
                                           fontFamily: "Poppins",
                                           fontSize: 15,
@@ -738,7 +738,7 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
                                 builder: (context, value, child){
                                   return InkWell(
                                     onTap: ()async{
-                                      bookMarked=!bookMarked;
+                                      bookMarked=!bookMarked!;
                                       bool isBookmarked = await Provider.of<CampusTalkProvider>(context, listen: false).bookmarkAPostSingle(widget.campusId);
                                     },
                                     child: Container(
@@ -748,7 +748,7 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
                                         color: themeController.isDarkMode?MateColors.smallContainerDark:MateColors.smallContainerLight,
                                         shape: BoxShape.circle,
                                       ),
-                                      child: bookMarked?
+                                      child: bookMarked!?
                                       Padding(
                                         padding: const EdgeInsets.all(11.0),
                                         child: Image.asset("lib/asset/icons/bookmarkColor.png",
@@ -785,7 +785,7 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
                   isForums: false,
                   isYourCampus: false,
                   isListCard: false,
-                  user: result.user,
+                  user: result!.user!,
                   isSearch: false,
                 ),
               )
@@ -810,7 +810,7 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
     );
   }
 
-  _showDeleteAlertDialog({@required int postId}) async {
+  _showDeleteAlertDialog({required int postId}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -823,7 +823,7 @@ class _CampusTalkDetailsScreenState extends State<CampusTalkDetailsScreenViaNoti
               isDefaultAction: true,
               child: Text("Yes"),
               onPressed: () async {
-                bool isDeleted = await Provider.of<CampusTalkProvider>(context, listen: false).deleteACampusTalk(widget.campusId, rowIndex);
+                bool isDeleted = await Provider.of<CampusTalkProvider>(context, listen: false).deleteACampusTalk(widget.campusId, rowIndex!);
                 if (isDeleted) {
                   Future.delayed(Duration(seconds: 0), () {
                     Navigator.pop(context);

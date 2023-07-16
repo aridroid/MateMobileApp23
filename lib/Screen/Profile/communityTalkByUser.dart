@@ -18,16 +18,16 @@ class CampusTalkByUser extends StatefulWidget {
 
   final String uuid;
 
-  const CampusTalkByUser({Key key, @required this.uuid}) : super(key: key);
+  const CampusTalkByUser({Key? key, required this.uuid}) : super(key: key);
   
   @override
   _CampusTalkByUserState createState() => _CampusTalkByUserState();
 }
 
 class _CampusTalkByUserState extends State<CampusTalkByUser> {
-  ScrollController _scrollController;
-  int _page;
-  CampusTalkProvider campusTalkProvider;
+  late ScrollController _scrollController;
+  late int _page;
+  late CampusTalkProvider campusTalkProvider;
 
   void _scrollListener() {
     if (_scrollController.position.atEdge) {
@@ -221,25 +221,25 @@ class _CampusTalkByUserState extends State<CampusTalkByUser> {
               return Visibility(
                 visible: true,
                 child: CampusTalkRow(
-                  talkId: campusTalkData.id,
-                  description: campusTalkData.description,
-                  title: campusTalkData.title,
-                  user: campusTalkData.user,
-                  isAnonymous: campusTalkData.isAnonymous,
-                  anonymousUser: campusTalkData.anonymousUser,
-                  url: campusTalkData.url,
-                  createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(campusTalkData.createdAt, true))}",
+                  talkId: campusTalkData.id!,
+                  description: campusTalkData.description!,
+                  title: campusTalkData.title!,
+                  user: campusTalkData.user!,
+                  isAnonymous: campusTalkData.isAnonymous!,
+                  anonymousUser: campusTalkData.anonymousUser!,
+                  url: campusTalkData.url!,
+                  createdAt: "${DateFormat.yMMMEd().format(DateFormat("yyyy-MM-dd").parse(campusTalkData.createdAt!, true))}",
                   rowIndex: index,
-                  isBookmarked: campusTalkData.isBookmarked,
-                  isLiked: campusTalkData.isLiked,
+                  isBookmarked: campusTalkData.isBookmarked!,
+                  isLiked: campusTalkData.isLiked!,
                   likesCount: campusTalkData.likesCount,
                   isUserProfile: true,
-                  campusTalkType: campusTalkData.campusTalkTypes,
-                  isDisLiked: campusTalkData.isDisliked,
+                  campusTalkType: campusTalkData.campusTalkTypes!,
+                  isDisLiked: campusTalkData.isDisliked!,
                   disLikeCount: campusTalkData.dislikesCount,
-                  image: campusTalkData.photoUrl,
-                  video: campusTalkData.videoUrl,
-                  audio: campusTalkData.audioUrl,
+                  image: campusTalkData.photoUrl!,
+                  video: campusTalkData.videoUrl!,
+                  audio: campusTalkData.audioUrl!,
                   isPlaying: campusTalkData.isPlaying,
                   isPaused: campusTalkData.isPaused,
                   isLoadingAudio: campusTalkData.isLoadingAudio,

@@ -1,6 +1,6 @@
 class FeedType {
-  String id;
-  String name;
+  String? id;
+  String? name;
 
   FeedType({this.id, this.name});
 

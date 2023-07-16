@@ -69,7 +69,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   if(message.data.isNotEmpty && message.data["title"].toString().contains("Incoming call")) {
     showNotification(message);
     await Firebase.initializeApp();
-    User _user =  FirebaseAuth.instance.currentUser;
+    User _user =  FirebaseAuth.instance.currentUser!;
     print(_user.uid);
     var documentReference = FirebaseFirestore.instance.collection('calling').doc(_user.uid);
     Map<String, dynamic> map = {
@@ -125,33 +125,33 @@ void showNotification(RemoteMessage message)async{
   );
 }
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  Get.put(ThemeController());
-  var loginState = prefs.getBool('login_app');
-  print(loginState);
+Future<void> main() async {
+  runZonedGuarded(()async{
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    Get.put(ThemeController());
+    var loginState = prefs.getBool('login_app');
+    print(loginState);
 
-  ///Android initialization settings
-  AndroidInitializationSettings androidInitializationSettings = AndroidInitializationSettings("@mipmap/launcher_icon");
-  ///Ios initialization settings
-  DarwinInitializationSettings iosInitializationSettings = DarwinInitializationSettings(
-    requestAlertPermission: true,
-    requestBadgePermission: true,
-    requestCriticalPermission: true,
-    requestSoundPermission: true,
-  );
-  ///Combining both settings in one settings
-  InitializationSettings initializationSettings = InitializationSettings(
-    android: androidInitializationSettings,
-    iOS: iosInitializationSettings,
-  );
-  ///global local notification instance initialization
-  bool initialized = await notificationsPlugin.initialize(initializationSettings);
-  log("Notification : $initialized");
+    ///Android initialization settings
+    AndroidInitializationSettings androidInitializationSettings = AndroidInitializationSettings("@mipmap/launcher_icon");
+    ///Ios initialization settings
+    DarwinInitializationSettings iosInitializationSettings = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestCriticalPermission: true,
+      requestSoundPermission: true,
+    );
+    ///Combining both settings in one settings
+    InitializationSettings initializationSettings = InitializationSettings(
+      android: androidInitializationSettings,
+      iOS: iosInitializationSettings,
+    );
+    ///global local notification instance initialization
+    bool? initialized = await notificationsPlugin.initialize(initializationSettings);
+    log("Notification : $initialized");
 
-  runZonedGuarded(() {
     runApp(
         MaterialApp(
           debugShowCheckedModeBanner: false,
@@ -162,6 +162,11 @@ void main() async {
     FirebaseCrashlytics.instance.recordError(error, stackTrace);
   });
   // runApp(MyApp());
+  //   runApp(
+  //       MaterialApp(
+  //         debugShowCheckedModeBanner: false,
+  //         home: loginState != null ? MyApp() : IntroScreen(),)
+  //       );
 }
 
 class MyApp extends StatelessWidget {
@@ -173,7 +178,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (ctx) => StudyGroupProvider()),
         ChangeNotifierProvider(create: (ctx) => ChatBlock()),
         ChangeNotifierProvider(create: (ctx) => FeedProvider()),
-        ChangeNotifierProvider(create: (ctx) => AuthUserProvider()),
+        ChangeNotifierProvider(create: (ctx) => AuthUserProvider()..init()),
         ChangeNotifierProvider(create: (ctx) => UserProvider()),
         ChangeNotifierProvider(create: (ctx) => FollowerProvider()),
         ChangeNotifierProvider(create: (ctx) => UserClassProvider()),
@@ -190,7 +195,7 @@ class MyApp extends StatelessWidget {
           builder: (context, constraints) {
             return OrientationBuilder(
               builder: (context, orientation) {
-                SizerUtil().init(constraints, orientation);
+                SizerUtil.setScreenSize(constraints, orientation);
                 return GetBuilder<ThemeController>(
                   builder: (controller){
                     return GetMaterialApp(
@@ -201,7 +206,7 @@ class MyApp extends StatelessWidget {
                       theme: ThemeData(
                         fontFamily: 'Poppins',
                         primarySwatch: config.colorCustom,
-                        accentColor: Colors.cyan,
+                        hintColor: Colors.cyan,
                         visualDensity: VisualDensity.adaptivePlatformDensity,
                         scaffoldBackgroundColor: Colors.white,
                         backgroundColor: Colors.white,
@@ -219,7 +224,7 @@ class MyApp extends StatelessWidget {
                       darkTheme: ThemeData(
                         fontFamily: 'Poppins',
                         primarySwatch: config.colorCustom,
-                        accentColor: Colors.cyan,
+                        hintColor: Colors.cyan,
                         visualDensity: VisualDensity.adaptivePlatformDensity,
                         scaffoldBackgroundColor: config.backgroundColor,
                         backgroundColor: config.backgroundColor,
@@ -246,14 +251,14 @@ class MyApp extends StatelessWidget {
                         SearchScreen.searchScreenRoute: (context) => SearchScreen(),
                         MateScreen.mateScreenRoute: (context) => MateScreen(),
                         ProfileScreen.profileScreenRoute: (context) => ProfileScreen(),
-                        ProfileEditScreen.profileEditRouteName: (context) => ProfileEditScreen(),
+                        //ProfileEditScreen.profileEditRouteName: (context) => ProfileEditScreen(),
                         CreateFeedPost.routeName: (context) => CreateFeedPost(),
                         UserProfileScreen.routeName: (context) => UserProfileScreen(),
                         FollowersScreen.routeName: (context) => FollowersScreen(),
                         FollowingScreen.routeName: (context) => FollowingScreen(),
-                        SearchClassScreen.routeName: (context) => SearchClassScreen(),
-                        MyClassDetailScreen.routeName: (context) => MyClassDetailScreen(),
-                        AddAssignmentScreen.routeName: (context) => AddAssignmentScreen(),
+                        // SearchClassScreen.routeName: (context) => SearchClassScreen(),
+                        // MyClassDetailScreen.routeName: (context) => MyClassDetailScreen(),
+                        // AddAssignmentScreen.routeName: (context) => AddAssignmentScreen(),
                         //JobBoard.routeName: (context) => JobBoard(),
                         ConnectionScreen.routeName: (context) => ConnectionScreen(),
                         AddConnection.routeName: (context) => AddConnection(),

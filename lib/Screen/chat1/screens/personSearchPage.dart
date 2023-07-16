@@ -16,13 +16,12 @@ class PersonSearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<PersonSearchPage> {
-  // data
   TextEditingController searchEditingController = new TextEditingController();
   FocusNode focusNode= FocusNode();
-  QuerySnapshot searchResultSnapshot;
+  late QuerySnapshot searchResultSnapshot;
   bool isLoading = true;
   bool hasUserSearched = false;
-  User _user = FirebaseAuth.instance.currentUser;
+  User _user = FirebaseAuth.instance.currentUser!;
   String searchedName="";
 
   // initState()

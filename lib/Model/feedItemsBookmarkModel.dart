@@ -1,7 +1,7 @@
 class FeedItemsBookmarkModel {
-  bool success;
-  Data data;
-  String message;
+  bool? success;
+  Data? data;
+  String? message;
 
   FeedItemsBookmarkModel({this.success, this.data, this.message});
 
@@ -15,7 +15,7 @@ class FeedItemsBookmarkModel {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['success'] = this.success;
     if (this.data != null) {
-      data['data'] = this.data.toJson();
+      data['data'] = this.data?.toJson();
     }
     data['message'] = this.message;
     return data;
@@ -23,11 +23,11 @@ class FeedItemsBookmarkModel {
 }
 
 class Data {
-  int userId;
-  String feedId;
-  String updatedAt;
-  String createdAt;
-  int id;
+  int? userId;
+  String? feedId;
+  String? updatedAt;
+  String? createdAt;
+  int? id;
 
   Data({this.userId, this.feedId, this.updatedAt, this.createdAt, this.id});
 

@@ -4,15 +4,15 @@ import 'package:mate_app/Services/StudyGroupService.dart';
 import 'package:flutter/foundation.dart';
 
 class StudyGroupProvider with ChangeNotifier {
-  StudyGroupService _studyGroupService;
+  StudyGroupService _studyGroupService = StudyGroupService();
   List<StudyGroup> _studyGrops = [];
   String _errors = "";
-  Map<String, dynamic> _validationErrors;
+  late Map<String, dynamic> _validationErrors;
   bool _studyGropsLoader = false;
 
-  StudyGroupProvider() {
-    _studyGroupService = StudyGroupService();
-  }
+  // StudyGroupProvider() {
+  //   _studyGroupService = StudyGroupService();
+  // }
 
   //getters
   bool get studyGropsLoader => _studyGropsLoader;
@@ -58,7 +58,7 @@ class StudyGroupProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchStudyGrops({dynamic page, String search}) async {
+  Future<void> fetchStudyGrops({dynamic page, String? search}) async {
     studyGropsLoaderStatus = true;
     error = '';
     try {

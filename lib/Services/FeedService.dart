@@ -17,8 +17,8 @@ import '../Services/APIService.dart';
 import '../Services/BackEndAPIRoutes.dart';
 
 class FeedService {
-  APIService _apiService;
-  BackEndAPIRoutes _backEndAPIRoutes;
+  late APIService _apiService;
+  late BackEndAPIRoutes _backEndAPIRoutes;
 
   FeedService() {
     _apiService = APIService();
@@ -40,8 +40,8 @@ class FeedService {
     }
   }
 
-  Future fetchFeedList(Map<String, dynamic> queryParams, {bool isFollowingFeeds, String userId}) async {
-    Uri uri;
+  Future fetchFeedList(Map<String, dynamic> queryParams, {bool? isFollowingFeeds, String? userId}) async {
+    Uri? uri;
     print(queryParams);
     if(isFollowingFeeds!=null){
       if(isFollowingFeeds){
@@ -57,9 +57,9 @@ class FeedService {
     try {
       var response;
       if(isFollowingFeeds??false){
-        response = await _apiService.post(uri: uri);
+        response = await _apiService.post(uri: uri!);
       }else{
-        response = await _apiService.get(uri: uri);
+        response = await _apiService.get(uri: uri!);
       }
 
       //print('amr type: ${json.decode(response.body)['data']['feeds'].toString()} and url is: ${uri.toString()}');
@@ -74,8 +74,8 @@ class FeedService {
   }
 
 
-  Future fetchFeedListMyCampus(Map<String, dynamic> queryParams, {bool isFollowingFeeds, String userId}) async {
-    Uri uri;
+  Future fetchFeedListMyCampus(Map<String, dynamic> queryParams, {bool? isFollowingFeeds, String? userId}) async {
+    late Uri uri;
     print(queryParams);
     if(isFollowingFeeds!=null){
       if(isFollowingFeeds){
@@ -286,7 +286,7 @@ class FeedService {
     try {
       final response = await _apiService.get(uri: uri);
       var data = story.GetStoryModel.fromJson(json.decode(response.body));
-      dataList = data.data.result;
+      dataList = data.data!.result!;
     } on SocketException catch (error) {
       throw Exception('NO INTERNET :: $error');
     } catch (error) {
@@ -303,7 +303,7 @@ class FeedService {
     try {
       final response = await _apiService.get(uri: uri);
       var data = story.GetStoryModel.fromJson(json.decode(response.body));
-      dataList = data.data.result;
+      dataList = data.data!.result!;
     } on SocketException catch (error) {
       throw Exception('NO INTERNET :: $error');
     } catch (error) {
@@ -314,7 +314,7 @@ class FeedService {
   }
 
 
-  Future<bool> deleteStory({String token,int id})async{
+  Future<bool> deleteStory({required String token,required int id})async{
     bool result = false;
     debugPrint("https://api.mateapp.us/api/story/$id/delete");
     debugPrint(token);
@@ -458,7 +458,7 @@ class FeedService {
 
 
 
-  Future<List<FeedItem>> searchFeed({String token,int page,String text})async{
+  Future<List<FeedItem>> searchFeed({required String token,required int page,required String text})async{
     List<FeedItem> list = [];
     debugPrint("https://api.mateapp.us/api/feeds?page=$page&feed_type_name=$text");
     debugPrint(token);
@@ -486,7 +486,7 @@ class FeedService {
   }
 
 
-  Future<List<FeedItem>> searchFeedForTextField({String token,int page,String text})async{
+  Future<List<FeedItem>> searchFeedForTextField({required String token,required int page,required String text})async{
     List<FeedItem> list = [];
     debugPrint("https://api.mateapp.us/api/feeds?page=$page&feed_name=$text");
     debugPrint(token);

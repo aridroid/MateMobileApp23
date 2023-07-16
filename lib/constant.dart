@@ -34,14 +34,14 @@ List<String> requestGetUidSender = [];
 Future<bool> getConnection()async{
   print("Global connection api calling");
   SharedPreferences preferences = await SharedPreferences.getInstance();
-  String token = preferences.getString("token");
+  String token = preferences.getString("tokenApp")!;
   print(token);
 
   connectionGlobalList = await ConnectionService().getConnection(token: token);
   connectionGlobalUidList.clear();
 
   for(int i=0;i<connectionGlobalList.length;i++){
-    connectionGlobalUidList.add(connectionGlobalList[i].uid);
+    connectionGlobalUidList.add(connectionGlobalList[i].uid!);
   }
 
   print("Global connection api calling done list is now");
@@ -52,31 +52,31 @@ Future<bool> getConnection()async{
   requestGetUid.clear();
   requestGetUidSender.clear();
   for(int i=0;i<requestGet.length;i++){
-    requestGetUid.add(requestGet[i].connUid);
-    requestGetUidSender.add(requestGet[i].senderUid);
+    requestGetUid.add(requestGet[i].connUid!);
+    requestGetUidSender.add(requestGet[i].senderUid!);
   }
   print("Request Get length : $requestGet");
 
   requestSent = await _connectionService.getConnectionRequestsSent(token: token);
   requestSentUid.clear();
   for(int i=0;i<requestSent.length;i++){
-    requestSentUid.add(requestSent[i].connUid);
+    requestSentUid.add(requestSent[i].connUid!);
   }
   print("Request Sent length : $requestSent");
 
   return true;
 }
 
-User _user;
+late User _user;
 void getMateSupportGroupDetails()async{
-  _user = await FirebaseAuth.instance.currentUser;
+  _user = await FirebaseAuth.instance.currentUser!;
   Future<DocumentSnapshot>  data = DatabaseService().getMateGroupDetailsData("BzVXUBjbv1VBkgViOwJJ");
   data.then((value) async {
     print("------------------Mate group Details--------------------------");
-    print(value["members"].contains(_user.uid + '_' + _user.displayName));
-    if(!value["members"].contains(_user.uid + '_' + _user.displayName)){
+    print(value["members"].contains(_user.uid + '_' + _user.displayName!));
+    if(!value["members"].contains(_user.uid + '_' + _user.displayName!)){
       print("------------------Joining group--------------------------");
-      await DatabaseService(uid: _user.uid).togglingGroupJoin(value["groupId"], value["groupName"].toString(), _user.displayName);
+      await DatabaseService(uid: _user.uid).togglingGroupJoin(value["groupId"], value["groupName"].toString(), _user.displayName!);
       Map<String, dynamic> body = {"group_id": value["groupId"], "read_by": _user.uid, "messages_read": 0};
       Future.delayed(Duration.zero, () {
         ChatService().groupChatMessageReadUpdate(body);
@@ -98,7 +98,7 @@ final commonBorder = OutlineInputBorder(
 final commonBorderCircular = OutlineInputBorder(
   borderSide:  BorderSide(
     width: 0,
-    strokeAlign: StrokeAlign.inside,
+    //strokeAlign: StrokeAlign.inside,
     color: themeController.isDarkMode ? MateColors.containerDark : MateColors.containerLight,
   ),
   borderRadius: BorderRadius.circular(30.0),
@@ -351,7 +351,7 @@ void showEulaPopup(BuildContext context,String type){
 
 final RegExp REGEX_EMOJI = RegExp(r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])');
 
-Widget buildEmojiAndText({String content,TextStyle textStyle,double normalFontSize,double emojiFontSize}) {
+Widget buildEmojiAndText({required String content,required TextStyle textStyle,required double normalFontSize,required double emojiFontSize}) {
   final Iterable<Match> matches = REGEX_EMOJI.allMatches(content);
   if (matches.isEmpty)
     return Text(
