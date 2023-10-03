@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -7,7 +8,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:mate_app/Screen/Home/TimeLine/createFeedSelectType.dart';
 import 'package:mate_app/Screen/Home/events/createEvent.dart';
 import 'package:mate_app/Screen/Home/events/event_search.dart';
-import 'package:mate_app/Screen/JobBoard/jobBoard.dart';
 import 'package:mate_app/Screen/Login/login_with_email.dart';
 import 'package:mate_app/Screen/Login/signup_with_email.dart';
 import 'package:mate_app/Screen/Login/signup_with_email_2.dart';
@@ -287,4 +287,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

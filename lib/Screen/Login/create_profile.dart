@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:csv/csv.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -62,6 +64,7 @@ class _CreateProfileState extends State<CreateProfile> {
     profileImage = widget.photoUrl;
     coverImage = widget.coverPhotoUrl;
     getStoredValue();
+    loadCsv();
     super.initState();
   }
 
@@ -76,6 +79,36 @@ class _CreateProfileState extends State<CreateProfile> {
     universityList = await authUserService.getUniversityList(token: token!);
     print(universityList);
     setState(() {});
+  }
+
+  List<String> courseSkill = [];
+  List<String> selectedCourseSkill = [];
+  List<String> jobSkill = [];
+  List<String> selectedJobSkill = [];
+  loadCsv()async{
+    courseSkill.clear();
+    selectedCourseSkill.clear();
+    jobSkill.clear();
+    selectedJobSkill.clear();
+    final rawDataCourse = await rootBundle.loadString("assets/course_csv.csv");
+    List<List<dynamic>> listDataCourse = const CsvToListConverter().convert(rawDataCourse,eol: "\n");
+    for(int i=0;i<listDataCourse.length;i++){
+      if(i==0) continue;
+      courseSkill.add(listDataCourse[i][1]);
+    }
+
+    final rawDataJob = await rootBundle.loadString("assets/job_csv.csv");
+    List<List<dynamic>> listDataJob = const CsvToListConverter().convert(rawDataJob,eol: "\n");
+    for(int i=0;i<listDataJob.length;i++){
+      if(i==0) continue;
+      jobSkill.add(listDataJob[i][1].toString().trim());
+    }
+  }
+
+  storeCourseAndJobValue()async{
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.setStringList('selectedCourseSkill', selectedCourseSkill);
+    preferences.setStringList('selectedJobSkill', selectedJobSkill);
   }
 
   @override
@@ -303,6 +336,176 @@ class _CreateProfileState extends State<CreateProfile> {
                               },
                             ),
                           ),
+                          SizedBox(height: 40,),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 2),
+                            child: Text(
+                              "Select option from drop down to see course recommendation",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'Poppins',
+                                letterSpacing: 0.1,
+                                color: themeController.isDarkMode?Colors.white:Colors.black,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 10,),
+                          Container(
+                            padding: EdgeInsets.only(top: 5),
+                            decoration: ShapeDecoration(
+                              color: themeController.isDarkMode ? MateColors.containerDark : MateColors.containerLight,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(14.0)),
+                              ),
+                            ),
+                            child: Theme(
+                              data: ThemeData(
+                                textTheme: TextTheme(
+                                  bodyLarge: TextStyle(
+                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                  ),
+                                ),
+                                checkboxTheme: CheckboxThemeData(
+                                  fillColor: MaterialStateProperty.resolveWith ((Set  states) {
+                                    return MateColors.appThemeDark;
+                                  }),
+                                ),
+                                elevatedButtonTheme: ElevatedButtonThemeData(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: themeController.isDarkMode?
+                                    MateColors.appThemeDark:
+                                    MateColors.appThemeLight,
+                                  ),
+                                ),
+                              ),
+                              child: DropdownSearch<String>.multiSelection(
+                                mode: Mode.BOTTOM_SHEET,
+                                showSelectedItems: false,
+                                maxHeight: scH*0.8,
+                                dropdownButtonProps: IconButtonProps(
+                                  padding: EdgeInsets.only(bottom: 5),
+                                  icon: Icon(Icons.keyboard_arrow_down_sharp,size: 20),
+                                  color: themeController.isDarkMode?Colors.white:Colors.black,
+                                ),
+                                dropdownBuilder: (context,data){
+                                  return Padding(
+                                    padding: const EdgeInsets.only(left: 16),
+                                    child: Text("select option",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400,
+                                        fontFamily: 'Poppins',
+                                        color: themeController.isDarkMode?Colors.white.withOpacity(0.6):Colors.black.withOpacity(0.6),
+                                      ),
+                                    ),
+                                  );
+                                },
+                                showSearchBox: true,
+                                items: courseSkill,
+                                dropdownSearchDecoration: InputDecoration(
+                                  hintText: "Select option",
+                                  hintStyle: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    fontFamily: 'Poppins',
+                                    color: Colors.white.withOpacity(0.6),
+                                  ),
+                                  border: InputBorder.none,
+                                ),
+                                onChanged: (value){
+                                  setState(() {
+                                    selectedCourseSkill = value;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 40,),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 2),
+                            child: Text(
+                              "Select option from drop down to see job recommendation",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'Poppins',
+                                letterSpacing: 0.1,
+                                color: themeController.isDarkMode?Colors.white:Colors.black,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 10,),
+                          Container(
+                            padding: EdgeInsets.only(top: 5),
+                            decoration: ShapeDecoration(
+                              color: themeController.isDarkMode ? MateColors.containerDark : MateColors.containerLight,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(14.0)),
+                              ),
+                            ),
+                            child: Theme(
+                              data: ThemeData(
+                                textTheme: TextTheme(
+                                  bodyLarge: TextStyle(
+                                    color: themeController.isDarkMode?Colors.white:Colors.black,
+                                  ),
+                                ),
+                                checkboxTheme: CheckboxThemeData(
+                                  fillColor: MaterialStateProperty.resolveWith ((Set  states) {
+                                    return MateColors.appThemeDark;
+                                  }),
+                                ),
+                                elevatedButtonTheme: ElevatedButtonThemeData(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: themeController.isDarkMode?
+                                    MateColors.appThemeDark:
+                                    MateColors.appThemeLight,
+                                  ),
+                                ),
+                              ),
+                              child: DropdownSearch<String>.multiSelection(
+                                mode: Mode.BOTTOM_SHEET,
+                                showSelectedItems: false,
+                                maxHeight: scH*0.8,
+                                dropdownButtonProps: IconButtonProps(
+                                  padding: EdgeInsets.only(bottom: 5),
+                                  icon: Icon(Icons.keyboard_arrow_down_sharp,size: 20),
+                                  color: themeController.isDarkMode?Colors.white:Colors.black,
+                                ),
+                                dropdownBuilder: (context,data){
+                                  return Padding(
+                                    padding: const EdgeInsets.only(left: 16),
+                                    child: Text("select option",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400,
+                                        fontFamily: 'Poppins',
+                                        color: themeController.isDarkMode?Colors.white.withOpacity(0.6):Colors.black.withOpacity(0.6),
+                                      ),
+                                    ),
+                                  );
+                                },
+                                showSearchBox: true,
+                                items: jobSkill,
+                                dropdownSearchDecoration: InputDecoration(
+                                  hintText: "Select option",
+                                  hintStyle: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    fontFamily: 'Poppins',
+                                    color: Colors.white.withOpacity(0.6),
+                                  ),
+                                  border: InputBorder.none,
+                                ),
+                                onChanged: (value){
+                                  setState(() {
+                                    selectedJobSkill = value;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
                           Padding(
                             padding: const EdgeInsets.only(left: 2,top: 40),
                             child: Text(
@@ -384,7 +587,8 @@ class _CreateProfileState extends State<CreateProfile> {
                               ),
                               onPressed: ()async{
                                 if(formKey.currentState!.validate()){
-                                  if(universityController.text!=""){
+                                  if(universityController.text!="" && selectedCourseSkill.isNotEmpty && selectedJobSkill.isNotEmpty){
+                                    storeCourseAndJobValue();
                                     String? firstName,lastName;
                                     var names;
                                     if(fullNameController.text.contains(" ")){
@@ -463,7 +667,7 @@ class _CreateProfileState extends State<CreateProfile> {
                                       Fluttertoast.showToast(msg: "Something went wrong", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
                                     }
                                   }else{
-                                    Fluttertoast.showToast(msg: "Please select university from drop down", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
+                                    Fluttertoast.showToast(msg: "Please select all drop down value", fontSize: 16, backgroundColor: Colors.black54, textColor: Colors.white, toastLength: Toast.LENGTH_LONG);
                                   }
                                 }
                               },

@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:mate_app/Screen/Home/Mate/jobBoard.dart';
+import 'package:mate_app/Screen/Home/Mate/job_borad_search_filter.dart';
 import 'package:mate_app/Screen/Home/Mate/searchBeAMate.dart';
 import 'package:mate_app/Screen/Home/Mate/searchFindAMate.dart';
 import 'package:mate_app/asset/Colors/MateColors.dart';
@@ -8,6 +9,7 @@ import 'package:mate_app/Screen/Home/Mate/findAMate.dart';
 import 'package:flutter/material.dart';
 
 import '../../../Widget/Loaders/Shimmer.dart';
+import '../../../controller/jobBoardController.dart';
 
 class MateScreen extends StatefulWidget {
   static var mateScreenRoute = '/mateScreen';
@@ -18,6 +20,7 @@ class MateScreen extends StatefulWidget {
 class _MateScreenState extends State<MateScreen> with TickerProviderStateMixin {
   late PageController _pageController;
   int _selectedIndex = 0;
+  JobBoardController jobBoardController = Get.put(JobBoardController());
 
   void initState() {
     _pageController = PageController(initialPage: _selectedIndex);
@@ -79,11 +82,17 @@ class _MateScreenState extends State<MateScreen> with TickerProviderStateMixin {
               ),
             ),
             GestureDetector(
-              onTap: () {
+              onTap: () async{
                 if(_selectedIndex==0)
-                Get.to(()=>SearchFindAMate());
+                  Get.to(()=>SearchFindAMate());
                 else if(_selectedIndex==1)
-                Get.to(()=>SearchBeAMate());
+                  Get.to(()=>SearchBeAMate());
+                else if(_selectedIndex==2){
+                  await Get.to(()=>JobBoardSearchFilter());
+                  jobBoardController.clearAllFilter();
+                  jobBoardController.textEditingController.clear();
+                  jobBoardController.fetchJobListing(true);
+                }
               },
               child: Container(
                 margin: EdgeInsets.only(left: 16,top: 16,right: 16,bottom: 10),
@@ -96,7 +105,7 @@ class _MateScreenState extends State<MateScreen> with TickerProviderStateMixin {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Search here...",
+                    Text(_selectedIndex==2?"Search or filter here...":"Search here...",
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 14,

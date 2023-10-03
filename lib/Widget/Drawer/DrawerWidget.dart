@@ -15,7 +15,7 @@ import '../../asset/Colors/MateColors.dart';
 import '../../controller/theme_controller.dart';
 
 class DrawerWidget extends StatelessWidget {
-  ThemeController themeController = Get.find<ThemeController>();
+  final ThemeController themeController = Get.find<ThemeController>();
 
   @override
   Widget build(BuildContext context) {
